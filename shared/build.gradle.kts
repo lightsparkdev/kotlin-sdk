@@ -117,9 +117,9 @@ tasks.register<Exec>("updateGraphQLSchema") {
     doLast {
         exec {
             commandLine =
-                "git show HEAD:sparkcore/graphql_schemas/third_party_schema.graphql".split(" ")// > ../schema.graphql",
+                "git show HEAD:sparkcore/graphql_schemas/third_party_schema.graphql".split(" ")
             workingDir = File(projectDir, "src/commonMain/graphql/webdev")
-            standardOutput = FileOutputStream("src/commonMain/graphql/schema.graphql")
+            standardOutput = FileOutputStream("src/commonMain/graphql/schema.graphqls")
         }
         exec {
             commandLine = listOf("rm", "-rf", "webdev")
