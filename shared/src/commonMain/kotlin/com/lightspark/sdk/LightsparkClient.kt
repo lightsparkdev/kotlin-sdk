@@ -72,6 +72,6 @@ class LightsparkClient private constructor(
         fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
         fun token(token: String) = apply { this.token = token }
 
-        fun build() = LightsparkClient(serverUrl, tokenId, token)
+        fun build() = LightsparkClient(tokenId, token, serverUrl)
     }
 }
