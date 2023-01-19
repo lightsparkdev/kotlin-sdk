@@ -6,6 +6,7 @@ import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.lightspark.api.CreateInvoiceMutation
 import com.lightspark.api.DashboardOverviewQuery
+import com.lightspark.api.DecodedPaymentRequestQuery
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
@@ -64,6 +65,17 @@ class LightsparkClient private constructor(
             )
         )
             .execute().dataAssertNoErrors.create_invoice.invoice
+    }
+
+    suspend fun decodeInvoice(
+        encodedInvoice: String,
+    ): DecodedPaymentRequestQuery.OnInvoiceData? {
+        return apolloClient.query(
+            DecodedPaymentRequestQuery(
+                encodedInvoice
+            )
+        )
+            .execute().dataAssertNoErrors.decoded_payment_request.onInvoiceData
     }
 
     suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Result<T>> = flow {
