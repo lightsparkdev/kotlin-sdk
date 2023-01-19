@@ -69,6 +69,8 @@ class LightsparkClient private constructor(
         private var token = BuildKonfig.LIGHTSPARK_TOKEN
 
         fun serverUrl(serverUrl: String) = apply { this.serverUrl = serverUrl }
+        fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
+        fun token(token: String) = apply { this.token = token }
 
         fun build() = LightsparkClient(serverUrl, tokenId, token)
     }
