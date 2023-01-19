@@ -4,8 +4,10 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
+import com.lightspark.api.CreateInvoiceMutation
 import com.lightspark.api.DashboardOverviewQuery
 import com.lightspark.api.type.BitcoinNetwork
+import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -49,17 +51,23 @@ class LightsparkClient private constructor(
             .execute().dataAssertNoErrors.current_account
     }
 
-    suspend fun getDashboardFlow(
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
-        nodeId: String? = null,
-        nodeIds: List<String>? = null,
-        afterDate: Any? = null,
-        beforeDate: Any? = null
-    ): Flow<Result<DashboardOverviewQuery.Current_account>> = flow {
-        val data =
-            getDashboard(bitcoinNetwork, nodeId, nodeIds, afterDate, beforeDate) ?: throw Exception(
-                "No data"
+    suspend fun createInvoice(
+        nodeId: String,
+        amount: CurrencyAmountInput,
+        memo: String? = null,
+    ): CreateInvoiceMutation.Invoice {
+        return apolloClient.mutation(
+            CreateInvoiceMutation(
+                nodeId,
+                amount,
+                Optional.presentIfNotNull(memo)
             )
+        )
+            .execute().dataAssertNoErrors.create_invoice.invoice
+    }
+
+    suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Result<T>> = flow {
+        val data = query() ?: throw Exception("No data")
         emit(data)
     }.asResult()
 
