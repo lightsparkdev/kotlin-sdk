@@ -7,6 +7,7 @@ import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.lightspark.api.CreateInvoiceMutation
 import com.lightspark.api.DashboardOverviewQuery
 import com.lightspark.api.DecodedPaymentRequestQuery
+import com.lightspark.api.FeeEstimateQuery
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
@@ -76,6 +77,13 @@ class LightsparkClient private constructor(
             )
         )
             .execute().dataAssertNoErrors.decoded_payment_request.onInvoiceData
+    }
+
+    suspend fun getFeeEstimate(
+        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
+    ): FeeEstimateQuery.Fee_estimate {
+        return apolloClient.query(FeeEstimateQuery(bitcoinNetwork))
+            .execute().dataAssertNoErrors.fee_estimate
     }
 
     suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Result<T>> = flow {
