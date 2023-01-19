@@ -1,5 +1,6 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import java.io.FileOutputStream
 
 plugins {
     kotlin("multiplatform")
@@ -15,7 +16,7 @@ object Versions {
 
 kotlin {
     android()
-    
+
     val xcf = XCFramework()
     listOf(
         iosX64(),
@@ -103,13 +104,27 @@ android {
     }
 }
 
+/**
+ * Pulls the graphQL schema from the webdev repo and saves it in the right location in the project.
+ *
+ * NOTE: This is a pretty hacky way to do this. We should probably be exporting the schema out to some artifact registry or something instead of trying to pull it from github.
+ */
 tasks.register<Exec>("updateGraphQLSchema") {
+    group = "build"
     workingDir = File(projectDir, "src/commonMain/graphql")
-    commandLine = listOf(
-        "git clone --no-checkout --depth 1 git@github.com:lightsparkdev/webdev.git &&",
-        "cd webdev &&",
-        "git show HEAD:sparkcore/graphql_schemas/third_party_schema.graphql > ../schema.graphql &&",
-        "cd .. &&",
-        "rm -rf webdev"
-    )
+    commandLine =
+        "git clone --no-checkout --depth=1 git@github.com:lightsparkdev/webdev.git".split(" ")
+    doLast {
+        exec {
+            commandLine =
+                "git show HEAD:sparkcore/graphql_schemas/third_party_schema.graphql".split(" ")// > ../schema.graphql",
+            workingDir = File(projectDir, "src/commonMain/graphql/webdev")
+            standardOutput = FileOutputStream("src/commonMain/graphql/schema.graphql")
+        }
+        exec {
+            commandLine = listOf("rm", "-rf", "webdev")
+            workingDir = File(projectDir, "src/commonMain/graphql")
+        }
+    }
+
 }
