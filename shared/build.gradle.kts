@@ -13,6 +13,7 @@ plugins {
 object Versions {
     val apollo = "3.7.3"
     val kase64 = "1.0.6"
+    val krypt = "0.3.1"
 }
 
 kotlin {
@@ -37,6 +38,7 @@ kotlin {
                 implementation("com.apollographql.apollo3:apollo-normalized-cache:${Versions.apollo}")
                 implementation("de.peilicke.sascha:kase64:${Versions.kase64}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+                implementation("com.chrynan.krypt:krypt-csprng:${Versions.krypt}")
             }
         }
         val commonTest by getting {

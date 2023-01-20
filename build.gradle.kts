@@ -15,3 +15,12 @@ plugins {
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // Needed for krypt.
+        maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }
+    }
+}

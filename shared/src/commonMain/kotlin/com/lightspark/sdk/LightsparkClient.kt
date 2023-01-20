@@ -2,6 +2,7 @@ package com.lightspark.sdk
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.api.http.HttpHeader
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.lightspark.api.*
@@ -9,7 +10,9 @@ import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
 import com.lightspark.sdk.crypto.NodeKeyCache
+import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
+import com.lightspark.sdk.crypto.signPayload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import saschpe.kase64.base64Encoded
@@ -26,13 +29,17 @@ class LightsparkClient private constructor(
     private val cacheFactory: MemoryCacheFactory =
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
     private val authToken = "$tokenId:$token".base64Encoded
+    private val defaultHeaders = listOf(
+        HttpHeader("Authorization", "Basic $authToken"),
+        HttpHeader("Content-Type", "application/json"),
+        HttpHeader("X-Lightspark-Beta", LIGHTSPARK_BETA_HEADER)
+    )
 
     private val apolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
         .normalizedCache(cacheFactory)
-        .addHttpHeader("Authorization", "Basic $authToken")
-        .addHttpHeader("Content-Type", "application/json")
-        .addHttpHeader("X-Lightspark-Beta", LIGHTSPARK_BETA_HEADER)
+        .httpHeaders(defaultHeaders)
+        .addHttpInterceptor(SigningHttpInterceptor(nodeKeyCache))
         .build()
 
     suspend fun getDashboard(
@@ -67,6 +74,26 @@ class LightsparkClient private constructor(
             )
         )
             .execute().dataAssertNoErrors.create_invoice.invoice
+    }
+
+    suspend fun payInvoice(
+        nodeId: String,
+        encodedInvoice: String,
+        timeoutSecs: Int = 60,
+        amount: CurrencyAmountInput? = null,
+        maxFees: CurrencyAmountInput? = null,
+    ): PayInvoiceMutation.Payment {
+        return apolloClient.mutation(
+            PayInvoiceMutation(
+                nodeId,
+                encodedInvoice,
+                timeoutSecs,
+                Optional.presentIfNotNull(amount),
+                Optional.presentIfNotNull(maxFees)
+            )
+        )
+            .httpHeaders(defaultHeaders + HttpHeader("X-Lightspark-node-id", nodeId))
+            .execute().dataAssertNoErrors.pay_invoice.payment
     }
 
     suspend fun decodeInvoice(
