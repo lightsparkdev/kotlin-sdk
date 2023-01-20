@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
                     dashboardData?.let {
                         DashboardView(
                             dashboardData = it,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            onNodeKeyRecoverTap = viewModel::requestKeyRecovery
                         )
                     } ?: LoadingView()
                 }

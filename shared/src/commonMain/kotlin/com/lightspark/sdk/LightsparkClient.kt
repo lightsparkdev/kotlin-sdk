@@ -4,13 +4,12 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
-import com.lightspark.api.CreateInvoiceMutation
-import com.lightspark.api.DashboardOverviewQuery
-import com.lightspark.api.DecodedPaymentRequestQuery
-import com.lightspark.api.FeeEstimateQuery
+import com.lightspark.api.*
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
+import com.lightspark.sdk.crypto.NodeKeyCache
+import com.lightspark.sdk.crypto.SigningKeyDecryptor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import saschpe.kase64.base64Encoded
@@ -21,6 +20,8 @@ class LightsparkClient private constructor(
     tokenId: String,
     token: String,
     serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
+    private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
+    private val nodeKeyCache: NodeKeyCache = NodeKeyCache()
 ) {
     private val cacheFactory: MemoryCacheFactory =
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
@@ -84,6 +85,26 @@ class LightsparkClient private constructor(
     ): FeeEstimateQuery.Fee_estimate {
         return apolloClient.query(FeeEstimateQuery(bitcoinNetwork))
             .execute().dataAssertNoErrors.fee_estimate
+    }
+
+    fun getUnlockedNodeIds() = nodeKeyCache.observeCachedNodeIds()
+
+    // TODO(Jeremy): Think through key management a bit more as it pertains to the SDK and its responsibilities.
+    suspend fun recoverNodeSigningKey(
+        nodeId: String,
+        nodePassword: String,
+    ): Boolean {
+        val response = apolloClient.query(RecoverNodeSigningKeyQuery(nodeId))
+            .execute().dataAssertNoErrors.entity?.onLightsparkNode?.encrypted_signing_private_key
+            ?: return false
+        try {
+            val unencryptedKey =
+                keyDecryptor.decryptKey(response.cipher, nodePassword, response.encrypted_value)
+            nodeKeyCache[nodeId] = unencryptedKey
+        } catch (e: Exception) {
+            return false
+        }
+        return true
     }
 
     suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Result<T>> = flow {

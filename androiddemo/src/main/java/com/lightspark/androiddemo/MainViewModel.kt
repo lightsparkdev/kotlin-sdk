@@ -13,12 +13,15 @@ import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
     private val dashboardRepository: DashboardRepository = DashboardRepository()
 ) : ViewModel() {
     private val refreshDashboard = MutableSharedFlow<Unit>(replay = 1)
+
+    val unlockedNodeIds = dashboardRepository.unlockedNodeIds
 
     val dashboardData = refreshDashboard.flatMapLatest {
         flow {
@@ -65,5 +68,13 @@ class MainViewModel(
 
     fun refreshDashboard() {
         refreshDashboard.tryEmit(Unit)
+    }
+
+    fun requestKeyRecovery(node: NodeDisplayData) = viewModelScope.launch {
+        dashboardRepository.recoverNodeKey(
+            node.id,
+            // TODO: Replace with actual password. This is just my super secret password scheme for dev :-p.
+            "${node.name.replace(" ", "")}!"
+        )
     }
 }

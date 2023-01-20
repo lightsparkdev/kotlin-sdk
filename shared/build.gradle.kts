@@ -4,6 +4,7 @@ import java.io.FileOutputStream
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("com.android.library")
     id("com.apollographql.apollo3")
     id("com.codingfeline.buildkonfig")
@@ -35,6 +36,7 @@ kotlin {
                 implementation("com.apollographql.apollo3:apollo-runtime:${Versions.apollo}")
                 implementation("com.apollographql.apollo3:apollo-normalized-cache:${Versions.apollo}")
                 implementation("de.peilicke.sascha:kase64:${Versions.kase64}")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
             }
         }
         val commonTest by getting {
