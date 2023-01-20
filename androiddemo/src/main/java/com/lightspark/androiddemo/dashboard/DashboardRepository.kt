@@ -7,5 +7,6 @@ class DashboardRepository(private val lightsparkClient: LightsparkClient = Light
     suspend fun getDashboardData() = lightsparkClient.getDashboard()
     suspend fun recoverNodeKey(nodeId: String, nodePassword: String) =
         lightsparkClient.recoverNodeSigningKey(nodeId, nodePassword)
+
     val unlockedNodeIds = lightsparkClient.getUnlockedNodeIds()
 }
