@@ -10,7 +10,6 @@ import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.parseAsBalanceLong
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,13 +38,13 @@ class MainViewModel(
                             status = node.status ?: LightsparkNodeStatus.UNKNOWN__,
                             publicKey = node.public_key ?: "",
                             totalBalance = CurrencyAmount(
-                                balance = node.blockchain_balance?.total_balance?.value?.parseAsBalanceLong()
+                                balance = node.blockchain_balance?.total_balance?.value
                                     ?: 0L,
                                 unit = node.blockchain_balance?.total_balance?.unit
                                     ?: CurrencyUnit.UNKNOWN__
                             ),
                             availableBalance = CurrencyAmount(
-                                balance = node.blockchain_balance?.available_balance?.value?.parseAsBalanceLong()
+                                balance = node.blockchain_balance?.available_balance?.value
                                     ?: 0L,
                                 unit = node.blockchain_balance?.available_balance?.unit
                                     ?: CurrencyUnit.UNKNOWN__
@@ -64,7 +63,7 @@ class MainViewModel(
                     blockchainBalance = data.blockchain_balance?.let { balance ->
                         val availableBalance = balance.available_balance ?: return@let null
                         CurrencyAmount(
-                            availableBalance.value.parseAsBalanceLong() ?: 0L,
+                            availableBalance.value,
                             availableBalance.unit
                         )
                     } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI)

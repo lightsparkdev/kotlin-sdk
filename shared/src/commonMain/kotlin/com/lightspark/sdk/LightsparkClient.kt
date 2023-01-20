@@ -8,11 +8,14 @@ import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.lightspark.api.*
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
+import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.conf.BuildKonfig
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
-import com.lightspark.sdk.crypto.signPayload
+import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.WalletDashboardData
+import com.lightspark.sdk.model.toTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import saschpe.kase64.base64Encoded
@@ -42,7 +45,7 @@ class LightsparkClient private constructor(
         .addHttpInterceptor(SigningHttpInterceptor(nodeKeyCache))
         .build()
 
-    suspend fun getDashboard(
+    suspend fun getFullNodeDashboard(
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
         nodeId: String? = null,
         nodeIds: List<String>? = null,
@@ -59,6 +62,30 @@ class LightsparkClient private constructor(
             )
         )
             .execute().dataAssertNoErrors.current_account
+    }
+
+    suspend fun getWalletDashboard(
+        nodeId: String,
+        numTransactions: Int = 20,
+        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
+    ): WalletDashboardData? {
+        val accountResponse = apolloClient.query(
+            SingeNodeDashboardQuery(
+                bitcoinNetwork,
+                nodeId,
+                Optional.presentIfNotNull(numTransactions)
+            )
+        )
+            .execute().dataAssertNoErrors.current_account ?: return null
+        return WalletDashboardData(
+            accountName = accountResponse.name ?: "",
+            balance = accountResponse.blockchain_balance?.available_balance?.let {
+                CurrencyAmount(it.value, it.unit)
+            } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI),
+            recentTransactions = accountResponse.recent_transactions.edges.map {
+                it.entity.transactionDetails.toTransaction()
+            }
+        )
     }
 
     suspend fun createInvoice(

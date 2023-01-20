@@ -73,6 +73,7 @@ apollo {
     service("sparkcore") {
         packageName.set("com.lightspark.api")
         generateKotlinModels.set(true)
+        mapScalarToKotlinLong("Long")
     }
 }
 

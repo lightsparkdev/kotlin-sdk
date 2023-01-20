@@ -99,7 +99,7 @@ query SingeNodeDashboard(
             unit
             __typename
         }
-        received_transactions: transactions(
+        recent_transactions: transactions(
             first: $numTransactions
             types: $transactionTypes
             bitcoin_network: $network
