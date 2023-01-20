@@ -11,12 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lightspark.androiddemo.model.Balance
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.model.CurrencyAmount
 
 @Composable
 fun DashboardView(
@@ -35,7 +36,7 @@ fun DashboardView(
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "You have ${dashboardData.blockchainBalance} available to allocate",
+                text = "You have ${dashboardData.blockchainBalance.displayString()} available to allocate",
                 style = MaterialTheme.typography.titleSmall
             )
         }
@@ -52,7 +53,7 @@ fun DashboardViewPreview() {
         DashboardView(
             DashboardData(
                 accountName = "John Doe",
-                blockchainBalance = Balance(1000, CurrencyUnit.SATOSHI),
+                blockchainBalance = CurrencyAmount(1000, CurrencyUnit.SATOSHI),
                 overviewNodes = listOf(
                     NodeDisplayData(
                         id = "1",
@@ -61,8 +62,8 @@ fun DashboardViewPreview() {
                         status = LightsparkNodeStatus.STOPPED,
                         color = "#FF0000",
                         publicKey = "shjdyh7932302",
-                        totalBalance = Balance(1000000, CurrencyUnit.SATOSHI),
-                        availableBalance = Balance(100000, CurrencyUnit.SATOSHI),
+                        totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
+                        availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
 
                         ),
                     NodeDisplayData(
@@ -72,8 +73,8 @@ fun DashboardViewPreview() {
                         status = LightsparkNodeStatus.READY,
                         color = "#00FF00",
                         publicKey = "shjdyh7932302",
-                        totalBalance = Balance(1000000, CurrencyUnit.SATOSHI),
-                        availableBalance = Balance(100000, CurrencyUnit.SATOSHI),
+                        totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
+                        availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
                     ),
                 )
             )

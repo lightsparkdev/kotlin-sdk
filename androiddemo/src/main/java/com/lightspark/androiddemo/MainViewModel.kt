@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androiddemo.dashboard.DashboardData
 import com.lightspark.androiddemo.dashboard.DashboardRepository
-import com.lightspark.androiddemo.model.Balance
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
-import com.lightspark.androiddemo.model.parseAsBalanceLong
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.parseAsBalanceLong
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -38,13 +38,17 @@ class MainViewModel(
                             color = node.color ?: "#FFFFFF",
                             status = node.status ?: LightsparkNodeStatus.UNKNOWN__,
                             publicKey = node.public_key ?: "",
-                            totalBalance = Balance(
-                                balance = node.blockchain_balance?.total_balance?.value?.parseAsBalanceLong() ?: 0L,
-                                unit = node.blockchain_balance?.total_balance?.unit ?: CurrencyUnit.UNKNOWN__
+                            totalBalance = CurrencyAmount(
+                                balance = node.blockchain_balance?.total_balance?.value?.parseAsBalanceLong()
+                                    ?: 0L,
+                                unit = node.blockchain_balance?.total_balance?.unit
+                                    ?: CurrencyUnit.UNKNOWN__
                             ),
-                            availableBalance = Balance(
-                                balance = node.blockchain_balance?.available_balance?.value?.parseAsBalanceLong() ?: 0L,
-                                unit = node.blockchain_balance?.available_balance?.unit ?: CurrencyUnit.UNKNOWN__
+                            availableBalance = CurrencyAmount(
+                                balance = node.blockchain_balance?.available_balance?.value?.parseAsBalanceLong()
+                                    ?: 0L,
+                                unit = node.blockchain_balance?.available_balance?.unit
+                                    ?: CurrencyUnit.UNKNOWN__
                             ),
                             // TODO(Jeremy): Add real stats when the query is fixed
                             stats = NodeStatistics(
@@ -53,14 +57,17 @@ class MainViewModel(
                                 numPaymentsSent = 10,
                                 numPaymentsReceived = 1,
                                 numTransactionsRouted = 0,
-                                amountRouted = Balance(10_000_000L, CurrencyUnit.SATOSHI)
+                                amountRouted = CurrencyAmount(10_000_000L, CurrencyUnit.SATOSHI)
                             )
                         )
                     },
                     blockchainBalance = data.blockchain_balance?.let { balance ->
                         val availableBalance = balance.available_balance ?: return@let null
-                        Balance(availableBalance.value.parseAsBalanceLong() ?: 0L, availableBalance.unit)
-                    } ?: Balance(0, CurrencyUnit.SATOSHI)
+                        CurrencyAmount(
+                            availableBalance.value.parseAsBalanceLong() ?: 0L,
+                            availableBalance.unit
+                        )
+                    } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI)
                 )
             )
         }

@@ -1,17 +1,11 @@
-package com.lightspark.androiddemo.model
+package com.lightspark.sdk.model
 
-import com.lightspark.androiddemo.util.asShortString
-import com.lightspark.androiddemo.util.shortName
 import com.lightspark.api.type.CurrencyUnit
 
-data class Balance(
+data class CurrencyAmount(
     val balance: Long,
     val unit: CurrencyUnit,
-) {
-    override fun toString(): String {
-        return "${balance.asShortString()} ${unit.shortName()}"
-    }
-}
+)
 
 fun Any.parseAsBalanceLong(): Long? {
     return when (this) {

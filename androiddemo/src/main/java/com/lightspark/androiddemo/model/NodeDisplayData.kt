@@ -2,6 +2,7 @@ package com.lightspark.androiddemo.model
 
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.model.CurrencyAmount
 
 data class NodeDisplayData(
     val id: String,
@@ -10,8 +11,8 @@ data class NodeDisplayData(
     val color: String,
     val status: LightsparkNodeStatus,
     val publicKey: String,
-    val totalBalance: Balance,
-    val availableBalance: Balance,
+    val totalBalance: CurrencyAmount,
+    val availableBalance: CurrencyAmount,
     val stats: NodeStatistics? = null
     // TODO(Jeremy): Add addresses?
 )
@@ -22,5 +23,5 @@ data class NodeStatistics(
     val numPaymentsSent: Int,
     val numPaymentsReceived: Int,
     val numTransactionsRouted: Int,
-    val amountRouted: Balance
+    val amountRouted: CurrencyAmount
 )

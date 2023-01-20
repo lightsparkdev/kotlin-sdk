@@ -16,14 +16,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import com.lightspark.androiddemo.R
-import com.lightspark.androiddemo.model.Balance
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.util.Separator
+import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.model.CurrencyAmount
 
 @Composable
 fun NodeOverview(
@@ -79,7 +80,7 @@ fun NodeOverviewBody(nodeDisplayData: NodeDisplayData) {
                     style = MaterialTheme.typography.labelSmall,
                 )
                 Text(
-                    text = nodeDisplayData.totalBalance.toString(),
+                    text = nodeDisplayData.totalBalance.displayString(),
                     style = MaterialTheme.typography.headlineMedium,
                 )
             }
@@ -90,7 +91,7 @@ fun NodeOverviewBody(nodeDisplayData: NodeDisplayData) {
                     style = MaterialTheme.typography.labelSmall,
                 )
                 Text(
-                    text = nodeDisplayData.availableBalance.toString(),
+                    text = nodeDisplayData.availableBalance.displayString(),
                     style = MaterialTheme.typography.headlineMedium,
                 )
             }
@@ -135,7 +136,7 @@ fun NodeStats(node: NodeDisplayData) {
         item(key = "balance") {
             TextNodeStat(
                 title = "Total Balance",
-                content = node.totalBalance.toString()
+                content = node.totalBalance.displayString()
             )
         }
         item(key = "sent") {
@@ -153,7 +154,7 @@ fun NodeStats(node: NodeDisplayData) {
         item(key = "amountRouted") {
             TextNodeStat(
                 title = "Amount Routed",
-                content = node.stats.amountRouted.toString()
+                content = node.stats.amountRouted.displayString()
             )
         }
     }
@@ -194,15 +195,15 @@ fun NodeOverviewPreview() {
                 purpose = LightsparkNodePurpose.ROUTING,
                 status = LightsparkNodeStatus.READY,
                 publicKey = "testfhjkhjka833h2m9d0",
-                totalBalance = Balance(1000000, CurrencyUnit.SATOSHI),
-                availableBalance = Balance(100000, CurrencyUnit.SATOSHI),
+                totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
+                availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
                 stats = NodeStatistics(
                     uptime = 99.0f,
                     numChannels = 10,
                     numTransactionsRouted = 100,
                     numPaymentsSent = 10,
                     numPaymentsReceived = 10,
-                    amountRouted = Balance(1000000, CurrencyUnit.SATOSHI)
+                    amountRouted = CurrencyAmount(1000000, CurrencyUnit.SATOSHI)
                 )
             )
         )

@@ -1,6 +1,11 @@
 package com.lightspark.androiddemo.util
 
 import com.lightspark.api.type.CurrencyUnit
+import com.lightspark.sdk.model.CurrencyAmount
+
+fun CurrencyAmount.displayString(): String {
+    return "${balance.asShortString()} ${unit.shortName()}"
+}
 
 fun Long.asShortString(): String {
     return when {
