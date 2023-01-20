@@ -19,7 +19,11 @@ import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 
 @Composable
-fun DashboardView(dashboardData: DashboardData, modifier: Modifier = Modifier) {
+fun DashboardView(
+    dashboardData: DashboardData,
+    modifier: Modifier = Modifier,
+    onNodeKeyRecoverTap: (node: NodeDisplayData) -> Unit = {},
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.fillMaxSize(),
@@ -36,7 +40,7 @@ fun DashboardView(dashboardData: DashboardData, modifier: Modifier = Modifier) {
             )
         }
         items(dashboardData.overviewNodes) { node ->
-            NodeOverview(node)
+            NodeOverview(node) { onNodeKeyRecoverTap(node) }
         }
     }
 }

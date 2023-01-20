@@ -26,7 +26,11 @@ import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 
 @Composable
-fun NodeOverview(nodeDisplayData: NodeDisplayData, modifier: Modifier = Modifier) {
+fun NodeOverview(
+    nodeDisplayData: NodeDisplayData,
+    modifier: Modifier = Modifier,
+    onRecoverKeyTap: () -> Unit = {},
+) {
     Card(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
@@ -39,6 +43,10 @@ fun NodeOverview(nodeDisplayData: NodeDisplayData, modifier: Modifier = Modifier
         ) {
             NodeOverviewHeader(nodeDisplayData)
             NodeOverviewBody(nodeDisplayData)
+            // NOTE: This is just temporary to test out key recovery:
+            Button(onClick = onRecoverKeyTap) {
+                Text("Recover node key")
+            }
         }
     }
 }
