@@ -26,8 +26,10 @@ private val LightColorScheme = lightColorScheme(
     primary = LightsparkYellow,
     secondary = LightsparkBlue,
     tertiary = Success,
-    background = BackgroundOffWhite,
-    surfaceVariant = Color.White
+    surface = BackgroundOffWhite,
+    surfaceVariant = BackgroundOffWhite,
+    background = Color.White,
+    surfaceTint = Color.White,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

@@ -18,18 +18,20 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.TransactionStatus
+import com.lightspark.sdk.Result
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.WalletDashboardData
 
 @Composable
 fun WalletDashboardView(
-    walletData: WalletDashboardData,
+    walletData: Result<WalletDashboardData>,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
@@ -38,19 +40,33 @@ fun WalletDashboardView(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        WalletHeader(
-            walletData,
-            modifier = Modifier.weight(.4f),
-            onSendTap = onSendTap,
-            onReceiveTap = onReceiveTap
-        )
-        TransactionList(
-            walletData = walletData,
-            onTransactionTap = onTransactionTap,
-            modifier = Modifier.weight(.6f)
-        )
+        when (walletData) {
+            is Result.Success -> {
+                WalletHeader(
+                    walletData.data,
+                    modifier = Modifier.weight(.4f),
+                    onSendTap = onSendTap,
+                    onReceiveTap = onReceiveTap
+                )
+                TransactionList(
+                    walletData = walletData.data,
+                    onTransactionTap = onTransactionTap,
+                    modifier = Modifier.weight(.6f)
+                )
+            }
+            is Result.Error -> {
+                Text(
+                    text = "Error: ${walletData.exception?.message ?: "Unknown"}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            is Result.Loading -> {
+                LoadingPage()
+            }
+        }
     }
 }
 
@@ -68,7 +84,7 @@ fun WalletHeader(
             .fillMaxWidth()
             .shadow(6.dp, RoundedCornerShape(0.dp, 0.dp, 30.dp, 30.dp))
             .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = MaterialTheme.colorScheme.surface)
     ) {
         Spacer(modifier = Modifier.weight(.25f))
         WalletBalances(walletData, modifier = Modifier.weight(.4f))
@@ -114,7 +130,7 @@ fun TransactionList(
     LazyColumn(
         modifier = modifier.fillMaxWidth()
     ) {
-        items(walletData.recentTransactions) { transaction ->
+        items(walletData.recentTransactions + fakeTransactions()) { transaction ->
             TransactionRow(transaction, onTap = { onTransactionTap?.invoke(transaction) })
         }
     }
@@ -127,7 +143,11 @@ fun WalletBalances(walletData: WalletDashboardData, modifier: Modifier) {
         verticalArrangement = Arrangement.Center,
         modifier = modifier
     ) {
-        Text(text = "\$XX,XXX.XX USD", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = "\$XX,XXX.XX USD",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Text(
             text = walletData.balance.displayString(),
             style = MaterialTheme.typography.displayLarge,
@@ -137,29 +157,32 @@ fun WalletBalances(walletData: WalletDashboardData, modifier: Modifier) {
     }
 }
 
+fun fakeTransactions() =
+    List(20) {
+        Transaction(
+            "Transaction $it",
+            CurrencyAmount(100_000L, CurrencyUnit.SATOSHI),
+            TransactionStatus.knownValues()[it % (TransactionStatus.knownValues().size - 1)],
+            "2023-01-18T08:30:28.300854+00:00",
+            "2023-01-18T08:30:28.300854+00:00",
+            Transaction.Type.values()[it % (Transaction.Type.values().size - 1)],
+            null,
+            null,
+            null
+        )
+    }
+
 @Preview
 @Composable
 fun WalletPreview() {
     val context = LocalContext.current
     LightsparkTheme {
         WalletDashboardView(
-            WalletDashboardData(
+            Result.Success(WalletDashboardData(
                 "My Wallet",
                 CurrencyAmount(100L, CurrencyUnit.BITCOIN),
-                List(20) {
-                    Transaction(
-                        "Transaction $it",
-                        CurrencyAmount(100_000L, CurrencyUnit.SATOSHI),
-                        TransactionStatus.knownValues()[it % (TransactionStatus.knownValues().size - 1)],
-                        "2021-01-01T00:00:00Z",
-                        "2021-01-01T00:00:00Z",
-                        Transaction.Type.values()[it % (Transaction.Type.values().size - 1)],
-                        null,
-                        null,
-                        null
-                    )
-                }
-            ),
+                fakeTransactions()
+            )),
             onSendTap = {
                 Toast.makeText(context, "Can't send yet!", Toast.LENGTH_SHORT).show()
             },

@@ -5,36 +5,100 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.lightspark.androiddemo.dashboard.DashboardView
+import com.lightspark.androiddemo.navigation.Screen
+import com.lightspark.androiddemo.profile.ProfileScreen
+import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.ui.theme.Success
+import com.lightspark.androiddemo.wallet.WalletDashboardView
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val dashboardData by viewModel.dashboardData.collectAsState()
+            val navController = rememberNavController()
+            val advancedDashboardData by viewModel.advancedDashboardData.collectAsState()
+            val walletDashboardData by viewModel.walletDashboardData.collectAsState()
+
             LightsparkTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    dashboardData?.let {
-                        DashboardView(
-                            dashboardData = it,
-                            modifier = Modifier.fillMaxSize(),
-                            onNodeKeyRecoverTap = viewModel::requestKeyRecovery
-                        )
-                    } ?: LoadingView()
+                Scaffold(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    bottomBar = {
+                        NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentDestination = navBackStackEntry?.destination
+                            val navItems = listOf(Screen.Settings, Screen.Wallet, Screen.Account)
+                            navItems.forEach { screen ->
+                                NavigationBarItem(
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                        selectedTextColor = Color.Black, //MaterialTheme.colorScheme.onSurface,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+                                        unselectedTextColor = Color.Green,
+                                        indicatorColor = Success.copy(alpha = 0.2f).compositeOver(MaterialTheme.colorScheme.background),
+                                    ),
+                                    icon = { Icon(screen.icon, contentDescription = null) },
+                                    label = { Text(stringResource(screen.resourceId)) },
+                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                    onClick = {
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }) { innerPadding ->
+                    NavHost(
+                        navController,
+                        startDestination = Screen.Wallet.route,
+                        Modifier.padding(innerPadding)
+                    ) {
+                        composable(Screen.Settings.route) {
+                            LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
+                            advancedDashboardData?.let {
+                                DashboardView(
+                                    dashboardData = it,
+                                    modifier = Modifier.fillMaxSize(),
+                                    onNodeKeyRecoverTap = viewModel::requestKeyRecovery,
+                                )
+                            } ?: LoadingPage()
+                        }
+                        composable(Screen.Wallet.route) {
+                            WalletDashboardView(
+                                walletData = walletDashboardData,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        composable(Screen.Account.route) {
+                            ProfileScreen()
+                        }
+                    }
                 }
             }
         }
@@ -42,13 +106,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.refreshDashboard()
-    }
-}
-
-@Composable
-fun LoadingView() {
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-        Text(text = "Loading...")
+        viewModel.refreshWalletData("LightsparkNode:0185c269-8aa3-f96b-0000-0ae100b58599")
     }
 }

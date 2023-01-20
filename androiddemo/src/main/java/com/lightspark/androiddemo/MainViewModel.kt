@@ -9,6 +9,7 @@ import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.Result
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -19,10 +20,11 @@ class MainViewModel(
     private val dashboardRepository: DashboardRepository = DashboardRepository()
 ) : ViewModel() {
     private val refreshDashboard = MutableSharedFlow<Unit>(replay = 1)
+    private val refreshWallet = MutableSharedFlow<String>(replay = 1)
 
     val unlockedNodeIds = dashboardRepository.unlockedNodeIds
 
-    val dashboardData = refreshDashboard.flatMapLatest {
+    val advancedDashboardData = refreshDashboard.flatMapLatest {
         flow {
             val data = dashboardRepository.getDashboardData() ?: return@flow
             emit(
@@ -72,8 +74,16 @@ class MainViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    fun refreshDashboard() {
+    val walletDashboardData = refreshWallet.flatMapLatest { nodeId ->
+        dashboardRepository.getWalletDashboard(nodeId)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, Result.Loading)
+
+    fun refreshAdvancedDashboardData() {
         refreshDashboard.tryEmit(Unit)
+    }
+
+    fun refreshWalletData(nodeId: String) {
+        refreshWallet.tryEmit(nodeId)
     }
 
     fun requestKeyRecovery(node: NodeDisplayData) = viewModelScope.launch {

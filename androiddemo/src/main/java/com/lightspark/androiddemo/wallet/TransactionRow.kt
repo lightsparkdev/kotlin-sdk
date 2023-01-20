@@ -71,10 +71,23 @@ fun TransactionRow(
 
 @SuppressLint("SimpleDateFormat")
 private fun String.formatDate(): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val date = inputFormat.parse(this) ?: return this
+    val inputFormatWithMs = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS+00:00")
+    val inputFormatWithoutMs = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+00:00")
+    val date = tryOrNull {
+        inputFormatWithMs.parse(this)
+    } ?: tryOrNull {
+        inputFormatWithoutMs.parse(this)
+    } ?: return this
     val formatter = SimpleDateFormat("MMM dd, hh:mma")
     return formatter.format(date)
+}
+
+private inline fun <T> tryOrNull(block: () -> T): T? {
+    return try {
+        block()
+    } catch (e: Exception) {
+        null
+    }
 }
 
 @Composable
@@ -157,8 +170,8 @@ fun TransactionRowPreview() {
             "2",
             CurrencyAmount(10000, CurrencyUnit.SATOSHI),
             TransactionStatus.SUCCESS,
-            "2021-01-01T00:00:00Z",
-            "2021-01-01T00:00:00Z",
+            "2023-01-18T08:30:28.300854+00:00",
+            "2023-01-18T08:30:28.300854+00:00",
             Transaction.Type.PAYMENT_RECEIVED,
             null,
             null,

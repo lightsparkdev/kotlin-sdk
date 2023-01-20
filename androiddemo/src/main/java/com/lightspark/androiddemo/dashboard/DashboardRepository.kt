@@ -5,6 +5,9 @@ import com.lightspark.sdk.LightsparkClient
 
 class DashboardRepository(private val lightsparkClient: LightsparkClient = LightsparkClientProvider.client) {
     suspend fun getDashboardData() = lightsparkClient.getFullNodeDashboard()
+    suspend fun getWalletDashboard(nodeId: String) =
+        lightsparkClient.wrapFlowableResult { lightsparkClient.getWalletDashboard(nodeId) }
+
     suspend fun recoverNodeKey(nodeId: String, nodePassword: String) =
         lightsparkClient.recoverNodeSigningKey(nodeId, nodePassword)
 
