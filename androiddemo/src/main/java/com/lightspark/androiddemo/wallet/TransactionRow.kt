@@ -94,7 +94,7 @@ private inline fun <T> tryOrNull(block: () -> T): T? {
 fun TransactionTypeIcon(type: Transaction.Type) {
     Box(
         modifier = Modifier
-            .size(36.dp)
+            .size(40.dp)
             .clip(CircleShape)
             .background(color = type.color()),
         contentAlignment = Alignment.Center

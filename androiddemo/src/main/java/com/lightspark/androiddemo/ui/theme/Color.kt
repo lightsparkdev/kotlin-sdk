@@ -12,6 +12,7 @@ val LightsparkBlue = Color(0xFF0066FF)
 val NeutralGrey = Color(0xFF4D4D4D)
 
 val BackgroundOffWhite = Color(0xFFF7F7F7)
+val BackgroundDarkGrey = Color(0xFF272727)
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

@@ -18,14 +18,18 @@ import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = LightsparkYellow,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    secondary = Success,
+    tertiary = LightsparkBlue,
+    surface = Color.Black,
+    surfaceVariant = Color.Black,
+    surfaceTint = Color.Black,
+    background = BackgroundDarkGrey
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = LightsparkYellow,
-    secondary = LightsparkBlue,
-    tertiary = Success,
+    secondary = Success,
+    tertiary = LightsparkBlue,
     surface = BackgroundOffWhite,
     surfaceVariant = BackgroundOffWhite,
     background = Color.White,
