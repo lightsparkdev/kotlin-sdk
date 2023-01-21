@@ -81,13 +81,11 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Settings.route) {
                             LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
-                            advancedDashboardData?.let {
-                                DashboardView(
-                                    dashboardData = it,
-                                    modifier = Modifier.fillMaxSize(),
-                                    onNodeKeyRecoverTap = viewModel::requestKeyRecovery,
-                                )
-                            } ?: LoadingPage()
+                            DashboardView(
+                                dashboardData = advancedDashboardData,
+                                modifier = Modifier.fillMaxSize(),
+                                onNodeKeyRecoverTap = viewModel::requestKeyRecovery,
+                            )
                         }
                         composable(Screen.Wallet.route) {
                             WalletDashboardView(

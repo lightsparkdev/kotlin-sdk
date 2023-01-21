@@ -161,10 +161,10 @@ class LightsparkClient private constructor(
         return true
     }
 
-    suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Result<T>> = flow {
+    suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Lce<T>> = flow {
         val data = query() ?: throw Exception("No data")
         emit(data)
-    }.asResult()
+    }.asLce()
 
     class Builder {
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT

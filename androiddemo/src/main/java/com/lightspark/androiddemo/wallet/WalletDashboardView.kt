@@ -24,14 +24,14 @@ import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.TransactionStatus
-import com.lightspark.sdk.Result
+import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.WalletDashboardData
 
 @Composable
 fun WalletDashboardView(
-    walletData: Result<WalletDashboardData>,
+    walletData: Lce<WalletDashboardData>,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
@@ -43,7 +43,7 @@ fun WalletDashboardView(
             .background(MaterialTheme.colorScheme.background)
     ) {
         when (walletData) {
-            is Result.Success -> {
+            is Lce.Content -> {
                 WalletHeader(
                     walletData.data,
                     modifier = Modifier.weight(.4f),
@@ -56,14 +56,14 @@ fun WalletDashboardView(
                     modifier = Modifier.weight(.6f)
                 )
             }
-            is Result.Error -> {
+            is Lce.Error -> {
                 Text(
                     text = "Error: ${walletData.exception?.message ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
-            is Result.Loading -> {
+            is Lce.Loading -> {
                 LoadingPage()
             }
         }
@@ -178,7 +178,7 @@ fun WalletPreview() {
     val context = LocalContext.current
     LightsparkTheme {
         WalletDashboardView(
-            Result.Success(WalletDashboardData(
+            Lce.Content(WalletDashboardData(
                 "My Wallet",
                 CurrencyAmount(100L, CurrencyUnit.BITCOIN),
                 fakeTransactions()
