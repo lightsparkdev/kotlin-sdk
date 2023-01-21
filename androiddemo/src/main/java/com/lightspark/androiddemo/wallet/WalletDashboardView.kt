@@ -29,6 +29,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.navigation.NavController
+import androidx.navigation.Navigator
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navOptions
+import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
@@ -44,6 +49,7 @@ import kotlin.math.max
 @Composable
 fun WalletDashboardView(
     walletData: Lce<WalletDashboardData>,
+    navController: NavController,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
@@ -67,8 +73,14 @@ fun WalletDashboardView(
                 WalletHeader(
                     walletData.data,
                     scrollOffset,
-                    onSendTap = onSendTap,
-                    onReceiveTap = onReceiveTap
+                    onSendTap = {
+                        navController.navigate(Screen.SendPayment.route)
+                        onSendTap?.invoke()
+                    },
+                    onReceiveTap = {
+                        navController.navigate(Screen.RequestPayment.route)
+                        onReceiveTap?.invoke()
+                    }
                 )
                 TransactionList(
                     walletData = walletData.data,
@@ -232,7 +244,8 @@ fun WalletPreview() {
             },
             onTransactionTap = {
                 Toast.makeText(context, "No transaction details yet!", Toast.LENGTH_SHORT).show()
-            }
+            },
+            navController = rememberNavController()
         )
     }
 }

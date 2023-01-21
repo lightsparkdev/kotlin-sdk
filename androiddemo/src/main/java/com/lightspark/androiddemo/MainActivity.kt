@@ -25,6 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import com.lightspark.androiddemo.dashboard.DashboardView
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.profile.ProfileScreen
+import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
+import com.lightspark.androiddemo.sendpayment.SendPaymentScreen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
@@ -90,11 +92,18 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Wallet.route) {
                             WalletDashboardView(
                                 walletData = walletDashboardData,
+                                navController = navController,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
                         composable(Screen.Account.route) {
                             ProfileScreen()
+                        }
+                        composable(Screen.SendPayment.route) {
+                            SendPaymentScreen()
+                        }
+                        composable(Screen.RequestPayment.route) {
+                            RequestPaymentScreen()
                         }
                     }
                 }

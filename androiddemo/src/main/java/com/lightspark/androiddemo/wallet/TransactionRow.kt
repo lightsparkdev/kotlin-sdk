@@ -99,12 +99,12 @@ fun TransactionTypeIcon(type: Transaction.Type) {
             .background(color = type.color()),
         contentAlignment = Alignment.Center
     ) {
-        type.icon()
+        type.Icon()
     }
 }
 
 @Composable
-private fun Transaction.Type.icon() {
+private fun Transaction.Type.Icon() {
     when (this) {
         Transaction.Type.PAYMENT_RECEIVED -> Icon(
             imageVector = Icons.Filled.ArrowBack,
