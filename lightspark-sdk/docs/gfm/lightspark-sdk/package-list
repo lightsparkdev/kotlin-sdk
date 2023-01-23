@@ -47,6 +47,7 @@ $dokka.location:com.lightspark.sdk.model/WalletDashboardData/balance/#/PointingT
 $dokka.location:com.lightspark.sdk.model/WalletDashboardData/recentTransactions/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk.model/-wallet-dashboard-data/recent-transactions.md
 $dokka.location:com.lightspark.sdk////PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/index.md
 $dokka.location:com.lightspark.sdk//asLce/kotlinx.coroutines.flow.Flow[TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/as-lce.md
+$dokka.location:com.lightspark.sdk//wrapWithLceFlow/#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])?]/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/wrap-with-lce-flow.md
 $dokka.location:com.lightspark.sdk/Lce.Content///PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lce/-content/index.md
 $dokka.location:com.lightspark.sdk/Lce.Content/Content/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lce/-content/-content.md
 $dokka.location:com.lightspark.sdk/Lce.Content/data/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lce/-content/data.md
@@ -66,16 +67,18 @@ $dokka.location:com.lightspark.sdk/LightsparkClient/createInvoice/#kotlin.String
 $dokka.location:com.lightspark.sdk/LightsparkClient/decodeInvoice/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/decode-invoice.md
 $dokka.location:com.lightspark.sdk/LightsparkClient/getFeeEstimate/#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/get-fee-estimate.md
 $dokka.location:com.lightspark.sdk/LightsparkClient/getFullAccountDashboard/#com.lightspark.api.type.BitcoinNetwork#kotlin.Any?#kotlin.Any?#kotlin.String?#kotlin.collections.List[kotlin.String]?/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/get-full-account-dashboard.md
+$dokka.location:com.lightspark.sdk/LightsparkClient/getSingleNodeDashboard/#kotlin.String#kotlin.Int#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/get-single-node-dashboard.md
 $dokka.location:com.lightspark.sdk/LightsparkClient/getUnlockedNodeIds/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/get-unlocked-node-ids.md
-$dokka.location:com.lightspark.sdk/LightsparkClient/getWalletDashboard/#kotlin.String#kotlin.Int#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/get-wallet-dashboard.md
 $dokka.location:com.lightspark.sdk/LightsparkClient/payInvoice/#kotlin.String#kotlin.String#kotlin.Int#com.lightspark.api.type.CurrencyAmountInput?#com.lightspark.api.type.CurrencyAmountInput?/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/pay-invoice.md
 $dokka.location:com.lightspark.sdk/LightsparkClient/recoverNodeSigningKey/#kotlin.String#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/recover-node-signing-key.md
-$dokka.location:com.lightspark.sdk/LightsparkClient/wrapFlowableResult/#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])?]/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-client/wrap-flowable-result.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode.CONNECTION_FAILED///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-c-o-n-n-e-c-t-i-o-n_-f-a-i-l-e-d/index.md
+$dokka.location:com.lightspark.sdk/LightsparkErrorCode.MISSING_CLIENT_INIT_PARAMETER///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-m-i-s-s-i-n-g_-c-l-i-e-n-t_-i-n-i-t_-p-a-r-a-m-e-t-e-r/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode.MISSING_NODE_KEY///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-m-i-s-s-i-n-g_-n-o-d-e_-k-e-y/index.md
+$dokka.location:com.lightspark.sdk/LightsparkErrorCode.MISSING_WALLET_ID///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-m-i-s-s-i-n-g_-w-a-l-l-e-t_-i-d/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode.UNKNOWN///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-u-n-k-n-o-w-n/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode.UNKNOWN_SERVER_ERROR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-u-n-k-n-o-w-n_-s-e-r-v-e-r_-e-r-r-o-r/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode.UNSUPPORTED_CIPHER_VERSION///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-u-n-s-u-p-p-o-r-t-e-d_-c-i-p-h-e-r_-v-e-r-s-i-o-n/index.md
+$dokka.location:com.lightspark.sdk/LightsparkErrorCode.WALLET_LOCKED///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/-w-a-l-l-e-t_-l-o-c-k-e-d/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode///PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/index.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode/valueOf/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/value-of.md
 $dokka.location:com.lightspark.sdk/LightsparkErrorCode/values/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-error-code/values.md
@@ -83,6 +86,26 @@ $dokka.location:com.lightspark.sdk/LightsparkException///PointingToDeclaration/
 $dokka.location:com.lightspark.sdk/LightsparkException/LightsparkException/#kotlin.String#com.lightspark.sdk.LightsparkErrorCode/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-exception/-lightspark-exception.md
 $dokka.location:com.lightspark.sdk/LightsparkException/errorCode/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-exception/error-code.md
 $dokka.location:com.lightspark.sdk/LightsparkException/message/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-exception/message.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder///PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/index.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/Builder/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/-builder.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/build/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/build.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/fullLightsparkClient/#com.lightspark.sdk.LightsparkClient/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/full-lightspark-client.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/serverUrl/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/server-url.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/token/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/token.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/tokenId/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/token-id.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient.Builder/walletId/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/-builder/wallet-id.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient///PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/index.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/activeWalletId/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/active-wallet-id.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/createInvoice/#com.lightspark.sdk.model.CurrencyAmount#kotlin.String?/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/create-invoice.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/createNewWallet/#kotlin.String#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/create-new-wallet.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/decodeInvoice/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/decode-invoice.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/getFeeEstimate/#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/get-fee-estimate.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/getWalletDashboard/#kotlin.Int#com.lightspark.api.type.BitcoinNetwork/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/get-wallet-dashboard.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/isWalletUnlocked/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/is-wallet-unlocked.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/lockWallet/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/lock-wallet.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/observeWalletUnlocked/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/observe-wallet-unlocked.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/payInvoice/#kotlin.String#kotlin.Int#com.lightspark.api.type.CurrencyAmountInput?#com.lightspark.api.type.CurrencyAmountInput?/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/pay-invoice.md
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/unlockWallet/#kotlin.String#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/unlock-wallet.md
 com.lightspark.sdk
 com.lightspark.sdk.crypto
 com.lightspark.sdk.model
