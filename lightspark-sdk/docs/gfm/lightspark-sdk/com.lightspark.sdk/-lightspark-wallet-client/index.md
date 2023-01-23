@@ -5,6 +5,23 @@
 [common]\
 class [LightsparkWalletClient](index.md)
 
+Main entry point for the Lightspark Wallet SDK.
+
+Should be constructed using the Builder class.
+
+```kotlin
+// Initialize the client with account token info:
+val lightsparkClient = LightsparkWalletClient.Builder().apply {
+    tokenId = "your-token-id"
+    token = "your-secret-token"
+}.build()
+
+// An example API call fetching the dashboard info for the active account:
+val dashboard = lightsparkWalletClient.getWalletDashboard()
+```
+
+Note: This client object keeps a local cache in-memory, so a single instance should be reused throughout the lifetime of your app.
+
 ## Types
 
 | Name | Summary |
