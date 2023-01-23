@@ -6,7 +6,7 @@ import com.lightspark.sdk.LightsparkClient
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.flow.Flow
 
-class RequestPaymentRepository(private val lightsparkClient: LightsparkClient = LightsparkClientProvider.client) {
+class RequestPaymentRepository(private val lightsparkClient: LightsparkClient = LightsparkClientProvider.fullClient) {
     suspend fun createInvoice(
         nodeId: String,
         amount: CurrencyAmount,

@@ -18,7 +18,6 @@ import com.lightspark.sdk.model.FeeEstimate
 import com.lightspark.sdk.model.WalletDashboardData
 import com.lightspark.sdk.model.toTransaction
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import saschpe.kase64.base64Encoded
 
 private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuhKY08LOo"
@@ -42,12 +41,12 @@ private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuh
  * Note: This client object keeps a local cache in-memory, so a single instance should be reused
  * throughout the lifetime of your app.
  */
-class LightsparkClient private constructor(
+class LightsparkClient internal constructor(
     tokenId: String,
     token: String,
     serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
-    private val nodeKeyCache: NodeKeyCache = NodeKeyCache()
+    private val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
 ) {
     private val cacheFactory: MemoryCacheFactory =
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
@@ -58,7 +57,7 @@ class LightsparkClient private constructor(
         HttpHeader("X-Lightspark-Beta", LIGHTSPARK_BETA_HEADER)
     )
 
-    private val apolloClient = ApolloClient.Builder()
+    internal val apolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
         .normalizedCache(cacheFactory)
         .httpHeaders(defaultHeaders)
@@ -256,21 +255,6 @@ class LightsparkClient private constructor(
         }
         return true
     }
-
-    /**
-     * A convenience function which wraps a query in a [Flow] that emits [Lce] states for loading, success, and error conditions.
-     *
-     * For example:
-     * ```kotlin
-     * val lceDashboard = wrapFlowableResult { lightsparkClient.getFullAccountDashboard() }
-     * ```
-     * @query A suspend function which returns the data to be wrapped in [Lce]
-     * @return A [Flow] which emits [Lce] states for loading, success, and error conditions for the given query.
-     */
-    fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Lce<T>> = flow {
-        val data = query() ?: throw Exception("No data")
-        emit(data)
-    }.asLce()
 
     /**
      * The Builder class for [LightsparkClient] and the main entry point for the SDK.

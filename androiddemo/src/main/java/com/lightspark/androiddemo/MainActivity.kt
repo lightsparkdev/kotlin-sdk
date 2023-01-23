@@ -32,8 +32,6 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 
-private const val NODE_ID = "LightsparkNode:0185c269-8aa3-f96b-0000-0ae100b58599"
-
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
 

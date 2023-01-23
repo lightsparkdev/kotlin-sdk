@@ -1,9 +1,6 @@
 package com.lightspark.sdk
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 
 sealed interface Lce<out T> {
     data class Content<T>(val data: T) : Lce<T>
@@ -19,3 +16,18 @@ fun <T> Flow<T>.asLce(): Flow<Lce<T>> {
         .onStart { emit(Lce.Loading) }
         .catch { emit(Lce.Error(it)) }
 }
+
+/**
+ * A convenience function which wraps a query in a [Flow] that emits [Lce] states for loading, success, and error conditions.
+ *
+ * For example:
+ * ```kotlin
+ * val lceDashboard = wrapFlowableResult { lightsparkClient.getFullAccountDashboard() }
+ * ```
+ * @query A suspend function which returns the data to be wrapped in [Lce]
+ * @return A [Flow] which emits [Lce] states for loading, success, and error conditions for the given query.
+ */
+fun <T> wrapWithLceFlow(query: suspend () -> T?): Flow<Lce<T>> = flow {
+    val data = query() ?: throw Exception("No data")
+    emit(data)
+}.asLce()
