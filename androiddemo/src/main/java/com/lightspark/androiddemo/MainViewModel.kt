@@ -2,10 +2,11 @@ package com.lightspark.androiddemo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lightspark.androiddemo.dashboard.DashboardData
-import com.lightspark.androiddemo.dashboard.DashboardRepository
+import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
+import com.lightspark.androiddemo.accountdashboard.DashboardData
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
+import com.lightspark.androiddemo.wallet.WalletRepository
 import com.lightspark.api.DashboardOverviewQuery
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
@@ -18,10 +19,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
-    private val dashboardRepository: DashboardRepository = DashboardRepository()
+    private val dashboardRepository: AccountDashboardRepository = AccountDashboardRepository(),
+    private val walletRepository: WalletRepository = WalletRepository()
 ) : ViewModel() {
     private val refreshDashboard = MutableSharedFlow<Unit>(replay = 1)
-    private val refreshWallet = MutableSharedFlow<String>(replay = 1)
+    private val refreshWallet = MutableSharedFlow<Unit>(replay = 1)
 
     val unlockedNodeIds = dashboardRepository.unlockedNodeIds
 
@@ -35,16 +37,16 @@ class MainViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
 
-    val walletDashboardData = refreshWallet.flatMapLatest { nodeId ->
-        dashboardRepository.getWalletDashboard(nodeId)
+    val walletDashboardData = refreshWallet.flatMapLatest {
+        walletRepository.getWalletDashboard()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
 
     fun refreshAdvancedDashboardData() {
         refreshDashboard.tryEmit(Unit)
     }
 
-    fun refreshWalletData(nodeId: String) {
-        refreshWallet.tryEmit(nodeId)
+    fun refreshWalletData() {
+        refreshWallet.tryEmit(Unit)
     }
 
     fun requestKeyRecovery(node: NodeDisplayData) = viewModelScope.launch {

@@ -1,4 +1,4 @@
-package com.lightspark.androiddemo.dashboard
+package com.lightspark.androiddemo.accountdashboard
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,7 +27,7 @@ fun NodeStatus(status: LightsparkNodeStatus, modifier: Modifier = Modifier) {
     )
 }
 
-fun LightsparkNodeStatus.color() = when(this) {
+fun LightsparkNodeStatus.color() = when (this) {
     LightsparkNodeStatus.READY -> Success
     LightsparkNodeStatus.CREATED,
     LightsparkNodeStatus.DEPLOYED,
@@ -40,7 +40,7 @@ fun LightsparkNodeStatus.color() = when(this) {
     LightsparkNodeStatus.UNKNOWN__ -> Color.Black
 }
 
-fun LightsparkNodeStatus.description() = when(this) {
+fun LightsparkNodeStatus.description() = when (this) {
     LightsparkNodeStatus.READY -> "OK"
     LightsparkNodeStatus.DEPLOYED,
     LightsparkNodeStatus.STARTED,

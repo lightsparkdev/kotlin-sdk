@@ -14,15 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.lightspark.androiddemo.dashboard.DashboardView
+import com.lightspark.androiddemo.accountdashboard.DashboardView
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.profile.ProfileScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
@@ -106,12 +104,7 @@ class MainActivity : ComponentActivity() {
                             SendPaymentScreen()
                         }
                         composable(Screen.RequestPayment.route) {
-                            val viewModel: RequestPaymentViewModel = viewModel(
-                                key = "nodeId_$NODE_ID",
-                                factory = viewModelFactory {
-                                    initializer { RequestPaymentViewModel(NODE_ID) }
-                                }
-                            )
+                            val viewModel: RequestPaymentViewModel = viewModel()
                             val uiState by viewModel.uiState.collectAsState()
                             RequestPaymentScreen(
                                 uiState = uiState,
@@ -126,6 +119,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.refreshWalletData(NODE_ID)
+        viewModel.refreshWalletData()
     }
 }

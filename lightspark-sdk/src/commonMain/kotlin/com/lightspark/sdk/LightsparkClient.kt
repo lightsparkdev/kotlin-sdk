@@ -105,7 +105,7 @@ class LightsparkClient internal constructor(
      *      gradle project properties
      * @return The dashboard overview for the node, including balance and recent transactions.
      */
-    suspend fun getWalletDashboard(
+    suspend fun getSingleNodeDashboard(
         nodeId: String,
         numTransactions: Int = 20,
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),

@@ -1,4 +1,4 @@
-package com.lightspark.androiddemo.dashboard
+package com.lightspark.androiddemo.accountdashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

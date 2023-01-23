@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RequestPaymentViewModel(
-    private val nodeId: String,
     private val repository: RequestPaymentRepository = RequestPaymentRepository()
 ) : ViewModel() {
     private val invoiceAmount = MutableStateFlow<CurrencyAmount?>(null)
@@ -17,14 +16,14 @@ class RequestPaymentViewModel(
         if (amount == null) {
             flowOf(Lce.Content(null))
         } else {
-            repository.createInvoice(nodeId, amount)
+            repository.createInvoice(amount)
         }
     }
 
     val uiState: StateFlow<Lce<RequestPaymentsUiState>> get() = _uiState
     private val _uiState = combine(
         invoice,
-        repository.getWalletAddress(nodeId)
+        repository.getWalletAddress()
     ) { invoice, walletAddress ->
         when {
             invoice is Lce.Loading || walletAddress is Lce.Loading -> Lce.Loading

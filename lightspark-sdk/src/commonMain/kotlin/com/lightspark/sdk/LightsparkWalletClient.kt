@@ -15,7 +15,8 @@ class LightsparkWalletClient private constructor(
     private val nodeKeyCache: NodeKeyCache,
     private val apolloClient: ApolloClient
 ) {
-    private var walletId: String? = null
+    var activeWalletId: String? = null
+        private set
 
     /**
      * Get the dashboard overview for the active lightning wallet. Includes balance info and
@@ -29,7 +30,7 @@ class LightsparkWalletClient private constructor(
     suspend fun getWalletDashboard(
         numTransactions: Int = 20,
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
-    ) = fullClient.getWalletDashboard(
+    ) = fullClient.getSingleNodeDashboard(
         requireWalletId(),
         numTransactions,
         bitcoinNetwork
@@ -43,7 +44,7 @@ class LightsparkWalletClient private constructor(
      * @return True if the wallet was unlocked successfully, false otherwise.
      */
     suspend fun unlockWallet(walletId: String, password: String): Boolean {
-        this.walletId = walletId
+        this.activeWalletId = walletId
         return fullClient.recoverNodeSigningKey(requireWalletId(), password)
     }
 
@@ -128,7 +129,7 @@ class LightsparkWalletClient private constructor(
     fun isWalletUnlocked() = nodeKeyCache.contains(requireWalletId())
 
     private fun requireWalletId() =
-        walletId ?: throw LightsparkException(
+        activeWalletId ?: throw LightsparkException(
             "Missing wallet ID",
             LightsparkErrorCode.MISSING_WALLET_ID
         )
@@ -168,7 +169,7 @@ class LightsparkWalletClient private constructor(
                 delegateFullClient,
                 nodeKeyCache,
                 delegateFullClient.apolloClient
-            ).apply { walletId = this@Builder.walletId }
+            ).apply { activeWalletId = this@Builder.walletId }
         }
     }
 }

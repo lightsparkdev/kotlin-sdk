@@ -1,4 +1,4 @@
-package com.lightspark.androiddemo.dashboard
+package com.lightspark.androiddemo.accountdashboard
 
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.sdk.model.CurrencyAmount

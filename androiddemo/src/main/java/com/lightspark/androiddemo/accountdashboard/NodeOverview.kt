@@ -1,4 +1,4 @@
-package com.lightspark.androiddemo.dashboard
+package com.lightspark.androiddemo.accountdashboard
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.foundation.background
