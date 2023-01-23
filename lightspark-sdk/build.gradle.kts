@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import com.mgd.core.gradle.S3Upload
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
@@ -11,6 +12,7 @@ plugins {
     id("com.apollographql.apollo3")
     id("com.codingfeline.buildkonfig")
     id("org.jetbrains.dokka")
+    id("com.mgd.core.gradle.s3") version "1.2.1"
 }
 
 buildscript {
@@ -137,6 +139,27 @@ tasks.dokkaHtml {
     }
 }
 
+tasks.register<Copy>("generateSdkDocs") {
+    group = "documentation"
+    dependsOn("dokkaGfm")
+    dependsOn("dokkaHtml")
+    from("build/dokka")
+    into("docs")
+}
+
+s3 {
+    bucket = "lsdev.web-dev"
+    region = "us-west-2"
+}
+
+tasks.register<S3Upload>("uploadDocsToS3") {
+    group = "documentation"
+    dependsOn("generateSdkDocs")
+    bucket = "ldev.web-dev"
+    keyPrefix = "docs/kotlin"
+    sourceDir = "docs/html"
+}
+
 /**
  * Pulls the graphQL schema from the webdev repo and saves it in the right location in the project.
  *
@@ -159,12 +182,4 @@ tasks.register<Exec>("updateGraphQLSchema") {
             workingDir = File(projectDir, "src/commonMain/graphql")
         }
     }
-}
-
-tasks.register<Copy>("generateSdkDocs") {
-    group = "documentation"
-    dependsOn("dokkaGfm")
-    dependsOn("dokkaHtml")
-    from("build/dokka")
-    into("docs")
 }
