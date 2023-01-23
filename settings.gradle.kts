@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Lightspark"
-include(":shared")
+include(":lightspark-sdk")
 include(":androiddemo")

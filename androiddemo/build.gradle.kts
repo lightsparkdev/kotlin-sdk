@@ -66,7 +66,7 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
-    implementation(project(":shared"))
+    implementation(project(":lightspark-sdk"))
 
 
     testImplementation("junit:junit:4.13.2")
