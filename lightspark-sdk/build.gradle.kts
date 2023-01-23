@@ -1,4 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.io.FileOutputStream
 
@@ -10,6 +12,13 @@ plugins {
     id("com.codingfeline.buildkonfig")
     id("org.jetbrains.dokka")
 }
+
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.dokka:dokka-base:1.7.20")
+    }
+}
+
 
 object Versions {
     val apollo = "3.7.3"
@@ -114,6 +123,17 @@ android {
     }
     dependencies {
         dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.7.20")
+    }
+}
+
+tasks.dokkaHtml {
+    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
+        // Dokka's stylesheets and assets with conflicting names will be overriden.
+        customStyleSheets = listOf(file("docs/overrides/logo-styles.css"))
+        customAssets = listOf(file("docs/overrides/lightspark-logo-white.svg"))
+
+        // Text used in the footer
+        footerMessage = "(c) Lightspark inc."
     }
 }
 
