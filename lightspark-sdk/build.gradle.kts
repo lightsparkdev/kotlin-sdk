@@ -133,7 +133,7 @@ tasks.dokkaHtml {
         customAssets = listOf(file("docs/overrides/lightspark-logo-white.svg"))
 
         // Text used in the footer
-        footerMessage = "(c) Lightspark inc."
+        footerMessage = "(c) Lightspark Inc."
     }
 }
 
