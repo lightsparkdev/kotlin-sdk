@@ -23,7 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 
-class QrCodeColors(
+/**
+ * Defines the color palette for a QR code.
+ */
+data class QrCodeColors(
     val background: Color, val foreground: Color
 ) {
     companion object {
@@ -35,10 +38,24 @@ class QrCodeColors(
     }
 }
 
+/**
+ * Defines the shape of the individual dots in a QR code.
+ */
 enum class DotShape {
     Circle, Square
 }
 
+/**
+ * A composable that renders a QR code from a data string.
+ *
+ * @param data The data to encode into a QR code.
+ * @param modifier The Compose modifier to apply to the QR code.
+ * @param colors The color palette to use for the QR code - defaults to black and white.
+ * @param dotShape The shape of the individual dots in the QR code - defaults to square.
+ * @param encoder The encoder to use to encode the data into a QR code. Meant to be able to stub out in tests if needed.
+ * @param overlayContent Optional content to overlay on top of the QR code. This overlay is limited to 25% of the size
+ *      of the QR code and will be positioned in the center of it.
+ */
 @Composable
 fun QrCodeView(
     data: String,
@@ -66,6 +83,15 @@ fun QrCodeView(
     }
 }
 
+/**
+ * A composable that renders a QR code from a data string with no overlay content.
+ *
+ * @param data The data to encode into a QR code.
+ * @param modifier The Compose modifier to apply to the QR code.
+ * @param colors The color palette to use for the QR code - defaults to black and white.
+ * @param dotShape The shape of the individual dots in the QR code - defaults to square.
+ * @param encoder The encoder to use to encode the data into a QR code. Meant to be able to stub out in tests if needed.
+ */
 @Composable
 fun QrCodeView(
     data: String,
