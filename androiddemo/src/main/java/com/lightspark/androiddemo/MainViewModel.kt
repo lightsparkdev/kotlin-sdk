@@ -67,13 +67,13 @@ class MainViewModel(
                 status = node.status ?: LightsparkNodeStatus.UNKNOWN__,
                 publicKey = node.public_key ?: "",
                 totalBalance = CurrencyAmount(
-                    balance = node.blockchain_balance?.total_balance?.value
+                    amount = node.blockchain_balance?.total_balance?.value
                         ?: 0L,
                     unit = node.blockchain_balance?.total_balance?.unit
                         ?: CurrencyUnit.UNKNOWN__
                 ),
                 availableBalance = CurrencyAmount(
-                    balance = node.blockchain_balance?.available_balance?.value
+                    amount = node.blockchain_balance?.available_balance?.value
                         ?: 0L,
                     unit = node.blockchain_balance?.available_balance?.unit
                         ?: CurrencyUnit.UNKNOWN__

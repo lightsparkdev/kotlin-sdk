@@ -1,7 +1,7 @@
 package com.lightspark.sdk
 
-class AndroidPlatform : Platform {
+internal class AndroidPlatform : Platform {
     override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
 }
 
-actual fun getPlatform(): Platform = AndroidPlatform()
+internal actual fun getPlatform(): Platform = AndroidPlatform()

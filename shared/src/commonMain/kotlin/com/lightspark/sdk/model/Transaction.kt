@@ -2,6 +2,9 @@ package com.lightspark.sdk.model
 
 import com.lightspark.api.type.TransactionStatus
 
+/**
+ * Represents a transaction on the Lightning Network.
+ */
 data class Transaction(
     val id: String,
     val amount: CurrencyAmount,
@@ -13,6 +16,9 @@ data class Transaction(
     val memo: String?,
     val transactionHash: String?
 ) {
+    /**
+     * The type of transaction.
+     */
     enum class Type {
         DEPOSIT,
         WITHDRAWAL,

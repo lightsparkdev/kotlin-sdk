@@ -1,5 +1,8 @@
 package com.lightspark.sdk
 
+/**
+ * A generic exception thrown by the Lightspark SDK.
+ */
 open class LightsparkException(override val message: String, val errorCode: LightsparkErrorCode) :
     Exception(message)
 

@@ -2,8 +2,9 @@ package com.lightspark.sdk
 
 import platform.UIKit.UIDevice
 
-class IOSPlatform: Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+internal class IOSPlatform : Platform {
+    override val name: String =
+        UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 }
 
-actual fun getPlatform(): Platform = IOSPlatform()
+internal actual fun getPlatform(): Platform = IOSPlatform()

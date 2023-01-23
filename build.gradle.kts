@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.6.10" apply false
     id("com.codingfeline.buildkonfig") version "0.13.3" apply false
     id("com.apollographql.apollo3") version "3.7.3" apply false
+    id("org.jetbrains.dokka") version "1.7.20" apply false
 }
 
 tasks.register("clean", Delete::class) {

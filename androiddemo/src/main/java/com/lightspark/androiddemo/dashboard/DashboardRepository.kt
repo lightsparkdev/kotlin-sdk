@@ -5,7 +5,8 @@ import com.lightspark.sdk.LightsparkClient
 
 class DashboardRepository(private val lightsparkClient: LightsparkClient = LightsparkClientProvider.client) {
     suspend fun getDashboardData() =
-        lightsparkClient.wrapFlowableResult {lightsparkClient.getFullNodeDashboard() }
+        lightsparkClient.wrapFlowableResult { lightsparkClient.getFullAccountDashboard() }
+
     suspend fun getWalletDashboard(nodeId: String) =
         lightsparkClient.wrapFlowableResult { lightsparkClient.getWalletDashboard(nodeId) }
 

@@ -4,7 +4,7 @@ import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.sdk.model.CurrencyAmount
 
 fun CurrencyAmount.displayString(): String {
-    return "${balance.asShortString()} ${unit.shortName()}"
+    return "${amount.asShortString()} ${unit.shortName()}"
 }
 
 fun Long.asShortString(): String {
@@ -16,7 +16,7 @@ fun Long.asShortString(): String {
     }
 }
 
-fun CurrencyUnit.shortName() = when(this) {
+fun CurrencyUnit.shortName() = when (this) {
     CurrencyUnit.SATOSHI -> "SAT"
     CurrencyUnit.BITCOIN -> "BTC"
     CurrencyUnit.MILLISATOSHI -> "mSAT"

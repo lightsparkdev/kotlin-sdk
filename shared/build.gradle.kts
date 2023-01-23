@@ -8,6 +8,7 @@ plugins {
     id("com.android.library")
     id("com.apollographql.apollo3")
     id("com.codingfeline.buildkonfig")
+    id("org.jetbrains.dokka")
 }
 
 object Versions {
@@ -85,8 +86,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 buildkonfig {
     packageName = "com.lightspark.conf"
-    // objectName = "YourAwesomeConfig"
-    // exposeObjectWithName = "YourAwesomePublicConfig"
 
     val token_id: String by project
     val token_secret: String by project
@@ -100,12 +99,21 @@ buildkonfig {
     }
 }
 
+kotlin {
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        compilations["main"].kotlinOptions.freeCompilerArgs += "-Xexport-kdoc"
+    }
+}
+
 android {
     namespace = "com.lightspark.sdk"
     compileSdk = 33
     defaultConfig {
         minSdk = 24
         targetSdk = 33
+    }
+    dependencies {
+        dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.7.20")
     }
 }
 
@@ -131,5 +139,12 @@ tasks.register<Exec>("updateGraphQLSchema") {
             workingDir = File(projectDir, "src/commonMain/graphql")
         }
     }
+}
 
+tasks.register<Copy>("generateSdkDocs") {
+    group = "documentation"
+    dependsOn("dokkaGfm")
+    dependsOn("dokkaHtml")
+    from("build/dokka")
+    into("docs")
 }
