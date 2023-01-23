@@ -104,7 +104,7 @@ fun NodeOverviewBody(nodeDisplayData: NodeDisplayData) {
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
                 .offset(y = 12.dp)
-                .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                .background(color = MaterialTheme.colorScheme.surface)
         )
     }
 }

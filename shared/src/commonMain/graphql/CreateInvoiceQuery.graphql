@@ -1,7 +1,7 @@
 mutation CreateInvoice(
     $node_id: ID!
     $amount: CurrencyAmountInput!
-    $memo: String
+    $memo: String = null
 ) {
     create_invoice(input: {
         node_id: $node_id

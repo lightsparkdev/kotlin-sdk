@@ -3,19 +3,19 @@ package com.lightspark.androiddemo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -26,11 +26,13 @@ import com.lightspark.androiddemo.dashboard.DashboardView
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.profile.ProfileScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
+import com.lightspark.androiddemo.requestpayment.RequestPaymentViewModel
 import com.lightspark.androiddemo.sendpayment.SendPaymentScreen
-import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
+
+private const val NODE_ID = "LightsparkNode:0185c269-8aa3-f96b-0000-0ae100b58599"
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
@@ -56,9 +58,12 @@ class MainActivity : ComponentActivity() {
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = MaterialTheme.colorScheme.onSurface,
                                         selectedTextColor = Color.Black, //MaterialTheme.colorScheme.onSurface,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+                                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(
+                                            alpha = 0.4f
+                                        ),
                                         unselectedTextColor = Color.Green,
-                                        indicatorColor = Success.copy(alpha = 0.2f).compositeOver(MaterialTheme.colorScheme.background),
+                                        indicatorColor = Success.copy(alpha = 0.2f)
+                                            .compositeOver(MaterialTheme.colorScheme.background),
                                     ),
                                     icon = { Icon(screen.icon, contentDescription = null) },
                                     label = { Text(stringResource(screen.resourceId)) },
@@ -103,7 +108,17 @@ class MainActivity : ComponentActivity() {
                             SendPaymentScreen()
                         }
                         composable(Screen.RequestPayment.route) {
-                            RequestPaymentScreen()
+                            val viewModel: RequestPaymentViewModel = viewModel(
+                                key = "nodeId_$NODE_ID",
+                                factory = viewModelFactory {
+                                    initializer { RequestPaymentViewModel(NODE_ID) }
+                                }
+                            )
+                            val uiState by viewModel.uiState.collectAsState()
+                            RequestPaymentScreen(
+                                uiState = uiState,
+                                createInvoice = viewModel::createInvoice
+                            )
                         }
                     }
                 }
@@ -113,6 +128,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.refreshWalletData("LightsparkNode:0185c269-8aa3-f96b-0000-0ae100b58599")
+        viewModel.refreshWalletData(NODE_ID)
     }
 }

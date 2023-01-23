@@ -90,13 +90,13 @@ class LightsparkClient private constructor(
 
     suspend fun createInvoice(
         nodeId: String,
-        amount: CurrencyAmountInput,
+        amount: CurrencyAmount,
         memo: String? = null,
     ): CreateInvoiceMutation.Invoice {
         return apolloClient.mutation(
             CreateInvoiceMutation(
                 nodeId,
-                amount,
+                CurrencyAmountInput(amount.balance, amount.unit),
                 Optional.presentIfNotNull(memo)
             )
         )
@@ -161,7 +161,7 @@ class LightsparkClient private constructor(
         return true
     }
 
-    suspend fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Lce<T>> = flow {
+    fun <T> wrapFlowableResult(query: suspend () -> T?): Flow<Lce<T>> = flow {
         val data = query() ?: throw Exception("No data")
         emit(data)
     }.asLce()
