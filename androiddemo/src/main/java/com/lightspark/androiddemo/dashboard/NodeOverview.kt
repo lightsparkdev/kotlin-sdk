@@ -45,7 +45,10 @@ fun NodeOverview(
             NodeOverviewHeader(nodeDisplayData)
             NodeOverviewBody(nodeDisplayData)
             // NOTE: This is just temporary to test out key recovery:
-            Button(onClick = onRecoverKeyTap) {
+            Button(
+                onClick = onRecoverKeyTap,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
+            ) {
                 Text("Recover node key")
             }
         }

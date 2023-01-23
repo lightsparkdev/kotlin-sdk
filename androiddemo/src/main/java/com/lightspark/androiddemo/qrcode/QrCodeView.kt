@@ -91,9 +91,11 @@ fun QrCodeView(
                             size = Size(cellSize, cellSize)
                         )
                         DotShape.Circle -> drawCircle(
-                            color = colors.foreground, center = Offset(
+                            color = colors.foreground,
+                            center = Offset(
                                 x * cellSize + cellSize / 2, y * cellSize + cellSize / 2
-                            ), radius = cellSize / 2
+                            ),
+                            radius = cellSize / 2
                         )
                     }
                 }
