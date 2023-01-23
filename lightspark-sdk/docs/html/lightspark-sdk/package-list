@@ -105,6 +105,7 @@ $dokka.location:com.lightspark.sdk/LightsparkWalletClient/isWalletUnlocked/#/Poi
 $dokka.location:com.lightspark.sdk/LightsparkWalletClient/lockWallet/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/lock-wallet.html
 $dokka.location:com.lightspark.sdk/LightsparkWalletClient/observeWalletUnlocked/#/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/observe-wallet-unlocked.html
 $dokka.location:com.lightspark.sdk/LightsparkWalletClient/payInvoice/#kotlin.String#kotlin.Int#com.lightspark.api.type.CurrencyAmountInput?#com.lightspark.api.type.CurrencyAmountInput?/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/pay-invoice.html
+$dokka.location:com.lightspark.sdk/LightsparkWalletClient/unlockActiveWallet/#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/unlock-active-wallet.html
 $dokka.location:com.lightspark.sdk/LightsparkWalletClient/unlockWallet/#kotlin.String#kotlin.String/PointingToDeclaration/lightspark-sdk/com.lightspark.sdk/-lightspark-wallet-client/unlock-wallet.html
 com.lightspark.sdk
 com.lightspark.sdk.crypto

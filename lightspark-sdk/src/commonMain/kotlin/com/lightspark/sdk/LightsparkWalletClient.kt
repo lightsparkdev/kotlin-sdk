@@ -40,6 +40,7 @@ class LightsparkWalletClient private constructor(
      * @param bitcoinNetwork The bitcoin network to use for the dashboard data. Defaults to the network set in the
      *      gradle project properties
      * @return The dashboard overview for the node, including balance and recent transactions.
+     * @throws LightsparkException If the wallet ID is not set yet.
      */
     suspend fun getWalletDashboard(
         numTransactions: Int = 20,
@@ -54,6 +55,7 @@ class LightsparkWalletClient private constructor(
      * Unlocks the wallet for use with sensitive SDK operations. Also sets the active wallet to the specified
      * walletId. This function must be called before calling any other functions that operate on the wallet.
      *
+     * @param walletId The ID of the wallet to unlock.
      * @param password The password for the wallet.
      * @return True if the wallet was unlocked successfully, false otherwise.
      */
@@ -63,8 +65,20 @@ class LightsparkWalletClient private constructor(
     }
 
     /**
+     * Unlocks the active wallet for use with sensitive SDK operations. This function or [unlockWallet] must be called
+     * before calling sensitive operations like [payInvoice].
+     *
+     * @param password The password for the wallet.
+     * @return True if the wallet was unlocked successfully, false otherwise.
+     * @throws LightsparkException If the wallet ID is not set yet.
+     */
+    suspend fun unlockActiveWallet(password: String) = unlockWallet(requireWalletId(), password)
+
+    /**
      * Locks the active wallet if needed to prevent payment until the password is entered again and passed to
      * [unlockWallet].
+     *
+     * @throws LightsparkException If the wallet ID is not set yet.
      */
     fun lockWallet() = nodeKeyCache.remove(requireWalletId())
 
@@ -73,6 +87,7 @@ class LightsparkWalletClient private constructor(
      *
      * @param amount The amount of the invoice in a specified currency unit.
      * @param memo Optional memo to include in the invoice.
+     * @throws LightsparkException If the wallet ID is not set yet.
      */
     suspend fun createInvoice(
         amount: CurrencyAmount,
@@ -90,6 +105,7 @@ class LightsparkWalletClient private constructor(
      * @param amount The amount to pay in a specified currency unit. Defaults to the full amount of the invoice.
      * @param maxFees The maximum fees to pay in a specified currency unit.
      * @return The payment details.
+     * @throws LightsparkException If the wallet is not unlocked yet.
      */
     suspend fun payInvoice(
         encodedInvoice: String,
@@ -135,12 +151,14 @@ class LightsparkWalletClient private constructor(
      * @return A [Flow] that emits true if the wallet is unlocked or false if it is locked.
      */
     fun observeWalletUnlocked() =
-        nodeKeyCache.observeCachedNodeIds().map { it.contains(requireWalletId()) }
+        nodeKeyCache.observeCachedNodeIds().map { unlockedIds ->
+            activeWalletId?.let { unlockedIds.contains(it) } ?: false
+        }
 
     /**
      * @return True if the wallet is unlocked or false if it is locked.
      */
-    fun isWalletUnlocked() = nodeKeyCache.contains(requireWalletId())
+    fun isWalletUnlocked() = activeWalletId?.let { nodeKeyCache.contains(it) } ?: false
 
     private fun requireWalletId() =
         activeWalletId ?: throw LightsparkException(
