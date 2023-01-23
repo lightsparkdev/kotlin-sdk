@@ -1,5 +1,6 @@
 package com.lightspark.androiddemo
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
@@ -49,12 +50,40 @@ class MainViewModel(
         refreshWallet.tryEmit(Unit)
     }
 
+    fun setActiveWallet(nodeId: String, nodePassword: String) = walletRepository
+        .setActiveWalletAndUnlock(nodeId, nodePassword)
+        .map {
+            when (it) {
+                is Lce.Content -> {
+                    refreshWallet.tryEmit(Unit)
+                    Lce.Content(it.data)
+                }
+                is Lce.Error -> Lce.Error(it.exception)
+                is Lce.Loading -> Lce.Loading
+            }
+        }
+
     fun requestKeyRecovery(node: NodeDisplayData) = viewModelScope.launch {
-        dashboardRepository.recoverNodeKey(
+        setActiveWallet(
             node.id,
             // TODO: Replace with actual password. This is just my super secret password scheme for dev :-p.
             "${node.name.replace(" ", "")}!"
-        )
+        ).collect { result ->
+            when (result) {
+                is Lce.Content -> {
+                    // TODO(Jeremy): Acually do something real with the flow result here in the UI.
+                    Log.d("MainViewModel", "Unlocked that node!")
+                }
+                is Lce.Error -> Log.e(
+                    "MainViewModel",
+                    "Error setting active wallet",
+                    result.exception
+                )
+                else -> {
+                    /* Do nothing when loading */
+                }
+            }
+        }
     }
 
     private fun DashboardOverviewQuery.Current_account.toDashboardData() = DashboardData(

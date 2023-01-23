@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                             DashboardView(
                                 dashboardData = advancedDashboardData,
                                 modifier = Modifier.fillMaxSize(),
-                                onNodeKeyRecoverTap = viewModel::requestKeyRecovery,
+                                onWalletNodeSelected = viewModel::requestKeyRecovery,
                             )
                         }
                         composable(Screen.Wallet.route) {

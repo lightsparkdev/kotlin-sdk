@@ -30,7 +30,7 @@ import com.lightspark.sdk.model.CurrencyAmount
 fun NodeOverview(
     nodeDisplayData: NodeDisplayData,
     modifier: Modifier = Modifier,
-    onRecoverKeyTap: () -> Unit = {},
+    onWalletNodeSelected: () -> Unit = {},
 ) {
     Card(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -46,10 +46,10 @@ fun NodeOverview(
             NodeOverviewBody(nodeDisplayData)
             // NOTE: This is just temporary to test out key recovery:
             Button(
-                onClick = onRecoverKeyTap,
+                onClick = onWalletNodeSelected,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
             ) {
-                Text("Recover node key")
+                Text("Set as walllet and unlock")
             }
         }
     }

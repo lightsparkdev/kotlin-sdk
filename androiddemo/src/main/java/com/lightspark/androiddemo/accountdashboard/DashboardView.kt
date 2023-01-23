@@ -25,7 +25,7 @@ import com.lightspark.sdk.model.CurrencyAmount
 fun DashboardView(
     dashboardData: Lce<DashboardData>,
     modifier: Modifier = Modifier,
-    onNodeKeyRecoverTap: (node: NodeDisplayData) -> Unit = {},
+    onWalletNodeSelected: (node: NodeDisplayData) -> Unit = {},
 ) {
     when (dashboardData) {
         is Lce.Content -> {
@@ -47,7 +47,7 @@ fun DashboardView(
                     )
                 }
                 items(dashboardData.data.overviewNodes) { node ->
-                    NodeOverview(node) { onNodeKeyRecoverTap(node) }
+                    NodeOverview(node) { onWalletNodeSelected(node) }
                 }
             }
         }
