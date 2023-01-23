@@ -24,28 +24,6 @@ import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 
 /**
- * Defines the color palette for a QR code.
- */
-data class QrCodeColors(
-    val background: Color, val foreground: Color
-) {
-    companion object {
-        @Composable
-        fun default() = QrCodeColors(
-            background = MaterialTheme.colorScheme.background,
-            foreground = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
-
-/**
- * Defines the shape of the individual dots in a QR code.
- */
-enum class DotShape {
-    Circle, Square
-}
-
-/**
  * A composable that renders a QR code from a data string.
  *
  * @param data The data to encode into a QR code.
@@ -74,9 +52,7 @@ fun QrCodeView(
             encoder = encoder
         )
         if (overlayContent != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(fraction = 0.25f)
-            ) {
+            Box(modifier = Modifier.fillMaxSize(fraction = 0.25f)) {
                 overlayContent()
             }
         }
@@ -107,7 +83,7 @@ fun QrCodeView(
             val cellSize = size.width / matrix.width
             for (x in 0 until matrix.width) {
                 for (y in 0 until matrix.height) {
-                    if (matrix.get(x, y) != 1.toByte()) continue
+                    if (matrix.get(x, y) != 1.toByte() || isFinderCell(x, y, matrix.width)) continue
                     when (dotShape) {
                         DotShape.Square -> drawRect(
                             color = colors.foreground,
@@ -122,6 +98,7 @@ fun QrCodeView(
                     }
                 }
             }
+            drawFinderSquares(cellSize, colors, dotShape)
         }
     }
 }
@@ -134,7 +111,7 @@ fun QrCodeViewPreview() {
             modifier = Modifier.size(400.dp),
             colors = QrCodeColors(
                 background = MaterialTheme.colorScheme.surface,
-                foreground = MaterialTheme.colorScheme.secondary
+                foreground = MaterialTheme.colorScheme.onBackground
             ),
             dotShape = DotShape.Circle,
             overlayContent = {
