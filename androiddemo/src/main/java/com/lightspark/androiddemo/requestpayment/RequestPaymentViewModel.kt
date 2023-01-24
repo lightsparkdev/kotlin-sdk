@@ -2,6 +2,7 @@ package com.lightspark.androiddemo.requestpayment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lightspark.androiddemo.wallet.PaymentRepository
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RequestPaymentViewModel(
-    private val repository: RequestPaymentRepository = RequestPaymentRepository()
+    private val repository: PaymentRepository = PaymentRepository()
 ) : ViewModel() {
     private val invoiceAmount = MutableStateFlow<CurrencyAmount?>(null)
     private val invoice = invoiceAmount.flatMapLatest { amount ->

@@ -1,8 +1,12 @@
 package com.lightspark.androiddemo
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -13,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -26,12 +32,23 @@ import com.lightspark.androiddemo.profile.ProfileScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentViewModel
 import com.lightspark.androiddemo.sendpayment.SendPaymentScreen
+import com.lightspark.androiddemo.sendpayment.SendPaymentViewModel
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.i("MainActivity", "Permission granted")
+        } else {
+            Log.w("MainActivity", "Permission denied")
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +118,13 @@ class MainActivity : ComponentActivity() {
                             ProfileScreen()
                         }
                         composable(Screen.SendPayment.route) {
-                            SendPaymentScreen()
+                            requestCameraPermission()
+                            val viewModel: SendPaymentViewModel = viewModel()
+                            val uiState by viewModel.uiState.collectAsState()
+                            SendPaymentScreen(
+                                uiState = uiState,
+                                onQrCodeRecognized = viewModel::onQrCodeRecognized
+                            )
                         }
                         composable(Screen.RequestPayment.route) {
                             val viewModel: RequestPaymentViewModel = viewModel()
@@ -120,5 +143,23 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.refreshWalletData()
+    }
+
+    private fun requestCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.i("kilo", "Permission previously granted")
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.CAMERA
+            ) -> Log.i("kilo", "Show camera permissions dialog")
+
+            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     }
 }
