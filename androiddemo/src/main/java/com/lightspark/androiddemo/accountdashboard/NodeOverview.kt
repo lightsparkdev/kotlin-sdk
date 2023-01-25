@@ -1,13 +1,17 @@
 package com.lightspark.androiddemo.accountdashboard
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +23,7 @@ import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.Separator
 import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
@@ -32,6 +37,12 @@ fun NodeOverview(
     modifier: Modifier = Modifier,
     onWalletNodeSelected: () -> Unit = {},
 ) {
+    val unlockButtonColor by animateColorAsState(
+        targetValue = when (nodeDisplayData.lockStatus) {
+            NodeDisplayData.LockStatus.UNLOCKED -> Success
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+    )
     Card(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
@@ -47,8 +58,35 @@ fun NodeOverview(
             // NOTE: This is just temporary to test out key recovery:
             Button(
                 onClick = onWalletNodeSelected,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
+                colors = ButtonDefaults.buttonColors(containerColor = unlockButtonColor)
             ) {
+                when (nodeDisplayData.lockStatus) {
+                    NodeDisplayData.LockStatus.UNLOCKED -> {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_lock_open),
+                            contentDescription = "Unlocked",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(end = 8.dp)
+                        )
+                    }
+                    NodeDisplayData.LockStatus.UNLOCKING -> CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .offset(y = 4.dp)
+                            .padding(end = 8.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                    else -> Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "Locked",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 8.dp)
+                    )
+                }
+
                 Text("Set as walllet and unlock")
             }
         }
@@ -102,13 +140,6 @@ fun NodeOverviewBody(nodeDisplayData: NodeDisplayData) {
         Separator()
         NodeStats(nodeDisplayData)
         Separator()
-        Text(
-            text = "More details coming soon...",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .offset(y = 12.dp)
-                .background(color = MaterialTheme.colorScheme.surface)
-        )
     }
 }
 
@@ -200,6 +231,7 @@ fun NodeOverviewPreview() {
                 publicKey = "testfhjkhjka833h2m9d0",
                 totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
                 availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
+                lockStatus = NodeDisplayData.LockStatus.UNLOCKING,
                 stats = NodeStatistics(
                     uptime = 99.0f,
                     numChannels = 10,

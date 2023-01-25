@@ -13,9 +13,13 @@ data class NodeDisplayData(
     val publicKey: String,
     val totalBalance: CurrencyAmount,
     val availableBalance: CurrencyAmount,
-    val stats: NodeStatistics? = null
+    val lockStatus: LockStatus = LockStatus.LOCKED,
+    val stats: NodeStatistics? = null,
     // TODO(Jeremy): Add addresses?
-)
+) {
+    enum class LockStatus { LOCKED, UNLOCKING, UNLOCKED }
+}
+
 
 data class NodeStatistics(
     val uptime: Float,

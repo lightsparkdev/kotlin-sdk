@@ -27,17 +27,27 @@ class MainViewModel(
     private val refreshDashboard = MutableSharedFlow<Unit>(replay = 1)
     private val refreshWallet = MutableSharedFlow<Unit>(replay = 1)
 
-    val unlockedNodeIds = dashboardRepository.unlockedNodeIds
+    private val unlockingNodeIds = MutableStateFlow(emptySet<String>())
 
-    val advancedDashboardData = refreshDashboard.flatMapLatest {
-        dashboardRepository.getDashboardData().map { result ->
-            when (result) {
-                is Lce.Content -> Lce.Content(result.data.toDashboardData())
-                is Lce.Error -> Lce.Error(result.exception)
+    private val nodeLockStatus = combine(
+        dashboardRepository.unlockedNodeIds,
+        unlockingNodeIds
+    ) { unlockedNodeIds, unlockingNodeIds ->
+        unlockedNodeIds.associateWith { NodeDisplayData.LockStatus.UNLOCKED } +
+                unlockingNodeIds.associateWith { NodeDisplayData.LockStatus.UNLOCKING }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    val advancedDashboardData =
+        combine(
+            nodeLockStatus,
+            refreshDashboard.flatMapLatest { dashboardRepository.getDashboardData() }
+        ) { lockStatuses, dashboardResult ->
+            when (dashboardResult) {
+                is Lce.Content -> Lce.Content(dashboardResult.data.toDashboardData(lockStatuses))
+                is Lce.Error -> Lce.Error(dashboardResult.exception)
                 is Lce.Loading -> Lce.Loading
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
 
     val walletDashboardData = refreshWallet.flatMapLatest {
         walletRepository.getWalletDashboard()
@@ -73,22 +83,30 @@ class MainViewModel(
             ).collect { result ->
                 when (result) {
                     is Lce.Content -> {
-                        // TODO(Jeremy): Acually do something real with the flow result here in the UI.
+                        unlockingNodeIds.value =
+                            unlockingNodeIds.value.toMutableSet().apply { remove(node.id) }
                         Log.d("MainViewModel", "Unlocked that node!")
                     }
-                    is Lce.Error -> Log.e(
-                        "MainViewModel",
-                        "Error setting active wallet",
-                        result.exception
-                    )
+                    is Lce.Error -> {
+                        unlockingNodeIds.value =
+                            unlockingNodeIds.value.toMutableSet().apply { remove(node.id) }
+                        Log.e(
+                            "MainViewModel",
+                            "Error setting active wallet",
+                            result.exception
+                        )
+                    }
                     else -> {
-                        /* Do nothing when loading */
+                        unlockingNodeIds.value =
+                            unlockingNodeIds.value.toMutableSet().apply { add(node.id) }
                     }
                 }
             }
         }
 
-    private fun DashboardOverviewQuery.Current_account.toDashboardData() = DashboardData(
+    private fun DashboardOverviewQuery.Current_account.toDashboardData(
+        nodeLockStatuses: Map<String, NodeDisplayData.LockStatus>
+    ) = DashboardData(
         accountName = name ?: "Unknown account",
         overviewNodes = dashboard_overview_nodes.edges.map { edge ->
             val node = edge.entity
@@ -111,6 +129,7 @@ class MainViewModel(
                     unit = node.blockchain_balance?.available_balance?.unit
                         ?: CurrencyUnit.UNKNOWN__
                 ),
+                lockStatus = nodeLockStatuses[node.id] ?: NodeDisplayData.LockStatus.LOCKED,
                 // TODO(Jeremy): Add real stats when the query is fixed
                 stats = NodeStatistics(
                     uptime = 99.0f,
