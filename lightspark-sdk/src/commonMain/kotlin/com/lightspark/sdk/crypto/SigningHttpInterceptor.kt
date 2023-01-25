@@ -8,7 +8,10 @@ import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import com.chrynan.krypt.csprng.SecureRandom
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 import okio.Buffer
 import okio.BufferedSink
 import saschpe.kase64.base64Encoded
@@ -16,23 +19,29 @@ import saschpe.kase64.base64Encoded
 internal class SigningHttpInterceptor(private val nodeKeyCache: NodeKeyCache) : HttpInterceptor {
     private val secureRandom = SecureRandom()
 
-    override suspend fun intercept(request: HttpRequest, chain: HttpInterceptorChain): HttpResponse {
+    override suspend fun intercept(
+        request: HttpRequest,
+        chain: HttpInterceptorChain
+    ): HttpResponse {
         val body = request.body ?: return chain.proceed(request)
         val bodyString = Buffer().apply { body.writeTo(this) }.readUtf8()
         val bodyAsMap = Json.parseToJsonElement(bodyString).jsonObject
         val nodeId = request.headers.get("X-Lightspark-node-id") ?: return chain.proceed(request)
         val nodeKey = nodeKeyCache[nodeId]
 
-        val signature = signPayload(bodyString.encodeToByteArray(), nodeKey)
         val newBodyString = bodyAsMap.toMutableMap().apply {
-            put("nonce", JsonPrimitive(secureRandom.nextBits(32)))
-            put("expires_at", JsonPrimitive("2024-09-01T00:00:00Z")) // TODO: 1 hour from now.
+            // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
+            // spit out a signed int, which the backend can't decode.
+            put("nonce", JsonPrimitive(secureRandom.nextBits(32).toUInt().toLong()))
+            put("expires_at", JsonPrimitive("2024-09-04T00:00:00Z")) // TODO: 1 hour from now.
         }.let { Json.encodeToString(JsonObject(it)) }
+        val signature = signPayload(newBodyString.encodeToByteArray(), nodeKey)
         val signedRequest = request.newBuilder().apply {
             body(newBodyString.toHttpBody())
             headers(request.headers.associate { it.name to it.value }.toMutableMap().apply {
                 remove("X-Lightspark-node-id")
-                this["X-Lightspark-Signature"] = signature.base64Encoded
+                this["X-LIGHTSPARK-SIGNING"] =
+                    "{\"v\":1,\"signature\":\"${signature.base64Encoded}\"}"
             }.map { HttpHeader(it.key, it.value) })
         }.build()
 

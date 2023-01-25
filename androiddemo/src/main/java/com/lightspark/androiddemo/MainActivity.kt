@@ -123,7 +123,8 @@ class MainActivity : ComponentActivity() {
                             val uiState by viewModel.uiState.collectAsState()
                             SendPaymentScreen(
                                 uiState = uiState,
-                                onQrCodeRecognized = viewModel::onQrCodeRecognized
+                                onQrCodeRecognized = viewModel::onQrCodeRecognized,
+                                onPaymentSendTapped = viewModel::onPaymentSendTapped
                             )
                         }
                         composable(Screen.RequestPayment.route) {

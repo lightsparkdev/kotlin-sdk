@@ -8,13 +8,13 @@ import com.lightspark.sdk.wrapWithLceFlow
 import kotlinx.coroutines.flow.Flow
 
 class PaymentRepository(private val lightsparkClient: LightsparkWalletClient = LightsparkClientProvider.walletClient) {
-    suspend fun createInvoice(amount: CurrencyAmount, memo: String? = null) =
+    fun createInvoice(amount: CurrencyAmount, memo: String? = null) =
         wrapWithLceFlow { lightsparkClient.createInvoice(amount, memo) }
 
-    suspend fun payInvoice(invoice: String) =
+    fun payInvoice(invoice: String) =
         wrapWithLceFlow { lightsparkClient.payInvoice(invoice) }
 
-    suspend fun decodeInvoice(encodedInvoice: String) =
+    fun decodeInvoice(encodedInvoice: String) =
         wrapWithLceFlow { lightsparkClient.decodeInvoice(encodedInvoice) }
 
     fun getWalletAddress(): Flow<Lce<String>> =

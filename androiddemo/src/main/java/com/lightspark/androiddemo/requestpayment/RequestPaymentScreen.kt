@@ -50,7 +50,7 @@ fun RequestPaymentScreen(
                     walletAddress = uiState.data.walletAddress,
                     invoiceAmount = uiState.data.invoiceAmount,
                     onAddAmount = {
-                        createInvoice?.invoke(CurrencyAmount(100000, CurrencyUnit.SATOSHI))
+                        createInvoice?.invoke(CurrencyAmount(1000, CurrencyUnit.SATOSHI))
                     },
                     modifier = Modifier
                         .fillMaxWidth()

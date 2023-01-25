@@ -208,17 +208,16 @@ class LightsparkWalletClient private constructor(
                 )
             }
 
-            val nodeKeyCache = NodeKeyCache()
             val delegateFullClient = fullClient ?: LightsparkClient(
                 tokenId,
                 token,
                 serverUrl,
-                nodeKeyCache = nodeKeyCache
+                nodeKeyCache = NodeKeyCache()
             )
 
             return LightsparkWalletClient(
                 delegateFullClient,
-                nodeKeyCache,
+                delegateFullClient.nodeKeyCache,
                 delegateFullClient.apolloClient
             ).apply { activeWalletId = this@Builder.walletId }
         }

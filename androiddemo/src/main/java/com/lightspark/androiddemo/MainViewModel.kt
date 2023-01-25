@@ -14,6 +14,7 @@ import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -63,28 +64,29 @@ class MainViewModel(
             }
         }
 
-    fun requestKeyRecovery(node: NodeDisplayData) = viewModelScope.launch {
-        setActiveWallet(
-            node.id,
-            // TODO: Replace with actual password. This is just my super secret password scheme for dev :-p.
-            "${node.name.replace(" ", "")}!"
-        ).collect { result ->
-            when (result) {
-                is Lce.Content -> {
-                    // TODO(Jeremy): Acually do something real with the flow result here in the UI.
-                    Log.d("MainViewModel", "Unlocked that node!")
-                }
-                is Lce.Error -> Log.e(
-                    "MainViewModel",
-                    "Error setting active wallet",
-                    result.exception
-                )
-                else -> {
-                    /* Do nothing when loading */
+    fun requestKeyRecovery(node: NodeDisplayData) =
+        viewModelScope.launch(context = Dispatchers.IO) {
+            setActiveWallet(
+                node.id,
+                // TODO: Replace with actual password. This is just my super secret password scheme for dev :-p.
+                "${node.name.replace(" ", "")}!"
+            ).collect { result ->
+                when (result) {
+                    is Lce.Content -> {
+                        // TODO(Jeremy): Acually do something real with the flow result here in the UI.
+                        Log.d("MainViewModel", "Unlocked that node!")
+                    }
+                    is Lce.Error -> Log.e(
+                        "MainViewModel",
+                        "Error setting active wallet",
+                        result.exception
+                    )
+                    else -> {
+                        /* Do nothing when loading */
+                    }
                 }
             }
         }
-    }
 
     private fun DashboardOverviewQuery.Current_account.toDashboardData() = DashboardData(
         accountName = name ?: "Unknown account",

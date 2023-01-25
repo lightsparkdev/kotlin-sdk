@@ -18,6 +18,7 @@ import com.lightspark.sdk.model.FeeEstimate
 import com.lightspark.sdk.model.WalletDashboardData
 import com.lightspark.sdk.model.toTransaction
 import kotlinx.coroutines.flow.Flow
+import saschpe.kase64.base64DecodedBytes
 import saschpe.kase64.base64Encoded
 
 private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuhKY08LOo"
@@ -46,7 +47,7 @@ class LightsparkClient internal constructor(
     token: String,
     serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
-    private val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
+    internal val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
 ) {
     private val cacheFactory: MemoryCacheFactory =
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
@@ -249,7 +250,7 @@ class LightsparkClient internal constructor(
         try {
             val unencryptedKey =
                 keyDecryptor.decryptKey(response.cipher, nodePassword, response.encrypted_value)
-            nodeKeyCache[nodeId] = unencryptedKey
+            nodeKeyCache[nodeId] = unencryptedKey.decodeToString().base64DecodedBytes
         } catch (e: Exception) {
             return false
         }
