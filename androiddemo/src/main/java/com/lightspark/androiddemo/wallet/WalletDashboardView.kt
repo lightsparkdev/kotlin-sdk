@@ -27,12 +27,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
-import androidx.navigation.Navigator
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
@@ -113,7 +112,6 @@ fun WalletHeader(
 ) {
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
-    val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 100f))
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -126,30 +124,7 @@ fun WalletHeader(
     ) {
         Spacer(modifier = Modifier.weight(.25f))
         WalletBalances(walletData, scrollOffset, modifier = Modifier.weight(.4f))
-        if (buttonAlpha > 0f) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                modifier = Modifier
-                    .weight(.25f * buttonAlpha)
-                    .alpha(buttonAlpha)
-            ) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-                    onClick = { onSendTap?.invoke() },
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Text(text = "Send")
-                }
-                Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-                    onClick = { onReceiveTap?.invoke() },
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Text(text = "Receive")
-                }
-            }
-        }
+        PaymentButtons(offsetDp, onSendTap, onReceiveTap)
         Box(modifier = Modifier.weight(.2f), contentAlignment = Alignment.BottomCenter) {
             Box(
                 modifier = Modifier
@@ -159,6 +134,44 @@ fun WalletHeader(
                     .clip(RoundedCornerShape(100))
                     .background(MaterialTheme.colorScheme.onBackground)
             )
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.PaymentButtons(
+    scrollOffsetDp: Dp,
+    onSendTap: (() -> Unit)?,
+    onReceiveTap: (() -> Unit)?
+) {
+    if (scrollOffsetDp.value >= 100f) return
+    val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - scrollOffsetDp.value / 50f))
+    val buttonHeightFactor by animateFloatAsState(
+        targetValue = if (scrollOffsetDp.value < 50f) 1f else max(
+            0f,
+            2f - scrollOffsetDp.value / 50f
+        )
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        modifier = Modifier.Companion
+            .weight(.25f * buttonHeightFactor)
+            .alpha(buttonAlpha)
+    ) {
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
+            onClick = { onSendTap?.invoke() },
+            modifier = Modifier.padding(end = 8.dp)
+        ) {
+            Text(text = "Send")
+        }
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
+            onClick = { onReceiveTap?.invoke() },
+            modifier = Modifier.padding(end = 8.dp)
+        ) {
+            Text(text = "Receive")
         }
     }
 }
@@ -183,8 +196,15 @@ fun TransactionList(
 @Composable
 fun WalletBalances(walletData: WalletDashboardData, scrollOffset: Float, modifier: Modifier) {
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
-    val diffAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 100f))
-    val balanceSize by animateFloatAsState(targetValue = max(.75f, 1f - 0.25f * offsetDp.value / 100f))
+    val diffAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
+    val endScroll = 230.dp.value
+    val yIntercept = 1f
+    val balanceSize by animateFloatAsState(
+        targetValue = max(
+            .75f,
+            yIntercept - offsetDp.value * .25f / endScroll
+        )
+    )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
