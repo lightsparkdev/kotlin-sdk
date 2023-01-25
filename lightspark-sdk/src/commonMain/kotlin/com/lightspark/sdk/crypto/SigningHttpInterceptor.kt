@@ -7,6 +7,8 @@ import com.apollographql.apollo3.api.http.HttpResponse
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import com.chrynan.krypt.csprng.SecureRandom
+import com.lightspark.sdk.util.format
+import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -33,7 +35,7 @@ internal class SigningHttpInterceptor(private val nodeKeyCache: NodeKeyCache) : 
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
             // spit out a signed int, which the backend can't decode.
             put("nonce", JsonPrimitive(secureRandom.nextBits(32).toUInt().toLong()))
-            put("expires_at", JsonPrimitive("2024-09-04T00:00:00Z")) // TODO: 1 hour from now.
+            put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { Json.encodeToString(JsonObject(it)) }
         val signature = signPayload(newBodyString.encodeToByteArray(), nodeKey)
         val signedRequest = request.newBuilder().apply {
@@ -47,6 +49,11 @@ internal class SigningHttpInterceptor(private val nodeKeyCache: NodeKeyCache) : 
 
         return chain.proceed(signedRequest)
     }
+
+    private fun anHourFromNowISOString() =
+        (Clock.System.now().plus(DateTimePeriod(hours = 1), TimeZone.UTC))
+            .toLocalDateTime(TimeZone.UTC)
+            .format("yyyy-MM-dd'T'HH:mm:ss'Z'")
 }
 
 fun String.toHttpBody() = object : HttpBody {

@@ -51,6 +51,7 @@ kotlin {
                 implementation("de.peilicke.sascha:kase64:${Versions.kase64}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("com.chrynan.krypt:krypt-csprng:${Versions.krypt}")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             }
         }
         val commonTest by getting {
@@ -58,11 +59,7 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val androidMain by getting {
-            dependencies {
-                implementation("org.bouncycastle:bcprov-jdk15on:1.70")
-            }
-        }
+        val androidMain by getting
         val androidTest by getting
         val iosX64Main by getting
         val iosArm64Main by getting
@@ -127,8 +124,14 @@ android {
         minSdk = 24
         targetSdk = 33
     }
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
     dependencies {
         dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.7.20")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
     }
 }
 
