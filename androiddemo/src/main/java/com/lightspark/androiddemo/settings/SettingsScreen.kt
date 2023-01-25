@@ -1,4 +1,4 @@
-package com.lightspark.androiddemo.profile
+package com.lightspark.androiddemo.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ProfileScreen() {
+fun SettingsScreen() {
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
         Text(text = "Coming soon!", style = MaterialTheme.typography.displayLarge)
     }

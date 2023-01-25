@@ -28,11 +28,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lightspark.androiddemo.accountdashboard.DashboardView
 import com.lightspark.androiddemo.navigation.Screen
-import com.lightspark.androiddemo.profile.ProfileScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentViewModel
 import com.lightspark.androiddemo.sendpayment.SendPaymentScreen
 import com.lightspark.androiddemo.sendpayment.SendPaymentViewModel
+import com.lightspark.androiddemo.settings.SettingsScreen
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
@@ -100,12 +100,7 @@ class MainActivity : ComponentActivity() {
                         Modifier.padding(innerPadding)
                     ) {
                         composable(Screen.Settings.route) {
-                            LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
-                            DashboardView(
-                                dashboardData = advancedDashboardData,
-                                modifier = Modifier.fillMaxSize(),
-                                onWalletNodeSelected = viewModel::requestKeyRecovery,
-                            )
+                            SettingsScreen()
                         }
                         composable(Screen.Wallet.route) {
                             WalletDashboardView(
@@ -115,7 +110,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Account.route) {
-                            ProfileScreen()
+                            LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
+                            DashboardView(
+                                dashboardData = advancedDashboardData,
+                                modifier = Modifier.fillMaxSize(),
+                                onWalletNodeSelected = viewModel::requestKeyRecovery,
+                            )
                         }
                         composable(Screen.SendPayment.route) {
                             requestCameraPermission()
