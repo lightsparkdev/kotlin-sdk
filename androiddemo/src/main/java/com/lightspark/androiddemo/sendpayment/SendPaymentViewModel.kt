@@ -15,21 +15,28 @@ import kotlinx.coroutines.flow.*
 class SendPaymentViewModel(
     private val repository: PaymentRepository = PaymentRepository()
 ) : ViewModel() {
-    private val encodedScannedQrData =
-        MutableSharedFlow<String>(onBufferOverflow = BufferOverflow.DROP_LATEST, replay = 1)
+    private val encodedInvoiceData = MutableStateFlow<String?>(null)
+
+    private val inputType = MutableStateFlow(InputType.SCAN_QR)
 
     private val sendPaymentPressed = MutableSharedFlow<Unit>(
         onBufferOverflow = BufferOverflow.DROP_LATEST,
         extraBufferCapacity = 1
     )
 
+    private val paymentAmountFlow = MutableStateFlow(CurrencyAmount(0, CurrencyUnit.SATOSHI))
+
     private val sendPaymentResult =
         combine(
             sendPaymentPressed,
-            encodedScannedQrData
-        ) { _, encodedInvoiceData -> encodedInvoiceData }.flatMapLatest {
-            repository.payInvoice(it)
-        }.map {
+            encodedInvoiceData,
+        ) { _, encodedInvoiceData -> encodedInvoiceData }.flatMapLatest { encodedInvoiceData ->
+            if (encodedInvoiceData == null) {
+                flowOf(null)
+            } else {
+                repository.payInvoice(encodedInvoiceData)
+            }
+        }.filterNotNull().map {
             when (it) {
                 is Lce.Content -> PaymentStatus.SUCCESS
                 is Lce.Error -> {
@@ -44,26 +51,39 @@ class SendPaymentViewModel(
             PaymentStatus.NOT_STARTED
         )
 
-    private val decodedInvoice = encodedScannedQrData.flatMapLatest {
-        repository.decodeInvoice(it)
-    }.shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+    private val decodedInvoice = encodedInvoiceData.flatMapLatest {
+        it?.let { repository.decodeInvoice(it) } ?: flowOf(Lce.Content(null))
+    }
+        .onEach {
+            (it as? Lce.Content)?.let { invoiceData ->
+                invoiceData.data?.invoice_data_amount?.let { decodedInvoiceAmount ->
+                    paymentAmountFlow.tryEmit(
+                        CurrencyAmount(
+                            decodedInvoiceAmount.currency_amount_value,
+                            decodedInvoiceAmount.currency_amount_unit
+                        )
+                    )
+                }
+            }
+        }
+        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
 
     val uiState: StateFlow<Lce<SendPaymentUiState>> get() = _uiState
     private val _uiState =
-        combine(decodedInvoice, sendPaymentResult) { decodedInvoiceLce, paymentStatus ->
+        combine(
+            decodedInvoice,
+            sendPaymentResult,
+            paymentAmountFlow,
+            inputType
+        ) { decodedInvoiceLce, paymentStatus, paymentAmount, paymentInputType ->
             when (decodedInvoiceLce) {
                 is Lce.Content -> {
                     val paymentRequest = decodedInvoiceLce.data
                     Lce.Content(
                         SendPaymentUiState(
-                            InputType.MANUAL_ENTRY,
-                            // TODO: Should this be an address instead?
-                            paymentRequest.invoice_data_destination.onLightsparkNode?.lightspark_node_display_name
-                                ?: "",
-                            CurrencyAmount(
-                                paymentRequest.invoice_data_amount.currency_amount_value,
-                                paymentRequest.invoice_data_amount.currency_amount_unit
-                            ),
+                            paymentInputType,
+                            paymentRequest?.invoice_data_destination?.onLightsparkNode?.lightspark_node_display_name,
+                            paymentAmount,
                             paymentStatus
                         )
                     )
@@ -86,10 +106,19 @@ class SendPaymentViewModel(
             )
 
     fun onQrCodeRecognized(encodedData: String) {
-        encodedScannedQrData.tryEmit(encodedData)
+        encodedInvoiceData.tryEmit(encodedData)
+        inputType.tryEmit(InputType.MANUAL_ENTRY)
     }
 
     fun onPaymentSendTapped() {
         sendPaymentPressed.tryEmit(Unit)
+    }
+
+    fun onManualAddressEntryTapped() {
+        inputType.tryEmit(InputType.MANUAL_ENTRY)
+    }
+
+    fun onInvoiceManuallyEntered(encodedData: String) {
+        encodedInvoiceData.tryEmit(encodedData)
     }
 }

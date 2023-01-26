@@ -7,11 +7,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +30,8 @@ fun SendPaymentScreen(
     uiState: Lce<SendPaymentUiState>,
     modifier: Modifier = Modifier,
     onPaymentSendTapped: (() -> Unit)? = null,
+    onManualAddressEntryTapped: (() -> Unit)? = null,
+    onInvoiceManuallyEntered: ((String) -> Unit)? = null,
     onQrCodeRecognized: ((encodedData: String) -> Unit)? = null,
 ) {
     when (uiState) {
@@ -38,11 +41,15 @@ fun SendPaymentScreen(
                 PaymentStatus.FAILURE -> FailedScreen(uiState.data)
                 PaymentStatus.NOT_STARTED,
                 PaymentStatus.PENDING -> when (uiState.data.inputType) {
-                    InputType.SCAN_QR -> InvoiceQrScanner(onInvoiceScanned = onQrCodeRecognized)
+                    InputType.SCAN_QR -> InvoiceQrScanner(
+                        onInvoiceScanned = onQrCodeRecognized,
+                        onManualEntryRequest = onManualAddressEntryTapped
+                    )
                     InputType.MANUAL_ENTRY -> PaymentEntryScreen(
                         uiState = uiState.data,
                         modifier = modifier,
                         onPaymentSendTapped = onPaymentSendTapped,
+                        onInvoiceManuallyEntered = onInvoiceManuallyEntered
                     )
                 }
             }
@@ -62,9 +69,10 @@ fun PaymentEntryScreen(
     uiState: SendPaymentUiState,
     modifier: Modifier = Modifier,
     onPaymentSendTapped: (() -> Unit)? = null,
+    onInvoiceManuallyEntered: ((String) -> Unit)? = null
 ) {
     if (uiState.destinationAddress == null) {
-        AddressEntryScreen(modifier = modifier)
+        ManualInvoiceEntryScreen(modifier = modifier, onInvoiceManuallyEntered)
     } else {
         AmountEntryScreen(
             uiState = uiState,
@@ -74,17 +82,39 @@ fun PaymentEntryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddressEntryScreen(modifier: Modifier = Modifier) {
-    Box(
+fun ManualInvoiceEntryScreen(
+    modifier: Modifier = Modifier,
+    onInvoiceManuallyEntered: ((String) -> Unit)? = null
+) {
+    var invoiceText by remember { mutableStateOf("") }
+    Column(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Address Entry Screen goes here",
-            style = MaterialTheme.typography.displayLarge,
+            text = "Send to",
+            style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center
         )
+        // TODO(Jeremy): This could use some nice styling and focus handling.
+        TextField(
+            value = invoiceText,
+            onValueChange = { invoiceText = it },
+            label = { Text(text = "Invoice") },
+            placeholder = { Text(text = "Enter invoice") }
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Button(
+            onClick = { onInvoiceManuallyEntered?.invoke(invoiceText) },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            ),
+        ) {
+            Text(text = "Next")
+        }
     }
 }
 
@@ -117,21 +147,38 @@ fun AmountEntryScreen(
                 maxLines = 1
             )
         }
-        CurrenyAmountInput(amount = uiState.amount)
+        CurrencyAmountInput(amount = uiState.amount)
+        val isPaymentLoading = uiState.paymentStatus == PaymentStatus.PENDING
         Button(
             onClick = { onPaymentSendTapped?.invoke() },
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
+                containerColor = if (isPaymentLoading) Color.White else Color.Black,
+                contentColor = if (isPaymentLoading) Color.Black else Color.White
+            ),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                brush = SolidColor(Color.Black),
+                width = 2.dp
             ),
         ) {
-            Text(text = "Send Bitcoin")
+            if (isPaymentLoading) {
+                CircularProgressIndicator(
+                    color = Color.Black,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .offset(y = (-2).dp)
+                        .padding(end = 8.dp)
+                )
+                Text(text = "Sending")
+            } else {
+                Text(text = "Send Bitcoin")
+            }
         }
     }
 }
 
 @Composable
-private fun CurrenyAmountInput(amount: CurrencyAmount, modifier: Modifier = Modifier) {
+private fun CurrencyAmountInput(amount: CurrencyAmount, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -201,7 +248,7 @@ fun SendPaymentScreenPreview() {
                 destinationAddress = "bc1q9qyqgj5xq5vqpwsp5kkq9zslawv9f0hnw3v3h7",
                 amount = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
                 inputType = InputType.MANUAL_ENTRY,
-                paymentStatus = PaymentStatus.NOT_STARTED
+                paymentStatus = PaymentStatus.PENDING
             )
         )
     }

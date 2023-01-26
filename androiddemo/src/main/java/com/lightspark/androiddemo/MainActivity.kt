@@ -124,6 +124,8 @@ class MainActivity : ComponentActivity() {
                             SendPaymentScreen(
                                 uiState = uiState,
                                 onQrCodeRecognized = viewModel::onQrCodeRecognized,
+                                onManualAddressEntryTapped = viewModel::onManualAddressEntryTapped,
+                                onInvoiceManuallyEntered = viewModel::onInvoiceManuallyEntered,
                                 onPaymentSendTapped = viewModel::onPaymentSendTapped
                             )
                         }
