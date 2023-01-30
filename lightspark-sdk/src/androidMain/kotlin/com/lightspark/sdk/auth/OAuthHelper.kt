@@ -4,10 +4,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.openid.appauth.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 
-class Authentication(
+class OAuthHelper(
     context: Context,
     private val authStateStorage: AuthStateStorage = SharedPrefsAuthStateStorage(context)
 ) {
@@ -81,6 +84,21 @@ class Authentication(
                 )
             } else {
                 throw ex ?: IllegalStateException("Authorization response is null")
+            }
+        }
+    }
+
+    suspend fun getFreshAuthToken(): String {
+        return suspendCancellableCoroutine { continuation ->
+            authState.performActionWithFreshTokens(authService) { accessToken, _, ex ->
+                authStateStorage.replace(authState)
+                if (accessToken != null) {
+                    continuation.resume(accessToken)
+                } else {
+                    continuation.resumeWithException(
+                        ex ?: IllegalStateException("Authorization response is null")
+                    )
+                }
             }
         }
     }

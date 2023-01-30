@@ -1,6 +1,8 @@
 package com.lightspark.sdk
 
+import com.apollographql.apollo3.ApolloCall
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Operation
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.http.HttpHeader
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
@@ -10,6 +12,8 @@ import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.conf.BuildKonfig
+import com.lightspark.sdk.auth.AccountApiTokenAuthTokenProvider
+import com.lightspark.sdk.auth.AuthTokenProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
@@ -19,7 +23,6 @@ import com.lightspark.sdk.model.WalletDashboardData
 import com.lightspark.sdk.model.toTransaction
 import kotlinx.coroutines.flow.Flow
 import saschpe.kase64.base64DecodedBytes
-import saschpe.kase64.base64Encoded
 
 private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuhKY08LOo"
 
@@ -43,17 +46,14 @@ private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuh
  * throughout the lifetime of your app.
  */
 class LightsparkClient internal constructor(
-    tokenId: String,
-    token: String,
+    private var authTokenProvider: AuthTokenProvider,
     serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
     internal val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
 ) {
     private val cacheFactory: MemoryCacheFactory =
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
-    private val authToken = "$tokenId:$token".base64Encoded
     private val defaultHeaders = listOf(
-        HttpHeader("Authorization", "Basic $authToken"),
         HttpHeader("Content-Type", "application/json"),
         HttpHeader("X-Lightspark-Beta", LIGHTSPARK_BETA_HEADER)
     )
@@ -64,6 +64,29 @@ class LightsparkClient internal constructor(
         .httpHeaders(defaultHeaders)
         .addHttpInterceptor(SigningHttpInterceptor(nodeKeyCache))
         .build()
+
+    private suspend fun <T : Operation.Data> ApolloCall<T>.addingHeaders(
+        extraHeaders: List<HttpHeader> = emptyList()
+    ) = httpHeaders(
+        authTokenProvider.getCredentialHeaders().map { HttpHeader(it.key, it.value) }
+            .plus(defaultHeaders)
+            .plus(extraHeaders)
+    )
+
+    /**
+     * Override the auth token provider for this client to provide custom headers on all API calls.
+     */
+    fun setAuthTokenProvider(authTokenProvider: AuthTokenProvider) {
+        this.authTokenProvider = authTokenProvider
+    }
+
+    /**
+     * Set the account API token info for this client, thereby overriding the auth token provider to use
+     * account-based authentication.
+     */
+    fun setAccountApiToken(tokenId: String, tokenSecret: String) {
+        setAuthTokenProvider(AccountApiTokenAuthTokenProvider(tokenId, tokenSecret))
+    }
 
     /**
      * Get the dashboard overview for the active account (for the auth token that initialized this client).
@@ -93,6 +116,7 @@ class LightsparkClient internal constructor(
                 Optional.presentIfNotNull(beforeDate)
             )
         )
+            .addingHeaders()
             .execute().dataAssertNoErrors.current_account
     }
 
@@ -118,6 +142,7 @@ class LightsparkClient internal constructor(
                 Optional.presentIfNotNull(numTransactions)
             )
         )
+            .addingHeaders()
             .execute().dataAssertNoErrors.current_account ?: return null
         return WalletDashboardData(
             accountName = accountResponse.name ?: "",
@@ -149,6 +174,7 @@ class LightsparkClient internal constructor(
                 Optional.presentIfNotNull(memo)
             )
         )
+            .addingHeaders()
             .execute().dataAssertNoErrors.create_invoice.invoice
     }
 
@@ -181,7 +207,7 @@ class LightsparkClient internal constructor(
                 Optional.presentIfNotNull(maxFees)
             )
         )
-            .httpHeaders(defaultHeaders + HttpHeader("X-Lightspark-node-id", nodeId))
+            .addingHeaders(listOf(HttpHeader("X-Lightspark-node-id", nodeId)))
             .execute().dataAssertNoErrors.pay_invoice.payment
     }
 
@@ -199,6 +225,7 @@ class LightsparkClient internal constructor(
                 encodedInvoice
             )
         )
+            .addingHeaders()
             .execute().dataAssertNoErrors.decoded_payment_request.onInvoiceData
     }
 
@@ -213,6 +240,7 @@ class LightsparkClient internal constructor(
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
     ): FeeEstimate {
         return apolloClient.query(FeeEstimateQuery(bitcoinNetwork))
+            .addingHeaders()
             .execute().dataAssertNoErrors.fee_estimate.let {
                 FeeEstimate(
                     CurrencyAmount(
@@ -245,6 +273,7 @@ class LightsparkClient internal constructor(
         nodePassword: String,
     ): Boolean {
         val response = apolloClient.query(RecoverNodeSigningKeyQuery(nodeId))
+            .addingHeaders()
             .execute().dataAssertNoErrors.entity?.onLightsparkNode?.encrypted_signing_private_key
             ?: return false
         try {
@@ -279,11 +308,18 @@ class LightsparkClient internal constructor(
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
         private var tokenId = BuildKonfig.LIGHTSPARK_TOKEN_ID
         private var token = BuildKonfig.LIGHTSPARK_TOKEN
+        private var authTokenProvider: AuthTokenProvider? = null
 
         fun serverUrl(serverUrl: String) = apply { this.serverUrl = serverUrl }
         fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
         fun token(token: String) = apply { this.token = token }
+        fun authProvider(authTokenProvider: AuthTokenProvider) =
+            apply { this.authTokenProvider = authTokenProvider }
 
-        fun build() = LightsparkClient(tokenId, token, serverUrl)
+        fun build() =
+            LightsparkClient(
+                authTokenProvider ?: AccountApiTokenAuthTokenProvider(tokenId, token),
+                serverUrl
+            )
     }
 }
