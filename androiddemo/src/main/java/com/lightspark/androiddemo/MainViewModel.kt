@@ -7,6 +7,7 @@ import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
 import com.lightspark.androiddemo.accountdashboard.DashboardData
 import com.lightspark.androiddemo.auth.AuthState
 import com.lightspark.androiddemo.auth.CredentialsStore
+import com.lightspark.androiddemo.auth.SavedCredentials
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.wallet.WalletRepository
@@ -28,16 +29,23 @@ class MainViewModel(
     private val credentialsStore: CredentialsStore = CredentialsStore.instance
 ) : ViewModel() {
     private val accountTokenInfo = credentialsStore.getAccountTokenFlow()
-        .onEach { tokenInfo ->
+        .runningFold(null to null) { prevInfo: Pair<SavedCredentials?, SavedCredentials?>, tokenInfo ->
+            prevInfo.second to tokenInfo
+        }
+        .onEach { tokenInfoWithPrev ->
+            val prevTokenInfo = tokenInfoWithPrev.first
+            val tokenInfo = tokenInfoWithPrev.second
             if (tokenInfo != null) {
-                dashboardRepository.setAccountToken(tokenInfo.tokenId, tokenInfo.tokenSecret)
-                tokenInfo.defaultWalletNodeId?.let {
-                    walletRepository.setActiveWalletWithoutUnlocking(it)
+                if (prevTokenInfo?.tokenId != tokenInfo.tokenId || prevTokenInfo.tokenSecret != tokenInfo.tokenSecret) {
+                    dashboardRepository.setAccountToken(tokenInfo.tokenId, tokenInfo.tokenSecret)
+                }
+                tokenInfo.defaultWalletNodeId?.let { nodeId ->
+                    walletRepository.setActiveWalletWithoutUnlocking(nodeId)
                 }
             }
         }
         .map { tokenInfo ->
-            Lce.Content(tokenInfo)
+            Lce.Content(tokenInfo.second)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
 

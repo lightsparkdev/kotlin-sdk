@@ -13,4 +13,8 @@ class AccountApiTokenAuthProvider(tokenId: String, tokenSecret: String) : AuthPr
     override suspend fun getCredentialHeaders(): Map<String, String> {
         return headerMap
     }
+
+    override fun isAccountAuthorized(): Boolean {
+        return true
+    }
 }

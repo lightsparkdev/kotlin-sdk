@@ -9,6 +9,7 @@ import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.auth.AuthProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.WalletDashboardData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -66,11 +67,14 @@ class LightsparkWalletClient private constructor(
     suspend fun getWalletDashboard(
         numTransactions: Int = 20,
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
-    ) = fullClient.getSingleNodeDashboard(
-        requireWalletId(),
-        numTransactions,
-        bitcoinNetwork
-    )
+    ): WalletDashboardData? {
+        fullClient.requireValidAuth()
+        return fullClient.getSingleNodeDashboard(
+            requireWalletId(),
+            numTransactions,
+            bitcoinNetwork
+        )
+    }
 
     /**
      * Unlocks the wallet for use with sensitive SDK operations. Also sets the active wallet to the specified

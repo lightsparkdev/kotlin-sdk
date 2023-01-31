@@ -1,5 +1,6 @@
 package com.lightspark.sdk.crypto
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 internal class NodeKeyCache {
@@ -16,7 +17,10 @@ internal class NodeKeyCache {
 
     operator fun set(nodeId: String, key: ByteArray) {
         keyCache[nodeId] = key
-        unlockedNodesFlow.tryEmit(keyCache.keys)
+        val didWork = unlockedNodesFlow.tryEmit(keyCache.keys)
+        if (!didWork) {
+            unlockedNodesFlow.value = keyCache.keys
+        }
     }
 
     fun safeGetKey(nodeId: String): ByteArray? {
@@ -28,5 +32,10 @@ internal class NodeKeyCache {
         unlockedNodesFlow.tryEmit(keyCache.keys)
     }
 
-    fun observeCachedNodeIds() = unlockedNodesFlow
+    fun clear() {
+        keyCache.clear()
+        unlockedNodesFlow.tryEmit(emptySet())
+    }
+
+    fun observeCachedNodeIds(): Flow<Set<String>> = unlockedNodesFlow
 }

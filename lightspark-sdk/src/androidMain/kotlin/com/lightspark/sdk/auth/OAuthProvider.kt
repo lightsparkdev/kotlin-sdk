@@ -15,4 +15,6 @@ class OAuthProvider(private val oAuthHelper: OAuthHelper) : AuthProvider {
             Log.e("OAuthTokenProvider", "Failed to get fresh auth token. Trying no auth.", e)
             emptyMap()
         }
+
+    override fun isAccountAuthorized() = oAuthHelper.isAuthorized()
 }

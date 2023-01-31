@@ -14,6 +14,8 @@ import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.conf.BuildKonfig
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.auth.AuthProvider
+import com.lightspark.sdk.auth.LightsparkAuthenticationException
+import com.lightspark.sdk.auth.StubAuthProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
@@ -77,6 +79,7 @@ class LightsparkClient internal constructor(
      * Override the auth token provider for this client to provide custom headers on all API calls.
      */
     fun setAuthTokenProvider(authProvider: AuthProvider) {
+        this.nodeKeyCache.clear()
         this.authProvider = authProvider
     }
 
@@ -107,6 +110,7 @@ class LightsparkClient internal constructor(
         nodeId: String? = null,
         nodeIds: List<String>? = null
     ): DashboardOverviewQuery.Current_account? {
+        requireValidAuth()
         return apolloClient.query(
             DashboardOverviewQuery(
                 bitcoinNetwork,
@@ -135,6 +139,7 @@ class LightsparkClient internal constructor(
         numTransactions: Int = 20,
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
     ): WalletDashboardData? {
+        requireValidAuth()
         val accountResponse = apolloClient.query(
             SingeNodeDashboardQuery(
                 bitcoinNetwork,
@@ -167,6 +172,7 @@ class LightsparkClient internal constructor(
         amount: CurrencyAmount,
         memo: String? = null,
     ): CreateInvoiceMutation.Invoice {
+        requireValidAuth()
         return apolloClient.mutation(
             CreateInvoiceMutation(
                 nodeId,
@@ -198,6 +204,7 @@ class LightsparkClient internal constructor(
         amount: CurrencyAmountInput? = null,
         maxFees: CurrencyAmountInput? = null,
     ): PayInvoiceMutation.Payment {
+        requireValidAuth()
         return apolloClient.mutation(
             PayInvoiceMutation(
                 nodeId,
@@ -239,6 +246,7 @@ class LightsparkClient internal constructor(
     suspend fun getFeeEstimate(
         bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
     ): FeeEstimate {
+        requireValidAuth()
         return apolloClient.query(FeeEstimateQuery(bitcoinNetwork))
             .addingHeaders()
             .execute().dataAssertNoErrors.fee_estimate.let {
@@ -272,6 +280,7 @@ class LightsparkClient internal constructor(
         nodeId: String,
         nodePassword: String,
     ): Boolean {
+        requireValidAuth()
         val response = apolloClient.query(RecoverNodeSigningKeyQuery(nodeId))
             .addingHeaders()
             .execute().dataAssertNoErrors.entity?.onLightsparkNode?.encrypted_signing_private_key
@@ -284,6 +293,12 @@ class LightsparkClient internal constructor(
             return false
         }
         return true
+    }
+
+    internal fun requireValidAuth() {
+        if (!authProvider.isAccountAuthorized()) {
+            throw LightsparkAuthenticationException()
+        }
     }
 
     /**
@@ -306,8 +321,8 @@ class LightsparkClient internal constructor(
      */
     class Builder {
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
-        private var tokenId = BuildKonfig.LIGHTSPARK_TOKEN_ID
-        private var token = BuildKonfig.LIGHTSPARK_TOKEN
+        private var tokenId: String? = null
+        private var token: String? = null
         private var authProvider: AuthProvider? = null
 
         fun serverUrl(serverUrl: String) = apply { this.serverUrl = serverUrl }
@@ -316,10 +331,16 @@ class LightsparkClient internal constructor(
         fun authProvider(authProvider: AuthProvider) =
             apply { this.authProvider = authProvider }
 
-        fun build() =
-            LightsparkClient(
-                authProvider ?: AccountApiTokenAuthProvider(tokenId, token),
+        fun build(): LightsparkClient {
+            val authProvider = this.authProvider ?: if (tokenId != null && token != null) {
+                AccountApiTokenAuthProvider(tokenId!!, token!!)
+            } else {
+                StubAuthProvider()
+            }
+            return LightsparkClient(
+                authProvider,
                 serverUrl
             )
+        }
     }
 }
