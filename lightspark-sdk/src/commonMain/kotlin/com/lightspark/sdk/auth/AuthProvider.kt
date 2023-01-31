@@ -1,6 +1,6 @@
 package com.lightspark.sdk.auth
 
-interface AuthTokenProvider {
+interface AuthProvider {
     fun withValidAuthToken(block: (String) -> Unit)
     suspend fun getCredentialHeaders(): Map<String, String>
 }

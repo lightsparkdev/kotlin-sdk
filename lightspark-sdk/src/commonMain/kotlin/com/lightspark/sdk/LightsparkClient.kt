@@ -12,8 +12,8 @@ import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.conf.BuildKonfig
-import com.lightspark.sdk.auth.AccountApiTokenAuthTokenProvider
-import com.lightspark.sdk.auth.AuthTokenProvider
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
+import com.lightspark.sdk.auth.AuthProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
@@ -46,7 +46,7 @@ private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuh
  * throughout the lifetime of your app.
  */
 class LightsparkClient internal constructor(
-    private var authTokenProvider: AuthTokenProvider,
+    private var authProvider: AuthProvider,
     serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
     internal val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
@@ -68,7 +68,7 @@ class LightsparkClient internal constructor(
     private suspend fun <T : Operation.Data> ApolloCall<T>.addingHeaders(
         extraHeaders: List<HttpHeader> = emptyList()
     ) = httpHeaders(
-        authTokenProvider.getCredentialHeaders().map { HttpHeader(it.key, it.value) }
+        authProvider.getCredentialHeaders().map { HttpHeader(it.key, it.value) }
             .plus(defaultHeaders)
             .plus(extraHeaders)
     )
@@ -76,8 +76,8 @@ class LightsparkClient internal constructor(
     /**
      * Override the auth token provider for this client to provide custom headers on all API calls.
      */
-    fun setAuthTokenProvider(authTokenProvider: AuthTokenProvider) {
-        this.authTokenProvider = authTokenProvider
+    fun setAuthTokenProvider(authProvider: AuthProvider) {
+        this.authProvider = authProvider
     }
 
     /**
@@ -85,7 +85,7 @@ class LightsparkClient internal constructor(
      * account-based authentication.
      */
     fun setAccountApiToken(tokenId: String, tokenSecret: String) {
-        setAuthTokenProvider(AccountApiTokenAuthTokenProvider(tokenId, tokenSecret))
+        setAuthTokenProvider(AccountApiTokenAuthProvider(tokenId, tokenSecret))
     }
 
     /**
@@ -308,17 +308,17 @@ class LightsparkClient internal constructor(
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
         private var tokenId = BuildKonfig.LIGHTSPARK_TOKEN_ID
         private var token = BuildKonfig.LIGHTSPARK_TOKEN
-        private var authTokenProvider: AuthTokenProvider? = null
+        private var authProvider: AuthProvider? = null
 
         fun serverUrl(serverUrl: String) = apply { this.serverUrl = serverUrl }
         fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
         fun token(token: String) = apply { this.token = token }
-        fun authProvider(authTokenProvider: AuthTokenProvider) =
-            apply { this.authTokenProvider = authTokenProvider }
+        fun authProvider(authProvider: AuthProvider) =
+            apply { this.authProvider = authProvider }
 
         fun build() =
             LightsparkClient(
-                authTokenProvider ?: AccountApiTokenAuthTokenProvider(tokenId, token),
+                authProvider ?: AccountApiTokenAuthProvider(tokenId, token),
                 serverUrl
             )
     }

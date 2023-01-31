@@ -2,7 +2,7 @@ package com.lightspark.sdk.auth
 
 import android.util.Log
 
-class OAuthTokenProvider(private val oAuthHelper: OAuthHelper) : AuthTokenProvider {
+class OAuthProvider(private val oAuthHelper: OAuthHelper) : AuthProvider {
     override fun withValidAuthToken(block: (String) -> Unit) {
         oAuthHelper.withAuthToken { token, _ -> block(token) }
     }

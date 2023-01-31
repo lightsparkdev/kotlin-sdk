@@ -5,8 +5,8 @@ import com.lightspark.api.PayInvoiceMutation
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.conf.BuildKonfig
-import com.lightspark.sdk.auth.AccountApiTokenAuthTokenProvider
-import com.lightspark.sdk.auth.AuthTokenProvider
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
+import com.lightspark.sdk.auth.AuthProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.flow.Flow
@@ -199,7 +199,7 @@ class LightsparkWalletClient private constructor(
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
         private var tokenId = BuildKonfig.LIGHTSPARK_TOKEN_ID
         private var token = BuildKonfig.LIGHTSPARK_TOKEN
-        private var authTokenProvider: AuthTokenProvider? = null
+        private var authProvider: AuthProvider? = null
         private var walletId: String? = null
         private var fullClient: LightsparkClient? = null
 
@@ -207,8 +207,8 @@ class LightsparkWalletClient private constructor(
         fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
         fun token(token: String) = apply { this.token = token }
         fun walletId(walletId: String) = apply { this.walletId = walletId }
-        fun authProvider(authTokenProvider: AuthTokenProvider) =
-            apply { this.authTokenProvider = authTokenProvider }
+        fun authProvider(authProvider: AuthProvider) =
+            apply { this.authProvider = authProvider }
 
         fun fullLightsparkClient(fullClient: LightsparkClient) =
             apply { this.fullClient = fullClient }
@@ -216,7 +216,7 @@ class LightsparkWalletClient private constructor(
 
         fun build(): LightsparkWalletClient {
             val isTokenValid =
-                authTokenProvider != null || (tokenId.isNotBlank() && token.isNotBlank())
+                authProvider != null || (tokenId.isNotBlank() && token.isNotBlank())
             if (fullClient == null && (serverUrl.isBlank() || !isTokenValid)) {
                 throw LightsparkException(
                     "Missing server URL, token ID, or token",
@@ -225,7 +225,7 @@ class LightsparkWalletClient private constructor(
             }
 
             val delegateFullClient = fullClient ?: LightsparkClient(
-                authTokenProvider ?: AccountApiTokenAuthTokenProvider(tokenId, token),
+                authProvider ?: AccountApiTokenAuthProvider(tokenId, token),
                 serverUrl,
                 nodeKeyCache = NodeKeyCache()
             )
