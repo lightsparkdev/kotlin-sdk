@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
@@ -19,12 +21,15 @@ import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
+import com.lightspark.sdk.LightsparkErrorCode
+import com.lightspark.sdk.LightsparkException
 import com.lightspark.sdk.model.CurrencyAmount
 
 @Composable
 fun DashboardView(
     dashboardData: Lce<DashboardData>,
     modifier: Modifier = Modifier,
+    navController: NavController? = null,
     onWalletNodeSelected: (node: NodeDisplayData) -> Unit = {},
 ) {
     when (dashboardData) {
@@ -52,10 +57,18 @@ fun DashboardView(
             }
         }
         is Lce.Error -> {
-            Text(
-                text = "Error: ${dashboardData.exception}",
-                style = MaterialTheme.typography.displayLarge
-            )
+            if ((dashboardData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
+                MissingCredentialsScreen(
+                    modifier = modifier.fillMaxSize(),
+                    navController = navController
+                )
+            } else {
+                Text(
+                    text = "Error: ${dashboardData.exception?.message ?: "Unknown"}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
         is Lce.Loading -> LoadingPage()
     }

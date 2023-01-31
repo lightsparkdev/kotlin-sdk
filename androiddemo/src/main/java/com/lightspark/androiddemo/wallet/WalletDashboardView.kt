@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
@@ -40,6 +41,8 @@ import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.TransactionStatus
 import com.lightspark.sdk.Lce
+import com.lightspark.sdk.LightsparkErrorCode
+import com.lightspark.sdk.LightsparkException
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.WalletDashboardData
@@ -50,6 +53,7 @@ fun WalletDashboardView(
     walletData: Lce<WalletDashboardData>,
     navController: NavController,
     modifier: Modifier = Modifier,
+    onRefreshData: (() -> Unit)? = null,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
     onTransactionTap: ((Transaction) -> Unit)? = null
@@ -89,11 +93,18 @@ fun WalletDashboardView(
                 )
             }
             is Lce.Error -> {
-                Text(
-                    text = "Error: ${walletData.exception?.message ?: "Unknown"}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                if ((walletData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
+                    MissingCredentialsScreen(
+                        modifier = modifier.fillMaxSize(),
+                        navController = navController
+                    )
+                } else {
+                    Text(
+                        text = "Error: ${walletData.exception?.message ?: "Unknown"}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
             is Lce.Loading -> {
                 LoadingPage()

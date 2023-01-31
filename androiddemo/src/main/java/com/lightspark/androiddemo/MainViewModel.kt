@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
 import com.lightspark.androiddemo.accountdashboard.DashboardData
+import com.lightspark.androiddemo.auth.AuthState
+import com.lightspark.androiddemo.auth.CredentialsStore
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.wallet.WalletRepository
@@ -22,8 +24,35 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
     private val dashboardRepository: AccountDashboardRepository = AccountDashboardRepository(),
-    private val walletRepository: WalletRepository = WalletRepository()
+    private val walletRepository: WalletRepository = WalletRepository(),
+    private val credentialsStore: CredentialsStore = CredentialsStore.instance
 ) : ViewModel() {
+    private val accountTokenInfo = credentialsStore.getAccountTokenFlow()
+        .onEach { tokenInfo ->
+            if (tokenInfo != null) {
+                dashboardRepository.setAccountToken(tokenInfo.first, tokenInfo.second)
+            }
+        }
+        .map { tokenInfo ->
+            Lce.Content(tokenInfo)
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
+    val tokenState = accountTokenInfo.map { tokenInfo ->
+        when (tokenInfo) {
+            is Lce.Loading -> Lce.Loading
+            is Lce.Error -> Lce.Error(tokenInfo.exception)
+            is Lce.Content -> {
+                if (tokenInfo.data == null) {
+                    Lce.Content(AuthState.NO_TOKEN)
+                } else {
+                    Lce.Content(AuthState.HAS_TOKEN)
+                }
+            }
+        }
+    }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
     private val refreshDashboard = MutableSharedFlow<Unit>(replay = 1)
     private val refreshWallet = MutableSharedFlow<Unit>(replay = 1)
 
@@ -59,6 +88,10 @@ class MainViewModel(
 
     fun refreshWalletData() {
         refreshWallet.tryEmit(Unit)
+    }
+
+    fun onAccountTokenInfoSubmitted(tokenId: String, tokenSecret: String) = viewModelScope.launch {
+        credentialsStore.setAccountToken(tokenId, tokenSecret)
     }
 
     fun setActiveWallet(nodeId: String, nodePassword: String) = walletRepository

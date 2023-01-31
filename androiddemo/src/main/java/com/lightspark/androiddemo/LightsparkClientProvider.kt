@@ -7,7 +7,9 @@ import com.lightspark.sdk.LightsparkWalletClient
 // this should probably be injected via a dependency injection framework instead.
 object LightsparkClientProvider {
     val fullClient by lazy {
-        LightsparkClient.Builder().build()
+        LightsparkClient.Builder()
+//            .tokenId("faketokentokillwallet")
+            .build()
     }
 
     val walletClient by lazy {

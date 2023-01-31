@@ -10,9 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -22,20 +20,26 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.lightspark.androiddemo.accountdashboard.DashboardData
 import com.lightspark.androiddemo.accountdashboard.DashboardView
+import com.lightspark.androiddemo.auth.AuthState
+import com.lightspark.androiddemo.auth.ui.AuthScreen
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentScreen
 import com.lightspark.androiddemo.requestpayment.RequestPaymentViewModel
 import com.lightspark.androiddemo.sendpayment.SendPaymentScreen
 import com.lightspark.androiddemo.sendpayment.SendPaymentViewModel
-import com.lightspark.androiddemo.settings.SettingsScreen
+import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
+import com.lightspark.sdk.Lce
+import com.lightspark.sdk.model.WalletDashboardData
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
@@ -50,102 +54,134 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
             val advancedDashboardData by viewModel.advancedDashboardData.collectAsState()
             val walletDashboardData by viewModel.walletDashboardData.collectAsState()
+            val tokenState by viewModel.tokenState.collectAsState()
 
             LightsparkTheme {
-                Scaffold(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    bottomBar = {
-                        NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-                            val navItems = listOf(Screen.Settings, Screen.Wallet, Screen.Account)
-                            navItems.forEach { screen ->
-                                NavigationBarItem(
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.onSurface,
-                                        selectedTextColor = Color.Black, //MaterialTheme.colorScheme.onSurface,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(
-                                            alpha = 0.4f
-                                        ),
-                                        unselectedTextColor = Color.Green,
-                                        indicatorColor = Success.copy(alpha = 0.2f)
-                                            .compositeOver(MaterialTheme.colorScheme.background),
-                                    ),
-                                    icon = { Icon(screen.icon, contentDescription = null) },
-                                    label = { Text(stringResource(screen.resourceId)) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                    onClick = {
-                                        navController.navigate(screen.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }) { innerPadding ->
-                    NavHost(
-                        navController,
-                        startDestination = Screen.Wallet.route,
-                        Modifier.padding(innerPadding)
-                    ) {
-                        composable(Screen.Settings.route) {
-                            SettingsScreen()
-                        }
-                        composable(Screen.Wallet.route) {
-                            WalletDashboardView(
-                                walletData = walletDashboardData,
-                                navController = navController,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        composable(Screen.Account.route) {
-                            LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
-                            DashboardView(
-                                dashboardData = advancedDashboardData,
-                                modifier = Modifier.fillMaxSize(),
-                                onWalletNodeSelected = viewModel::requestKeyRecovery,
-                            )
-                        }
-                        composable(Screen.SendPayment.route) {
-                            requestCameraPermission()
-                            val viewModel: SendPaymentViewModel = viewModel()
-                            val uiState by viewModel.uiState.collectAsState()
-                            SendPaymentScreen(
-                                uiState = uiState,
-                                onQrCodeRecognized = viewModel::onQrCodeRecognized,
-                                onManualAddressEntryTapped = viewModel::onManualAddressEntryTapped,
-                                onInvoiceManuallyEntered = viewModel::onInvoiceManuallyEntered,
-                                onPaymentSendTapped = viewModel::onPaymentSendTapped
-                            )
-                        }
-                        composable(Screen.RequestPayment.route) {
-                            val viewModel: RequestPaymentViewModel = viewModel()
-                            val uiState by viewModel.uiState.collectAsState()
-                            RequestPaymentScreen(
-                                uiState = uiState,
-                                createInvoice = viewModel::createInvoice
-                            )
-                        }
+                when (tokenState) {
+                    is Lce.Loading -> LoadingPage()
+                    is Lce.Error -> {
+                        Log.e(
+                            "MainActivity",
+                            "Error: ${(tokenState as Lce.Error).exception?.message}"
+                        )
+                        LoadingPage()
+                    }
+                    is Lce.Content -> {
+                        val token = (tokenState as Lce.Content).data
+                        MainAppView(
+                            navController,
+                            walletDashboardData,
+                            advancedDashboardData,
+                            if (token == AuthState.NO_TOKEN) Screen.Settings.route else Screen.Wallet.route
+                        )
                     }
                 }
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.refreshWalletData()
+    @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
+    private fun MainAppView(
+        navController: NavHostController,
+        walletDashboardData: Lce<WalletDashboardData>,
+        advancedDashboardData: Lce<DashboardData>,
+        startRoute: String
+    ) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+                    val navItems = listOf(Screen.Settings, Screen.Wallet, Screen.Account)
+                    navItems.forEach { screen ->
+                        NavigationBarItem(
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                selectedTextColor = Color.Black,
+                                unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(
+                                    alpha = 0.4f
+                                ),
+                                unselectedTextColor = Color.Green,
+                                indicatorColor = Success.copy(alpha = 0.2f)
+                                    .compositeOver(MaterialTheme.colorScheme.background),
+                            ),
+                            icon = { Icon(screen.icon, contentDescription = null) },
+                            label = { Text(stringResource(screen.resourceId)) },
+                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+                }
+            }) { innerPadding ->
+            NavHost(
+                navController,
+                startDestination = startRoute,
+                Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Settings.route) {
+                    val tokenState by viewModel.tokenState.collectAsState()
+                    AuthScreen(
+                        isLoading = tokenState is Lce.Loading,
+                        modifier = Modifier.fillMaxSize(),
+                        onSubmit = viewModel::onAccountTokenInfoSubmitted
+                    )
+                }
+                composable(Screen.Wallet.route) {
+                    LaunchedEffect(true) { viewModel.refreshWalletData() }
+                    WalletDashboardView(
+                        walletData = walletDashboardData,
+                        navController = navController,
+                        modifier = Modifier.fillMaxSize(),
+                        onRefreshData = viewModel::refreshWalletData,
+                    )
+                }
+                composable(Screen.Account.route) {
+                    LaunchedEffect(true) { viewModel.refreshAdvancedDashboardData() }
+                    DashboardView(
+                        dashboardData = advancedDashboardData,
+                        modifier = Modifier.fillMaxSize(),
+                        navController = navController,
+                        onWalletNodeSelected = viewModel::requestKeyRecovery,
+                    )
+                }
+                composable(Screen.SendPayment.route) {
+                    requestCameraPermission()
+                    val viewModel: SendPaymentViewModel = viewModel()
+                    val uiState by viewModel.uiState.collectAsState()
+                    SendPaymentScreen(
+                        uiState = uiState,
+                        onQrCodeRecognized = viewModel::onQrCodeRecognized,
+                        onManualAddressEntryTapped = viewModel::onManualAddressEntryTapped,
+                        onInvoiceManuallyEntered = viewModel::onInvoiceManuallyEntered,
+                        onPaymentSendTapped = viewModel::onPaymentSendTapped
+                    )
+                }
+                composable(Screen.RequestPayment.route) {
+                    val viewModel: RequestPaymentViewModel = viewModel()
+                    val uiState by viewModel.uiState.collectAsState()
+                    RequestPaymentScreen(
+                        uiState = uiState,
+                        createInvoice = viewModel::createInvoice
+                    )
+                }
+            }
+        }
     }
 
     private fun requestCameraPermission() {

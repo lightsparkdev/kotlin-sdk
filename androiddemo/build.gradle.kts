@@ -59,6 +59,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.zxing:core:3.5.0")
 
     val cameraxVersion = "1.3.0-alpha02"
