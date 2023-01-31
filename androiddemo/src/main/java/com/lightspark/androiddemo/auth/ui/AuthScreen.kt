@@ -15,10 +15,11 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 fun AuthScreen(
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
-    onSubmit: (tokenId: String, tokenSecret: String) -> Unit = { _, _ -> }
+    onSubmit: (tokenId: String, tokenSecret: String, defaultWalletId: String?) -> Unit = { _, _, _ -> }
 ) {
     var tokenId by remember { mutableStateOf("") }
     var tokenSecret by remember { mutableStateOf("") }
+    var nodeID by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -46,10 +47,17 @@ fun AuthScreen(
             onValueChange = { tokenSecret = it.trim() },
             singleLine = false
         )
+        TextField(
+            label = { Text("Node ID for Wallet", style = MaterialTheme.typography.labelMedium) },
+            placeholder = { Text("Enter wallet node ID") },
+            value = nodeID,
+            onValueChange = { nodeID = it.trim() },
+            singleLine = false
+        )
         Spacer(modifier = Modifier.weight(1f))
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { onSubmit(tokenId, tokenSecret) },
+            onClick = { onSubmit(tokenId, tokenSecret, nodeID.takeIf { it.isNotBlank() }) },
             enabled = !isLoading,
             modifier = Modifier
                 .offset(y = (-16).dp)

@@ -4,22 +4,27 @@ import com.lightspark.androiddemo.LightsparkClientProvider
 import com.lightspark.androiddemo.auth.CredentialsStore
 import com.lightspark.sdk.*
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 
 class WalletRepository(
     private val walletClient: LightsparkWalletClient = LightsparkClientProvider.walletClient,
-    credentialsStore: CredentialsStore = CredentialsStore.instance
+    private val credentialsStore: CredentialsStore = CredentialsStore.instance
 ) {
-    private val hasCredentials = credentialsStore.getAccountTokenFlow().map { it != null }
     fun getWalletDashboard() = combine(
-        hasCredentials,
+        credentialsStore.getAccountTokenFlow(),
         wrapWithLceFlow { walletClient.getWalletDashboard() }
-    ) { hasCredentials, dashboard ->
-        if (!hasCredentials) {
+    ) { credentials, dashboard ->
+        if (credentials == null) {
             Lce.Error(
                 LightsparkException(
                     "No credentials stored",
                     LightsparkErrorCode.NO_CREDENTIALS
+                )
+            )
+        } else if (credentials.defaultWalletNodeId == null) {
+            Lce.Error(
+                LightsparkException(
+                    "No wallet id stored",
+                    LightsparkErrorCode.MISSING_WALLET_ID
                 )
             )
         } else {
@@ -31,7 +36,23 @@ class WalletRepository(
         wrapWithLceFlow { walletClient.unlockActiveWallet(password) }
 
     fun setActiveWalletAndUnlock(nodeId: String, password: String) =
-        wrapWithLceFlow { walletClient.unlockWallet(nodeId, password) }
+        wrapWithLceFlow {
+            if (walletClient.unlockWallet(nodeId, password)) {
+                credentialsStore.getAccountTokenSync()?.let {
+                    credentialsStore.setAccountData(it.tokenId, it.tokenSecret, nodeId)
+                }
+                true
+            } else {
+                false
+            }
+        }
+
+    suspend fun setActiveWalletWithoutUnlocking(nodeId: String) {
+        walletClient.setActiveWalletWithoutUnlocking(nodeId)
+        credentialsStore.getAccountTokenSync()?.let {
+            credentialsStore.setAccountData(it.tokenId, it.tokenSecret, nodeId)
+        }
+    }
 
     val isWalletUnlocked = walletClient.observeWalletUnlocked()
 }

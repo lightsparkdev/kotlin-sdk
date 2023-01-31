@@ -12,8 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
 import com.lightspark.androiddemo.model.NodeDisplayData
+import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.util.displayString
@@ -60,7 +62,15 @@ fun DashboardView(
             if ((dashboardData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
                 MissingCredentialsScreen(
                     modifier = modifier.fillMaxSize(),
-                    navController = navController
+                    onSettingsTapped = {
+                        navController?.navigate(Screen.Settings.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 )
             } else {
                 Text(

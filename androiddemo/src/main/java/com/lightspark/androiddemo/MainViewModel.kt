@@ -30,7 +30,10 @@ class MainViewModel(
     private val accountTokenInfo = credentialsStore.getAccountTokenFlow()
         .onEach { tokenInfo ->
             if (tokenInfo != null) {
-                dashboardRepository.setAccountToken(tokenInfo.first, tokenInfo.second)
+                dashboardRepository.setAccountToken(tokenInfo.tokenId, tokenInfo.tokenSecret)
+                tokenInfo.defaultWalletNodeId?.let {
+                    walletRepository.setActiveWalletWithoutUnlocking(it)
+                }
             }
         }
         .map { tokenInfo ->
@@ -90,8 +93,12 @@ class MainViewModel(
         refreshWallet.tryEmit(Unit)
     }
 
-    fun onAccountTokenInfoSubmitted(tokenId: String, tokenSecret: String) = viewModelScope.launch {
-        credentialsStore.setAccountToken(tokenId, tokenSecret)
+    fun onAccountTokenInfoSubmitted(
+        tokenId: String,
+        tokenSecret: String,
+        defaultWalletId: String?
+    ) = viewModelScope.launch {
+        credentialsStore.setAccountData(tokenId, tokenSecret, defaultWalletId)
     }
 
     fun setActiveWallet(nodeId: String, nodePassword: String) = walletRepository

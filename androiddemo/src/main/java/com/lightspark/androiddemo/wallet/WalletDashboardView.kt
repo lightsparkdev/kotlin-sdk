@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
 import com.lightspark.androiddemo.navigation.Screen
@@ -96,7 +97,29 @@ fun WalletDashboardView(
                 if ((walletData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
                     MissingCredentialsScreen(
                         modifier = modifier.fillMaxSize(),
-                        navController = navController
+                        onSettingsTapped = {
+                            navController.navigate(Screen.Settings.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                } else if ((walletData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.MISSING_WALLET_ID) {
+                    MissingCredentialsScreen(
+                        modifier = modifier.fillMaxSize(),
+                        textOverride = "It looks like you don't have a default wallet set up yet. You can pick one to unlock in the account page.",
+                        onSettingsTapped = {
+                            navController.navigate(Screen.Account.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 } else {
                     Text(

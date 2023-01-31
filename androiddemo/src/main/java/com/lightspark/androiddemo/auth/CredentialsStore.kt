@@ -7,33 +7,43 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lightspark.androiddemo.LightsparkDemoApplication
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+
+data class SavedCredentials(
+    val tokenId: String,
+    val tokenSecret: String,
+    val defaultWalletNodeId: String?
+)
 
 class CredentialsStore(private val context: Context) {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ls-credentials")
     private val TOKEN_ID_KEY = stringPreferencesKey("token_id")
     private val TOKEN_SECRET_KEY = stringPreferencesKey("token_secret")
+    private val DEFAULT_WALLET_NODE_ID = stringPreferencesKey("wallet_node_id")
 
-    suspend fun setAccountToken(tokenId: String, tokenSecret: String) {
+    suspend fun setAccountData(tokenId: String, tokenSecret: String, defaultWalletNodeId: String?) {
         context.dataStore.edit { preferences ->
             preferences[TOKEN_ID_KEY] = tokenId
             preferences[TOKEN_SECRET_KEY] = tokenSecret
+            defaultWalletNodeId?.let { preferences[DEFAULT_WALLET_NODE_ID] = it }
+                ?: preferences.remove(DEFAULT_WALLET_NODE_ID)
         }
     }
 
-    suspend fun getAccountTokenSync(): Pair<String, String>? {
+    suspend fun getAccountTokenSync(): SavedCredentials? {
         val preferences = context.dataStore.data.first()
         val tokenId = preferences[TOKEN_ID_KEY] ?: return null
         val tokenSecret = preferences[TOKEN_SECRET_KEY] ?: return null
-        return Pair(tokenId, tokenSecret)
+        return SavedCredentials(tokenId, tokenSecret, preferences[DEFAULT_WALLET_NODE_ID])
     }
 
     fun getAccountTokenFlow() = context.dataStore.data.map { preferences ->
         val tokenId = preferences[TOKEN_ID_KEY] ?: return@map null
         val tokenSecret = preferences[TOKEN_SECRET_KEY] ?: return@map null
-        Pair(tokenId, tokenSecret)
-    }
+        SavedCredentials(tokenId, tokenSecret, preferences[DEFAULT_WALLET_NODE_ID])
+    }.distinctUntilChanged()
 
     companion object {
         val instance by lazy {

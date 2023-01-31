@@ -96,6 +96,14 @@ class LightsparkWalletClient private constructor(
     suspend fun unlockActiveWallet(password: String) = unlockWallet(requireWalletId(), password)
 
     /**
+     * Sets the active wallet, but does not attempt to unlock it. If the wallet is not unlocked, sensitive operations
+     * like [payInvoice] will fail.
+     */
+    fun setActiveWalletWithoutUnlocking(walletId: String) {
+        this.activeWalletId = walletId
+    }
+
+    /**
      * Locks the active wallet if needed to prevent payment until the password is entered again and passed to
      * [unlockWallet].
      *

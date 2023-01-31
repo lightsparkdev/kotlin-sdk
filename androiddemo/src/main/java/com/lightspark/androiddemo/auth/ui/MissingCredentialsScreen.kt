@@ -11,14 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 
 @Composable
 fun MissingCredentialsScreen(
     modifier: Modifier = Modifier,
-    navController: NavController? = null
+    textOverride: String? = null,
+    onSettingsTapped: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -26,7 +25,8 @@ fun MissingCredentialsScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "It looks like you haven't set up your account credentials yet. Head over to settings to set that up.",
+            textOverride
+                ?: "It looks like you haven't set up your account credentials yet. Head over to settings to set that up.",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
@@ -35,7 +35,7 @@ fun MissingCredentialsScreen(
         )
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { navController?.navigate(Screen.Settings.route) },
+            onClick = onSettingsTapped,
             modifier = Modifier
                 .offset(y = 32.dp)
                 .fillMaxWidth(0.8f)
