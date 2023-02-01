@@ -11,8 +11,8 @@ android {
         applicationId = "com.lightspark.androiddemo"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "0.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,7 +23,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -60,7 +60,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("com.google.zxing:core:3.5.0")
+    implementation("com.google.zxing:core:3.5.1")
 
     val cameraxVersion = "1.3.0-alpha02"
     implementation("androidx.camera:camera-core:$cameraxVersion")
