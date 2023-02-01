@@ -203,6 +203,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         modifier = Modifier.fillMaxSize(),
                         onRefreshData = viewModel::refreshWalletData,
+                        onUnlockRequest = viewModel::unlockWallet,
                     )
                 }
                 composable(Screen.Account.route) {

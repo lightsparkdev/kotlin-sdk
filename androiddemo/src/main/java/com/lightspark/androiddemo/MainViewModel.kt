@@ -161,6 +161,11 @@ class MainViewModel(
             }
         }
 
+    fun unlockWallet(nodePassword: String) = requestKeyRecovery(
+        requireNotNull(walletRepository.activeWalletId) { "No active wallet" },
+        nodePassword
+    )
+
     fun setActiveWalletWithoutUnlocking(nodeId: String) =
         viewModelScope.launch(context = Dispatchers.IO) {
             walletRepository.setActiveWalletWithoutUnlocking(nodeId)

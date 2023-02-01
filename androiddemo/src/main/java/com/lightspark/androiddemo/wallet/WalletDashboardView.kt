@@ -13,10 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -35,6 +32,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
+import com.lightspark.androiddemo.auth.ui.NodePasswordDialog
 import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
@@ -60,7 +58,8 @@ fun WalletDashboardView(
     onRefreshData: (() -> Unit)? = null,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
-    onTransactionTap: ((Transaction) -> Unit)? = null
+    onTransactionTap: ((Transaction) -> Unit)? = null,
+    onUnlockRequest: ((password: String) -> Unit)? = null,
 ) {
     val itemHeight = with(LocalDensity.current) { 60.dp.toPx() }
     val scrollState = rememberLazyListState()
@@ -88,7 +87,8 @@ fun WalletDashboardView(
                     onReceiveTap = {
                         navController.navigate(Screen.RequestPayment.route)
                         onReceiveTap?.invoke()
-                    }
+                    },
+                    onUnlockRequest = onUnlockRequest,
                 )
                 TransactionList(
                     walletData = walletData.data,
@@ -147,8 +147,10 @@ fun WalletHeader(
     scrollOffset: Float,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
-    onReceiveTap: (() -> Unit)? = null
+    onReceiveTap: (() -> Unit)? = null,
+    onUnlockRequest: ((password: String) -> Unit)? = null
 ) {
+    var passwordDialogOpen by remember { mutableStateOf(false) }
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
     val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
@@ -169,30 +171,9 @@ fun WalletHeader(
             .background(color = MaterialTheme.colorScheme.surface)
     ) {
         Spacer(modifier = Modifier.weight(.2f))
-        FilledIconButton(
-            onClick = { /*TODO*/ },
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = if (walletUnlockStatus == NodeLockStatus.UNLOCKED) {
-                    MaterialTheme.colorScheme.secondary
-                } else {
-                    MaterialTheme.colorScheme.onBackground
-                },
-                contentColor = MaterialTheme.colorScheme.background
-            ),
-            enabled = walletUnlockStatus != NodeLockStatus.UNLOCKING,
-            modifier = Modifier
-                .height(40.dp * buttonHeightFactor)
-                .alpha(buttonAlpha)
-        ) {
-            when (walletUnlockStatus) {
-                NodeLockStatus.LOCKED -> Icon(Icons.Filled.Lock, contentDescription = "Locked")
-                NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.background
-                )
-                NodeLockStatus.UNLOCKED -> Icon(
-                    painterResource(id = R.drawable.ic_lock_open),
-                    contentDescription = "Unlocked"
-                )
+        UnlockButton(walletUnlockStatus, buttonHeightFactor, buttonAlpha) {
+            if (walletUnlockStatus == NodeLockStatus.LOCKED) {
+                passwordDialogOpen = true
             }
         }
         WalletBalances(walletData, scrollOffset, modifier = Modifier.weight(.4f))
@@ -205,6 +186,47 @@ fun WalletHeader(
                     .height(3.dp)
                     .clip(RoundedCornerShape(100))
                     .background(MaterialTheme.colorScheme.onBackground)
+            )
+        }
+    }
+    NodePasswordDialog(
+        nodeName = walletData.nodeDisplayName,
+        open = passwordDialogOpen,
+        onDismiss = { passwordDialogOpen = false }) {
+        onUnlockRequest?.invoke(it)
+    }
+}
+
+@Composable
+private fun UnlockButton(
+    walletUnlockStatus: NodeLockStatus,
+    buttonHeightFactor: Float,
+    buttonAlpha: Float,
+    onClick: () -> Unit
+) {
+    FilledIconButton(
+        onClick = onClick,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = if (walletUnlockStatus == NodeLockStatus.UNLOCKED) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.onBackground
+            },
+            contentColor = MaterialTheme.colorScheme.background
+        ),
+        enabled = walletUnlockStatus != NodeLockStatus.UNLOCKING,
+        modifier = Modifier
+            .height(40.dp * buttonHeightFactor)
+            .alpha(buttonAlpha)
+    ) {
+        when (walletUnlockStatus) {
+            NodeLockStatus.LOCKED -> Icon(Icons.Filled.Lock, contentDescription = "Locked")
+            NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.background
+            )
+            NodeLockStatus.UNLOCKED -> Icon(
+                painterResource(id = R.drawable.ic_lock_open),
+                contentDescription = "Unlocked"
             )
         }
     }
@@ -324,6 +346,7 @@ fun WalletPreview() {
             Lce.Content(
                 WalletDashboardData(
                     "My Wallet",
+                    "Crazy Wallet",
                     CurrencyAmount(100L, CurrencyUnit.BITCOIN),
                     fakeTransactions()
                 )

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 
@@ -13,8 +14,9 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 @Composable
 fun NodePasswordDialog(
     open: Boolean = false,
-    onDismiss: () -> Unit = { },
-    onSubmit: (String) -> Unit = { }
+    nodeName: String = "a node",
+    onDismiss: () -> Unit = {},
+    onSubmit: (String) -> Unit = {}
 ) {
     var password by remember { mutableStateOf("") }
     if (!open) return
@@ -22,7 +24,11 @@ fun NodePasswordDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = { onSubmit(password) },
+                onClick = {
+                    onSubmit(password)
+                    onDismiss()
+                    password = ""
+                },
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
             ) {
                 Text("Submit")
@@ -37,13 +43,14 @@ fun NodePasswordDialog(
             }
         },
         title = {
-            Text("Enter node password")
+            Text("Unlock $nodeName")
         },
         text = {
             TextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Node password") },
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
                 placeholder = { Text("Enter node password") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),

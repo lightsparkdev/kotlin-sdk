@@ -70,6 +70,9 @@ fun DashboardView(
             }
             NodePasswordDialog(
                 open = passwordEntryNodeId != null,
+                nodeName = dashboardData.data.overviewNodes.firstOrNull {
+                    it.id == passwordEntryNodeId
+                }?.name ?: "a node",
                 onDismiss = { passwordEntryNodeId = null },
                 onSubmit = { password ->
                     passwordEntryNodeId?.let { nodeId ->

@@ -146,6 +146,8 @@ class LightsparkClient internal constructor(
             .execute().dataAssertNoErrors.current_account ?: return null
         return WalletDashboardData(
             accountName = accountResponse.name ?: "",
+            nodeDisplayName = accountResponse.dashboard_overview_nodes.edges.firstOrNull()?.entity?.display_name
+                ?: "",
             balance = accountResponse.blockchain_balance?.available_balance?.let {
                 CurrencyAmount(it.value, it.unit)
             } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI),
