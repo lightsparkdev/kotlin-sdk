@@ -30,8 +30,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-private const val OAUTH_CLIENT_ID = "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
+private const val OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
 private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
+
+// NOTE: This is a public client secret, it is safe to include in the app.
+private const val OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
@@ -260,7 +263,7 @@ class MainViewModel(
             Log.e("MainActivity", "Error handling auth response", e)
             return
         }
-        oAuthHelper.fetchAndPersistRefreshToken { _, error ->
+        oAuthHelper.fetchAndPersistRefreshToken(OAUTH_CLIENT_SECRET) { _, error ->
             if (error != null) {
                 oAuthStatusChange.emitAsync(
                     OAuthEvent(

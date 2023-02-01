@@ -64,6 +64,7 @@ class OAuthHelper(
     }
 
     fun fetchAndPersistRefreshToken(
+        clientSecret: String,
         callback: (String?, Exception?) -> Unit
     ) {
         val authorizationResponse = requireNotNull(authState.lastAuthorizationResponse) {
@@ -79,7 +80,7 @@ class OAuthHelper(
                 override fun getRequestParameters(clientId: String): MutableMap<String, String> {
                     return NoClientAuthentication.INSTANCE.getRequestParameters(clientId)
                         .toMutableMap().apply {
-                            put("client_secret", "")
+                            put("client_secret", clientSecret)
                         }
                 }
             }
