@@ -1,7 +1,10 @@
 package com.lightspark.androiddemo
 
 import android.Manifest
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -39,7 +42,13 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 import com.lightspark.sdk.Lce
+import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.model.WalletDashboardData
+
+
+private const val OAUTH_CLIENT_ID = "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
+private const val EXTRA_AUTH_FLOW = "isAuthFlow"
+private const val EXTRA_AUTH_CANCELED = "authCanceled"
 
 class MainActivity : ComponentActivity() {
     private val viewModel = MainViewModel()
@@ -82,6 +91,50 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+            }
+        }
+    }
+
+    private fun startOAuthFlow() {
+        var pendingIntentFlags = 0
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntentFlags = pendingIntentFlags or PendingIntent.FLAG_MUTABLE
+        }
+
+        val completionIntent = Intent(this, MainActivity::class.java).apply {
+            putExtra(EXTRA_AUTH_FLOW, true)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val cancelIntent = Intent(this, MainActivity::class.java).apply {
+            putExtra(EXTRA_AUTH_FLOW, true)
+            putExtra(EXTRA_AUTH_CANCELED, true)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        OAuthHelper(LightsparkDemoApplication.instance).launchAuthFlow(
+            OAUTH_CLIENT_ID,
+            "com.lightspark.androiddemo:/auth-redirect",
+            PendingIntent.getActivity(
+                this,
+                0,
+                completionIntent,
+                pendingIntentFlags
+            ),
+            PendingIntent.getActivity(
+                this,
+                0,
+                cancelIntent,
+                pendingIntentFlags
+            )
+        )
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent?.getBooleanExtra(EXTRA_AUTH_FLOW, false) == true) {
+            if (intent.getBooleanExtra(EXTRA_AUTH_CANCELED, false)) {
+                Log.i("MainActivity", "Auth flow canceled")
+            } else {
+                viewModel.handleAuthResponse(intent)
             }
         }
     }
@@ -136,10 +189,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(Screen.Settings.route) {
                     val tokenState by viewModel.tokenState.collectAsState()
+                    val prefs by viewModel.preferences.collectAsState()
+                    val oAuthIsAuthorized by viewModel.oAuthIsAuthorized.collectAsState(false)
                     AuthScreen(
                         isLoading = tokenState is Lce.Loading,
+                        oAuthIsAuthorized = oAuthIsAuthorized,
                         modifier = Modifier.fillMaxSize(),
-                        onSubmit = viewModel::onAccountTokenInfoSubmitted
+                        onSubmit = viewModel::onSettingsInfoSubmitted,
+                        onOAuthRequest = { startOAuthFlow() }
                     )
                 }
                 composable(Screen.Wallet.route) {

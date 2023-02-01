@@ -1,33 +1,25 @@
 package com.lightspark.sdk.auth
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import net.openid.appauth.*
 import java.util.concurrent.atomic.AtomicReference
 
-
-interface AuthStateStorage {
-    fun getCurrent(): AuthState
-    fun replace(state: AuthState?): AuthState?
-    fun updateAfterAuthorization(
-        response: AuthorizationResponse?,
-        ex: AuthorizationException?
-    ): AuthState?
-
-    fun updateAfterTokenResponse(
-        response: TokenResponse?,
-        ex: AuthorizationException?
-    ): AuthState?
-
-    fun updateAfterRegistration(
-        response: RegistrationResponse?,
-        ex: AuthorizationException?
-    ): AuthState?
-}
-
-class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
-    private val authPrefs = context.getSharedPreferences(STORE_NAME, MODE_PRIVATE)
+class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage {
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = STORE_NAME)
+    private val STATE_JSON_KEY = stringPreferencesKey("auth_state_json")
     private val currentAuthState = AtomicReference<AuthState>()
+
+    fun observeIsAuthorized() = context.dataStore.data.map { preferences ->
+        preferences[STATE_JSON_KEY]?.let { AuthState.jsonDeserialize(it) }
+    }.map { it?.isAuthorized ?: false }
 
     override fun getCurrent(): AuthState {
         return currentAuthState.get() ?: run {
@@ -78,24 +70,20 @@ class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
         return replace(current)
     }
 
-
-    private fun readState(): AuthState {
-        val stateJson = authPrefs.getString(STATE_JSON_KEY, null)
-        return stateJson?.let { AuthState.jsonDeserialize(it) } ?: AuthState()
+    // TODO(Jeremy): We should try to avoid runBlocking here and make everything in this interface suspended.
+    private fun readState(): AuthState = runBlocking {
+        val stateJson = context.dataStore.data.first()[STATE_JSON_KEY]
+        stateJson?.let { AuthState.jsonDeserialize(it) } ?: AuthState()
     }
 
-    private fun writeState(state: AuthState?) {
-        val authPrefsEditor = authPrefs.edit()
-        if (state == null) {
-            authPrefsEditor.remove(STATE_JSON_KEY)
-        } else {
-            authPrefsEditor.putString(STATE_JSON_KEY, state.jsonSerializeString())
+    private fun writeState(state: AuthState?) = runBlocking {
+        context.dataStore.edit { preferences ->
+            state?.let { preferences[STATE_JSON_KEY] = it.jsonSerializeString() }
+                ?: preferences.remove(STATE_JSON_KEY)
         }
-        authPrefsEditor.apply()
     }
 
     companion object {
-        private const val STORE_NAME = "auth"
-        private const val STATE_JSON_KEY = "stateJson"
+        private const val STORE_NAME = "ls-oauth"
     }
 }

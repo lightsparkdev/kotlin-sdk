@@ -9,13 +9,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.ui.theme.Success
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
-    onSubmit: (tokenId: String, tokenSecret: String, defaultWalletId: String?) -> Unit = { _, _, _ -> }
+    oAuthIsAuthorized: Boolean = false,
+    onSubmit: (tokenId: String, tokenSecret: String, defaultWalletId: String?) -> Unit = { _, _, _ -> },
+    onOAuthRequest: () -> Unit = {},
 ) {
     var tokenId by remember { mutableStateOf("") }
     var tokenSecret by remember { mutableStateOf("") }
@@ -54,6 +57,24 @@ fun AuthScreen(
             onValueChange = { nodeID = it.trim() },
             singleLine = false
         )
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
+            onClick = { onOAuthRequest() },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+        ) {
+            Text("Use OAuth Login")
+        }
+        if (oAuthIsAuthorized) {
+            Text(
+                "OAuth is authorized already! You can overwrite that by logging in again with the form above or via OAuth again.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = Success),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(vertical = 16.dp)
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),

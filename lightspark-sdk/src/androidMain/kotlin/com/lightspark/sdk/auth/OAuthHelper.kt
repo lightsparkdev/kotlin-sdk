@@ -21,8 +21,8 @@ class OAuthHelper(
 
     init {
         val serviceConfig = AuthorizationServiceConfiguration(
-            Uri.parse("https://idp.example.com/auth"), // TODO: Replace with actual values
-            Uri.parse("https://idp.example.com/token")
+            Uri.parse("https://dev.dev.sparkinfra.net/oauth/authorize"),
+            Uri.parse("https://api.dev.dev.sparkinfra.net/oauth/token")
         )
         val savedAuthState = authStateStorage.getCurrent()
         if (savedAuthState.authorizationServiceConfiguration == null) {
@@ -46,7 +46,7 @@ class OAuthHelper(
             ResponseTypeValues.CODE,
             Uri.parse(redirectUri)
         )
-            .setScope("openid profile email") // TODO: Replace with actual scopes as needed
+            .setScope("all") // TODO: Replace with actual scopes as needed
             .build()
 
         authService.performAuthorizationRequest(
@@ -63,14 +63,32 @@ class OAuthHelper(
         }
     }
 
-    fun fetchAndPersistRefreshToken() {
+    fun fetchAndPersistRefreshToken(
+        callback: (String?) -> Unit
+    ) {
+        val authorizationResponse = requireNotNull(authState.lastAuthorizationResponse) {
+            "Authorization response is null. Call handleAuthResponse() first."
+        }
         authService.performTokenRequest(
-            authState.createTokenRefreshRequest()
+            authorizationResponse.createTokenExchangeRequest(),
+            object : ClientAuthentication {
+                override fun getRequestHeaders(clientId: String): MutableMap<String, String> {
+                    return mutableMapOf(BETA_HEADER_KEY to BETA_HEADER_VALUE)
+                }
+
+                override fun getRequestParameters(clientId: String): MutableMap<String, String> {
+                    return NoClientAuthentication.INSTANCE.getRequestParameters(clientId)
+                        .toMutableMap().apply {
+                            put("client_secret", "")
+                        }
+                }
+            }
         ) { response, exception ->
             authStateStorage.updateAfterTokenResponse(response, exception)
             // TODO(Jeremy): I'm not sure re-throwing is the right thing to do here, since it's not
             // catchable by the caller. Maybe we should just log the exception?
             if (exception != null) throw exception
+            callback(response?.refreshToken)
         }
     }
 

@@ -12,10 +12,7 @@ import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyAmountInput
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.conf.BuildKonfig
-import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
-import com.lightspark.sdk.auth.AuthProvider
-import com.lightspark.sdk.auth.LightsparkAuthenticationException
-import com.lightspark.sdk.auth.StubAuthProvider
+import com.lightspark.sdk.auth.*
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
@@ -25,8 +22,6 @@ import com.lightspark.sdk.model.WalletDashboardData
 import com.lightspark.sdk.model.toTransaction
 import kotlinx.coroutines.flow.Flow
 import saschpe.kase64.base64DecodedBytes
-
-private const val LIGHTSPARK_BETA_HEADER = "z2h0BBYxTA83cjW7fi8QwWtBPCzkQKiemcuhKY08LOo"
 
 /**
  * Main entry point for the Lightspark SDK.
@@ -57,7 +52,7 @@ class LightsparkClient internal constructor(
         MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
     private val defaultHeaders = listOf(
         HttpHeader("Content-Type", "application/json"),
-        HttpHeader("X-Lightspark-Beta", LIGHTSPARK_BETA_HEADER)
+        HttpHeader(BETA_HEADER_KEY, BETA_HEADER_VALUE)
     )
 
     internal val apolloClient = ApolloClient.Builder()
@@ -78,7 +73,7 @@ class LightsparkClient internal constructor(
     /**
      * Override the auth token provider for this client to provide custom headers on all API calls.
      */
-    fun setAuthTokenProvider(authProvider: AuthProvider) {
+    fun setAuthProvider(authProvider: AuthProvider) {
         this.nodeKeyCache.clear()
         this.authProvider = authProvider
     }
@@ -88,7 +83,7 @@ class LightsparkClient internal constructor(
      * account-based authentication.
      */
     fun setAccountApiToken(tokenId: String, tokenSecret: String) {
-        setAuthTokenProvider(AccountApiTokenAuthProvider(tokenId, tokenSecret))
+        setAuthProvider(AccountApiTokenAuthProvider(tokenId, tokenSecret))
     }
 
     /**

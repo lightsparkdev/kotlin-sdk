@@ -62,6 +62,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("net.openid:appauth:0.11.1")
+                // If you want to use DataStoreAuthStateStorage, you need to add the following implementation dependency to your build.gradle.kts.
+                compileOnly("androidx.datastore:datastore-preferences:1.0.0")
             }
         }
         val androidTest by getting

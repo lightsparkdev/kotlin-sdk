@@ -1,5 +1,6 @@
 package com.lightspark.androiddemo
 
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,12 +11,17 @@ import com.lightspark.androiddemo.auth.CredentialsStore
 import com.lightspark.androiddemo.auth.SavedCredentials
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeStatistics
+import com.lightspark.androiddemo.settings.DefaultPrefsStore
+import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.androiddemo.wallet.WalletRepository
 import com.lightspark.api.DashboardOverviewQuery
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
+import com.lightspark.sdk.auth.DataStoreAuthStateStorage
+import com.lightspark.sdk.auth.OAuthHelper
+import com.lightspark.sdk.auth.OAuthProvider
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,8 +32,12 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val dashboardRepository: AccountDashboardRepository = AccountDashboardRepository(),
     private val walletRepository: WalletRepository = WalletRepository(),
-    private val credentialsStore: CredentialsStore = CredentialsStore.instance
+    private val credentialsStore: CredentialsStore = CredentialsStore.instance,
+    private val prefsStore: DefaultPrefsStore = DefaultPrefsStore.instance,
 ) : ViewModel() {
+    private val oAuthStorage = DataStoreAuthStateStorage(LightsparkDemoApplication.instance)
+    private val oAuthHelper = OAuthHelper(LightsparkDemoApplication.instance, oAuthStorage)
+
     private val accountTokenInfo = credentialsStore.getAccountTokenFlow()
         .runningFold(null to null) { prevInfo: Pair<SavedCredentials?, SavedCredentials?>, tokenInfo ->
             prevInfo.second to tokenInfo
@@ -39,15 +49,22 @@ class MainViewModel(
                 if (prevTokenInfo?.tokenId != tokenInfo.tokenId || prevTokenInfo.tokenSecret != tokenInfo.tokenSecret) {
                     dashboardRepository.setAccountToken(tokenInfo.tokenId, tokenInfo.tokenSecret)
                 }
-                tokenInfo.defaultWalletNodeId?.let { nodeId ->
-                    walletRepository.setActiveWalletWithoutUnlocking(nodeId)
-                }
             }
         }
         .map { tokenInfo ->
             Lce.Content(tokenInfo.second)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
+    val preferences = prefsStore.getPrefsFlow()
+        .onEach { prefs ->
+            if (prefs.defaultWalletNodeId != null) {
+                walletRepository.setActiveWalletWithoutUnlocking(prefs.defaultWalletNodeId)
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
+    val oAuthIsAuthorized = oAuthStorage.observeIsAuthorized()
 
     val tokenState = accountTokenInfo.map { tokenInfo ->
         when (tokenInfo) {
@@ -101,12 +118,13 @@ class MainViewModel(
         refreshWallet.tryEmit(Unit)
     }
 
-    fun onAccountTokenInfoSubmitted(
+    fun onSettingsInfoSubmitted(
         tokenId: String,
         tokenSecret: String,
         defaultWalletId: String?
     ) = viewModelScope.launch {
-        credentialsStore.setAccountData(tokenId, tokenSecret, defaultWalletId)
+        credentialsStore.setAccountData(tokenId, tokenSecret)
+        prefsStore.setAll(SavedPrefs(defaultWalletNodeId = defaultWalletId))
     }
 
     fun setActiveWallet(nodeId: String, nodePassword: String) = walletRepository
@@ -197,4 +215,13 @@ class MainViewModel(
             )
         } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI)
     )
+
+    fun handleAuthResponse(intent: Intent) {
+        // TODO: Handle errors
+        oAuthHelper.handleAuthResponse(intent)
+        oAuthHelper.fetchAndPersistRefreshToken {
+            Log.i("MainActivity", "Auth flow completed")
+            dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
+        }
+    }
 }
