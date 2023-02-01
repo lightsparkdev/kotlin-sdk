@@ -71,6 +71,10 @@ class MainViewModel(
 
     val oAuthIsAuthorized = oAuthStorage.observeIsAuthorized()
 
+    data class OAuthEvent(val isError: Boolean, val message: String)
+
+    val oAuthStatusChange = MutableSharedFlow<OAuthEvent>()
+
     val tokenState = combine(
         oAuthIsAuthorized,
         accountTokenInfo
@@ -244,12 +248,42 @@ class MainViewModel(
     )
 
     fun handleAuthResponse(intent: Intent) {
-        // TODO: Handle errors
-        oAuthHelper.handleAuthResponse(intent)
-        oAuthHelper.fetchAndPersistRefreshToken {
+        try {
+            oAuthHelper.handleAuthResponse(intent)
+        } catch (e: Exception) {
+            oAuthStatusChange.emitAsync(
+                OAuthEvent(
+                    isError = true,
+                    message = "Error handling auth response."
+                )
+            )
+            Log.e("MainActivity", "Error handling auth response", e)
+            return
+        }
+        oAuthHelper.fetchAndPersistRefreshToken { _, error ->
+            if (error != null) {
+                oAuthStatusChange.emitAsync(
+                    OAuthEvent(
+                        isError = true,
+                        message = "Error fetching auth refresh token."
+                    )
+                )
+                Log.e("MainActivity", "Error fetching refresh token", error)
+                return@fetchAndPersistRefreshToken
+            }
+            oAuthStatusChange.emitAsync(
+                OAuthEvent(
+                    isError = false,
+                    message = "Successfully authenticated!"
+                )
+            )
             Log.i("MainActivity", "Auth flow completed")
             dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
         }
+    }
+
+    fun MutableSharedFlow<OAuthEvent>.emitAsync(event: OAuthEvent) = viewModelScope.launch {
+        emit(event)
     }
 
     fun launchOAuthFlow(

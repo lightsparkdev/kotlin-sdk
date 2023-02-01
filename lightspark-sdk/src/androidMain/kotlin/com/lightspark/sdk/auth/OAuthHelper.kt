@@ -64,7 +64,7 @@ class OAuthHelper(
     }
 
     fun fetchAndPersistRefreshToken(
-        callback: (String?) -> Unit
+        callback: (String?, Exception?) -> Unit
     ) {
         val authorizationResponse = requireNotNull(authState.lastAuthorizationResponse) {
             "Authorization response is null. Call handleAuthResponse() first."
@@ -85,10 +85,7 @@ class OAuthHelper(
             }
         ) { response, exception ->
             authStateStorage.updateAfterTokenResponse(response, exception)
-            // TODO(Jeremy): I'm not sure re-throwing is the right thing to do here, since it's not
-            // catchable by the caller. Maybe we should just log the exception?
-            if (exception != null) throw exception
-            callback(response?.refreshToken)
+            callback(response?.refreshToken, exception)
         }
     }
 

@@ -17,6 +17,7 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 fun MissingCredentialsScreen(
     modifier: Modifier = Modifier,
     textOverride: String? = null,
+    buttonText: String = "Settings",
     onSettingsTapped: () -> Unit = {},
 ) {
     Column(
@@ -40,7 +41,7 @@ fun MissingCredentialsScreen(
                 .offset(y = 32.dp)
                 .fillMaxWidth(0.8f)
         ) {
-            Text("Settings")
+            Text(buttonText)
         }
     }
 }

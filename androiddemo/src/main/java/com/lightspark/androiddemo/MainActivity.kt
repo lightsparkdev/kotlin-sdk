@@ -10,14 +10,18 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -142,8 +146,47 @@ class MainActivity : ComponentActivity() {
         advancedDashboardData: Lce<DashboardData>,
         startRoute: String
     ) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        LaunchedEffect(key1 = null) {
+            viewModel.oAuthStatusChange.collect {
+                snackbarHostState.showSnackbar(
+                    visuals = SnackbarVisualsWithError(it.message, it.isError)
+                )
+            }
+        }
+
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = {
+                SnackbarHost(snackbarHostState) { data ->
+                    val isError = (data.visuals as? SnackbarVisualsWithError)?.isError ?: false
+
+                    Snackbar(modifier = Modifier.fillMaxWidth(0.9f)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (isError) {
+                                Icon(
+                                    Icons.Filled.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            Text(data.visuals.message)
+                        }
+                    }
+                }
+            },
             bottomBar = {
                 NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -257,4 +300,16 @@ class MainActivity : ComponentActivity() {
             else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
+}
+
+private class SnackbarVisualsWithError(
+    override val message: String,
+    val isError: Boolean
+) : SnackbarVisuals {
+    override val actionLabel: String
+        get() = ""
+    override val withDismissAction: Boolean
+        get() = true
+    override val duration: SnackbarDuration
+        get() = SnackbarDuration.Short
 }

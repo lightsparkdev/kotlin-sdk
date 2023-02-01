@@ -98,39 +98,45 @@ fun WalletDashboardView(
                 )
             }
             is Lce.Error -> {
-                if ((walletData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
-                    MissingCredentialsScreen(
-                        modifier = modifier.fillMaxSize(),
-                        onSettingsTapped = {
-                            navController.navigate(Screen.Settings.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                when ((walletData.exception as? LightsparkException)?.errorCode) {
+                    LightsparkErrorCode.NO_CREDENTIALS -> {
+                        MissingCredentialsScreen(
+                            modifier = modifier.fillMaxSize(),
+                            buttonText = "Log in",
+                            onSettingsTapped = {
+                                navController.navigate(Screen.Settings.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
-                } else if ((walletData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.MISSING_WALLET_ID) {
-                    MissingCredentialsScreen(
-                        modifier = modifier.fillMaxSize(),
-                        textOverride = "It looks like you don't have a default wallet set up yet. You can pick one to unlock in the account page.",
-                        onSettingsTapped = {
-                            navController.navigate(Screen.Account.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                        )
+                    }
+                    LightsparkErrorCode.MISSING_WALLET_ID -> {
+                        MissingCredentialsScreen(
+                            modifier = modifier.fillMaxSize(),
+                            textOverride = "It looks like you haven't chosen a default wallet node yet. You can pick one to unlock in the account page.",
+                            buttonText = "Select wallet node",
+                            onSettingsTapped = {
+                                navController.navigate(Screen.Account.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
-                } else {
-                    Text(
-                        text = "Error: ${walletData.exception?.message ?: "Unknown"}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                        )
+                    }
+                    else -> {
+                        Text(
+                            text = "Error: ${walletData.exception?.message ?: "Unknown"}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             }
             is Lce.Loading -> {
