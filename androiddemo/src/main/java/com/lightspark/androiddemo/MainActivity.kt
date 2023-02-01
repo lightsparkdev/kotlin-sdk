@@ -196,8 +196,10 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Screen.Wallet.route) {
                     LaunchedEffect(true) { viewModel.refreshWalletData() }
+                    val unlockStatus by viewModel.walletUnlockStatus.collectAsState()
                     WalletDashboardView(
                         walletData = walletDashboardData,
+                        walletUnlockStatus = unlockStatus,
                         navController = navController,
                         modifier = Modifier.fillMaxSize(),
                         onRefreshData = viewModel::refreshWalletData,

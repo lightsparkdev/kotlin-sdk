@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.model.NodeDisplayData
+import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
@@ -39,7 +40,7 @@ fun NodeOverview(
 ) {
     val unlockButtonColor by animateColorAsState(
         targetValue = when (nodeDisplayData.lockStatus) {
-            NodeDisplayData.LockStatus.UNLOCKED -> Success
+            NodeLockStatus.UNLOCKED -> Success
             else -> MaterialTheme.colorScheme.onSurface
         }
     )
@@ -61,7 +62,7 @@ fun NodeOverview(
                 colors = ButtonDefaults.buttonColors(containerColor = unlockButtonColor)
             ) {
                 when (nodeDisplayData.lockStatus) {
-                    NodeDisplayData.LockStatus.UNLOCKED -> {
+                    NodeLockStatus.UNLOCKED -> {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_lock_open),
                             contentDescription = "Unlocked",
@@ -70,7 +71,7 @@ fun NodeOverview(
                                 .padding(end = 8.dp)
                         )
                     }
-                    NodeDisplayData.LockStatus.UNLOCKING -> CircularProgressIndicator(
+                    NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
                         modifier = Modifier
                             .size(24.dp)
                             .offset(y = 4.dp)
@@ -231,7 +232,7 @@ fun NodeOverviewPreview() {
                 publicKey = "testfhjkhjka833h2m9d0",
                 totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
                 availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
-                lockStatus = NodeDisplayData.LockStatus.UNLOCKING,
+                lockStatus = NodeLockStatus.UNLOCKING,
                 stats = NodeStatistics(
                     uptime = 99.0f,
                     numChannels = 10,

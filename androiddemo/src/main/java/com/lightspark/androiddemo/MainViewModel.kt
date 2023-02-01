@@ -11,6 +11,7 @@ import com.lightspark.androiddemo.auth.AuthState
 import com.lightspark.androiddemo.auth.CredentialsStore
 import com.lightspark.androiddemo.auth.SavedCredentials
 import com.lightspark.androiddemo.model.NodeDisplayData
+import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.androiddemo.settings.SavedPrefs
@@ -100,8 +101,8 @@ class MainViewModel(
         dashboardRepository.unlockedNodeIds,
         unlockingNodeIds
     ) { unlockedNodeIds, unlockingNodeIds ->
-        unlockedNodeIds.associateWith { NodeDisplayData.LockStatus.UNLOCKED } +
-                unlockingNodeIds.associateWith { NodeDisplayData.LockStatus.UNLOCKING }
+        unlockedNodeIds.associateWith { NodeLockStatus.UNLOCKED } +
+                unlockingNodeIds.associateWith { NodeLockStatus.UNLOCKING }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
     val advancedDashboardData =
@@ -119,6 +120,10 @@ class MainViewModel(
     val walletDashboardData = refreshWallet.flatMapLatest {
         walletRepository.getWalletDashboard()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
+    val walletUnlockStatus = nodeLockStatus.map { statuses ->
+        statuses[walletRepository.activeWalletId] ?: NodeLockStatus.LOCKED
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, NodeLockStatus.LOCKED)
 
     init {
         if (oAuthHelper.isAuthorized()) {
@@ -188,7 +193,7 @@ class MainViewModel(
         }
 
     private fun DashboardOverviewQuery.Current_account.toDashboardData(
-        nodeLockStatuses: Map<String, NodeDisplayData.LockStatus>
+        nodeLockStatuses: Map<String, NodeLockStatus>
     ) = DashboardData(
         accountName = name ?: "Unknown account",
         overviewNodes = dashboard_overview_nodes.edges.map { edge ->
@@ -212,7 +217,7 @@ class MainViewModel(
                     unit = node.blockchain_balance?.available_balance?.unit
                         ?: CurrencyUnit.UNKNOWN__
                 ),
-                lockStatus = nodeLockStatuses[node.id] ?: NodeDisplayData.LockStatus.LOCKED,
+                lockStatus = nodeLockStatuses[node.id] ?: NodeLockStatus.LOCKED,
                 // TODO(Jeremy): Add real stats when the query is fixed
                 stats = NodeStatistics(
                     uptime = 99.0f,

@@ -10,10 +10,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
+import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
+import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
@@ -52,6 +54,7 @@ import kotlin.math.max
 @Composable
 fun WalletDashboardView(
     walletData: Lce<WalletDashboardData>,
+    walletUnlockStatus: NodeLockStatus,
     navController: NavController,
     modifier: Modifier = Modifier,
     onRefreshData: (() -> Unit)? = null,
@@ -76,6 +79,7 @@ fun WalletDashboardView(
             is Lce.Content -> {
                 WalletHeader(
                     walletData.data,
+                    walletUnlockStatus,
                     scrollOffset,
                     onSendTap = {
                         navController.navigate(Screen.SendPayment.route)
@@ -139,6 +143,7 @@ fun WalletDashboardView(
 @Composable
 fun WalletHeader(
     walletData: WalletDashboardData,
+    walletUnlockStatus: NodeLockStatus,
     scrollOffset: Float,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
@@ -146,6 +151,13 @@ fun WalletHeader(
 ) {
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
+    val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
+    val buttonHeightFactor by animateFloatAsState(
+        targetValue = if (offsetDp.value < 50f) 1f else max(
+            0f,
+            2f - offsetDp.value / 50f
+        )
+    )
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -156,7 +168,33 @@ fun WalletHeader(
             .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
             .background(color = MaterialTheme.colorScheme.surface)
     ) {
-        Spacer(modifier = Modifier.weight(.25f))
+        Spacer(modifier = Modifier.weight(.2f))
+        FilledIconButton(
+            onClick = { /*TODO*/ },
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = if (walletUnlockStatus == NodeLockStatus.UNLOCKED) {
+                    MaterialTheme.colorScheme.secondary
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+                contentColor = MaterialTheme.colorScheme.background
+            ),
+            enabled = walletUnlockStatus != NodeLockStatus.UNLOCKING,
+            modifier = Modifier
+                .height(40.dp * buttonHeightFactor)
+                .alpha(buttonAlpha)
+        ) {
+            when (walletUnlockStatus) {
+                NodeLockStatus.LOCKED -> Icon(Icons.Filled.Lock, contentDescription = "Locked")
+                NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.background
+                )
+                NodeLockStatus.UNLOCKED -> Icon(
+                    painterResource(id = R.drawable.ic_lock_open),
+                    contentDescription = "Unlocked"
+                )
+            }
+        }
         WalletBalances(walletData, scrollOffset, modifier = Modifier.weight(.4f))
         PaymentButtons(offsetDp, onSendTap, onReceiveTap)
         Box(modifier = Modifier.weight(.2f), contentAlignment = Alignment.BottomCenter) {
@@ -290,6 +328,7 @@ fun WalletPreview() {
                     fakeTransactions()
                 )
             ),
+            walletUnlockStatus = NodeLockStatus.UNLOCKED,
             onSendTap = {
                 Toast.makeText(context, "Can't send yet!", Toast.LENGTH_SHORT).show()
             },

@@ -16,6 +16,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
 import com.lightspark.androiddemo.auth.ui.NodePasswordDialog
 import com.lightspark.androiddemo.model.NodeDisplayData
+import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
@@ -59,7 +60,7 @@ fun DashboardView(
                 }
                 items(dashboardData.data.overviewNodes) { node ->
                     NodeOverview(node) {
-                        if (node.lockStatus == NodeDisplayData.LockStatus.UNLOCKED) {
+                        if (node.lockStatus == NodeLockStatus.UNLOCKED) {
                             onUnlockedWalletNodeSelected(node.id)
                         } else {
                             passwordEntryNodeId = node.id

@@ -14,6 +14,9 @@ class WalletRepository(
 ) {
     fun getWalletDashboard() = wrapWithLceFlow { walletClient.getWalletDashboard() }
 
+    val activeWalletId
+        get() = walletClient.activeWalletId
+
     fun unlockWallet(password: String) =
         wrapWithLceFlow { walletClient.unlockActiveWallet(password) }
 
