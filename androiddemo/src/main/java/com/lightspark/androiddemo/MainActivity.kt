@@ -209,7 +209,8 @@ class MainActivity : ComponentActivity() {
                         dashboardData = advancedDashboardData,
                         modifier = Modifier.fillMaxSize(),
                         navController = navController,
-                        onWalletNodeSelected = viewModel::requestKeyRecovery,
+                        onPasswordSubmitted = viewModel::requestKeyRecovery,
+                        onUnlockedWalletNodeSelected = viewModel::setActiveWalletWithoutUnlocking,
                     )
                 }
                 composable(Screen.SendPayment.route) {

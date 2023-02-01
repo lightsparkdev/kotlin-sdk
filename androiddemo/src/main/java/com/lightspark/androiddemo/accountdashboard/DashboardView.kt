@@ -7,13 +7,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.lightspark.androiddemo.auth.ui.MissingCredentialsScreen
+import com.lightspark.androiddemo.auth.ui.NodePasswordDialog
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
@@ -32,8 +33,11 @@ fun DashboardView(
     dashboardData: Lce<DashboardData>,
     modifier: Modifier = Modifier,
     navController: NavController? = null,
-    onWalletNodeSelected: (node: NodeDisplayData) -> Unit = {},
+    onUnlockedWalletNodeSelected: (nodeId: String) -> Unit = {},
+    onPasswordSubmitted: (nodeId: String, nodePassword: String) -> Unit = { _, _ -> },
 ) {
+    var passwordEntryNodeId by remember { mutableStateOf<String?>(null) }
+
     when (dashboardData) {
         is Lce.Content -> {
             LazyColumn(
@@ -54,9 +58,25 @@ fun DashboardView(
                     )
                 }
                 items(dashboardData.data.overviewNodes) { node ->
-                    NodeOverview(node) { onWalletNodeSelected(node) }
+                    NodeOverview(node) {
+                        if (node.lockStatus == NodeDisplayData.LockStatus.UNLOCKED) {
+                            onUnlockedWalletNodeSelected(node.id)
+                        } else {
+                            passwordEntryNodeId = node.id
+                        }
+                    }
                 }
             }
+            NodePasswordDialog(
+                open = passwordEntryNodeId != null,
+                onDismiss = { passwordEntryNodeId = null },
+                onSubmit = { password ->
+                    passwordEntryNodeId?.let { nodeId ->
+                        onPasswordSubmitted(nodeId, password)
+                    }
+                    passwordEntryNodeId = null
+                }
+            )
         }
         is Lce.Error -> {
             if ((dashboardData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {

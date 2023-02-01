@@ -156,22 +156,23 @@ class MainViewModel(
             }
         }
 
-    fun requestKeyRecovery(node: NodeDisplayData) =
+    fun setActiveWalletWithoutUnlocking(nodeId: String) =
         viewModelScope.launch(context = Dispatchers.IO) {
-            setActiveWallet(
-                node.id,
-                // TODO: Replace with actual password. This is just my super secret password scheme for dev :-p.
-                "${node.name.replace(" ", "")}!"
-            ).collect { result ->
+            walletRepository.setActiveWalletWithoutUnlocking(nodeId)
+        }
+
+    fun requestKeyRecovery(nodeId: String, nodePassword: String) =
+        viewModelScope.launch(context = Dispatchers.IO) {
+            setActiveWallet(nodeId, nodePassword).collect { result ->
                 when (result) {
                     is Lce.Content -> {
                         unlockingNodeIds.value =
-                            unlockingNodeIds.value.toMutableSet().apply { remove(node.id) }
+                            unlockingNodeIds.value.toMutableSet().apply { remove(nodeId) }
                         Log.d("MainViewModel", "Unlocked that node!")
                     }
                     is Lce.Error -> {
                         unlockingNodeIds.value =
-                            unlockingNodeIds.value.toMutableSet().apply { remove(node.id) }
+                            unlockingNodeIds.value.toMutableSet().apply { remove(nodeId) }
                         Log.e(
                             "MainViewModel",
                             "Error setting active wallet",
@@ -180,7 +181,7 @@ class MainViewModel(
                     }
                     else -> {
                         unlockingNodeIds.value =
-                            unlockingNodeIds.value.toMutableSet().apply { add(node.id) }
+                            unlockingNodeIds.value.toMutableSet().apply { add(nodeId) }
                     }
                 }
             }
