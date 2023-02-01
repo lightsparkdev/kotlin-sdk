@@ -6,8 +6,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.openid.appauth.*
 import java.util.concurrent.atomic.AtomicReference
@@ -16,10 +19,13 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = STORE_NAME)
     private val STATE_JSON_KEY = stringPreferencesKey("auth_state_json")
     private val currentAuthState = AtomicReference<AuthState>()
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun observeIsAuthorized() = context.dataStore.data.map { preferences ->
         preferences[STATE_JSON_KEY]?.let { AuthState.jsonDeserialize(it) }
-    }.map { it?.isAuthorized ?: false }
+    }.map {
+        it?.isAuthorized ?: false
+    }
 
     override fun getCurrent(): AuthState {
         return currentAuthState.get() ?: run {
@@ -33,10 +39,8 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
     }
 
     override fun replace(state: AuthState?): AuthState? {
-        val prevState = currentAuthState.getAndSet(state)
-        if (prevState != state) {
-            writeState(state)
-        }
+        currentAuthState.set(state)
+        writeState(state)
         return state
     }
 
@@ -76,7 +80,7 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
         stateJson?.let { AuthState.jsonDeserialize(it) } ?: AuthState()
     }
 
-    private fun writeState(state: AuthState?) = runBlocking {
+    private fun writeState(state: AuthState?) = coroutineScope.launch {
         context.dataStore.edit { preferences ->
             state?.let { preferences[STATE_JSON_KEY] = it.jsonSerializeString() }
                 ?: preferences.remove(STATE_JSON_KEY)

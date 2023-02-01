@@ -42,11 +42,8 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.model.WalletDashboardData
 
-
-private const val OAUTH_CLIENT_ID = "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
 private const val EXTRA_AUTH_FLOW = "isAuthFlow"
 private const val EXTRA_AUTH_CANCELED = "authCanceled"
 
@@ -110,9 +107,7 @@ class MainActivity : ComponentActivity() {
             putExtra(EXTRA_AUTH_CANCELED, true)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-        OAuthHelper(LightsparkDemoApplication.instance).launchAuthFlow(
-            OAUTH_CLIENT_ID,
-            "com.lightspark.androiddemo:/auth-redirect",
+        viewModel.launchOAuthFlow(
             PendingIntent.getActivity(
                 this,
                 0,

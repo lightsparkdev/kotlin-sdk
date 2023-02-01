@@ -1,5 +1,6 @@
 package com.lightspark.androiddemo
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+
+private const val OAUTH_CLIENT_ID = "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
+private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
@@ -66,7 +70,13 @@ class MainViewModel(
 
     val oAuthIsAuthorized = oAuthStorage.observeIsAuthorized()
 
-    val tokenState = accountTokenInfo.map { tokenInfo ->
+    val tokenState = combine(
+        oAuthIsAuthorized,
+        accountTokenInfo
+    ) { isOAuthAuthorize, tokenInfo ->
+        if (isOAuthAuthorize) {
+            return@combine Lce.Content(AuthState.HAS_TOKEN)
+        }
         when (tokenInfo) {
             is Lce.Loading -> Lce.Loading
             is Lce.Error -> Lce.Error(tokenInfo.exception)
@@ -109,6 +119,12 @@ class MainViewModel(
     val walletDashboardData = refreshWallet.flatMapLatest {
         walletRepository.getWalletDashboard()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+
+    init {
+        if (oAuthHelper.isAuthorized()) {
+            dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
+        }
+    }
 
     fun refreshAdvancedDashboardData() {
         refreshDashboard.tryEmit(Unit)
@@ -223,5 +239,17 @@ class MainViewModel(
             Log.i("MainActivity", "Auth flow completed")
             dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
         }
+    }
+
+    fun launchOAuthFlow(
+        completedIntent: PendingIntent,
+        cancelIntent: PendingIntent
+    ) {
+        oAuthHelper.launchAuthFlow(
+            OAUTH_CLIENT_ID,
+            OAUTH_REDIRECT_URL,
+            completedIntent,
+            cancelIntent
+        )
     }
 }

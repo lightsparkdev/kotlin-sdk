@@ -28,35 +28,27 @@ fun AuthScreen(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            "We need some quick info from your Lightspark dashboard to get you started. Real users will use oauth instead of this flow :-p",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(vertical = 16.dp)
-        )
-        TextField(
-            label = { Text("Token ID", style = MaterialTheme.typography.labelMedium) },
-            placeholder = { Text("Enter token ID") },
-            value = tokenId,
-            onValueChange = { tokenId = it.trim() },
-            singleLine = true
-        )
-        TextField(
-            label = { Text("Token Secret", style = MaterialTheme.typography.labelMedium) },
-            placeholder = { Text("Enter token secret") },
-            value = tokenSecret,
-            onValueChange = { tokenSecret = it.trim() },
-            singleLine = false
-        )
-        TextField(
-            label = { Text("Node ID for Wallet", style = MaterialTheme.typography.labelMedium) },
-            placeholder = { Text("Enter wallet node ID") },
-            value = nodeID,
-            onValueChange = { nodeID = it.trim() },
-            singleLine = false
-        )
+        if (oAuthIsAuthorized) {
+            Text(
+                "You're successfully authorized with oauth! You can overwrite that by logging in again with the form below or via OAuth again.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = Success),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(vertical = 16.dp)
+            )
+        } else {
+            Text(
+                "We need some quick info from your Lightspark dashboard to get you started. Enter it below or use the OAuth login instead.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(vertical = 16.dp)
+            )
+        }
+        Divider()
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
             onClick = { onOAuthRequest() },
@@ -65,23 +57,39 @@ fun AuthScreen(
         ) {
             Text("Use OAuth Login")
         }
-        if (oAuthIsAuthorized) {
-            Text(
-                "OAuth is authorized already! You can overwrite that by logging in again with the form above or via OAuth again.",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(color = Success),
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(vertical = 16.dp)
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
+        Spacer(modifier = Modifier.height(24.dp))
+        TextField(
+            label = { Text("Token ID", style = MaterialTheme.typography.labelMedium) },
+            placeholder = { Text("Enter token ID") },
+            value = tokenId,
+            onValueChange = { tokenId = it.trim() },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        TextField(
+            label = { Text("Token Secret", style = MaterialTheme.typography.labelMedium) },
+            placeholder = { Text("Enter token secret") },
+            value = tokenSecret,
+            onValueChange = { tokenSecret = it.trim() },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        TextField(
+            label = { Text("Node ID for Wallet", style = MaterialTheme.typography.labelMedium) },
+            placeholder = { Text("Enter wallet node ID") },
+            value = nodeID,
+            onValueChange = { nodeID = it.trim() },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
             onClick = { onSubmit(tokenId, tokenSecret, nodeID.takeIf { it.isNotBlank() }) },
             enabled = !isLoading,
             modifier = Modifier
-                .offset(y = (-16).dp)
                 .fillMaxWidth(0.8f)
         ) {
             if (isLoading) {
@@ -90,6 +98,8 @@ fun AuthScreen(
                 Text("Submit")
             }
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        Divider()
     }
 }
 
