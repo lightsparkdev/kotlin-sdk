@@ -36,10 +36,12 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 private const val DEV_OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
+private const val PROD_OAUTH_CLIENT_ID = "0186134b-a801-7777-0000-8d1cc0ddccf2"
 private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
 
 // NOTE: This is a public client secret, it is safe to include in the app.
-private const val OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
+private const val DEV_OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
+private const val PROD_OAUTH_CLIENT_SECRET = "xX5tYhhqZmvWAtKYyrLq3mN3BX1Z5vOBC14HyK69Cea"
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -294,29 +296,29 @@ class MainViewModel @Inject constructor(
         } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI)
     )
 
+    fun launchOAuthFlow(
+        completedIntent: PendingIntent,
+        cancelIntent: PendingIntent
+    ) {
+        oAuthHelper.launchAuthFlow(
+            oauthClientId(),
+            OAUTH_REDIRECT_URL,
+            completedIntent,
+            cancelIntent
+        )
+    }
+
     fun handleAuthResponse(intent: Intent) {
-        try {
-            oAuthHelper.handleAuthResponse(intent)
-        } catch (e: Exception) {
-            oAuthStatusChange.emitAsync(
-                OAuthEvent(
-                    isError = true,
-                    message = "Error handling auth response."
-                )
-            )
-            Log.e("MainActivity", "Error handling auth response", e)
-            return
-        }
-        oAuthHelper.fetchAndPersistRefreshToken(oauthClientSecret()) { _, error ->
+        oAuthHelper.handleAuthResponseAndRequestToken(intent, oauthClientSecret()) { _, error ->
             if (error != null) {
                 oAuthStatusChange.emitAsync(
                     OAuthEvent(
                         isError = true,
-                        message = "Error fetching auth refresh token."
+                        message = "Error handling auth response."
                     )
                 )
-                Log.e("MainActivity", "Error fetching refresh token", error)
-                return@fetchAndPersistRefreshToken
+                Log.e("MainActivity", "Error handling auth response", error)
+                return@handleAuthResponseAndRequestToken
             }
             oAuthStatusChange.emitAsync(
                 OAuthEvent(
@@ -335,23 +337,11 @@ class MainViewModel @Inject constructor(
 
     private fun oauthClientId() = when (preferences.value.environment) {
         ServerEnvironment.DEV -> DEV_OAUTH_CLIENT_ID
-        ServerEnvironment.PROD -> "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
+        ServerEnvironment.PROD -> PROD_OAUTH_CLIENT_ID
     }
 
     private fun oauthClientSecret() = when (preferences.value.environment) {
-        ServerEnvironment.DEV -> OAUTH_CLIENT_SECRET
-        ServerEnvironment.PROD -> ""
-    }
-
-    fun launchOAuthFlow(
-        completedIntent: PendingIntent,
-        cancelIntent: PendingIntent
-    ) {
-        oAuthHelper.launchAuthFlow(
-            oauthClientId(),
-            OAUTH_REDIRECT_URL,
-            completedIntent,
-            cancelIntent
-        )
+        ServerEnvironment.DEV -> DEV_OAUTH_CLIENT_SECRET
+        ServerEnvironment.PROD -> PROD_OAUTH_CLIENT_SECRET
     }
 }

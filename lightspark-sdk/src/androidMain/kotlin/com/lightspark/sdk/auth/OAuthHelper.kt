@@ -78,6 +78,20 @@ class OAuthHelper(
         )
     }
 
+    fun handleAuthResponseAndRequestToken(
+        response: Intent,
+        clientSecret: String,
+        callback: (String?, Exception?) -> Unit
+    ) {
+        try {
+            handleAuthResponse(response)
+        } catch (e: Exception) {
+            callback(null, e)
+            return
+        }
+        fetchAndPersistRefreshToken(clientSecret, callback)
+    }
+
     fun handleAuthResponse(intent: Intent) {
         val response = AuthorizationResponse.fromIntent(intent)
         val ex = AuthorizationException.fromIntent(intent)
@@ -96,18 +110,7 @@ class OAuthHelper(
         }
         authService.performTokenRequest(
             authorizationResponse.createTokenExchangeRequest(),
-            object : ClientAuthentication {
-                override fun getRequestHeaders(clientId: String): MutableMap<String, String> {
-                    return mutableMapOf(BETA_HEADER_KEY to BETA_HEADER_VALUE)
-                }
-
-                override fun getRequestParameters(clientId: String): MutableMap<String, String> {
-                    return NoClientAuthentication.INSTANCE.getRequestParameters(clientId)
-                        .toMutableMap().apply {
-                            put("client_secret", clientSecret)
-                        }
-                }
-            }
+            OAuthCustomClientAuthentication(clientSecret)
         ) { response, exception ->
             authStateStorage.updateAfterTokenResponse(response, exception)
             callback(response?.refreshToken, exception)
