@@ -142,11 +142,11 @@ class LightsparkClient internal constructor(
         )
             .addingHeaders()
             .execute().dataAssertNoErrors.current_account ?: return null
+        val node = accountResponse.dashboard_overview_nodes.edges.firstOrNull()?.entity
         return WalletDashboardData(
             accountName = accountResponse.name ?: "",
-            nodeDisplayName = accountResponse.dashboard_overview_nodes.edges.firstOrNull()?.entity?.display_name
-                ?: "",
-            balance = accountResponse.blockchain_balance?.available_balance?.let {
+            nodeDisplayName = node?.display_name ?: "",
+            balance = node?.blockchain_balance?.available_balance?.let {
                 CurrencyAmount(it.value, it.unit)
             } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI),
             recentTransactions = accountResponse.recent_transactions.edges.map {

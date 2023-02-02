@@ -59,20 +59,14 @@ class LightsparkWalletClient private constructor(
      * the most recent transactions.
      *
      * @param numTransactions The max number of recent transactions to fetch. Defaults to 20.
-     * @param bitcoinNetwork The bitcoin network to use for the dashboard data. Defaults to the network set in the
-     *      gradle project properties
      * @return The dashboard overview for the node, including balance and recent transactions.
      * @throws LightsparkException If the wallet ID is not set yet.
      */
-    suspend fun getWalletDashboard(
-        numTransactions: Int = 20,
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
-    ): WalletDashboardData? {
+    suspend fun getWalletDashboard(numTransactions: Int = 20): WalletDashboardData? {
         fullClient.requireValidAuth()
         return fullClient.getSingleNodeDashboard(
             requireWalletId(),
-            numTransactions,
-            bitcoinNetwork
+            numTransactions
         )
     }
 
@@ -172,13 +166,9 @@ class LightsparkWalletClient private constructor(
     /**
      * Get the fee estimate for a payment.
      *
-     * @param bitcoinNetwork The bitcoin network to use for the fee estimate. Defaults to the network set in the gradle
-     *      project properties.
      * @return The fee estimate including a fast and minimum fee as [CurrencyAmount]s
      */
-    suspend fun getFeeEstimate(
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
-    ) = fullClient.getFeeEstimate(bitcoinNetwork)
+    suspend fun getFeeEstimate() = fullClient.getFeeEstimate()
 
     /**
      * @return A [Flow] that emits true if the wallet is unlocked or false if it is locked.

@@ -100,7 +100,7 @@ fun NodeOverviewHeader(nodeDisplayData: NodeDisplayData) {
         NodeTypeIcon(purpose = nodeDisplayData.purpose, color = nodeDisplayData.color)
         Text(
             text = nodeDisplayData.name,
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.offset(x = 8.dp)
         )
         Spacer(modifier = Modifier.weight(1f))

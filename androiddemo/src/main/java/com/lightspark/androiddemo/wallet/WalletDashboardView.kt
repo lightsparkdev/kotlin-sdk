@@ -283,11 +283,20 @@ fun TransactionList(
     modifier: Modifier = Modifier,
     onTransactionTap: ((Transaction) -> Unit)? = null
 ) {
+    if (walletData.recentTransactions.isEmpty()) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "No transactions")
+        }
+        return
+    }
     LazyColumn(
         state = scrollState,
         modifier = modifier.fillMaxWidth()
     ) {
-        items(walletData.recentTransactions + fakeTransactions()) { transaction ->
+        items(walletData.recentTransactions) { transaction ->
             TransactionRow(transaction, onTap = { onTransactionTap?.invoke(transaction) })
         }
     }
