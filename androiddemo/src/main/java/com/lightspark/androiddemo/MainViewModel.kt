@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 private const val DEV_OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
 private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
@@ -82,10 +83,17 @@ class MainViewModel(
                 dashboardRepository.setBitcoinNetwork(prefs.bitcoinNetwork)
             }
             if (prefs.environment != (prevPrefs?.environment ?: SavedPrefs.DEFAULT.environment)) {
-                dashboardRepository.setServerEnvironment(prefs.environment)
-                credentialsStore.clear()
-                oAuthHelper.setServerEnvironment(prefs.environment)
-                oAuthStatusChange.emit(OAuthEvent(false, "Logged out due to environment change"))
+                val hadToken = credentialsStore.clear()
+                val oauthStateChanged = oAuthHelper.setServerEnvironment(prefs.environment)
+                if (oauthStateChanged || hadToken) {
+                    oAuthStatusChange.emit(
+                        OAuthEvent(false, "Logged out due to environment change")
+                    )
+                }
+                dashboardRepository.setServerEnvironment(
+                    prefs.environment,
+                    invalidateAuth = oauthStateChanged || hadToken
+                )
             }
         }
         .map { prefsWithPrev -> prefsWithPrev.second ?: SavedPrefs.DEFAULT }
@@ -153,6 +161,12 @@ class MainViewModel(
 
     init {
         if (oAuthHelper.isAuthorized()) {
+            runBlocking {
+                dashboardRepository.setServerEnvironment(
+                    prefsStore.getPrefsSync().environment,
+                    invalidateAuth = false
+                )
+            }
             dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
         }
     }

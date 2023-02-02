@@ -294,7 +294,7 @@ class LightsparkClient internal constructor(
         }
     }
 
-    fun setServerEnvironment(environment: ServerEnvironment) {
+    fun setServerEnvironment(environment: ServerEnvironment, invalidateAuth: Boolean) {
         serverUrl = environment.graphQLUrl
         apolloClient = ApolloClient.Builder()
             .serverUrl(serverUrl)
@@ -302,7 +302,9 @@ class LightsparkClient internal constructor(
             .httpHeaders(defaultHeaders)
             .addHttpInterceptor(SigningHttpInterceptor(nodeKeyCache))
             .build()
-        authProvider = StubAuthProvider()
+        if (invalidateAuth) {
+            authProvider = StubAuthProvider()
+        }
     }
 
     fun setBitcoinNetwork(network: BitcoinNetwork) {

@@ -30,8 +30,8 @@ class AccountDashboardRepository(
         lightsparkClient.setBitcoinNetwork(bitcoinNetwork)
     }
 
-    fun setServerEnvironment(serverEnvironment: ServerEnvironment) {
-        lightsparkClient.setServerEnvironment(serverEnvironment)
+    fun setServerEnvironment(serverEnvironment: ServerEnvironment, invalidateAuth: Boolean) {
+        lightsparkClient.setServerEnvironment(serverEnvironment, invalidateAuth)
     }
 
     val unlockedNodeIds = lightsparkClient.getUnlockedNodeIds()

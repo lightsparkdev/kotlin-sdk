@@ -9,6 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.lightspark.androiddemo.LightsparkDemoApplication
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 data class SavedCredentials(
@@ -28,10 +29,12 @@ class CredentialsStore(private val context: Context) {
         }
     }
 
-    suspend fun clear() {
+    suspend fun clear(): Boolean {
+        val hadToken = context.dataStore.data.firstOrNull()?.let { it[TOKEN_ID_KEY] } != null
         context.dataStore.edit { preferences ->
             preferences.clear()
         }
+        return hadToken
     }
 
     suspend fun getAccountTokenSync(): SavedCredentials? {

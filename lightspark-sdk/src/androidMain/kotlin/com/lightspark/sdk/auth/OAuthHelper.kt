@@ -42,10 +42,16 @@ class OAuthHelper(
         return AuthState(serviceConfig)
     }
 
-    fun setServerEnvironment(environment: ServerEnvironment) {
-        if (serverEnvironment == environment) return
+    fun setServerEnvironment(environment: ServerEnvironment): Boolean {
+        if (serverEnvironment == environment) return false
         serverEnvironment = environment
-        authStateStorage.replace(defaultAuthState())
+        if (authStateStorage.getCurrent().authorizationServiceConfiguration?.authorizationEndpoint !=
+            defaultAuthState().authorizationServiceConfiguration?.authorizationEndpoint
+        ) {
+            authStateStorage.replace(defaultAuthState())
+            return true
+        }
+        return false
     }
 
     fun isAuthorized() = authState.isAuthorized
