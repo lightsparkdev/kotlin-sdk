@@ -5,27 +5,21 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.io.FileOutputStream
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("com.android.library")
-    id("com.apollographql.apollo3")
-    id("com.codingfeline.buildkonfig")
-    id("org.jetbrains.dokka")
-    id("com.mgd.core.gradle.s3") version "1.2.1"
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.apollo)
+    alias(libs.plugins.buildKonfig)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.gradleS3)
 }
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:1.7.20")
+        classpath("org.jetbrains.dokka:dokka-base:${libs.versions.dokka.get()}")
     }
-}
-
-
-object Versions {
-    val apollo = "3.7.3"
-    val kase64 = "1.0.6"
-    val krypt = "0.3.1"
 }
 
 kotlin {
@@ -46,12 +40,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.apollographql.apollo3:apollo-runtime:${Versions.apollo}")
-                implementation("com.apollographql.apollo3:apollo-normalized-cache:${Versions.apollo}")
-                implementation("de.peilicke.sascha:kase64:${Versions.kase64}")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-                implementation("com.chrynan.krypt:krypt-csprng:${Versions.krypt}")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+                implementation(libs.apollo.runtime)
+                implementation(libs.apollo.normalized.cache)
+                implementation(libs.kase64)
+                implementation(libs.kotlin.serialization.json)
+                implementation(libs.krypt)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val commonTest by getting {
@@ -61,12 +55,12 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                implementation("net.openid:appauth:0.11.1")
+                implementation(libs.appauth)
                 // If you want to use DataStoreAuthStateStorage, you need to add the following implementation dependency to your build.gradle.kts.
-                compileOnly("androidx.datastore:datastore-preferences:1.0.0")
+                compileOnly(libs.androidx.datastore.preferences)
             }
         }
-        val androidTest by getting
+        val androidUnitTest by getting
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
@@ -136,8 +130,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     dependencies {
-        dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.7.20")
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
+        dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:${libs.versions.dokka.get()}")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.1")
     }
 }
 
