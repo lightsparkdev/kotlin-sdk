@@ -2,7 +2,6 @@ package com.lightspark.androiddemo.wallet
 
 import com.lightspark.androiddemo.LightsparkClientProvider
 import com.lightspark.androiddemo.settings.DefaultPrefsStore
-import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.sdk.LightsparkWalletClient
 import com.lightspark.sdk.wrapWithLceFlow
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +22,16 @@ class WalletRepository(
     fun setActiveWalletAndUnlock(nodeId: String, password: String) =
         wrapWithLceFlow {
             if (walletClient.unlockWallet(nodeId, password)) {
-                prefsStore.setAll(SavedPrefs(nodeId))
+                prefsStore.setDefaultWalletNode(nodeId)
                 true
             } else {
                 false
             }
         }
 
-    suspend fun setActiveWalletWithoutUnlocking(nodeId: String) = withContext(Dispatchers.IO) {
+    suspend fun setActiveWalletWithoutUnlocking(nodeId: String?) = withContext(Dispatchers.IO) {
         walletClient.setActiveWalletWithoutUnlocking(nodeId)
-        prefsStore.setAll(SavedPrefs(nodeId))
+        prefsStore.setDefaultWalletNode(nodeId)
     }
 
     val isWalletUnlocked = walletClient.observeWalletUnlocked()

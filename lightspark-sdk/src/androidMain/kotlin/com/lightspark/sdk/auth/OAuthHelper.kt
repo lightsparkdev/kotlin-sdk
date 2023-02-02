@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.lightspark.sdk.model.ServerEnvironment
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.openid.appauth.*
 import kotlin.coroutines.resume
@@ -12,7 +13,8 @@ import kotlin.coroutines.resumeWithException
 
 class OAuthHelper(
     context: Context,
-    private val authStateStorage: AuthStateStorage = SharedPrefsAuthStateStorage(context)
+    private val authStateStorage: AuthStateStorage = SharedPrefsAuthStateStorage(context),
+    private var serverEnvironment: ServerEnvironment = ServerEnvironment.DEV
 ) {
     private val authService = AuthorizationService(context.applicationContext)
 
@@ -20,14 +22,30 @@ class OAuthHelper(
         get() = authStateStorage.getCurrent()
 
     init {
-        val serviceConfig = AuthorizationServiceConfiguration(
-            Uri.parse("https://dev.dev.sparkinfra.net/oauth/authorize"),
-            Uri.parse("https://api.dev.dev.sparkinfra.net/oauth/token")
-        )
         val savedAuthState = authStateStorage.getCurrent()
         if (savedAuthState.authorizationServiceConfiguration == null) {
-            authStateStorage.replace(AuthState(serviceConfig))
+            authStateStorage.replace(defaultAuthState())
         }
+    }
+
+    private fun defaultAuthState(): AuthState {
+        val serviceConfig = when (serverEnvironment) {
+            ServerEnvironment.DEV -> AuthorizationServiceConfiguration(
+                Uri.parse("https://dev.dev.sparkinfra.net/oauth/authorize"),
+                Uri.parse("https://api.dev.dev.sparkinfra.net/oauth/token")
+            )
+            ServerEnvironment.PROD -> AuthorizationServiceConfiguration(
+                Uri.parse("https://app.lightspark.com/oauth/authorize"),
+                Uri.parse("https://api.lightspark.com/oauth/token")
+            )
+        }
+        return AuthState(serviceConfig)
+    }
+
+    fun setServerEnvironment(environment: ServerEnvironment) {
+        if (serverEnvironment == environment) return
+        serverEnvironment = environment
+        authStateStorage.replace(defaultAuthState())
     }
 
     fun isAuthorized() = authState.isAuthorized

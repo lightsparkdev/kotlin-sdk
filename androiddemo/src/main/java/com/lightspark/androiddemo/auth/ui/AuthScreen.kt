@@ -8,21 +8,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lightspark.androiddemo.settings.SavedPrefs
+import com.lightspark.androiddemo.ui.LightsparkDropdown
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
+import com.lightspark.api.type.BitcoinNetwork
+import com.lightspark.sdk.model.ServerEnvironment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthScreen(
+    prefs: SavedPrefs,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     oAuthIsAuthorized: Boolean = false,
-    onSubmit: (tokenId: String, tokenSecret: String, defaultWalletId: String?) -> Unit = { _, _, _ -> },
+    onSubmit: (tokenId: String, tokenSecret: String) -> Unit = { _, _ -> },
     onOAuthRequest: () -> Unit = {},
+    onBitcoinNetworkChange: (BitcoinNetwork) -> Unit = {},
+    onServerEnvironmentChange: (ServerEnvironment) -> Unit = {},
 ) {
     var tokenId by remember { mutableStateOf("") }
     var tokenSecret by remember { mutableStateOf("") }
-    var nodeID by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -76,18 +82,10 @@ fun AuthScreen(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(0.8f)
         )
-        TextField(
-            label = { Text("Node ID for Wallet", style = MaterialTheme.typography.labelMedium) },
-            placeholder = { Text("Enter wallet node ID") },
-            value = nodeID,
-            onValueChange = { nodeID = it.trim() },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(0.8f)
-        )
         Spacer(modifier = Modifier.height(8.dp))
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { onSubmit(tokenId, tokenSecret, nodeID.takeIf { it.isNotBlank() }) },
+            onClick = { onSubmit(tokenId, tokenSecret) },
             enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
@@ -100,6 +98,45 @@ fun AuthScreen(
         }
         Spacer(modifier = Modifier.height(24.dp))
         Divider()
+        Text(
+            text = "Bitcoin network",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+        LightsparkDropdown(
+            items = listOf(
+                BitcoinNetwork.REGTEST,
+                BitcoinNetwork.TESTNET,
+                BitcoinNetwork.MAINNET
+            ).map { it.name },
+            selected = prefs.bitcoinNetwork.name,
+            onSelected = { onBitcoinNetworkChange(BitcoinNetwork.valueOf(it)) },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(vertical = 8.dp)
+        ) {
+            Text(
+                text = "Dev",
+                style = MaterialTheme.typography.labelMedium,
+//                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = prefs.environment == ServerEnvironment.PROD,
+                onCheckedChange = {
+                    onServerEnvironmentChange(if (it) ServerEnvironment.PROD else ServerEnvironment.DEV)
+                }
+            )
+            Text(
+                text = "Prod",
+                style = MaterialTheme.typography.labelMedium,
+//                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
@@ -107,6 +144,6 @@ fun AuthScreen(
 @Composable
 fun AuthScreenPreview() {
     LightsparkTheme {
-        AuthScreen()
+        AuthScreen(SavedPrefs.DEFAULT)
     }
 }

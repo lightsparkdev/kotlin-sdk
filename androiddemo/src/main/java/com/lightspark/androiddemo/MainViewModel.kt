@@ -17,6 +17,7 @@ import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.androiddemo.wallet.WalletRepository
 import com.lightspark.api.DashboardOverviewQuery
+import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
@@ -25,12 +26,13 @@ import com.lightspark.sdk.auth.DataStoreAuthStateStorage
 import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.auth.OAuthProvider
 import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.ServerEnvironment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-private const val OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
+private const val DEV_OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
 private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
 
 // NOTE: This is a public client secret, it is safe to include in the app.
@@ -65,12 +67,29 @@ class MainViewModel(
         .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
 
     val preferences = prefsStore.getPrefsFlow()
-        .onEach { prefs ->
-            if (prefs.defaultWalletNodeId != null) {
+        .runningFold(null to null) { prevPrefs: Pair<SavedPrefs?, SavedPrefs?>, newPrefs ->
+            prevPrefs.second to newPrefs
+        }
+        .onEach { prefsWithPrev ->
+            val prevPrefs = prefsWithPrev.first
+            val prefs = prefsWithPrev.second ?: SavedPrefs.DEFAULT
+            if (prefsWithPrev.second != null) {
                 walletRepository.setActiveWalletWithoutUnlocking(prefs.defaultWalletNodeId)
             }
+            if (prefs.bitcoinNetwork != (prevPrefs?.bitcoinNetwork
+                    ?: SavedPrefs.DEFAULT.bitcoinNetwork)
+            ) {
+                dashboardRepository.setBitcoinNetwork(prefs.bitcoinNetwork)
+            }
+            if (prefs.environment != (prevPrefs?.environment ?: SavedPrefs.DEFAULT.environment)) {
+                dashboardRepository.setServerEnvironment(prefs.environment)
+                credentialsStore.clear()
+                oAuthHelper.setServerEnvironment(prefs.environment)
+                oAuthStatusChange.emit(OAuthEvent(false, "Logged out due to environment change"))
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
+        .map { prefsWithPrev -> prefsWithPrev.second ?: SavedPrefs.DEFAULT }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, SavedPrefs.DEFAULT)
 
     val oAuthIsAuthorized = oAuthStorage.observeIsAuthorized()
 
@@ -146,13 +165,21 @@ class MainViewModel(
         refreshWallet.tryEmit(Unit)
     }
 
-    fun onSettingsInfoSubmitted(
+    fun onApiTokenInfoSubmitted(
         tokenId: String,
         tokenSecret: String,
-        defaultWalletId: String?
     ) = viewModelScope.launch {
         credentialsStore.setAccountData(tokenId, tokenSecret)
-        prefsStore.setAll(SavedPrefs(defaultWalletNodeId = defaultWalletId))
+    }
+
+    fun onBitcoinNetworkSelected(bitcoinNetwork: BitcoinNetwork) = viewModelScope.launch {
+        prefsStore.setDefaultWalletNode(null)
+        prefsStore.setBitcoinNetwork(bitcoinNetwork)
+    }
+
+    fun onServerEnvironmentSelected(environment: ServerEnvironment) = viewModelScope.launch {
+        prefsStore.setDefaultWalletNode(null)
+        prefsStore.setServerEnvironment(environment)
     }
 
     fun setActiveWallet(nodeId: String, nodePassword: String) = walletRepository
@@ -263,7 +290,7 @@ class MainViewModel(
             Log.e("MainActivity", "Error handling auth response", e)
             return
         }
-        oAuthHelper.fetchAndPersistRefreshToken(OAUTH_CLIENT_SECRET) { _, error ->
+        oAuthHelper.fetchAndPersistRefreshToken(oauthClientSecret()) { _, error ->
             if (error != null) {
                 oAuthStatusChange.emitAsync(
                     OAuthEvent(
@@ -285,8 +312,18 @@ class MainViewModel(
         }
     }
 
-    fun MutableSharedFlow<OAuthEvent>.emitAsync(event: OAuthEvent) = viewModelScope.launch {
+    private fun MutableSharedFlow<OAuthEvent>.emitAsync(event: OAuthEvent) = viewModelScope.launch {
         emit(event)
+    }
+
+    private fun oauthClientId() = when (preferences.value.environment) {
+        ServerEnvironment.DEV -> DEV_OAUTH_CLIENT_ID
+        ServerEnvironment.PROD -> "2cacb0a9-23ae-4e57-b0c4-2fe4f7a8da29"
+    }
+
+    private fun oauthClientSecret() = when (preferences.value.environment) {
+        ServerEnvironment.DEV -> OAUTH_CLIENT_SECRET
+        ServerEnvironment.PROD -> ""
     }
 
     fun launchOAuthFlow(
@@ -294,7 +331,7 @@ class MainViewModel(
         cancelIntent: PendingIntent
     ) {
         oAuthHelper.launchAuthFlow(
-            OAUTH_CLIENT_ID,
+            oauthClientId(),
             OAUTH_REDIRECT_URL,
             completedIntent,
             cancelIntent

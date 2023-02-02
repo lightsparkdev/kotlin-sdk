@@ -16,10 +16,7 @@ import com.lightspark.sdk.auth.*
 import com.lightspark.sdk.crypto.NodeKeyCache
 import com.lightspark.sdk.crypto.SigningHttpInterceptor
 import com.lightspark.sdk.crypto.SigningKeyDecryptor
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.FeeEstimate
-import com.lightspark.sdk.model.WalletDashboardData
-import com.lightspark.sdk.model.toTransaction
+import com.lightspark.sdk.model.*
 import kotlinx.coroutines.flow.Flow
 import saschpe.kase64.base64DecodedBytes
 
@@ -44,7 +41,8 @@ import saschpe.kase64.base64DecodedBytes
  */
 class LightsparkClient internal constructor(
     private var authProvider: AuthProvider,
-    serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
+    private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT,
+    private var defaultBitcoinNetwork: BitcoinNetwork = BitcoinNetwork.REGTEST,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
     internal val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
 ) {
@@ -55,7 +53,7 @@ class LightsparkClient internal constructor(
         HttpHeader(BETA_HEADER_KEY, BETA_HEADER_VALUE)
     )
 
-    internal val apolloClient = ApolloClient.Builder()
+    internal var apolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
         .normalizedCache(cacheFactory)
         .httpHeaders(defaultHeaders)
@@ -99,7 +97,7 @@ class LightsparkClient internal constructor(
      * @return The dashboard overview for the active account, including node and balance details.
      */
     suspend fun getFullAccountDashboard(
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
+        bitcoinNetwork: BitcoinNetwork = defaultBitcoinNetwork,
         afterDate: Any? = null,
         beforeDate: Any? = null,
         nodeId: String? = null,
@@ -132,7 +130,7 @@ class LightsparkClient internal constructor(
     suspend fun getSingleNodeDashboard(
         nodeId: String,
         numTransactions: Int = 20,
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
+        bitcoinNetwork: BitcoinNetwork = defaultBitcoinNetwork,
     ): WalletDashboardData? {
         requireValidAuth()
         val accountResponse = apolloClient.query(
@@ -240,9 +238,7 @@ class LightsparkClient internal constructor(
      *      project properties.
      * @return The fee estimate including a fast and minimum fee as [CurrencyAmount]s
      */
-    suspend fun getFeeEstimate(
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
-    ): FeeEstimate {
+    suspend fun getFeeEstimate(bitcoinNetwork: BitcoinNetwork = defaultBitcoinNetwork): FeeEstimate {
         requireValidAuth()
         return apolloClient.query(FeeEstimateQuery(bitcoinNetwork))
             .addingHeaders()
@@ -298,6 +294,21 @@ class LightsparkClient internal constructor(
         }
     }
 
+    fun setServerEnvironment(environment: ServerEnvironment) {
+        serverUrl = environment.graphQLUrl
+        apolloClient = ApolloClient.Builder()
+            .serverUrl(serverUrl)
+            .normalizedCache(cacheFactory)
+            .httpHeaders(defaultHeaders)
+            .addHttpInterceptor(SigningHttpInterceptor(nodeKeyCache))
+            .build()
+        authProvider = StubAuthProvider()
+    }
+
+    fun setBitcoinNetwork(network: BitcoinNetwork) {
+        defaultBitcoinNetwork = network
+    }
+
     /**
      * The Builder class for [LightsparkClient] and the main entry point for the SDK.
      *
@@ -318,11 +329,17 @@ class LightsparkClient internal constructor(
      */
     class Builder {
         private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
+        private var defaultBitcoinNetwork: BitcoinNetwork =
+            BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK)
+                .takeIf { it != BitcoinNetwork.UNKNOWN__ } ?: BitcoinNetwork.REGTEST
         private var tokenId: String? = null
         private var token: String? = null
         private var authProvider: AuthProvider? = null
 
         fun serverUrl(serverUrl: String) = apply { this.serverUrl = serverUrl }
+        fun bitcoinNetwork(bitcoinNetwork: BitcoinNetwork) =
+            apply { this.defaultBitcoinNetwork = bitcoinNetwork }
+
         fun tokenId(tokenId: String) = apply { this.tokenId = tokenId }
         fun token(token: String) = apply { this.token = token }
         fun authProvider(authProvider: AuthProvider) =
@@ -336,7 +353,8 @@ class LightsparkClient internal constructor(
             }
             return LightsparkClient(
                 authProvider,
-                serverUrl
+                serverUrl = serverUrl,
+                defaultBitcoinNetwork = defaultBitcoinNetwork
             )
         }
     }

@@ -230,11 +230,14 @@ class MainActivity : ComponentActivity() {
                     val prefs by viewModel.preferences.collectAsState()
                     val oAuthIsAuthorized by viewModel.oAuthIsAuthorized.collectAsState(false)
                     AuthScreen(
+                        prefs = prefs,
                         isLoading = tokenState is Lce.Loading,
                         oAuthIsAuthorized = oAuthIsAuthorized,
                         modifier = Modifier.fillMaxSize(),
-                        onSubmit = viewModel::onSettingsInfoSubmitted,
-                        onOAuthRequest = { startOAuthFlow() }
+                        onSubmit = viewModel::onApiTokenInfoSubmitted,
+                        onOAuthRequest = { startOAuthFlow() },
+                        onBitcoinNetworkChange = viewModel::onBitcoinNetworkSelected,
+                        onServerEnvironmentChange = viewModel::onServerEnvironmentSelected
                     )
                 }
                 composable(Screen.Wallet.route) {

@@ -28,6 +28,12 @@ class CredentialsStore(private val context: Context) {
         }
     }
 
+    suspend fun clear() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     suspend fun getAccountTokenSync(): SavedCredentials? {
         val preferences = context.dataStore.data.first()
         val tokenId = preferences[TOKEN_ID_KEY] ?: return null
