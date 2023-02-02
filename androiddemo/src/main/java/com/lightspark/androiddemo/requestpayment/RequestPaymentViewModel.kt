@@ -6,12 +6,15 @@ import com.lightspark.androiddemo.wallet.PaymentRepository
 import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import javax.inject.Inject
 
+@HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
-class RequestPaymentViewModel(
-    private val repository: PaymentRepository = PaymentRepository()
+class RequestPaymentViewModel @Inject constructor(
+    private val repository: PaymentRepository
 ) : ViewModel() {
     private val invoiceAmount = MutableStateFlow<CurrencyAmount?>(null)
     private val invoice = invoiceAmount.flatMapLatest { amount ->

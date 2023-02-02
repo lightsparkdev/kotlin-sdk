@@ -1,6 +1,5 @@
 package com.lightspark.androiddemo.accountdashboard
 
-import com.lightspark.androiddemo.LightsparkClientProvider
 import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.sdk.LightsparkClient
 import com.lightspark.sdk.auth.AuthProvider
@@ -8,9 +7,10 @@ import com.lightspark.sdk.model.ServerEnvironment
 import com.lightspark.sdk.wrapWithLceFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-class AccountDashboardRepository(
-    private val lightsparkClient: LightsparkClient = LightsparkClientProvider.fullClient,
+class AccountDashboardRepository @Inject constructor(
+    private val lightsparkClient: LightsparkClient,
 ) {
     suspend fun getDashboardData() =
         wrapWithLceFlow { lightsparkClient.getFullAccountDashboard() }.flowOn(Dispatchers.IO)

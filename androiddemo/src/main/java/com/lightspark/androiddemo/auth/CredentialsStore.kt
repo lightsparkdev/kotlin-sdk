@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.lightspark.androiddemo.LightsparkDemoApplication
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -49,10 +48,4 @@ class CredentialsStore(private val context: Context) {
         val tokenSecret = preferences[TOKEN_SECRET_KEY] ?: return@map null
         SavedCredentials(tokenId, tokenSecret)
     }.distinctUntilChanged()
-
-    companion object {
-        val instance by lazy {
-            CredentialsStore(LightsparkDemoApplication.instance)
-        }
-    }
 }

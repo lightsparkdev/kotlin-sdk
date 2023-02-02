@@ -1,15 +1,15 @@
 package com.lightspark.androiddemo.wallet
 
-import com.lightspark.androiddemo.LightsparkClientProvider
 import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.sdk.LightsparkWalletClient
 import com.lightspark.sdk.wrapWithLceFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class WalletRepository(
-    private val walletClient: LightsparkWalletClient = LightsparkClientProvider.walletClient,
-    private val prefsStore: DefaultPrefsStore = DefaultPrefsStore.instance
+class WalletRepository @Inject constructor(
+    private val prefsStore: DefaultPrefsStore,
+    private val walletClient: LightsparkWalletClient,
 ) {
     fun getWalletDashboard() = wrapWithLceFlow { walletClient.getWalletDashboard() }
 

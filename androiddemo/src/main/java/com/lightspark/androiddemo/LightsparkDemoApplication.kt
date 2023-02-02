@@ -1,7 +1,9 @@
 package com.lightspark.androiddemo
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class LightsparkDemoApplication : Application() {
     override fun onCreate() {
         super.onCreate()

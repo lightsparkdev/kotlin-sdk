@@ -27,11 +27,13 @@ import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.auth.OAuthProvider
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.ServerEnvironment
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 private const val DEV_OAUTH_CLIENT_ID = "01860f40-e211-7777-0000-da8b0e7566a5"
 private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirect"
@@ -39,12 +41,13 @@ private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirec
 // NOTE: This is a public client secret, it is safe to include in the app.
 private const val OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
 
+@HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainViewModel(
-    private val dashboardRepository: AccountDashboardRepository = AccountDashboardRepository(),
-    private val walletRepository: WalletRepository = WalletRepository(),
-    private val credentialsStore: CredentialsStore = CredentialsStore.instance,
-    private val prefsStore: DefaultPrefsStore = DefaultPrefsStore.instance,
+class MainViewModel @Inject constructor(
+    private val credentialsStore: CredentialsStore,
+    private val prefsStore: DefaultPrefsStore,
+    private val dashboardRepository: AccountDashboardRepository,
+    private val walletRepository: WalletRepository,
 ) : ViewModel() {
     private val oAuthStorage = OAuthStoreProvider.authStorageInstance
     private val oAuthHelper = OAuthHelper(LightsparkDemoApplication.instance, oAuthStorage)

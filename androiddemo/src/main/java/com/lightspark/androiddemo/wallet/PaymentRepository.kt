@@ -1,13 +1,13 @@
 package com.lightspark.androiddemo.wallet
 
-import com.lightspark.androiddemo.LightsparkClientProvider
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.LightsparkWalletClient
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.wrapWithLceFlow
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class PaymentRepository(private val lightsparkClient: LightsparkWalletClient = LightsparkClientProvider.walletClient) {
+class PaymentRepository @Inject constructor(private val lightsparkClient: LightsparkWalletClient) {
     fun createInvoice(amount: CurrencyAmount, memo: String? = null) =
         wrapWithLceFlow { lightsparkClient.createInvoice(amount, memo) }
 

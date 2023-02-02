@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -26,7 +27,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -49,12 +50,14 @@ import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.WalletDashboardData
+import dagger.hilt.android.AndroidEntryPoint
 
 private const val EXTRA_AUTH_FLOW = "isAuthFlow"
 private const val EXTRA_AUTH_CANCELED = "authCanceled"
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val viewModel = MainViewModel()
+    private val viewModel by viewModels<MainViewModel>()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -267,7 +270,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(Screen.SendPayment.route) {
                     requestCameraPermission()
-                    val viewModel: SendPaymentViewModel = viewModel()
+                    val viewModel: SendPaymentViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsState()
                     SendPaymentScreen(
                         uiState = uiState,
@@ -278,7 +281,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 composable(Screen.RequestPayment.route) {
-                    val viewModel: RequestPaymentViewModel = viewModel()
+                    val viewModel: RequestPaymentViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsState()
                     val clipboardManager = LocalClipboardManager.current
                     RequestPaymentScreen(
