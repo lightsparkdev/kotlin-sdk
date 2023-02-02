@@ -9,6 +9,7 @@ import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
 import com.lightspark.androiddemo.accountdashboard.DashboardData
 import com.lightspark.androiddemo.auth.AuthState
 import com.lightspark.androiddemo.auth.CredentialsStore
+import com.lightspark.androiddemo.auth.OAuthStoreProvider
 import com.lightspark.androiddemo.auth.SavedCredentials
 import com.lightspark.androiddemo.model.NodeDisplayData
 import com.lightspark.androiddemo.model.NodeLockStatus
@@ -22,7 +23,6 @@ import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.api.type.LightsparkNodePurpose
 import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.auth.DataStoreAuthStateStorage
 import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.auth.OAuthProvider
 import com.lightspark.sdk.model.CurrencyAmount
@@ -45,7 +45,7 @@ class MainViewModel(
     private val credentialsStore: CredentialsStore = CredentialsStore.instance,
     private val prefsStore: DefaultPrefsStore = DefaultPrefsStore.instance,
 ) : ViewModel() {
-    private val oAuthStorage = DataStoreAuthStateStorage(LightsparkDemoApplication.instance)
+    private val oAuthStorage = OAuthStoreProvider.authStorageInstance
     private val oAuthHelper = OAuthHelper(LightsparkDemoApplication.instance, oAuthStorage)
 
     private val accountTokenInfo = credentialsStore.getAccountTokenFlow()
