@@ -134,7 +134,7 @@ fun QrCodeContainer(
                 .padding(16.dp)
         ) {
             Text(
-                text = if (invoiceAmount == null) "Lightning Address" else "Lightning",
+                text = "Lightning",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center
             )
@@ -169,12 +169,12 @@ fun QrCodeContainer(
                 }
             }
             Text(
-                text = walletAddress,
+                text = data.truncateMiddle(),
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            if (invoiceAmount != null) {
+            if (invoiceAmount != null && invoiceAmount.amount > 0) {
                 Text(
                     text = invoiceAmount.displayString(),
                     style = MaterialTheme.typography.titleMedium,
@@ -191,6 +191,11 @@ fun QrCodeContainer(
             }
         }
     }
+}
+
+private fun String.truncateMiddle(): String {
+    if (this.length <= 40) return this
+    return "${substring(0, 20)}...${substring(this.length - 20, this.length)}"
 }
 
 @Preview(showBackground = true, device = Devices.PIXEL_4, showSystemUi = true)

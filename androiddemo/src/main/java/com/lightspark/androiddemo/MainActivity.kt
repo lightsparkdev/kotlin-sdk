@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -147,6 +149,7 @@ class MainActivity : ComponentActivity() {
         startRoute: String
     ) {
         val snackbarHostState = remember { SnackbarHostState() }
+        val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(key1 = null) {
             viewModel.oAuthStatusChange.collect {
                 snackbarHostState.showSnackbar(
@@ -277,9 +280,19 @@ class MainActivity : ComponentActivity() {
                 composable(Screen.RequestPayment.route) {
                     val viewModel: RequestPaymentViewModel = viewModel()
                     val uiState by viewModel.uiState.collectAsState()
+                    val clipboardManager = LocalClipboardManager.current
                     RequestPaymentScreen(
                         uiState = uiState,
-                        createInvoice = viewModel::createInvoice
+                        createInvoice = viewModel::createInvoice,
+                        onCopy = { clipboardManager.setText(AnnotatedString(it)) },
+                        onShare = {
+                            val shareIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, it)
+                                type = "text/plain"
+                            }
+                            startActivity(shareIntent)
+                        }
                     )
                 }
             }

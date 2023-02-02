@@ -3,6 +3,7 @@ package com.lightspark.androiddemo.requestpayment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androiddemo.wallet.PaymentRepository
+import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,7 +16,7 @@ class RequestPaymentViewModel(
     private val invoiceAmount = MutableStateFlow<CurrencyAmount?>(null)
     private val invoice = invoiceAmount.flatMapLatest { amount ->
         if (amount == null) {
-            flowOf(Lce.Content(null))
+            repository.createInvoice(CurrencyAmount(0, CurrencyUnit.SATOSHI))
         } else {
             repository.createInvoice(amount)
         }
@@ -33,15 +34,15 @@ class RequestPaymentViewModel(
             else -> {
                 invoice as Lce.Content
                 walletAddress as Lce.Content
-                invoice.data?.let {
+                invoice.data.let {
                     Lce.Content(
                         RequestPaymentsUiState(
-                            invoice.data!!.invoice_data.invoice_data_encoded_payment_request,
+                            invoice.data.invoice_data.invoice_data_encoded_payment_request,
                             walletAddress.data,
                             invoiceAmount.value
                         )
                     )
-                } ?: Lce.Content(RequestPaymentsUiState(walletAddress.data, walletAddress.data))
+                }
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Lce.Loading)
