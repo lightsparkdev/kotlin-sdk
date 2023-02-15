@@ -43,6 +43,7 @@ private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirec
 private const val DEV_OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
 private const val PROD_OAUTH_CLIENT_SECRET = "xX5tYhhqZmvWAtKYyrLq3mN3BX1Z5vOBC14HyK69Cea"
 
+// TODO(Jeremy): This class should definitely be broken up into at least 2 ViewModels.
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel @Inject constructor(
