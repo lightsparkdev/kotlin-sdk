@@ -26,7 +26,7 @@ krypt = "0.3.1"
 kotlinSerializationJson = "1.4.1"
 kotlinxDateTime = "0.4.0"
 appAuth = "0.11.1"
-qrCode = "1.0.0"
+qrCode = "1.0.1"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
