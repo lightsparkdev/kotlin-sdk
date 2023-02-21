@@ -26,6 +26,7 @@ krypt = "0.3.1"
 kotlinSerializationJson = "1.4.1"
 kotlinxDateTime = "0.4.0"
 appAuth = "0.11.1"
+qrCode = "1.0.0"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -70,6 +71,8 @@ androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", versi
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraX" }
 androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "cameraX" }
 mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
+
+lightspark-composeqrcode = { module = "com.lightspark:compose-qr-code", version.ref = "qrCode" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitExt" }

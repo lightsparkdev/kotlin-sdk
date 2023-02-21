@@ -18,13 +18,13 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lightspark.androiddemo.R
-import com.lightspark.androiddemo.qrcode.DotShape
-import com.lightspark.androiddemo.qrcode.QrCodeColors
-import com.lightspark.androiddemo.qrcode.QrCodeView
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.util.displayString
 import com.lightspark.api.type.CurrencyUnit
+import com.lightspark.composeqr.DotShape
+import com.lightspark.composeqr.QrCodeColors
+import com.lightspark.composeqr.QrCodeView
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.model.CurrencyAmount
 
