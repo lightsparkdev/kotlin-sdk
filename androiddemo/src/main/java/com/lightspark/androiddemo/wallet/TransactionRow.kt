@@ -1,6 +1,5 @@
 package com.lightspark.androiddemo.wallet
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,19 +21,21 @@ import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.ui.theme.LightsparkBlue
 import com.lightspark.androiddemo.ui.theme.NeutralGrey
 import com.lightspark.androiddemo.ui.theme.Success
-import com.lightspark.androiddemo.ui.theme.Warning
+import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
-import com.lightspark.api.type.TransactionStatus
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.Transaction
+import com.lightspark.sdk.model.*
+import com.lightspark.sdk.util.format
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.text.SimpleDateFormat
 
 @Composable
 fun TransactionRow(
     transaction: Transaction,
     modifier: Modifier = Modifier,
-    onTap: (() -> Unit)? = null
+    onTap: (() -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -42,44 +43,31 @@ fun TransactionRow(
             .clickable { onTap?.invoke() }
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .height(70.dp)
+            .height(70.dp),
     ) {
-        TransactionTypeIcon(transaction.type)
+        TransactionTypeIcon(transaction)
         Column(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
             Text(
-                text = transaction.type.displayName(),
+                text = transaction.displayName(),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = transaction.createdAt.formatDate(),
+                text = transaction.createdAt.toLocalDateTime(TimeZone.UTC).format("MMM dd, hh:mma"),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
             )
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = transaction.amount.displayString(),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
-}
-
-@SuppressLint("SimpleDateFormat")
-private fun String.formatDate(): String {
-    val inputFormatWithMs = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS+00:00")
-    val inputFormatWithoutMs = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+00:00")
-    val date = tryOrNull {
-        inputFormatWithMs.parse(this)
-    } ?: tryOrNull {
-        inputFormatWithoutMs.parse(this)
-    } ?: return this
-    val formatter = SimpleDateFormat("MMM dd, hh:mma")
-    return formatter.format(date)
 }
 
 private inline fun <T> tryOrNull(block: () -> T): T? {
@@ -91,74 +79,67 @@ private inline fun <T> tryOrNull(block: () -> T): T? {
 }
 
 @Composable
-fun TransactionTypeIcon(type: Transaction.Type) {
+fun TransactionTypeIcon(transaction: Transaction) {
     Box(
         modifier = Modifier
             .size(40.dp)
             .clip(CircleShape)
-            .background(color = type.color()),
-        contentAlignment = Alignment.Center
+            .background(color = transaction.color()),
+        contentAlignment = Alignment.Center,
     ) {
-        type.Icon()
+        transaction.Icon()
     }
 }
 
 @Composable
-private fun Transaction.Type.Icon() {
+private fun Transaction.Icon() {
     when (this) {
-        Transaction.Type.PAYMENT_RECEIVED -> Icon(
+        is IncomingPayment -> Icon(
             imageVector = Icons.Filled.ArrowBack,
-            contentDescription = name,
-            tint = Color.White
+            contentDescription = "Incoming Payment",
+            tint = Color.White,
         )
-        Transaction.Type.PAYMENT_SENT -> Icon(
+        is OutgoingPayment -> Icon(
             imageVector = Icons.Filled.ArrowForward,
-            contentDescription = name,
-            tint = Color.White
+            contentDescription = "Outgoing Payment",
+            tint = Color.White,
         )
-        Transaction.Type.DEPOSIT -> Icon(
+        is Deposit -> Icon(
             imageVector = Icons.Filled.KeyboardArrowDown,
-            contentDescription = name,
-            tint = Color.White
+            contentDescription = "Deposit",
+            tint = Color.White,
         )
-        Transaction.Type.WITHDRAWAL -> Icon(
+        is Withdrawal -> Icon(
             imageVector = Icons.Filled.KeyboardArrowUp,
-            contentDescription = name,
-            tint = Color.White
+            contentDescription = "Withdrawal",
+            tint = Color.White,
         )
-        Transaction.Type.PAYMENT_REQUEST -> Icon(
+        else -> Icon(
             painter = painterResource(id = R.drawable.ic_qr_code),
-            contentDescription = name,
-            tint = Color.White
-        )
-        Transaction.Type.UNKNOWN -> Icon(
-            imageVector = Icons.Filled.Warning,
-            contentDescription = name,
-            tint = Color.White
+            contentDescription = "Unknown",
+            tint = Color.White,
         )
     }
 }
 
-private fun Transaction.Type.displayName(): String {
+private fun Transaction.displayName(): String {
     return when (this) {
-        Transaction.Type.PAYMENT_RECEIVED -> "Received"
-        Transaction.Type.PAYMENT_SENT -> "Sent"
-        Transaction.Type.DEPOSIT -> "Deposit"
-        Transaction.Type.WITHDRAWAL -> "Withdrawal"
-        Transaction.Type.PAYMENT_REQUEST -> "Created Invoice"
-        Transaction.Type.UNKNOWN -> "Unknown"
+        is IncomingPayment -> "Received"
+        is OutgoingPayment -> "Sent"
+        is Deposit -> "Deposit"
+        is Withdrawal -> "Withdrawal"
+        else -> "Unknown"
     }
 }
 
 @Composable
-private fun Transaction.Type.color(): Color {
+private fun Transaction.color(): Color {
     return when (this) {
-        Transaction.Type.PAYMENT_RECEIVED -> Success
-        Transaction.Type.PAYMENT_SENT -> LightsparkBlue
-        Transaction.Type.DEPOSIT -> Success
-        Transaction.Type.WITHDRAWAL -> LightsparkBlue
-        Transaction.Type.PAYMENT_REQUEST -> NeutralGrey
-        Transaction.Type.UNKNOWN -> Warning
+        is IncomingPayment -> Success
+        is OutgoingPayment -> LightsparkBlue
+        is Deposit -> Success
+        is Withdrawal -> LightsparkBlue
+        else -> NeutralGrey
     }
 }
 
@@ -166,16 +147,14 @@ private fun Transaction.Type.color(): Color {
 @Composable
 fun TransactionRowPreview() {
     TransactionRow(
-        transaction = Transaction(
-            "2",
-            CurrencyAmount(10000, CurrencyUnit.SATOSHI),
+        OutgoingPayment(
+            "Transaction 1",
+            Instant.parse("2023-01-18T08:30:28.300854+00:00"),
+            Instant.parse("2023-01-18T08:30:28.300854+00:00"),
             TransactionStatus.SUCCESS,
-            "2023-01-18T08:30:28.300854+00:00",
-            "2023-01-18T08:30:28.300854+00:00",
-            Transaction.Type.PAYMENT_RECEIVED,
-            null,
-            null,
-            null
-        )
+            currencyAmountSats(100000),
+            EntityId("OriginNode"),
+            Clock.System.now(),
+        ),
     )
 }

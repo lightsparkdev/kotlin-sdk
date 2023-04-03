@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 rootProject.name = "Lightspark"
 include(":lightspark-sdk")
 include(":androiddemo")
+include(":javatest")

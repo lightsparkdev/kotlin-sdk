@@ -28,6 +28,6 @@ fun <T> Flow<T>.asLce(): Flow<Lce<T>> {
  * @return A [Flow] which emits [Lce] states for loading, success, and error conditions for the given query.
  */
 fun <T> wrapWithLceFlow(query: suspend () -> T?): Flow<Lce<T>> = flow {
-    val data = query() ?: throw Exception("No data")
+    val data = query() ?: throw Exception("No result data")
     emit(data)
 }.asLce()

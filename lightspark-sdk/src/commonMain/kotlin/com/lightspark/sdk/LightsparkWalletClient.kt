@@ -1,15 +1,13 @@
 package com.lightspark.sdk
 
-import com.apollographql.apollo3.ApolloClient
-import com.lightspark.api.PayInvoiceMutation
-import com.lightspark.api.type.BitcoinNetwork
-import com.lightspark.api.type.CurrencyAmountInput
-import com.lightspark.conf.BuildKonfig
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.auth.AuthProvider
 import com.lightspark.sdk.crypto.NodeKeyCache
+import com.lightspark.sdk.graphql.WalletDashboard
+import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.WalletDashboardData
+import com.lightspark.sdk.model.OutgoingPayment
+import com.lightspark.sdk.requester.Requester
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -35,7 +33,7 @@ import kotlinx.coroutines.flow.map
 class LightsparkWalletClient private constructor(
     private val fullClient: LightsparkClient,
     private val nodeKeyCache: NodeKeyCache,
-    private val apolloClient: ApolloClient
+    private val requester: Requester,
 ) {
     var activeWalletId: String? = null
         private set
@@ -49,9 +47,9 @@ class LightsparkWalletClient private constructor(
      */
     suspend fun createNewWallet(
         password: String,
-        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.safeValueOf(BuildKonfig.BITCOIN_NETWORK),
+        bitcoinNetwork: BitcoinNetwork = BitcoinNetwork.MAINNET,
     ) {
-        TODO("Not yet implemented")
+        TODO
     }
 
     /**
@@ -62,11 +60,11 @@ class LightsparkWalletClient private constructor(
      * @return The dashboard overview for the node, including balance and recent transactions.
      * @throws LightsparkException If the wallet ID is not set yet.
      */
-    suspend fun getWalletDashboard(numTransactions: Int = 20): WalletDashboardData? {
+    suspend fun getWalletDashboard(numTransactions: Int = 20): WalletDashboard? {
         fullClient.requireValidAuth()
         return fullClient.getSingleNodeDashboard(
             requireWalletId(),
-            numTransactions
+            numTransactions,
         )
     }
 
@@ -112,14 +110,14 @@ class LightsparkWalletClient private constructor(
     /**
      * Creates a lightning invoice for a payment to this wallet.
      *
-     * @param amount The amount of the invoice in a specified currency unit.
+     * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @throws LightsparkException If the wallet ID is not set yet.
      */
     suspend fun createInvoice(
-        amount: CurrencyAmount,
+        amountMsats: Long,
         memo: String? = null,
-    ) = fullClient.createInvoice(requireWalletId(), amount, memo)
+    ) = fullClient.createInvoice(requireWalletId(), amountMsats, memo)
 
     /**
      * Pay a lightning invoice from this wallet.
@@ -128,30 +126,32 @@ class LightsparkWalletClient private constructor(
      * successfully unlock the node with its password before calling this function.
      *
      * @param encodedInvoice An encoded string representation of the invoice to pay.
+     * @param maxFeesMsats The maximum fees to pay in milli-satoshis.
+     *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
+     *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
+     * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
-     * @param amount The amount to pay in a specified currency unit. Defaults to the full amount of the invoice.
-     * @param maxFees The maximum fees to pay in a specified currency unit.
      * @return The payment details.
      * @throws LightsparkException If the wallet is not unlocked yet.
      */
     suspend fun payInvoice(
         encodedInvoice: String,
+        maxFeesMsats: Long,
+        amountMsats: Long? = null,
         timeoutSecs: Int = 60,
-        amount: CurrencyAmountInput? = null,
-        maxFees: CurrencyAmountInput? = null,
-    ): PayInvoiceMutation.Payment {
+    ): OutgoingPayment {
         if (!nodeKeyCache.contains(requireWalletId())) {
             throw LightsparkException(
                 "Wallet is locked. Call unlockWallet before calling payInvoice.",
-                LightsparkErrorCode.WALLET_LOCKED
+                LightsparkErrorCode.WALLET_LOCKED,
             )
         }
         return fullClient.payInvoice(
             requireWalletId(),
             encodedInvoice,
+            maxFeesMsats,
+            amountMsats,
             timeoutSecs,
-            amount,
-            maxFees
         )
     }
 
@@ -186,13 +186,13 @@ class LightsparkWalletClient private constructor(
     private fun requireWalletId() =
         activeWalletId ?: throw LightsparkException(
             "Missing wallet ID",
-            LightsparkErrorCode.MISSING_WALLET_ID
+            LightsparkErrorCode.MISSING_WALLET_ID,
         )
 
     class Builder {
-        private var serverUrl: String = BuildKonfig.LIGHTSPARK_ENDPOINT
-        private var tokenId = BuildKonfig.LIGHTSPARK_TOKEN_ID
-        private var token = BuildKonfig.LIGHTSPARK_TOKEN
+        private var serverUrl: String = "api.lightspark.com"
+        private var tokenId = ""
+        private var token = ""
         private var authProvider: AuthProvider? = null
         private var walletId: String? = null
         private var fullClient: LightsparkClient? = null
@@ -207,27 +207,26 @@ class LightsparkWalletClient private constructor(
         fun fullLightsparkClient(fullClient: LightsparkClient) =
             apply { this.fullClient = fullClient }
 
-
         fun build(): LightsparkWalletClient {
             val isTokenValid =
                 authProvider != null || (tokenId.isNotBlank() && token.isNotBlank())
             if (fullClient == null && (serverUrl.isBlank() || !isTokenValid)) {
                 throw LightsparkException(
                     "Missing server URL, token ID, or token",
-                    LightsparkErrorCode.MISSING_CLIENT_INIT_PARAMETER
+                    LightsparkErrorCode.MISSING_CLIENT_INIT_PARAMETER,
                 )
             }
 
             val delegateFullClient = fullClient ?: LightsparkClient(
                 authProvider ?: AccountApiTokenAuthProvider(tokenId, token),
                 serverUrl,
-                nodeKeyCache = NodeKeyCache()
+                nodeKeyCache = NodeKeyCache(),
             )
 
             return LightsparkWalletClient(
                 delegateFullClient,
                 delegateFullClient.nodeKeyCache,
-                delegateFullClient.apolloClient
+                delegateFullClient.requester,
             ).apply { activeWalletId = this@Builder.walletId }
         }
     }

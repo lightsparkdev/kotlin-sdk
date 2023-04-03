@@ -11,7 +11,7 @@ class SigningKeyDecryptor {
     fun decryptKey(
         cipherVersion: String,
         nodePassword: String,
-        encryptedKeyBase64: String
+        encryptedKeyBase64: String,
     ): ByteArray {
         var decodedEncryptedKey = encryptedKeyBase64.base64DecodedBytes
         var header = Header(0, 0)
@@ -51,7 +51,7 @@ class SigningKeyDecryptor {
     private fun decryptKeyV3(
         nodePassword: String,
         header: Header,
-        decodedEncryptedKey: ByteArray
+        decodedEncryptedKey: ByteArray,
     ): ByteArray {
         val salt =
             decodedEncryptedKey.copyOfRange(decodedEncryptedKey.size - 16, decodedEncryptedKey.size)

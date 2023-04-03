@@ -12,8 +12,8 @@ import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.androiddemo.ui.LightsparkDropdown
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
-import com.lightspark.api.type.BitcoinNetwork
-import com.lightspark.sdk.model.ServerEnvironment
+import com.lightspark.sdk.model.BitcoinNetwork
+import com.lightspark.sdk.requester.ServerEnvironment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,21 +36,23 @@ fun AuthScreen(
     ) {
         if (oAuthIsAuthorized) {
             Text(
-                "You're successfully authorized with oauth! You can overwrite that by logging in again with the form below or via OAuth again.",
+                "You're successfully authorized with oauth! You can overwrite that by logging in again with the " +
+                    "form below or via OAuth again.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge.copy(color = Success),
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
             )
         } else {
             Text(
-                "We need some quick info from your Lightspark dashboard to get you started. Enter it below or use the OAuth login instead.",
+                "We need some quick info from your Lightspark dashboard to get you started. Enter it below or use " +
+                    "the OAuth login instead.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
             )
         }
         Divider()
@@ -59,7 +61,7 @@ fun AuthScreen(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
             onClick = { onOAuthRequest() },
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.8f),
         ) {
             Text("Use OAuth Login")
         }
@@ -72,7 +74,7 @@ fun AuthScreen(
             value = tokenId,
             onValueChange = { tokenId = it.trim() },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f),
         )
         TextField(
             label = { Text("Token Secret", style = MaterialTheme.typography.labelMedium) },
@@ -80,7 +82,7 @@ fun AuthScreen(
             value = tokenSecret,
             onValueChange = { tokenSecret = it.trim() },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Button(
@@ -88,7 +90,7 @@ fun AuthScreen(
             onClick = { onSubmit(tokenId, tokenSecret) },
             enabled = !isLoading,
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.8f),
         ) {
             if (isLoading) {
                 CircularProgressIndicator()
@@ -101,40 +103,38 @@ fun AuthScreen(
         Text(
             text = "Bitcoin network",
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 8.dp),
         )
         LightsparkDropdown(
             items = listOf(
                 BitcoinNetwork.REGTEST,
                 BitcoinNetwork.TESTNET,
-                BitcoinNetwork.MAINNET
+                BitcoinNetwork.MAINNET,
             ).map { it.name },
             selected = prefs.bitcoinNetwork.name,
             onSelected = { onBitcoinNetworkChange(BitcoinNetwork.valueOf(it)) },
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
         ) {
             Text(
                 text = "Dev",
                 style = MaterialTheme.typography.labelMedium,
-//                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = prefs.environment == ServerEnvironment.PROD,
                 onCheckedChange = {
                     onServerEnvironmentChange(if (it) ServerEnvironment.PROD else ServerEnvironment.DEV)
-                }
+                },
             )
             Text(
                 text = "Prod",
                 style = MaterialTheme.typography.labelMedium,
-//                modifier = Modifier.weight(1f)
             )
         }
     }

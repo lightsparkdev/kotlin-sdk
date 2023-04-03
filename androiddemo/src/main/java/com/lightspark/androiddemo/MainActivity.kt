@@ -49,8 +49,9 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.WalletDashboardData
+import com.lightspark.sdk.graphql.WalletDashboard
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 private const val EXTRA_AUTH_FLOW = "isAuthFlow"
 private const val EXTRA_AUTH_CANCELED = "authCanceled"
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
+        ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
         if (isGranted) {
             Log.i("MainActivity", "Permission granted")
@@ -83,7 +84,7 @@ class MainActivity : ComponentActivity() {
                     is Lce.Error -> {
                         Log.e(
                             "MainActivity",
-                            "Error: ${(tokenState as Lce.Error).exception?.message}"
+                            "Error: ${(tokenState as Lce.Error).exception?.message}",
                         )
                         LoadingPage()
                     }
@@ -93,7 +94,7 @@ class MainActivity : ComponentActivity() {
                             navController,
                             walletDashboardData,
                             advancedDashboardData,
-                            if (token == AuthState.NO_TOKEN) Screen.Settings.route else Screen.Wallet.route
+                            if (token == AuthState.NO_TOKEN) Screen.Settings.route else Screen.Wallet.route,
                         )
                     }
                 }
@@ -121,14 +122,14 @@ class MainActivity : ComponentActivity() {
                 this,
                 0,
                 completionIntent,
-                pendingIntentFlags
+                pendingIntentFlags,
             ),
             PendingIntent.getActivity(
                 this,
                 0,
                 cancelIntent,
-                pendingIntentFlags
-            )
+                pendingIntentFlags,
+            ),
         )
     }
 
@@ -147,17 +148,19 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     private fun MainAppView(
         navController: NavHostController,
-        walletDashboardData: Lce<WalletDashboardData>,
+        walletDashboardData: Lce<WalletDashboard>,
         advancedDashboardData: Lce<DashboardData>,
-        startRoute: String
+        startRoute: String,
     ) {
         val snackbarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(key1 = null) {
             viewModel.oAuthStatusChange.collect {
-                snackbarHostState.showSnackbar(
-                    visuals = SnackbarVisualsWithError(it.message, it.isError)
-                )
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        visuals = SnackbarVisualsWithError(it.message, it.isError),
+                    )
+                }
             }
         }
 
@@ -173,19 +176,19 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             if (isError) {
                                 Icon(
                                     Icons.Filled.Warning,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
+                                    tint = MaterialTheme.colorScheme.error,
                                 )
                             } else {
                                 Icon(
                                     Icons.Filled.Check,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
+                                    tint = MaterialTheme.colorScheme.secondary,
                                 )
                             }
                             Text(data.visuals.message)
@@ -204,7 +207,7 @@ class MainActivity : ComponentActivity() {
                                 selectedIconColor = MaterialTheme.colorScheme.onSurface,
                                 selectedTextColor = Color.Black,
                                 unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(
-                                    alpha = 0.4f
+                                    alpha = 0.4f,
                                 ),
                                 unselectedTextColor = Color.Green,
                                 indicatorColor = Success.copy(alpha = 0.2f)
@@ -221,15 +224,16 @@ class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
                         )
                     }
                 }
-            }) { innerPadding ->
+            },
+        ) { innerPadding ->
             NavHost(
                 navController,
                 startDestination = startRoute,
-                Modifier.padding(innerPadding)
+                Modifier.padding(innerPadding),
             ) {
                 composable(Screen.Settings.route) {
                     val tokenState by viewModel.tokenState.collectAsState()
@@ -243,7 +247,7 @@ class MainActivity : ComponentActivity() {
                         onSubmit = viewModel::onApiTokenInfoSubmitted,
                         onOAuthRequest = { startOAuthFlow() },
                         onBitcoinNetworkChange = viewModel::onBitcoinNetworkSelected,
-                        onServerEnvironmentChange = viewModel::onServerEnvironmentSelected
+                        onServerEnvironmentChange = viewModel::onServerEnvironmentSelected,
                     )
                 }
                 composable(Screen.Wallet.route) {
@@ -277,7 +281,7 @@ class MainActivity : ComponentActivity() {
                         onQrCodeRecognized = viewModel::onQrCodeRecognized,
                         onManualAddressEntryTapped = viewModel::onManualAddressEntryTapped,
                         onInvoiceManuallyEntered = viewModel::onInvoiceManuallyEntered,
-                        onPaymentSendTapped = viewModel::onPaymentSendTapped
+                        onPaymentSendTapped = viewModel::onPaymentSendTapped,
                     )
                 }
                 composable(Screen.RequestPayment.route) {
@@ -295,7 +299,7 @@ class MainActivity : ComponentActivity() {
                                 type = "text/plain"
                             }
                             startActivity(shareIntent)
-                        }
+                        },
                     )
                 }
             }
@@ -306,14 +310,14 @@ class MainActivity : ComponentActivity() {
         when {
             ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
             ) == PackageManager.PERMISSION_GRANTED -> {
                 Log.i("kilo", "Permission previously granted")
             }
 
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
             ) -> Log.i("kilo", "Show camera permissions dialog")
 
             else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -323,7 +327,7 @@ class MainActivity : ComponentActivity() {
 
 private class SnackbarVisualsWithError(
     override val message: String,
-    val isError: Boolean
+    val isError: Boolean,
 ) : SnackbarVisuals {
     override val actionLabel: String
         get() = ""

@@ -19,7 +19,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = Color.Black,
     surfaceVariant = Color.Black,
     surfaceTint = Color.Black,
-    background = BackgroundDarkGrey
+    background = BackgroundDarkGrey,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -29,7 +29,7 @@ private val LightColorScheme = lightColorScheme(
     surface = BackgroundOffWhite,
     surfaceVariant = SurfaceDarker,
     background = Color.White,
-    surfaceTint = Color.White.copy(alpha = 0.4f)
+    surfaceTint = Color.White.copy(alpha = 0.4f),
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -47,7 +47,7 @@ fun LightsparkTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -68,6 +68,6 @@ fun LightsparkTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

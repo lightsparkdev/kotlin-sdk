@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.SurfaceDarker
+import com.lightspark.androiddemo.util.CurrencyAmountArg
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.CurrencyUnit
 
 @Composable
 fun SendPaymentScreen(
@@ -40,16 +40,17 @@ fun SendPaymentScreen(
                 PaymentStatus.SUCCESS -> SuccessScreen()
                 PaymentStatus.FAILURE -> FailedScreen(uiState.data)
                 PaymentStatus.NOT_STARTED,
-                PaymentStatus.PENDING -> when (uiState.data.inputType) {
+                PaymentStatus.PENDING,
+                -> when (uiState.data.inputType) {
                     InputType.SCAN_QR -> InvoiceQrScanner(
                         onInvoiceScanned = onQrCodeRecognized,
-                        onManualEntryRequest = onManualAddressEntryTapped
+                        onManualEntryRequest = onManualAddressEntryTapped,
                     )
                     InputType.MANUAL_ENTRY -> PaymentEntryScreen(
                         uiState = uiState.data,
                         modifier = modifier,
                         onPaymentSendTapped = onPaymentSendTapped,
-                        onInvoiceManuallyEntered = onInvoiceManuallyEntered
+                        onInvoiceManuallyEntered = onInvoiceManuallyEntered,
                     )
                 }
             }
@@ -57,7 +58,7 @@ fun SendPaymentScreen(
         is Lce.Error -> {
             Text(
                 text = "Error: ${uiState.exception}",
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
             )
         }
         is Lce.Loading -> LoadingPage()
@@ -69,7 +70,7 @@ fun PaymentEntryScreen(
     uiState: SendPaymentUiState,
     modifier: Modifier = Modifier,
     onPaymentSendTapped: (() -> Unit)? = null,
-    onInvoiceManuallyEntered: ((String) -> Unit)? = null
+    onInvoiceManuallyEntered: ((String) -> Unit)? = null,
 ) {
     if (uiState.destinationAddress == null) {
         ManualInvoiceEntryScreen(modifier = modifier, onInvoiceManuallyEntered)
@@ -77,7 +78,7 @@ fun PaymentEntryScreen(
         AmountEntryScreen(
             uiState = uiState,
             modifier = modifier,
-            onPaymentSendTapped = onPaymentSendTapped
+            onPaymentSendTapped = onPaymentSendTapped,
         )
     }
 }
@@ -86,31 +87,31 @@ fun PaymentEntryScreen(
 @Composable
 fun ManualInvoiceEntryScreen(
     modifier: Modifier = Modifier,
-    onInvoiceManuallyEntered: ((String) -> Unit)? = null
+    onInvoiceManuallyEntered: ((String) -> Unit)? = null,
 ) {
     var invoiceText by remember { mutableStateOf("") }
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "Send to",
             style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
-        // TODO(Jeremy): This could use some nice styling and focus handling.
+        // TODO: This could use some nice styling and focus handling.
         TextField(
             value = invoiceText,
             onValueChange = { invoiceText = it },
             label = { Text(text = "Invoice") },
-            placeholder = { Text(text = "Enter invoice") }
+            placeholder = { Text(text = "Enter invoice") },
         )
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = { onInvoiceManuallyEntered?.invoke(invoiceText) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Black,
-                contentColor = Color.White
+                contentColor = Color.White,
             ),
         ) {
             Text(text = "Next")
@@ -129,7 +130,7 @@ fun AmountEntryScreen(
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             modifier = Modifier
@@ -137,27 +138,27 @@ fun AmountEntryScreen(
                 .clip(RoundedCornerShape(50))
                 .background(SurfaceDarker)
                 .padding(8.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = uiState.destinationAddress ?: "No address",
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
             )
         }
-        CurrencyAmountInput(amount = uiState.amount)
+        CurrencyAmountInputField(amount = uiState.amount)
         val isPaymentLoading = uiState.paymentStatus == PaymentStatus.PENDING
         Button(
             onClick = { onPaymentSendTapped?.invoke() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isPaymentLoading) Color.White else Color.Black,
-                contentColor = if (isPaymentLoading) Color.Black else Color.White
+                contentColor = if (isPaymentLoading) Color.Black else Color.White,
             ),
             border = ButtonDefaults.outlinedButtonBorder.copy(
                 brush = SolidColor(Color.Black),
-                width = 2.dp
+                width = 2.dp,
             ),
         ) {
             if (isPaymentLoading) {
@@ -167,7 +168,7 @@ fun AmountEntryScreen(
                     modifier = Modifier
                         .size(24.dp)
                         .offset(y = (-2).dp)
-                        .padding(end = 8.dp)
+                        .padding(end = 8.dp),
                 )
                 Text(text = "Sending")
             } else {
@@ -178,21 +179,21 @@ fun AmountEntryScreen(
 }
 
 @Composable
-private fun CurrencyAmountInput(amount: CurrencyAmount, modifier: Modifier = Modifier) {
+private fun CurrencyAmountInputField(amount: CurrencyAmountArg, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier
+        modifier = modifier,
     ) {
         Text(
             text = "\$XX,XXX.XX USD",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = amount.displayString(),
             style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
@@ -202,18 +203,18 @@ fun SuccessScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
             imageVector = Icons.Outlined.CheckCircle,
             contentDescription = "Success",
             tint = Color.Green,
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(64.dp),
         )
         Text(
             text = "Payment Sent!",
             style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -223,18 +224,18 @@ fun FailedScreen(uiState: SendPaymentUiState, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
             imageVector = Icons.Outlined.Warning,
             contentDescription = "Failed",
             tint = Color.Red,
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(64.dp),
         )
         Text(
             text = "Payment failed :-(",
             style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -246,10 +247,10 @@ fun SendPaymentScreenPreview() {
         AmountEntryScreen(
             uiState = SendPaymentUiState(
                 destinationAddress = "bc1q9qyqgj5xq5vqpwsp5kkq9zslawv9f0hnw3v3h7",
-                amount = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
+                amount = CurrencyAmountArg(100000, CurrencyUnit.SATOSHI),
                 inputType = InputType.MANUAL_ENTRY,
-                paymentStatus = PaymentStatus.PENDING
-            )
+                paymentStatus = PaymentStatus.PENDING,
+            ),
         )
     }
 }

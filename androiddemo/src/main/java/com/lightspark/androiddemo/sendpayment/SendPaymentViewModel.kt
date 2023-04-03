@@ -3,10 +3,11 @@ package com.lightspark.androiddemo.sendpayment
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lightspark.androiddemo.util.CurrencyAmountArg
+import com.lightspark.androiddemo.util.zeroCurrencyAmount
+import com.lightspark.androiddemo.util.zeroCurrencyAmountArg
 import com.lightspark.androiddemo.wallet.PaymentRepository
-import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.CurrencyAmount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class SendPaymentViewModel @Inject constructor(
-    private val repository: PaymentRepository
+    private val repository: PaymentRepository,
 ) : ViewModel() {
     private val encodedInvoiceData = MutableStateFlow<String?>(null)
 
@@ -24,10 +25,10 @@ class SendPaymentViewModel @Inject constructor(
 
     private val sendPaymentPressed = MutableSharedFlow<Unit>(
         onBufferOverflow = BufferOverflow.DROP_LATEST,
-        extraBufferCapacity = 1
+        extraBufferCapacity = 1,
     )
 
-    private val paymentAmountFlow = MutableStateFlow(CurrencyAmount(0, CurrencyUnit.SATOSHI))
+    private val paymentAmountFlow = MutableStateFlow(zeroCurrencyAmount())
 
     private val sendPaymentResult =
         combine(
@@ -51,7 +52,7 @@ class SendPaymentViewModel @Inject constructor(
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            PaymentStatus.NOT_STARTED
+            PaymentStatus.NOT_STARTED,
         )
 
     private val decodedInvoice = encodedInvoiceData.flatMapLatest {
@@ -59,13 +60,8 @@ class SendPaymentViewModel @Inject constructor(
     }
         .onEach {
             (it as? Lce.Content)?.let { invoiceData ->
-                invoiceData.data?.invoice_data_amount?.let { decodedInvoiceAmount ->
-                    paymentAmountFlow.tryEmit(
-                        CurrencyAmount(
-                            decodedInvoiceAmount.currency_amount_value,
-                            decodedInvoiceAmount.currency_amount_unit
-                        )
-                    )
+                invoiceData.data?.amount?.let { decodedInvoiceAmount ->
+                    paymentAmountFlow.tryEmit(decodedInvoiceAmount)
                 }
             }
         }
@@ -77,7 +73,7 @@ class SendPaymentViewModel @Inject constructor(
             decodedInvoice,
             sendPaymentResult,
             paymentAmountFlow,
-            inputType
+            inputType,
         ) { decodedInvoiceLce, paymentStatus, paymentAmount, paymentInputType ->
             when (decodedInvoiceLce) {
                 is Lce.Content -> {
@@ -85,10 +81,13 @@ class SendPaymentViewModel @Inject constructor(
                     Lce.Content(
                         SendPaymentUiState(
                             paymentInputType,
-                            paymentRequest?.invoice_data_destination?.onLightsparkNode?.lightspark_node_display_name,
-                            paymentAmount,
-                            paymentStatus
-                        )
+                            paymentRequest?.destination?.displayName,
+                            CurrencyAmountArg(
+                                paymentAmount.preferredCurrencyValueApprox.toLong(),
+                                paymentAmount.preferredCurrencyUnit,
+                            ),
+                            paymentStatus,
+                        ),
                     )
                 }
                 is Lce.Error -> Lce.Error(decodedInvoiceLce.exception)
@@ -102,10 +101,10 @@ class SendPaymentViewModel @Inject constructor(
                     SendPaymentUiState(
                         InputType.SCAN_QR,
                         null,
-                        CurrencyAmount(0, CurrencyUnit.SATOSHI),
-                        PaymentStatus.NOT_STARTED
-                    )
-                )
+                        zeroCurrencyAmountArg(),
+                        PaymentStatus.NOT_STARTED,
+                    ),
+                ),
             )
 
     fun onQrCodeRecognized(encodedData: String) {

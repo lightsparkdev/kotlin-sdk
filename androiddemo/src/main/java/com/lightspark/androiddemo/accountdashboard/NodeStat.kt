@@ -14,7 +14,7 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 fun NodeStat(
     title: String,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
     Column(
         modifier = modifier

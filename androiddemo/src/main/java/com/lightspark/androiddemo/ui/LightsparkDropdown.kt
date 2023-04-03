@@ -20,7 +20,7 @@ fun LightsparkDropdown(
     items: List<String>,
     selected: String,
     modifier: Modifier = Modifier,
-    onSelected: (String) -> Unit = {}
+    onSelected: (String) -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -28,7 +28,7 @@ fun LightsparkDropdown(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentSize(Alignment.TopStart)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp)),
     ) {
         DropdownMenuItem(
             enabled = true,
@@ -37,18 +37,18 @@ fun LightsparkDropdown(
             trailingIcon = { Icon(Icons.Outlined.ArrowDropDown, contentDescription = "select") },
             modifier = Modifier.background(
                 MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(4.dp)
-            )
+                RoundedCornerShape(4.dp),
+            ),
         )
         DropdownMenu(
             modifier = modifier,
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             DropdownMenuItem(
                 text = { Text(selected) },
                 onClick = { expanded = false },
-                enabled = true
+                enabled = true,
             )
             Divider()
             items.forEach {
@@ -62,7 +62,6 @@ fun LightsparkDropdown(
                     )
                 }
             }
-
         }
     }
 }
@@ -75,6 +74,7 @@ fun LightsparkDropdownPreview() {
         LightsparkDropdown(
             items = listOf("Edit", "Settings", "Send Feedback"),
             selected = selected,
-            onSelected = { selected = it })
+            onSelected = { selected = it },
+        )
     }
 }

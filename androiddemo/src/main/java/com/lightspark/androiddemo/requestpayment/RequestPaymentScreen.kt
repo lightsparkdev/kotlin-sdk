@@ -20,21 +20,21 @@ import androidx.compose.ui.unit.dp
 import com.lightspark.androiddemo.R
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.util.CurrencyAmountArg
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeColors
 import com.lightspark.composeqr.QrCodeView
 import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.CurrencyUnit
 
 @Composable
 fun RequestPaymentScreen(
-    uiState: Lce<RequestPaymentsUiState>,
+    uiState: Lce<RequestPaymentUiState>,
     modifier: Modifier = Modifier,
-    createInvoice: ((CurrencyAmount) -> Unit)? = null,
+    createInvoice: ((CurrencyAmountArg) -> Unit)? = null,
     onShare: ((encodedInvoice: String) -> Unit)? = null,
-    onCopy: ((encodedInvoice: String) -> Unit)? = null
+    onCopy: ((encodedInvoice: String) -> Unit)? = null,
 ) {
     when (uiState) {
         is Lce.Loading -> LoadingPage()
@@ -43,19 +43,19 @@ fun RequestPaymentScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
             ) {
                 QrCodeContainer(
                     data = uiState.data.encodedQrData,
                     walletAddress = uiState.data.walletAddress,
                     invoiceAmount = uiState.data.invoiceAmount,
                     onAddAmount = {
-                        createInvoice?.invoke(CurrencyAmount(1000, CurrencyUnit.SATOSHI))
+                        createInvoice?.invoke(CurrencyAmountArg(1000, CurrencyUnit.SATOSHI))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 500.dp)
-                        .padding(16.dp)
+                        .padding(16.dp),
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 ActionButtonRow(onCopy, uiState, onShare)
@@ -67,7 +67,7 @@ fun RequestPaymentScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
             )
         }
     }
@@ -76,38 +76,40 @@ fun RequestPaymentScreen(
 @Composable
 private fun ActionButtonRow(
     onCopy: ((encodedInvoice: String) -> Unit)?,
-    uiState: Lce.Content<RequestPaymentsUiState>,
-    onShare: ((encodedInvoice: String) -> Unit)?
+    uiState: Lce.Content<RequestPaymentUiState>,
+    onShare: ((encodedInvoice: String) -> Unit)?,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Button(
             modifier = Modifier.width(150.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { onCopy?.invoke(uiState.data.encodedQrData) }) {
+            onClick = { onCopy?.invoke(uiState.data.encodedQrData) },
+        ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Copy",
                 modifier = Modifier
                     .size(16.dp)
-                    .padding(end = 4.dp)
+                    .padding(end = 4.dp),
             )
             Text(text = "Copy")
         }
         Button(
             modifier = Modifier.width(150.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { onShare?.invoke(uiState.data.encodedQrData) }) {
+            onClick = { onShare?.invoke(uiState.data.encodedQrData) },
+        ) {
             Icon(
                 imageVector = Icons.Filled.Share,
                 contentDescription = "Share",
                 modifier = Modifier
                     .size(16.dp)
-                    .padding(end = 4.dp)
+                    .padding(end = 4.dp),
             )
             Text(text = "Share")
         }
@@ -118,25 +120,25 @@ private fun ActionButtonRow(
 fun QrCodeContainer(
     data: String,
     walletAddress: String,
-    invoiceAmount: CurrencyAmount?,
+    invoiceAmount: CurrencyAmountArg?,
     modifier: Modifier = Modifier,
-    onAddAmount: (() -> Unit)? = null
+    onAddAmount: (() -> Unit)? = null,
 ) {
     Card(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Text(
                 text = "Lightning",
                 style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             QrCodeView(
                 data = data,
@@ -146,9 +148,9 @@ fun QrCodeContainer(
                     .padding(16.dp),
                 colors = QrCodeColors(
                     background = MaterialTheme.colorScheme.surfaceVariant,
-                    foreground = MaterialTheme.colorScheme.onSurface
+                    foreground = MaterialTheme.colorScheme.onSurface,
                 ),
-                dotShape = DotShape.Circle
+                dotShape = DotShape.Circle,
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -158,13 +160,13 @@ fun QrCodeContainer(
                         .background(MaterialTheme.colorScheme.background)
                         .padding(8.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.primary),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_lightspark_logo),
                         contentDescription = "Check",
                         modifier = Modifier.fillMaxSize(fraction = 0.5f),
-                        tint = Color.Black
+                        tint = Color.Black,
                     )
                 }
             }
@@ -172,19 +174,19 @@ fun QrCodeContainer(
                 text = data.truncateMiddle(),
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
-            if (invoiceAmount != null && invoiceAmount.amount > 0) {
+            if (invoiceAmount != null && invoiceAmount.value > 0) {
                 Text(
                     text = invoiceAmount.displayString(),
                     style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             } else {
                 Button(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
                     onClick = onAddAmount ?: {},
-                    border = ButtonDefaults.outlinedButtonBorder
+                    border = ButtonDefaults.outlinedButtonBorder,
                 ) {
                     Text(text = "Add Amount")
                 }
@@ -204,12 +206,12 @@ fun QrCodeContainerPreview() {
     LightsparkTheme {
         RequestPaymentScreen(
             Lce.Content(
-                RequestPaymentsUiState(
+                RequestPaymentUiState(
                     encodedQrData = "lightspark://pay?amount=100&currency=USD&message=Hello%20World",
                     walletAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
 //                    invoiceAmount = CurrencyAmount(100, CurrencyUnit.SATOSHI)
-                )
-            )
+                ),
+            ),
         )
     }
 }

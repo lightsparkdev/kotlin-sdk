@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.openid.appauth.*
-import java.util.concurrent.atomic.AtomicReference
 
 class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = STORE_NAME)
@@ -46,7 +46,7 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
 
     override fun updateAfterAuthorization(
         response: AuthorizationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         current.update(response, ex)
@@ -55,7 +55,7 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
 
     override fun updateAfterTokenResponse(
         response: TokenResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         current.update(response, ex)
@@ -64,7 +64,7 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
 
     override fun updateAfterRegistration(
         response: RegistrationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         if (ex != null) {
@@ -74,7 +74,7 @@ class DataStoreAuthStateStorage(private val context: Context) : AuthStateStorage
         return replace(current)
     }
 
-    // TODO(Jeremy): We should try to avoid runBlocking here and make everything in this interface suspended.
+    // TODO: We should try to avoid runBlocking here and make everything in this interface suspended.
     private fun readState(): AuthState = runBlocking {
         val stateJson = context.dataStore.data.first()[STATE_JSON_KEY]
         stateJson?.let { AuthState.jsonDeserialize(it) } ?: AuthState()

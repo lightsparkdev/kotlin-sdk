@@ -5,5 +5,5 @@ import com.lightspark.sdk.LightsparkException
 
 class MissingKeyException(nodeId: String) : LightsparkException(
     "Node key not loaded for node $nodeId",
-    LightsparkErrorCode.MISSING_NODE_KEY
+    LightsparkErrorCode.MISSING_NODE_KEY,
 )

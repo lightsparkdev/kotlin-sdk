@@ -6,23 +6,22 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.lightspark.api.type.BitcoinNetwork
-import com.lightspark.sdk.model.ServerEnvironment
+import com.lightspark.sdk.model.BitcoinNetwork
+import com.lightspark.sdk.requester.ServerEnvironment
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-
 data class SavedPrefs(
     val defaultWalletNodeId: String?,
     val bitcoinNetwork: BitcoinNetwork,
-    val environment: ServerEnvironment
+    val environment: ServerEnvironment,
 ) {
     companion object {
         val DEFAULT = SavedPrefs(
             defaultWalletNodeId = null,
-            bitcoinNetwork = BitcoinNetwork.REGTEST,
-            environment = ServerEnvironment.DEV
+            bitcoinNetwork = BitcoinNetwork.MAINNET,
+            environment = ServerEnvironment.PROD,
         )
     }
 }
@@ -44,11 +43,12 @@ class DefaultPrefsStore(private val context: Context) {
 
     suspend fun getPrefsSync(): SavedPrefs {
         val preferences = context.dataStore.data.first()
-        return SavedPrefs(preferences[DEFAULT_WALLET_NODE_ID],
+        return SavedPrefs(
+            preferences[DEFAULT_WALLET_NODE_ID],
             preferences[BITCOIN_NETWORK]?.let { BitcoinNetwork.valueOf(it) }
                 ?: BitcoinNetwork.REGTEST,
             preferences[SERVER_ENVIRONMENT]?.let { ServerEnvironment.valueOf(it) }
-                ?: ServerEnvironment.DEV
+                ?: ServerEnvironment.DEV,
         )
     }
 
@@ -58,7 +58,7 @@ class DefaultPrefsStore(private val context: Context) {
             preferences[BITCOIN_NETWORK]?.let { BitcoinNetwork.valueOf(it) }
                 ?: BitcoinNetwork.REGTEST,
             preferences[SERVER_ENVIRONMENT]?.let { ServerEnvironment.valueOf(it) }
-                ?: ServerEnvironment.DEV
+                ?: ServerEnvironment.DEV,
         )
     }.distinctUntilChanged()
 

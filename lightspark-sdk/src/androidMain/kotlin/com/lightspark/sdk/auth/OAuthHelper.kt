@@ -4,17 +4,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.lightspark.sdk.model.ServerEnvironment
-import kotlinx.coroutines.suspendCancellableCoroutine
-import net.openid.appauth.*
+import com.lightspark.sdk.requester.ServerEnvironment
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-
+import kotlinx.coroutines.suspendCancellableCoroutine
+import net.openid.appauth.*
 
 class OAuthHelper(
     context: Context,
     private val authStateStorage: AuthStateStorage = SharedPrefsAuthStateStorage(context),
-    private var serverEnvironment: ServerEnvironment = ServerEnvironment.DEV
+    private var serverEnvironment: ServerEnvironment = ServerEnvironment.DEV,
 ) {
     private val authService = AuthorizationService(context.applicationContext)
 
@@ -32,11 +31,11 @@ class OAuthHelper(
         val serviceConfig = when (serverEnvironment) {
             ServerEnvironment.DEV -> AuthorizationServiceConfiguration(
                 Uri.parse("https://dev.dev.sparkinfra.net/oauth/authorize"),
-                Uri.parse("https://api.dev.dev.sparkinfra.net/oauth/token")
+                Uri.parse("https://api.dev.dev.sparkinfra.net/oauth/token"),
             )
             ServerEnvironment.PROD -> AuthorizationServiceConfiguration(
                 Uri.parse("https://app.lightspark.com/oauth/authorize"),
-                Uri.parse("https://api.lightspark.com/oauth/token")
+                Uri.parse("https://api.lightspark.com/oauth/token"),
             )
         }
         return AuthState(serviceConfig)
@@ -68,20 +67,22 @@ class OAuthHelper(
             },
             clientId,
             ResponseTypeValues.CODE,
-            Uri.parse(redirectUri)
+            Uri.parse(redirectUri),
         )
             .setScope("all") // TODO: Replace with actual scopes as needed
             .build()
 
         authService.performAuthorizationRequest(
-            authRequest, completedIntent, canceledIntent ?: completedIntent
+            authRequest,
+            completedIntent,
+            canceledIntent ?: completedIntent,
         )
     }
 
     fun handleAuthResponseAndRequestToken(
         response: Intent,
         clientSecret: String,
-        callback: (String?, Exception?) -> Unit
+        callback: (String?, Exception?) -> Unit,
     ) {
         try {
             handleAuthResponse(response)
@@ -103,14 +104,14 @@ class OAuthHelper(
 
     fun fetchAndPersistRefreshToken(
         clientSecret: String,
-        callback: (String?, Exception?) -> Unit
+        callback: (String?, Exception?) -> Unit,
     ) {
         val authorizationResponse = requireNotNull(authState.lastAuthorizationResponse) {
             "Authorization response is null. Call handleAuthResponse() first."
         }
         authService.performTokenRequest(
             authorizationResponse.createTokenExchangeRequest(),
-            OAuthCustomClientAuthentication(clientSecret)
+            OAuthCustomClientAuthentication(clientSecret),
         ) { response, exception ->
             authStateStorage.updateAfterTokenResponse(response, exception)
             callback(response?.refreshToken, exception)
@@ -123,7 +124,7 @@ class OAuthHelper(
             if (accessToken != null) {
                 block(
                     accessToken,
-                    requireNotNull(idToken) { "ID token is null when access token is not" }
+                    requireNotNull(idToken) { "ID token is null when access token is not" },
                 )
             } else {
                 throw ex ?: IllegalStateException("Authorization response is null")
@@ -139,7 +140,7 @@ class OAuthHelper(
                     continuation.resume(accessToken)
                 } else {
                     continuation.resumeWithException(
-                        ex ?: IllegalStateException("Authorization response is null")
+                        ex ?: IllegalStateException("Authorization response is null"),
                     )
                 }
             }
@@ -159,7 +160,7 @@ class OAuthHelper(
         authService.performEndSessionRequest(
             endSessionRequest,
             completedIntent,
-            canceledIntent ?: completedIntent
+            canceledIntent ?: completedIntent,
         )
     }
 

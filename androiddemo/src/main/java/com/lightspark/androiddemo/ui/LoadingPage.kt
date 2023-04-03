@@ -19,11 +19,11 @@ fun LoadingPage() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         )
         Text(text = "Loading..", style = MaterialTheme.typography.displayLarge)
     }

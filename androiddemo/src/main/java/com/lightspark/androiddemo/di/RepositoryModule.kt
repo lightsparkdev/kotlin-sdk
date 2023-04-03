@@ -19,7 +19,7 @@ class RepositoryModule {
     @Singleton
     fun provideWalletRepository(
         prefsStore: DefaultPrefsStore,
-        walletClient: LightsparkWalletClient
+        walletClient: LightsparkWalletClient,
     ): WalletRepository =
         WalletRepository(prefsStore, walletClient)
 

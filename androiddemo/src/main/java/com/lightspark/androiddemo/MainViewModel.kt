@@ -16,17 +16,14 @@ import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.androiddemo.settings.SavedPrefs
+import com.lightspark.androiddemo.util.zeroCurrencyAmount
 import com.lightspark.androiddemo.wallet.WalletRepository
-import com.lightspark.api.DashboardOverviewQuery
-import com.lightspark.api.type.BitcoinNetwork
-import com.lightspark.api.type.CurrencyUnit
-import com.lightspark.api.type.LightsparkNodePurpose
-import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.auth.OAuthHelper
 import com.lightspark.sdk.auth.OAuthProvider
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.ServerEnvironment
+import com.lightspark.sdk.graphql.AccountDashboard
+import com.lightspark.sdk.model.*
+import com.lightspark.sdk.requester.ServerEnvironment
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +40,7 @@ private const val OAUTH_REDIRECT_URL = "com.lightspark.androiddemo:/auth-redirec
 private const val DEV_OAUTH_CLIENT_SECRET = "EcvwdPJW8102Rv8TR8OUpw573huPoi2s7RMW19pFOT8"
 private const val PROD_OAUTH_CLIENT_SECRET = "xX5tYhhqZmvWAtKYyrLq3mN3BX1Z5vOBC14HyK69Cea"
 
-// TODO(Jeremy): This class should definitely be broken up into at least 2 ViewModels.
+// TODO: This class should definitely be broken up into at least 2 ViewModels.
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel @Inject constructor(
@@ -83,8 +80,10 @@ class MainViewModel @Inject constructor(
             if (prefsWithPrev.second != null) {
                 walletRepository.setActiveWalletWithoutUnlocking(prefs.defaultWalletNodeId)
             }
-            if (prefs.bitcoinNetwork != (prevPrefs?.bitcoinNetwork
-                    ?: SavedPrefs.DEFAULT.bitcoinNetwork)
+            if (prefs.bitcoinNetwork != (
+                    prevPrefs?.bitcoinNetwork
+                        ?: SavedPrefs.DEFAULT.bitcoinNetwork
+                    )
             ) {
                 dashboardRepository.setBitcoinNetwork(prefs.bitcoinNetwork)
             }
@@ -93,12 +92,12 @@ class MainViewModel @Inject constructor(
                 val oauthStateChanged = oAuthHelper.setServerEnvironment(prefs.environment)
                 if (oauthStateChanged || hadToken) {
                     oAuthStatusChange.emit(
-                        OAuthEvent(false, "Logged out due to environment change")
+                        OAuthEvent(false, "Logged out due to environment change"),
                     )
                 }
                 dashboardRepository.setServerEnvironment(
                     prefs.environment,
-                    invalidateAuth = oauthStateChanged || hadToken
+                    invalidateAuth = oauthStateChanged || hadToken,
                 )
             }
         }
@@ -113,7 +112,7 @@ class MainViewModel @Inject constructor(
 
     val tokenState = combine(
         oAuthIsAuthorized,
-        accountTokenInfo
+        accountTokenInfo,
     ) { isOAuthAuthorize, tokenInfo ->
         if (isOAuthAuthorize) {
             return@combine Lce.Content(AuthState.HAS_TOKEN)
@@ -139,16 +138,16 @@ class MainViewModel @Inject constructor(
 
     private val nodeLockStatus = combine(
         dashboardRepository.unlockedNodeIds,
-        unlockingNodeIds
+        unlockingNodeIds,
     ) { unlockedNodeIds, unlockingNodeIds ->
         unlockedNodeIds.associateWith { NodeLockStatus.UNLOCKED } +
-                unlockingNodeIds.associateWith { NodeLockStatus.UNLOCKING }
+            unlockingNodeIds.associateWith { NodeLockStatus.UNLOCKING }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
     val advancedDashboardData =
         combine(
             nodeLockStatus,
-            refreshDashboard.flatMapLatest { dashboardRepository.getDashboardData() }
+            refreshDashboard.flatMapLatest { dashboardRepository.getDashboardData() },
         ) { lockStatuses, dashboardResult ->
             when (dashboardResult) {
                 is Lce.Content -> Lce.Content(dashboardResult.data.toDashboardData(lockStatuses))
@@ -170,7 +169,7 @@ class MainViewModel @Inject constructor(
             runBlocking {
                 dashboardRepository.setServerEnvironment(
                     prefsStore.getPrefsSync().environment,
-                    invalidateAuth = false
+                    invalidateAuth = false,
                 )
             }
             dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))
@@ -217,7 +216,7 @@ class MainViewModel @Inject constructor(
 
     fun unlockWallet(nodePassword: String) = requestKeyRecovery(
         requireNotNull(walletRepository.activeWalletId) { "No active wallet" },
-        nodePassword
+        nodePassword,
     )
 
     fun setActiveWalletWithoutUnlocking(nodeId: String) =
@@ -240,7 +239,7 @@ class MainViewModel @Inject constructor(
                         Log.e(
                             "MainViewModel",
                             "Error setting active wallet",
-                            result.exception
+                            result.exception,
                         )
                     }
                     else -> {
@@ -251,61 +250,52 @@ class MainViewModel @Inject constructor(
             }
         }
 
-    private fun DashboardOverviewQuery.Current_account.toDashboardData(
-        nodeLockStatuses: Map<String, NodeLockStatus>
+    private fun AccountDashboard.toDashboardData(
+        nodeLockStatuses: Map<String, NodeLockStatus>,
     ) = DashboardData(
-        accountName = name ?: "Unknown account",
-        overviewNodes = dashboard_overview_nodes.edges.map { edge ->
-            val node = edge.entity
+        accountName = name,
+        overviewNodes = nodeConnection?.nodes?.map { node ->
             NodeDisplayData(
                 id = node.id,
-                name = node.display_name,
-                purpose = node.purpose ?: LightsparkNodePurpose.UNKNOWN__,
+                name = node.displayName,
+                purpose = node.purpose ?: LightsparkNodePurpose.SEND,
                 color = node.color ?: "#FFFFFF",
-                status = node.status ?: LightsparkNodeStatus.UNKNOWN__,
-                publicKey = node.public_key ?: "",
-                totalBalance = CurrencyAmount(
-                    amount = node.blockchain_balance?.total_balance?.value
-                        ?: 0L,
-                    unit = node.blockchain_balance?.total_balance?.unit
-                        ?: CurrencyUnit.UNKNOWN__
-                ),
-                availableBalance = CurrencyAmount(
-                    amount = node.blockchain_balance?.available_balance?.value
-                        ?: 0L,
-                    unit = node.blockchain_balance?.available_balance?.unit
-                        ?: CurrencyUnit.UNKNOWN__
-                ),
+                status = node.status ?: LightsparkNodeStatus.STOPPED,
+                publicKey = node.publicKey ?: "",
+                totalBalance = node.blockchainBalance?.totalBalance ?: zeroCurrencyAmount(),
+                availableBalance = node.blockchainBalance?.availableBalance ?: zeroCurrencyAmount(),
                 lockStatus = nodeLockStatuses[node.id] ?: NodeLockStatus.LOCKED,
-                // TODO(Jeremy): Add real stats when the query is fixed
+                // TODO: Add real stats when the query is fixed
                 stats = NodeStatistics(
                     uptime = 99.0f,
                     numChannels = 2,
                     numPaymentsSent = 10,
                     numPaymentsReceived = 1,
                     numTransactionsRouted = 0,
-                    amountRouted = CurrencyAmount(10_000_000L, CurrencyUnit.SATOSHI)
-                )
+                    amountRouted = CurrencyAmount(
+                        10_000_000L,
+                        CurrencyUnit.SATOSHI,
+                        10_000_000L,
+                        CurrencyUnit.SATOSHI,
+                        CurrencyUnit.SATOSHI,
+                        10_000_000L,
+                        10_000_000f,
+                    ),
+                ),
             )
-        },
-        blockchainBalance = blockchain_balance?.let { balance ->
-            val availableBalance = balance.available_balance ?: return@let null
-            CurrencyAmount(
-                availableBalance.value,
-                availableBalance.unit
-            )
-        } ?: CurrencyAmount(0, CurrencyUnit.SATOSHI)
+        } ?: emptyList(),
+        blockchainBalance = blockchainBalance.availableBalance ?: zeroCurrencyAmount(),
     )
 
     fun launchOAuthFlow(
         completedIntent: PendingIntent,
-        cancelIntent: PendingIntent
+        cancelIntent: PendingIntent,
     ) {
         oAuthHelper.launchAuthFlow(
             oauthClientId(),
             OAUTH_REDIRECT_URL,
             completedIntent,
-            cancelIntent
+            cancelIntent,
         )
     }
 
@@ -315,8 +305,8 @@ class MainViewModel @Inject constructor(
                 oAuthStatusChange.emitAsync(
                     OAuthEvent(
                         isError = true,
-                        message = "Error handling auth response."
-                    )
+                        message = "Error handling auth response.",
+                    ),
                 )
                 Log.e("MainActivity", "Error handling auth response", error)
                 return@handleAuthResponseAndRequestToken
@@ -324,8 +314,8 @@ class MainViewModel @Inject constructor(
             oAuthStatusChange.emitAsync(
                 OAuthEvent(
                     isError = false,
-                    message = "Successfully authenticated!"
-                )
+                    message = "Successfully authenticated!",
+                ),
             )
             Log.i("MainActivity", "Auth flow completed")
             dashboardRepository.setAuthProvider(OAuthProvider(oAuthHelper))

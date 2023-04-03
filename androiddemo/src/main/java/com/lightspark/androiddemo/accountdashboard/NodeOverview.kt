@@ -26,11 +26,12 @@ import com.lightspark.androiddemo.model.NodeStatistics
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.Separator
+import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
-import com.lightspark.api.type.LightsparkNodePurpose
-import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.CurrencyUnit
+import com.lightspark.sdk.model.LightsparkNodePurpose
+import com.lightspark.sdk.model.LightsparkNodeStatus
 
 @Composable
 fun NodeOverview(
@@ -42,24 +43,25 @@ fun NodeOverview(
         targetValue = when (nodeDisplayData.lockStatus) {
             NodeLockStatus.UNLOCKED -> Success
             else -> MaterialTheme.colorScheme.onSurface
-        }
+        },
     )
     Card(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
-        modifier = modifier.heightIn(max = 500.dp)
+        modifier = modifier.heightIn(max = 500.dp),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(8.dp),
         ) {
             NodeOverviewHeader(nodeDisplayData)
             NodeOverviewBody(nodeDisplayData)
             // NOTE: This is just temporary to test out key recovery:
             Button(
                 onClick = onWalletNodeSelected,
-                colors = ButtonDefaults.buttonColors(containerColor = unlockButtonColor)
+                colors = ButtonDefaults.buttonColors(containerColor = unlockButtonColor),
             ) {
                 when (nodeDisplayData.lockStatus) {
                     NodeLockStatus.UNLOCKED -> {
@@ -68,7 +70,7 @@ fun NodeOverview(
                             contentDescription = "Unlocked",
                             modifier = Modifier
                                 .size(24.dp)
-                                .padding(end = 8.dp)
+                                .padding(end = 8.dp),
                         )
                     }
                     NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
@@ -77,14 +79,14 @@ fun NodeOverview(
                             .offset(y = 4.dp)
                             .padding(end = 8.dp),
                         color = Color.White,
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
                     )
                     else -> Icon(
                         imageVector = Icons.Filled.Lock,
                         contentDescription = "Locked",
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(end = 8.dp)
+                            .padding(end = 8.dp),
                     )
                 }
 
@@ -101,7 +103,7 @@ fun NodeOverviewHeader(nodeDisplayData: NodeDisplayData) {
         Text(
             text = nodeDisplayData.name,
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.offset(x = 8.dp)
+            modifier = Modifier.offset(x = 8.dp),
         )
         Spacer(modifier = Modifier.weight(1f))
         NodeStatus(status = nodeDisplayData.status)
@@ -113,7 +115,7 @@ fun NodeOverviewBody(nodeDisplayData: NodeDisplayData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
     ) {
         Row {
             Column {
@@ -152,44 +154,44 @@ fun NodeStats(node: NodeDisplayData) {
     }
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 120.dp),
-        userScrollEnabled = false
+        userScrollEnabled = false,
     ) {
         item(key = "conductivity") { TextNodeStat(title = "Conductivity", content = "⚡⚡⚡⚡⚡") }
         item(key = "uptime") { TextNodeStat(title = "Uptime", content = "${node.stats.uptime}%") }
         item(key = "channels") {
             TextNodeStat(
                 title = "Channels",
-                content = node.stats.numChannels.toString()
+                content = node.stats.numChannels.toString(),
             )
         }
         item(key = "transactions") {
             TextNodeStat(
                 title = "Transactions Routed",
-                content = node.stats.numTransactionsRouted.toString()
+                content = node.stats.numTransactionsRouted.toString(),
             )
         }
         item(key = "balance") {
             TextNodeStat(
                 title = "Total Balance",
-                content = node.totalBalance.displayString()
+                content = node.totalBalance.displayString(),
             )
         }
         item(key = "sent") {
             TextNodeStat(
                 title = "Payments Sent",
-                content = node.stats.numPaymentsSent.toString()
+                content = node.stats.numPaymentsSent.toString(),
             )
         }
         item(key = "received") {
             TextNodeStat(
                 title = "Payments Received",
-                content = node.stats.numPaymentsReceived.toString()
+                content = node.stats.numPaymentsReceived.toString(),
             )
         }
         item(key = "amountRouted") {
             TextNodeStat(
                 title = "Amount Routed",
-                content = node.stats.amountRouted.displayString()
+                content = node.stats.amountRouted.displayString(),
             )
         }
     }
@@ -201,19 +203,19 @@ fun NodeTypeIcon(purpose: LightsparkNodePurpose, color: String) {
         LightsparkNodePurpose.RECEIVE -> R.drawable.ic_arrow_receive
         LightsparkNodePurpose.SEND -> R.drawable.ic_arrow_send
         LightsparkNodePurpose.ROUTING -> R.drawable.ic_routing_arrows
-        LightsparkNodePurpose.UNKNOWN__ -> TODO()
+        LightsparkNodePurpose.FUTURE_VALUE -> R.drawable.ic_lightspark_logo
     }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(48.dp)
-            .background(color = Color(color.toColorInt()), shape = CircleShape)
+            .background(color = Color(color.toColorInt()), shape = CircleShape),
     ) {
         Icon(
             painter = painterResource(id = icon),
             contentDescription = purpose.name,
             modifier = Modifier.size(36.dp),
-            tint = MaterialTheme.colorScheme.onSurface
+            tint = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -230,8 +232,8 @@ fun NodeOverviewPreview() {
                 purpose = LightsparkNodePurpose.ROUTING,
                 status = LightsparkNodeStatus.READY,
                 publicKey = "testfhjkhjka833h2m9d0",
-                totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
-                availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
+                totalBalance = currencyAmountSats(100000),
+                availableBalance = currencyAmountSats(100000),
                 lockStatus = NodeLockStatus.UNLOCKING,
                 stats = NodeStatistics(
                     uptime = 99.0f,
@@ -239,9 +241,9 @@ fun NodeOverviewPreview() {
                     numTransactionsRouted = 100,
                     numPaymentsSent = 10,
                     numPaymentsReceived = 10,
-                    amountRouted = CurrencyAmount(1000000, CurrencyUnit.SATOSHI)
-                )
-            )
+                    amountRouted = currencyAmountSats(100000),
+                ),
+            ),
         )
     }
 }

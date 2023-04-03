@@ -5,5 +5,5 @@ import com.lightspark.sdk.LightsparkException
 
 class UnsupportedCipherVersionException(version: Int) : LightsparkException(
     "Unknown version $version",
-    LightsparkErrorCode.UNSUPPORTED_CIPHER_VERSION
+    LightsparkErrorCode.UNSUPPORTED_CIPHER_VERSION,
 )

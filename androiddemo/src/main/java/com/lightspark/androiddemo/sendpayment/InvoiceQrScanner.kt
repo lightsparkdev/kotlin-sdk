@@ -62,7 +62,7 @@ fun InvoiceQrScanner(
             MlKitAnalyzer(
                 listOf(barcodeScanner),
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
-                ContextCompat.getMainExecutor(context)
+                ContextCompat.getMainExecutor(context),
             ) { result: MlKitAnalyzer.Result? ->
                 val barcodeResults = result?.getValue(barcodeScanner)
                 if ((barcodeResults == null) ||
@@ -70,20 +70,19 @@ fun InvoiceQrScanner(
                     (barcodeResults.first() == null)
                 ) {
                     previewView.overlay.clear()
-                    previewView.setOnTouchListener { _, _ -> false } //no-op
+                    previewView.setOnTouchListener { _, _ -> false } // no-op
                     return@MlKitAnalyzer
                 }
 
                 val barcode = barcodeResults.first()!!
                 barcode.rawValue?.let { onInvoiceScanned?.invoke(it) }
                 // TODO: Maybe show the QR code overlay?
-            }
+            },
         )
 
         cameraController.bindToLifecycle(lifecycleOwner)
         previewView.controller = cameraController
     }
-
 
     DisposableEffect(Unit) {
         onDispose {
@@ -104,8 +103,8 @@ fun InvoiceQrScanner(
                             viewFinderSize / 2f,
                         ),
                         viewFinderSize * 0.2f,
-                        viewFinderSize * 0.2f
-                    )
+                        viewFinderSize * 0.2f,
+                    ),
                 )
             }
             clipPath(finderPath, clipOp = ClipOp.Difference) {
@@ -116,8 +115,8 @@ fun InvoiceQrScanner(
                 Color.White,
                 style = Stroke(
                     3f,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                )
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f),
+                ),
             )
         }
         Text(
@@ -126,17 +125,17 @@ fun InvoiceQrScanner(
             modifier = Modifier
                 .width(300.dp)
                 .offset(y = (-180).dp),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Button(
             onClick = { onManualEntryRequest?.invoke() },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
-                contentColor = Color.Black
+                contentColor = Color.Black,
             ),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = (-40).dp)
+                .offset(y = (-40).dp),
         ) {
             Text(text = "Enter an address")
         }
@@ -148,6 +147,6 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
         ProcessCameraProvider.getInstance(this).also { cameraProvider ->
             cameraProvider.addListener({
                 continuation.resume(cameraProvider.get())
-            }, ContextCompat.getMainExecutor(this))
+            }, ContextCompat.getMainExecutor(this),)
         }
     }

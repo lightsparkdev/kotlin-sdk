@@ -1,5 +1,6 @@
 package com.lightspark.androiddemo.wallet
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -38,20 +39,21 @@ import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
+import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
-import com.lightspark.api.type.TransactionStatus
+import com.lightspark.androiddemo.util.zeroCurrencyAmount
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.LightsparkErrorCode
 import com.lightspark.sdk.LightsparkException
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.Transaction
-import com.lightspark.sdk.model.WalletDashboardData
+import com.lightspark.sdk.graphql.WalletDashboard
+import com.lightspark.sdk.model.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.math.max
 
 @Composable
 fun WalletDashboardView(
-    walletData: Lce<WalletDashboardData>,
+    walletData: Lce<WalletDashboard>,
     walletUnlockStatus: NodeLockStatus,
     navController: NavController,
     modifier: Modifier = Modifier,
@@ -72,7 +74,7 @@ fun WalletDashboardView(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background),
     ) {
         when (walletData) {
             is Lce.Content -> {
@@ -94,7 +96,7 @@ fun WalletDashboardView(
                     walletData = walletData.data,
                     scrollState = scrollState,
                     onTransactionTap = onTransactionTap,
-                    modifier = Modifier.weight(.6f)
+                    modifier = Modifier.weight(.6f),
                 )
             }
             is Lce.Error -> {
@@ -111,13 +113,14 @@ fun WalletDashboardView(
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
                         )
                     }
                     LightsparkErrorCode.MISSING_WALLET_ID -> {
                         MissingCredentialsScreen(
                             modifier = modifier.fillMaxSize(),
-                            textOverride = "It looks like you haven't chosen a default wallet node yet. You can pick one to unlock in the account page.",
+                            textOverride = "It looks like you haven't chosen a default wallet node yet. You can pick " +
+                                "one to unlock in the account page.",
                             buttonText = "Select wallet node",
                             onSettingsTapped = {
                                 navController.navigate(Screen.Account.route) {
@@ -127,14 +130,19 @@ fun WalletDashboardView(
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
                         )
                     }
                     else -> {
+                        Log.e(
+                            "WalletDashboardView",
+                            "Error: ${walletData.exception?.message ?: "Unknown"}",
+                            walletData.exception,
+                        )
                         Text(
                             text = "Error: ${walletData.exception?.message ?: "Unknown"}",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
                         )
                     }
                 }
@@ -148,23 +156,27 @@ fun WalletDashboardView(
 
 @Composable
 fun WalletHeader(
-    walletData: WalletDashboardData,
+    walletData: WalletDashboard,
     walletUnlockStatus: NodeLockStatus,
     scrollOffset: Float,
     modifier: Modifier = Modifier,
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
-    onUnlockRequest: ((password: String) -> Unit)? = null
+    onUnlockRequest: ((password: String) -> Unit)? = null,
 ) {
     var passwordDialogOpen by remember { mutableStateOf(false) }
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
     val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
     val buttonHeightFactor by animateFloatAsState(
-        targetValue = if (offsetDp.value < 50f) 1f else max(
-            0f,
-            2f - offsetDp.value / 50f
-        )
+        targetValue = if (offsetDp.value < 50f) {
+            1f
+        } else {
+            max(
+                0f,
+                2f - offsetDp.value / 50f,
+            )
+        },
     )
     Column(
         verticalArrangement = Arrangement.Center,
@@ -174,7 +186,7 @@ fun WalletHeader(
             .height(headerHeight)
             .shadow(6.dp, RoundedCornerShape(0.dp, 0.dp, 30.dp, 30.dp))
             .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
-            .background(color = MaterialTheme.colorScheme.surface)
+            .background(color = MaterialTheme.colorScheme.surface),
     ) {
         Spacer(modifier = Modifier.weight(.2f))
         UnlockButton(walletUnlockStatus, buttonHeightFactor, buttonAlpha) {
@@ -191,14 +203,15 @@ fun WalletHeader(
                     .width(62.dp)
                     .height(3.dp)
                     .clip(RoundedCornerShape(100))
-                    .background(MaterialTheme.colorScheme.onBackground)
+                    .background(MaterialTheme.colorScheme.onBackground),
             )
         }
     }
     NodePasswordDialog(
-        nodeName = walletData.nodeDisplayName,
+        nodeName = walletData.displayName,
         open = passwordDialogOpen,
-        onDismiss = { passwordDialogOpen = false }) {
+        onDismiss = { passwordDialogOpen = false },
+    ) {
         onUnlockRequest?.invoke(it)
     }
 }
@@ -208,7 +221,7 @@ private fun UnlockButton(
     walletUnlockStatus: NodeLockStatus,
     buttonHeightFactor: Float,
     buttonAlpha: Float,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     FilledIconButton(
         onClick = onClick,
@@ -218,21 +231,21 @@ private fun UnlockButton(
             } else {
                 MaterialTheme.colorScheme.onBackground
             },
-            contentColor = MaterialTheme.colorScheme.background
+            contentColor = MaterialTheme.colorScheme.background,
         ),
         enabled = walletUnlockStatus != NodeLockStatus.UNLOCKING,
         modifier = Modifier
             .height(40.dp * buttonHeightFactor)
-            .alpha(buttonAlpha)
+            .alpha(buttonAlpha),
     ) {
         when (walletUnlockStatus) {
             NodeLockStatus.LOCKED -> Icon(Icons.Filled.Lock, contentDescription = "Locked")
             NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.background,
             )
             NodeLockStatus.UNLOCKED -> Icon(
                 painterResource(id = R.drawable.ic_lock_open),
-                contentDescription = "Unlocked"
+                contentDescription = "Unlocked",
             )
         }
     }
@@ -242,34 +255,38 @@ private fun UnlockButton(
 private fun ColumnScope.PaymentButtons(
     scrollOffsetDp: Dp,
     onSendTap: (() -> Unit)?,
-    onReceiveTap: (() -> Unit)?
+    onReceiveTap: (() -> Unit)?,
 ) {
     if (scrollOffsetDp.value >= 100f) return
     val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - scrollOffsetDp.value / 50f))
     val buttonHeightFactor by animateFloatAsState(
-        targetValue = if (scrollOffsetDp.value < 50f) 1f else max(
-            0f,
-            2f - scrollOffsetDp.value / 50f
-        )
+        targetValue = if (scrollOffsetDp.value < 50f) {
+            1f
+        } else {
+            max(
+                0f,
+                2f - scrollOffsetDp.value / 50f,
+            )
+        },
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         modifier = Modifier.Companion
             .weight(.25f * buttonHeightFactor)
-            .alpha(buttonAlpha)
+            .alpha(buttonAlpha),
     ) {
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
             onClick = { onSendTap?.invoke() },
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         ) {
             Text(text = "Send")
         }
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
             onClick = { onReceiveTap?.invoke() },
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         ) {
             Text(text = "Receive")
         }
@@ -278,15 +295,15 @@ private fun ColumnScope.PaymentButtons(
 
 @Composable
 fun TransactionList(
-    walletData: WalletDashboardData,
+    walletData: WalletDashboard,
     scrollState: LazyListState,
     modifier: Modifier = Modifier,
-    onTransactionTap: ((Transaction) -> Unit)? = null
+    onTransactionTap: ((Transaction) -> Unit)? = null,
 ) {
-    if (walletData.recentTransactions.isEmpty()) {
+    if (walletData.recentTransactions.entities.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(text = "No transactions")
         }
@@ -294,16 +311,16 @@ fun TransactionList(
     }
     LazyColumn(
         state = scrollState,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
     ) {
-        items(walletData.recentTransactions) { transaction ->
+        items(walletData.recentTransactions.entities) { transaction ->
             TransactionRow(transaction, onTap = { onTransactionTap?.invoke(transaction) })
         }
     }
 }
 
 @Composable
-fun WalletBalances(walletData: WalletDashboardData, scrollOffset: Float, modifier: Modifier) {
+fun WalletBalances(walletData: WalletDashboard, scrollOffset: Float, modifier: Modifier) {
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val diffAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
     val endScroll = 230.dp.value
@@ -311,44 +328,45 @@ fun WalletBalances(walletData: WalletDashboardData, scrollOffset: Float, modifie
     val balanceSize by animateFloatAsState(
         targetValue = max(
             .75f,
-            yIntercept - offsetDp.value * .25f / endScroll
-        )
+            yIntercept - offsetDp.value * .25f / endScroll,
+        ),
     )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.graphicsLayer { scaleX = balanceSize; scaleY = balanceSize }
+        modifier = modifier.graphicsLayer { scaleX = balanceSize; scaleY = balanceSize },
     ) {
         Text(
             text = "\$XX,XXX.XX USD",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
-            text = walletData.balance.displayString(),
+            text = (
+                walletData.localBalance ?: walletData.blockchainBalance?.availableBalance
+                ?: zeroCurrencyAmount()
+                ).displayString(),
             style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = "+ XX,XXX",
             style = MaterialTheme.typography.bodyMedium,
-            color = Success.copy(alpha = diffAlpha)
+            color = Success.copy(alpha = diffAlpha),
         )
     }
 }
 
 fun fakeTransactions() =
     List(20) {
-        Transaction(
+        OutgoingPayment(
             "Transaction $it",
-            CurrencyAmount(100_000L, CurrencyUnit.SATOSHI),
-            TransactionStatus.knownValues()[it % (TransactionStatus.knownValues().size - 1)],
-            "2023-01-18T08:30:28.300854+00:00",
-            "2023-01-18T08:30:28.300854+00:00",
-            Transaction.Type.values()[it % (Transaction.Type.values().size - 1)],
-            null,
-            null,
-            null
+            Instant.parse("2023-01-18T08:30:28.300854+00:00"),
+            Instant.parse("2023-01-18T08:30:28.300854+00:00"),
+            TransactionStatus.values()[it % (TransactionStatus.values().size - 1)],
+            currencyAmountSats(100_000),
+            EntityId("OriginNode"),
+            Clock.System.now(),
         )
     }
 
@@ -359,12 +377,23 @@ fun WalletPreview() {
     LightsparkTheme {
         WalletDashboardView(
             Lce.Content(
-                WalletDashboardData(
+                WalletDashboard(
                     "My Wallet",
                     "Crazy Wallet",
-                    CurrencyAmount(100L, CurrencyUnit.BITCOIN),
-                    fakeTransactions()
-                )
+                    LightsparkNodePurpose.SEND,
+                    color = null,
+                    publicKey = "1234567890",
+                    status = LightsparkNodeStatus.READY,
+                    addresses = emptyList(),
+                    localBalance = currencyAmountSats(100000),
+                    remoteBalance = null,
+                    blockchainBalance = null,
+                    recentTransactions = AccountToTransactionsConnection(
+                        20,
+                        fakeTransactions(),
+                        PageInfo(),
+                    ),
+                ),
             ),
             walletUnlockStatus = NodeLockStatus.UNLOCKED,
             onSendTap = {
@@ -376,7 +405,7 @@ fun WalletPreview() {
             onTransactionTap = {
                 Toast.makeText(context, "No transaction details yet!", Toast.LENGTH_SHORT).show()
             },
-            navController = rememberNavController()
+            navController = rememberNavController(),
         )
     }
 }

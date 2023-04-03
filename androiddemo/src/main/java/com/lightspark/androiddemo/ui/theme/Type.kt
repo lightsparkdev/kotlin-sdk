@@ -12,25 +12,25 @@ val Montserrat = FontFamily(
     listOf(
         androidx.compose.ui.text.font.Font(
             resId = R.font.montserrat_medium,
-            weight = FontWeight.Normal
+            weight = FontWeight.Normal,
         ),
         androidx.compose.ui.text.font.Font(
             resId = R.font.montserrat_medium,
-            weight = FontWeight.Medium
+            weight = FontWeight.Medium,
         ),
         androidx.compose.ui.text.font.Font(
             resId = R.font.montserrat_semi_bold,
-            weight = FontWeight.SemiBold
+            weight = FontWeight.SemiBold,
         ),
         androidx.compose.ui.text.font.Font(
             resId = R.font.montserrat_bold,
-            weight = FontWeight.Bold
+            weight = FontWeight.Bold,
         ),
         androidx.compose.ui.text.font.Font(
             resId = R.font.montserrat_bold,
-            weight = FontWeight.ExtraBold
+            weight = FontWeight.ExtraBold,
         ),
-    )
+    ),
 )
 
 // Set of Material typography styles to start with
@@ -62,7 +62,7 @@ val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = Montserrat,
         fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
+        fontSize = 18.sp,
     ),
     bodyLarge = TextStyle(
         fontFamily = Montserrat,
@@ -79,13 +79,13 @@ val Typography = Typography(
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        color = Color(102, 102, 102)
+        color = Color(102, 102, 102),
     ),
     labelSmall = TextStyle(
         fontFamily = Montserrat,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        color = Color(102, 102, 102)
-    )
+        color = Color(102, 102, 102),
+    ),
 )

@@ -2,26 +2,25 @@ package com.lightspark.sdk.auth
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import net.openid.appauth.*
 import java.util.concurrent.atomic.AtomicReference
-
+import net.openid.appauth.*
 
 interface AuthStateStorage {
     fun getCurrent(): AuthState
     fun replace(state: AuthState?): AuthState?
     fun updateAfterAuthorization(
         response: AuthorizationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState?
 
     fun updateAfterTokenResponse(
         response: TokenResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState?
 
     fun updateAfterRegistration(
         response: RegistrationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState?
 }
 
@@ -50,7 +49,7 @@ class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
 
     override fun updateAfterAuthorization(
         response: AuthorizationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         current.update(response, ex)
@@ -59,7 +58,7 @@ class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
 
     override fun updateAfterTokenResponse(
         response: TokenResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         current.update(response, ex)
@@ -68,7 +67,7 @@ class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
 
     override fun updateAfterRegistration(
         response: RegistrationResponse?,
-        ex: AuthorizationException?
+        ex: AuthorizationException?,
     ): AuthState? {
         val current = getCurrent()
         if (ex != null) {
@@ -77,7 +76,6 @@ class SharedPrefsAuthStateStorage(context: Context) : AuthStateStorage {
         current.update(response)
         return replace(current)
     }
-
 
     private fun readState(): AuthState {
         val stateJson = authPrefs.getString(STATE_JSON_KEY, null)

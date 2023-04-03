@@ -20,14 +20,15 @@ import com.lightspark.androiddemo.model.NodeLockStatus
 import com.lightspark.androiddemo.navigation.Screen
 import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
+import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.api.type.CurrencyUnit
-import com.lightspark.api.type.LightsparkNodePurpose
-import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.Lce
 import com.lightspark.sdk.LightsparkErrorCode
 import com.lightspark.sdk.LightsparkException
 import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.CurrencyUnit
+import com.lightspark.sdk.model.LightsparkNodePurpose
+import com.lightspark.sdk.model.LightsparkNodeStatus
 
 @Composable
 fun DashboardView(
@@ -44,18 +45,18 @@ fun DashboardView(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(16.dp),
             ) {
                 item {
                     Text(
                         text = "Hey ${dashboardData.data.accountName}!",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
                         text = "You have ${dashboardData.data.blockchainBalance.displayString()} available to allocate",
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 }
                 items(dashboardData.data.overviewNodes) { node ->
@@ -79,7 +80,7 @@ fun DashboardView(
                         onPasswordSubmitted(nodeId, password)
                     }
                     passwordEntryNodeId = null
-                }
+                },
             )
         }
         is Lce.Error -> {
@@ -94,13 +95,13 @@ fun DashboardView(
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
                 )
             } else {
                 Text(
                     text = "Error: ${dashboardData.exception?.message ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             }
         }
@@ -116,7 +117,7 @@ fun DashboardViewPreview() {
             Lce.Content(
                 DashboardData(
                     accountName = "John Doe",
-                    blockchainBalance = CurrencyAmount(1000, CurrencyUnit.SATOSHI),
+                    blockchainBalance = currencyAmountSats(1000),
                     overviewNodes = listOf(
                         NodeDisplayData(
                             id = "1",
@@ -125,8 +126,8 @@ fun DashboardViewPreview() {
                             status = LightsparkNodeStatus.STOPPED,
                             color = "#FF0000",
                             publicKey = "shjdyh7932302",
-                            totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
-                            availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
+                            totalBalance = currencyAmountSats(100000),
+                            availableBalance = currencyAmountSats(100000),
 
                             ),
                         NodeDisplayData(
@@ -136,12 +137,12 @@ fun DashboardViewPreview() {
                             status = LightsparkNodeStatus.READY,
                             color = "#00FF00",
                             publicKey = "shjdyh7932302",
-                            totalBalance = CurrencyAmount(1000000, CurrencyUnit.SATOSHI),
-                            availableBalance = CurrencyAmount(100000, CurrencyUnit.SATOSHI),
+                            totalBalance = currencyAmountSats(100000),
+                            availableBalance = currencyAmountSats(100000),
                         ),
-                    )
-                )
-            )
+                    ),
+                ),
+            ),
         )
     }
 }

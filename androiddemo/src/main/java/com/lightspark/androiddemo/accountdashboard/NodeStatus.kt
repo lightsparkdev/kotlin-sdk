@@ -11,7 +11,7 @@ import androidx.compose.ui.text.withStyle
 import com.lightspark.androiddemo.ui.theme.Danger
 import com.lightspark.androiddemo.ui.theme.PendingOrgange
 import com.lightspark.androiddemo.ui.theme.Success
-import com.lightspark.api.type.LightsparkNodeStatus
+import com.lightspark.sdk.model.LightsparkNodeStatus
 
 @Composable
 fun NodeStatus(status: LightsparkNodeStatus, modifier: Modifier = Modifier) {
@@ -23,7 +23,7 @@ fun NodeStatus(status: LightsparkNodeStatus, modifier: Modifier = Modifier) {
             }
         },
         style = MaterialTheme.typography.labelMedium,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -32,23 +32,26 @@ fun LightsparkNodeStatus.color() = when (this) {
     LightsparkNodeStatus.CREATED,
     LightsparkNodeStatus.DEPLOYED,
     LightsparkNodeStatus.STARTED,
-    LightsparkNodeStatus.SYNCING -> PendingOrgange
+    LightsparkNodeStatus.SYNCING,
+    -> PendingOrgange
     LightsparkNodeStatus.STOPPED,
     LightsparkNodeStatus.WALLET_LOCKED,
-    LightsparkNodeStatus.FAILED_TO_DEPLOY -> Danger
+    LightsparkNodeStatus.FAILED_TO_DEPLOY,
+    -> Danger
     LightsparkNodeStatus.TERMINATED -> Color.Black
-    LightsparkNodeStatus.UNKNOWN__ -> Color.Black
+    else -> Color.Black
 }
 
 fun LightsparkNodeStatus.description() = when (this) {
     LightsparkNodeStatus.READY -> "OK"
     LightsparkNodeStatus.DEPLOYED,
     LightsparkNodeStatus.STARTED,
-    LightsparkNodeStatus.SYNCING -> "Initializing"
+    LightsparkNodeStatus.SYNCING,
+    -> "Initializing"
     LightsparkNodeStatus.CREATED -> "Deploying"
     LightsparkNodeStatus.STOPPED -> "Offline"
     LightsparkNodeStatus.WALLET_LOCKED -> "Locked"
     LightsparkNodeStatus.FAILED_TO_DEPLOY -> "Failed"
     LightsparkNodeStatus.TERMINATED -> "Terminated"
-    LightsparkNodeStatus.UNKNOWN__ -> "Unknown"
+    else -> "Unknown"
 }

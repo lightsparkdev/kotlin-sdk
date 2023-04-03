@@ -16,7 +16,7 @@ fun NodePasswordDialog(
     open: Boolean = false,
     nodeName: String = "a node",
     onDismiss: () -> Unit = {},
-    onSubmit: (String) -> Unit = {}
+    onSubmit: (String) -> Unit = {},
 ) {
     var password by remember { mutableStateOf("") }
     if (!open) return
@@ -29,7 +29,7 @@ fun NodePasswordDialog(
                     onDismiss()
                     password = ""
                 },
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground),
             ) {
                 Text("Submit")
             }
@@ -37,7 +37,7 @@ fun NodePasswordDialog(
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground),
             ) {
                 Text("Cancel")
             }
@@ -58,12 +58,11 @@ fun NodePasswordDialog(
                     focusedIndicatorColor = MaterialTheme.colorScheme.secondary,
                     focusedLabelColor = MaterialTheme.colorScheme.secondary,
                     cursorColor = MaterialTheme.colorScheme.secondary,
-                )
+                ),
             )
         },
         icon = { Icon(Icons.Default.Lock, "Lock") },
     )
-
 }
 
 @Preview(showBackground = true)

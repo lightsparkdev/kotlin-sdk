@@ -1,13 +1,13 @@
 package com.lightspark.androiddemo.accountdashboard
 
-import com.lightspark.api.type.BitcoinNetwork
 import com.lightspark.sdk.LightsparkClient
 import com.lightspark.sdk.auth.AuthProvider
-import com.lightspark.sdk.model.ServerEnvironment
+import com.lightspark.sdk.model.BitcoinNetwork
+import com.lightspark.sdk.requester.ServerEnvironment
 import com.lightspark.sdk.wrapWithLceFlow
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
 
 class AccountDashboardRepository @Inject constructor(
     private val lightsparkClient: LightsparkClient,

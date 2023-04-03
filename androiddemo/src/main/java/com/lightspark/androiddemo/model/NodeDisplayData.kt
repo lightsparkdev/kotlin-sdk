@@ -1,8 +1,8 @@
 package com.lightspark.androiddemo.model
 
-import com.lightspark.api.type.LightsparkNodePurpose
-import com.lightspark.api.type.LightsparkNodeStatus
 import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.model.LightsparkNodePurpose
+import com.lightspark.sdk.model.LightsparkNodeStatus
 
 data class NodeDisplayData(
     val id: String,
@@ -15,9 +15,8 @@ data class NodeDisplayData(
     val availableBalance: CurrencyAmount,
     val lockStatus: NodeLockStatus = NodeLockStatus.LOCKED,
     val stats: NodeStatistics? = null,
-    // TODO(Jeremy): Add addresses?
+    // TODO: Add addresses?
 )
-
 
 data class NodeStatistics(
     val uptime: Float,
@@ -25,5 +24,5 @@ data class NodeStatistics(
     val numPaymentsSent: Int,
     val numPaymentsReceived: Int,
     val numTransactionsRouted: Int,
-    val amountRouted: CurrencyAmount
+    val amountRouted: CurrencyAmount,
 )

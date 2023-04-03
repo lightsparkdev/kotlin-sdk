@@ -1,9 +1,9 @@
 package com.lightspark.androiddemo.requestpayment
 
-import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.androiddemo.util.CurrencyAmountArg
 
-data class RequestPaymentsUiState(
+data class RequestPaymentUiState(
     val encodedQrData: String,
     val walletAddress: String,
-    val invoiceAmount: CurrencyAmount? = null
+    val invoiceAmount: CurrencyAmountArg? = null,
 )

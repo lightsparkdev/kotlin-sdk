@@ -7,5 +7,5 @@ data class DashboardData(
     val accountName: String,
     val overviewNodes: List<NodeDisplayData>,
     val blockchainBalance: CurrencyAmount,
-    // TODO(Jeremy): Add transaction and channel stats.
+    // TODO: Add transaction and channel stats.
 )
