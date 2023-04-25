@@ -6,8 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.lightspark.sdk.model.BitcoinNetwork
-import com.lightspark.sdk.requester.ServerEnvironment
+import com.lightspark.sdk.core.requester.ServerEnvironment
+import com.lightspark.sdk.server.model.BitcoinNetwork
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

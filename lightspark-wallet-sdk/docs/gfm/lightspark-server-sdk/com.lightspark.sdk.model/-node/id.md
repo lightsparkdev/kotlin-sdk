@@ -1,0 +1,6 @@
+//[lightspark-server-sdk](../../../index.md)/[com.lightspark.sdk.model](../index.md)/[Node](index.md)/[id](id.md)
+
+# id
+
+[common]\
+abstract override val [id](id.md): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)

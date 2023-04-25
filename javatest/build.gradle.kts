@@ -12,9 +12,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 
     dependencies {
-        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${libs.versions.kotlinCoroutines.get()}")
+        testImplementation("com.google.code.gson:gson:2.10.1")
         testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
-        implementation(project(":lightspark-sdk"))
+        implementation(project(":lightspark-server-sdk"))
     }
 }
 

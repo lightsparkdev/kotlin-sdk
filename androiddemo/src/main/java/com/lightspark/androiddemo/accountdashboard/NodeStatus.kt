@@ -11,7 +11,7 @@ import androidx.compose.ui.text.withStyle
 import com.lightspark.androiddemo.ui.theme.Danger
 import com.lightspark.androiddemo.ui.theme.PendingOrgange
 import com.lightspark.androiddemo.ui.theme.Success
-import com.lightspark.sdk.model.LightsparkNodeStatus
+import com.lightspark.sdk.server.model.LightsparkNodeStatus
 
 @Composable
 fun NodeStatus(status: LightsparkNodeStatus, modifier: Modifier = Modifier) {

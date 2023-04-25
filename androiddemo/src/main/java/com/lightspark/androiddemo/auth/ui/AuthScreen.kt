@@ -12,8 +12,8 @@ import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.androiddemo.ui.LightsparkDropdown
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
-import com.lightspark.sdk.model.BitcoinNetwork
-import com.lightspark.sdk.requester.ServerEnvironment
+import com.lightspark.sdk.core.requester.ServerEnvironment
+import com.lightspark.sdk.server.model.BitcoinNetwork
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

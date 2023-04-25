@@ -1,20 +1,22 @@
 [versions]
 # Core SDK deps (or common):
-androidGradlePlugin = "7.4.1"
+androidGradlePlugin = "8.0.0"
 appAuth = "0.11.1"
+buildKonfig = "0.13.3"
 dataStore = "1.0.0"
 dokka = "1.7.20"
 gradleS3 = "1.2.1"
 kase64 = "1.0.6"
 kotest = "5.5.4"
 kotlin = "1.8.0"
-kotlinCompilerExtension = "1.3.2"
+kotlinCompilerExtension = "1.4.0"
 kotlinCoroutines = "1.6.4"
 kotlinxDateTime = "0.4.0"
 kotlinSerializationJson = "1.4.1"
 krypt = "0.3.1"
 ktlint = "11.3.1"
 ktor = "2.2.3"
+mavenPublish = "0.25.2"
 
 # Android Wallet deps:
 accompanist = "0.28.0"
@@ -72,6 +74,7 @@ appauth = { module = "net.openid:appauth", version.ref = "appAuth" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDateTime" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinCoroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -100,11 +103,13 @@ accompanist = ["accompanist-pager", "accompanist-systemuicontroller"]
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 androidLibrary = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
 daggerHiltAndroidGradle = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 gradleS3 = { id = "com.mgd.core.gradle.s3", version.ref = "gradleS3" }

@@ -1,0 +1,6 @@
+//[lightspark-server-sdk](../../index.md)/[com.lightspark.sdk.server.graphql](index.md)/[WithdrawFundsQuery](-withdraw-funds-query.md)
+
+# WithdrawFundsQuery
+
+[common]\
+const val [WithdrawFundsQuery](-withdraw-funds-query.md): String

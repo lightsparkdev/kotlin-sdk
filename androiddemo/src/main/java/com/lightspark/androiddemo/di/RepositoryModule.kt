@@ -4,8 +4,8 @@ import com.lightspark.androiddemo.accountdashboard.AccountDashboardRepository
 import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.androiddemo.wallet.PaymentRepository
 import com.lightspark.androiddemo.wallet.WalletRepository
-import com.lightspark.sdk.LightsparkClient
-import com.lightspark.sdk.LightsparkWalletClient
+import com.lightspark.sdk.server.LightsparkCoroutinesClient
+import com.lightspark.sdk.server.LightsparkWalletClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +25,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideDashboardRepository(lightsparkClient: LightsparkClient): AccountDashboardRepository =
+    fun provideDashboardRepository(lightsparkClient: LightsparkCoroutinesClient): AccountDashboardRepository =
         AccountDashboardRepository(lightsparkClient)
 
     @Provides

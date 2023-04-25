@@ -2,10 +2,20 @@ package com.lightspark.androiddemo.wallet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,13 +33,18 @@ import com.lightspark.androiddemo.ui.theme.NeutralGrey
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.sdk.model.*
-import com.lightspark.sdk.util.format
+import com.lightspark.sdk.core.util.format
+import com.lightspark.sdk.server.model.Deposit
+import com.lightspark.sdk.server.model.EntityId
+import com.lightspark.sdk.server.model.IncomingPayment
+import com.lightspark.sdk.server.model.OutgoingPayment
+import com.lightspark.sdk.server.model.Transaction
+import com.lightspark.sdk.server.model.TransactionStatus
+import com.lightspark.sdk.server.model.Withdrawal
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.text.SimpleDateFormat
 
 @Composable
 fun TransactionRow(
@@ -99,21 +114,25 @@ private fun Transaction.Icon() {
             contentDescription = "Incoming Payment",
             tint = Color.White,
         )
+
         is OutgoingPayment -> Icon(
             imageVector = Icons.Filled.ArrowForward,
             contentDescription = "Outgoing Payment",
             tint = Color.White,
         )
+
         is Deposit -> Icon(
             imageVector = Icons.Filled.KeyboardArrowDown,
             contentDescription = "Deposit",
             tint = Color.White,
         )
+
         is Withdrawal -> Icon(
             imageVector = Icons.Filled.KeyboardArrowUp,
             contentDescription = "Withdrawal",
             tint = Color.White,
         )
+
         else -> Icon(
             painter = painterResource(id = R.drawable.ic_qr_code),
             contentDescription = "Unknown",

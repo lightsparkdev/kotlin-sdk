@@ -1,8 +1,8 @@
 package com.lightspark.androiddemo.model
 
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.LightsparkNodePurpose
-import com.lightspark.sdk.model.LightsparkNodeStatus
+import com.lightspark.sdk.server.model.CurrencyAmount
+import com.lightspark.sdk.server.model.LightsparkNodePurpose
+import com.lightspark.sdk.server.model.LightsparkNodeStatus
 
 data class NodeDisplayData(
     val id: String,

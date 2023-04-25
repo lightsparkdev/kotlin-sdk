@@ -22,8 +22,8 @@ import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.SurfaceDarker
 import com.lightspark.androiddemo.util.CurrencyAmountArg
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.CurrencyUnit
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.server.model.CurrencyUnit
 
 @Composable
 fun SendPaymentScreen(
@@ -46,6 +46,7 @@ fun SendPaymentScreen(
                         onInvoiceScanned = onQrCodeRecognized,
                         onManualEntryRequest = onManualAddressEntryTapped,
                     )
+
                     InputType.MANUAL_ENTRY -> PaymentEntryScreen(
                         uiState = uiState.data,
                         modifier = modifier,
@@ -55,12 +56,14 @@ fun SendPaymentScreen(
                 }
             }
         }
+
         is Lce.Error -> {
             Text(
                 text = "Error: ${uiState.exception}",
                 style = MaterialTheme.typography.displayLarge,
             )
         }
+
         is Lce.Loading -> LoadingPage()
     }
 }

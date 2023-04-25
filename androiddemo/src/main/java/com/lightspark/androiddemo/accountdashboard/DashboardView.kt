@@ -7,7 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,13 +26,11 @@ import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.LightsparkErrorCode
-import com.lightspark.sdk.LightsparkException
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.CurrencyUnit
-import com.lightspark.sdk.model.LightsparkNodePurpose
-import com.lightspark.sdk.model.LightsparkNodeStatus
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.core.LightsparkErrorCode
+import com.lightspark.sdk.core.LightsparkException
+import com.lightspark.sdk.server.model.LightsparkNodePurpose
+import com.lightspark.sdk.server.model.LightsparkNodeStatus
 
 @Composable
 fun DashboardView(
@@ -83,6 +85,7 @@ fun DashboardView(
                 },
             )
         }
+
         is Lce.Error -> {
             if ((dashboardData.exception as? LightsparkException)?.errorCode == LightsparkErrorCode.NO_CREDENTIALS) {
                 MissingCredentialsScreen(
@@ -105,6 +108,7 @@ fun DashboardView(
                 )
             }
         }
+
         is Lce.Loading -> LoadingPage()
     }
 }

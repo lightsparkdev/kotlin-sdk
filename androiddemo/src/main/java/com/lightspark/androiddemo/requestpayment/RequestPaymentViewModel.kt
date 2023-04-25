@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androiddemo.util.CurrencyAmountArg
 import com.lightspark.androiddemo.wallet.PaymentRepository
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.model.CurrencyUnit
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.server.model.CurrencyUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*

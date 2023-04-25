@@ -1,0 +1,14 @@
+//[lightspark-sdk](../../../index.md)/[com.lightspark.sdk.model](../index.md)/[LightsparkNode](index.md)/[color](color.md)
+
+# color
+
+[common]\
+open override val [color](color.md): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)? = null
+
+#### Parameters
+
+common
+
+| | |
+|---|---|
+| color | A hexadecimal string that describes a color. For example &quot;#000000&quot; is black, &quot;#FFFFFF&quot; is white. It has no importance in terms of operating the node, it is just a way to visually differentiate nodes. That color can be changed at any time by the node operator. |

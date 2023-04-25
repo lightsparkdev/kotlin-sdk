@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>WithdrawalRequest</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../../images/lightspark-logo-white.svg">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>lightspark-server-sdk</span>
+            </a>
+    </div>
+    <div>
+1.0.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":lightspark-server-sdk:dokkaHtml/commonMain">common</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-server-sdk::com.lightspark.sdk.model/WithdrawalRequest///PointingToDeclaration//-629311722">
+  <div class="breadcrumbs"><a href="../../../index.html">lightspark-server-sdk</a><span class="delimiter">/</span><a href="../index.html">com.lightspark.sdk.model</a><span class="delimiter">/</span><span class="current">WithdrawalRequest</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Withdrawal</span><wbr></wbr><span><span>Request</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">WithdrawalRequest</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>createdAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>updatedAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>amount<span class="token operator">: </span><a href="../-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>bitcoinAddress<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>withdrawalMode<span class="token operator">: </span><a href="../-withdrawal-mode/index.html">WithdrawalMode</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>status<span class="token operator">: </span><a href="../-withdrawal-request-status/index.html">WithdrawalRequestStatus</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>completedAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>withdrawalId<span class="token operator">: </span><a href="../-entity-id/index.html">EntityId</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span> : <a href="../-entity/index.html">Entity</a></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="Parameters">Parameters</button></div>
+    <div class="tabs-section-body">
+      <h4 class="">Parameters</h4>
+      <div data-togglable="Parameters">
+        <div class="platform-hinted WithExtraAttributes" data-platform-hinted="data-platform-hinted" data-togglable="Parameters"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div data-togglable="Parameters"><div class="table" data-togglable="Parameters"><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span><span>id</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>created</span><wbr></wbr><span><span>At</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The date and time when the entity was first created.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>updated</span><wbr></wbr><span><span>At</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The date and time when the entity was last updated.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span><span>amount</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The amount of money that should be withdrawn in this request.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>bitcoin</span><wbr></wbr><span><span>Address</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The bitcoin address where the funds should be sent.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>withdrawal</span><wbr></wbr><span><span>Mode</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The strategy that should be used to withdraw the funds from the account.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span><span>status</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The current status of this withdrawal request.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>completed</span><wbr></wbr><span><span>At</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The time at which this request was completed.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>withdrawal</span><wbr></wbr><span><span>Id</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The withdrawal transaction that has been generated by this request.</p></div></div></div></div></div></div></div></div></div>
+      </div>
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="1773820286%2FConstructors%2F-629311722" anchor-label="WithdrawalRequest" id="1773820286%2FConstructors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-withdrawal-request.html"><span>Withdrawal</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1773820286%2FConstructors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-withdrawal-request.html"><span class="token function">WithdrawalRequest</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">createdAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token punctuation">, </span></span><span class="parameter ">updatedAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token punctuation">, </span></span><span class="parameter ">amount<span class="token operator">: </span><a href="../-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span></span><span class="parameter ">bitcoinAddress<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">withdrawalMode<span class="token operator">: </span><a href="../-withdrawal-mode/index.html">WithdrawalMode</a><span class="token punctuation">, </span></span><span class="parameter ">status<span class="token operator">: </span><a href="../-withdrawal-request-status/index.html">WithdrawalRequestStatus</a><span class="token punctuation">, </span></span><span class="parameter ">completedAt<span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">withdrawalId<span class="token operator">: </span><a href="../-entity-id/index.html">EntityId</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="-438585427%2FClasslikes%2F-629311722" anchor-label="Companion" id="-438585427%2FClasslikes%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-438585427%2FClasslikes%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="1038304252%2FFunctions%2F-629311722" anchor-label="getChannelClosingTransactionsQuery" id="1038304252%2FFunctions%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-channel-closing-transactions-query.html"><span>get</span><wbr></wbr><span>Channel</span><wbr></wbr><span>Closing</span><wbr></wbr><span>Transactions</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1038304252%2FFunctions%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-overloads/index.html"><span class="token annotation builtin">JvmOverloads</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-channel-closing-transactions-query.html"><span class="token function">getChannelClosingTransactionsQuery</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.lightspark.sdk.requester/-query/index.html">Query</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../-withdrawal-request-to-channel-closing-transactions-connection/index.html">WithdrawalRequestToChannelClosingTransactionsConnection</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1950291143%2FFunctions%2F-629311722" anchor-label="getChannelOpeningTransactionsQuery" id="-1950291143%2FFunctions%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-channel-opening-transactions-query.html"><span>get</span><wbr></wbr><span>Channel</span><wbr></wbr><span>Opening</span><wbr></wbr><span>Transactions</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1950291143%2FFunctions%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-overloads/index.html"><span class="token annotation builtin">JvmOverloads</span></a></div></div><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-channel-opening-transactions-query.html"><span class="token function">getChannelOpeningTransactionsQuery</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">first<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.lightspark.sdk.requester/-query/index.html">Query</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../-withdrawal-request-to-channel-opening-transactions-connection/index.html">WithdrawalRequestToChannelOpeningTransactionsConnection</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-2050044836%2FProperties%2F-629311722" anchor-label="amount" id="-2050044836%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="amount.html"><span><span>amount</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2050044836%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-2050044836%2FProperties%2F-629311722" anchor-label="amount" id="-2050044836%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="amount.html">amount</a><span class="token operator">: </span><a href="../-currency-amount/index.html">CurrencyAmount</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1206285698%2FProperties%2F-629311722" anchor-label="bitcoinAddress" id="-1206285698%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="bitcoin-address.html"><span>bitcoin</span><wbr></wbr><span><span>Address</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1206285698%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-1206285698%2FProperties%2F-629311722" anchor-label="bitcoinAddress" id="-1206285698%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="bitcoin-address.html">bitcoinAddress</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-23446008%2FProperties%2F-629311722" anchor-label="completedAt" id="-23446008%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="completed-at.html"><span>completed</span><wbr></wbr><span><span>At</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-23446008%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-23446008%2FProperties%2F-629311722" anchor-label="completedAt" id="-23446008%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="completed-at.html">completedAt</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1032896117%2FProperties%2F-629311722" anchor-label="createdAt" id="-1032896117%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="created-at.html"><span>created</span><wbr></wbr><span><span>At</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1032896117%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-1032896117%2FProperties%2F-629311722" anchor-label="createdAt" id="-1032896117%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="created-at.html">createdAt</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2011794311%2FProperties%2F-629311722" anchor-label="id" id="-2011794311%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="id.html"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2011794311%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-2011794311%2FProperties%2F-629311722" anchor-label="id" id="-2011794311%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1595158018%2FProperties%2F-629311722" anchor-label="status" id="1595158018%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="status.html"><span><span>status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1595158018%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="1595158018%2FProperties%2F-629311722" anchor-label="status" id="1595158018%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="status.html">status</a><span class="token operator">: </span><a href="../-withdrawal-request-status/index.html">WithdrawalRequestStatus</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1966386216%2FProperties%2F-629311722" anchor-label="updatedAt" id="-1966386216%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="updated-at.html"><span>updated</span><wbr></wbr><span><span>At</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1966386216%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-1966386216%2FProperties%2F-629311722" anchor-label="updatedAt" id="-1966386216%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="updated-at.html">updatedAt</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1644270140%2FProperties%2F-629311722" anchor-label="withdrawalId" id="-1644270140%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="withdrawal-id.html"><span>withdrawal</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1644270140%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="-1644270140%2FProperties%2F-629311722" anchor-label="withdrawalId" id="-1644270140%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="withdrawal-id.html">withdrawalId</a><span class="token operator">: </span><a href="../-entity-id/index.html">EntityId</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1276592572%2FProperties%2F-629311722" anchor-label="withdrawalMode" id="1276592572%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="withdrawal-mode.html"><span>withdrawal</span><wbr></wbr><span><span>Mode</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1276592572%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="1276592572%2FProperties%2F-629311722" anchor-label="withdrawalMode" id="1276592572%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="withdrawal-mode.html">withdrawalMode</a><span class="token operator">: </span><a href="../-withdrawal-mode/index.html">WithdrawalMode</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

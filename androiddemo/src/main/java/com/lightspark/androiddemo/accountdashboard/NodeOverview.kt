@@ -28,10 +28,8 @@ import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.Separator
 import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.CurrencyUnit
-import com.lightspark.sdk.model.LightsparkNodePurpose
-import com.lightspark.sdk.model.LightsparkNodeStatus
+import com.lightspark.sdk.server.model.LightsparkNodePurpose
+import com.lightspark.sdk.server.model.LightsparkNodeStatus
 
 @Composable
 fun NodeOverview(

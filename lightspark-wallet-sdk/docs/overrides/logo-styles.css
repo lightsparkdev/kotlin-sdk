@@ -1,0 +1,16 @@
+.library-name a {
+    position: relative;
+    margin-left: 55px;
+}
+
+.library-name a::before {
+    content: '';
+    background-image: url('../images/lightspark-logo-white.svg');
+    background-repeat: no-repeat;
+    background-size: 50px 50px;
+    position: absolute;
+    width: 52px;
+    height: 50px;
+    top: -18px;
+    left: -56px;
+}

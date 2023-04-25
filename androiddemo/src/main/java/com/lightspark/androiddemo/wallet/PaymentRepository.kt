@@ -1,9 +1,9 @@
 package com.lightspark.androiddemo.wallet
 
 import com.lightspark.androiddemo.util.CurrencyAmountArg
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.LightsparkWalletClient
-import com.lightspark.sdk.wrapWithLceFlow
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.core.wrapWithLceFlow
+import com.lightspark.sdk.server.LightsparkWalletClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

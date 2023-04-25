@@ -1,7 +1,8 @@
 package com.lightspark.androiddemo.di
 
-import com.lightspark.sdk.LightsparkClient
-import com.lightspark.sdk.LightsparkWalletClient
+import com.lightspark.sdk.server.ClientConfig
+import com.lightspark.sdk.server.LightsparkCoroutinesClient
+import com.lightspark.sdk.server.LightsparkWalletClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,12 +14,10 @@ import javax.inject.Singleton
 class LightsparkSdkModule {
     @Provides
     @Singleton
-    fun provideFullClient(): LightsparkClient = LightsparkClient.Builder().build()
+    fun provideFullClient(): LightsparkCoroutinesClient = LightsparkCoroutinesClient(ClientConfig())
 
     @Provides
     @Singleton
-    fun provideWalletClient(fullClient: LightsparkClient): LightsparkWalletClient =
-        LightsparkWalletClient.Builder()
-            .fullLightsparkClient(fullClient)
-            .build()
+    fun provideWalletClient(fullClient: LightsparkCoroutinesClient): LightsparkWalletClient =
+        LightsparkWalletClient(fullClient)
 }

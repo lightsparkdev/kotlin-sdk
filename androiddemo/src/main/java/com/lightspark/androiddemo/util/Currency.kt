@@ -1,7 +1,7 @@
 package com.lightspark.androiddemo.util
 
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.CurrencyUnit
+import com.lightspark.sdk.server.model.CurrencyAmount
+import com.lightspark.sdk.server.model.CurrencyUnit
 import kotlin.math.roundToInt
 
 data class CurrencyAmountArg(
@@ -32,8 +32,6 @@ fun zeroCurrencyAmountArg() = CurrencyAmountArg(
 )
 
 fun currencyAmountSats(sats: Long) = CurrencyAmount(
-    sats,
-    CurrencyUnit.SATOSHI,
     sats,
     CurrencyUnit.SATOSHI,
     CurrencyUnit.SATOSHI,

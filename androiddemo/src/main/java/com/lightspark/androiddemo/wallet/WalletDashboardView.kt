@@ -5,7 +5,17 @@ import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -13,8 +23,20 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,11 +64,18 @@ import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.util.currencyAmountSats
 import com.lightspark.androiddemo.util.displayString
 import com.lightspark.androiddemo.util.zeroCurrencyAmount
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.LightsparkErrorCode
-import com.lightspark.sdk.LightsparkException
-import com.lightspark.sdk.graphql.WalletDashboard
-import com.lightspark.sdk.model.*
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.core.LightsparkErrorCode
+import com.lightspark.sdk.core.LightsparkException
+import com.lightspark.sdk.server.graphql.WalletDashboard
+import com.lightspark.sdk.server.model.AccountToTransactionsConnection
+import com.lightspark.sdk.server.model.EntityId
+import com.lightspark.sdk.server.model.LightsparkNodePurpose
+import com.lightspark.sdk.server.model.LightsparkNodeStatus
+import com.lightspark.sdk.server.model.OutgoingPayment
+import com.lightspark.sdk.server.model.PageInfo
+import com.lightspark.sdk.server.model.Transaction
+import com.lightspark.sdk.server.model.TransactionStatus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.math.max
@@ -99,6 +128,7 @@ fun WalletDashboardView(
                     modifier = Modifier.weight(.6f),
                 )
             }
+
             is Lce.Error -> {
                 when ((walletData.exception as? LightsparkException)?.errorCode) {
                     LightsparkErrorCode.NO_CREDENTIALS -> {
@@ -116,6 +146,7 @@ fun WalletDashboardView(
                             },
                         )
                     }
+
                     LightsparkErrorCode.MISSING_WALLET_ID -> {
                         MissingCredentialsScreen(
                             modifier = modifier.fillMaxSize(),
@@ -133,6 +164,7 @@ fun WalletDashboardView(
                             },
                         )
                     }
+
                     else -> {
                         Log.e(
                             "WalletDashboardView",
@@ -147,6 +179,7 @@ fun WalletDashboardView(
                     }
                 }
             }
+
             is Lce.Loading -> {
                 LoadingPage()
             }
@@ -243,6 +276,7 @@ private fun UnlockButton(
             NodeLockStatus.UNLOCKING -> CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.background,
             )
+
             NodeLockStatus.UNLOCKED -> Icon(
                 painterResource(id = R.drawable.ic_lock_open),
                 contentDescription = "Unlocked",

@@ -1,7 +1,7 @@
 package com.lightspark.androiddemo.accountdashboard
 
 import com.lightspark.androiddemo.model.NodeDisplayData
-import com.lightspark.sdk.model.CurrencyAmount
+import com.lightspark.sdk.server.model.CurrencyAmount
 
 data class DashboardData(
     val accountName: String,

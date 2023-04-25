@@ -7,7 +7,7 @@ import com.lightspark.androiddemo.util.CurrencyAmountArg
 import com.lightspark.androiddemo.util.zeroCurrencyAmount
 import com.lightspark.androiddemo.util.zeroCurrencyAmountArg
 import com.lightspark.androiddemo.wallet.PaymentRepository
-import com.lightspark.sdk.Lce
+import com.lightspark.sdk.core.Lce
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
@@ -47,6 +47,7 @@ class SendPaymentViewModel @Inject constructor(
                     Log.e("SendPaymentViewModel", "Error sending payment", it.exception)
                     PaymentStatus.FAILURE
                 }
+
                 is Lce.Loading -> PaymentStatus.PENDING
             }
         }.stateIn(
@@ -90,6 +91,7 @@ class SendPaymentViewModel @Inject constructor(
                         ),
                     )
                 }
+
                 is Lce.Error -> Lce.Error(decodedInvoiceLce.exception)
                 is Lce.Loading -> Lce.Loading
             }

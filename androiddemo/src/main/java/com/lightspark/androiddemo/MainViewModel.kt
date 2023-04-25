@@ -18,12 +18,12 @@ import com.lightspark.androiddemo.settings.DefaultPrefsStore
 import com.lightspark.androiddemo.settings.SavedPrefs
 import com.lightspark.androiddemo.util.zeroCurrencyAmount
 import com.lightspark.androiddemo.wallet.WalletRepository
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.auth.OAuthHelper
-import com.lightspark.sdk.auth.OAuthProvider
-import com.lightspark.sdk.graphql.AccountDashboard
-import com.lightspark.sdk.model.*
-import com.lightspark.sdk.requester.ServerEnvironment
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.core.requester.ServerEnvironment
+import com.lightspark.sdk.server.auth.OAuthHelper
+import com.lightspark.sdk.server.auth.OAuthProvider
+import com.lightspark.sdk.server.graphql.AccountDashboard
+import com.lightspark.sdk.server.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -209,6 +209,7 @@ class MainViewModel @Inject constructor(
                     refreshWallet.tryEmit(Unit)
                     Lce.Content(it.data)
                 }
+
                 is Lce.Error -> Lce.Error(it.exception)
                 is Lce.Loading -> Lce.Loading
             }
@@ -233,6 +234,7 @@ class MainViewModel @Inject constructor(
                             unlockingNodeIds.value.toMutableSet().apply { remove(nodeId) }
                         Log.d("MainViewModel", "Unlocked that node!")
                     }
+
                     is Lce.Error -> {
                         unlockingNodeIds.value =
                             unlockingNodeIds.value.toMutableSet().apply { remove(nodeId) }
@@ -242,6 +244,7 @@ class MainViewModel @Inject constructor(
                             result.exception,
                         )
                     }
+
                     else -> {
                         unlockingNodeIds.value =
                             unlockingNodeIds.value.toMutableSet().apply { add(nodeId) }
@@ -273,8 +276,6 @@ class MainViewModel @Inject constructor(
                     numPaymentsReceived = 1,
                     numTransactionsRouted = 0,
                     amountRouted = CurrencyAmount(
-                        10_000_000L,
-                        CurrencyUnit.SATOSHI,
                         10_000_000L,
                         CurrencyUnit.SATOSHI,
                         CurrencyUnit.SATOSHI,

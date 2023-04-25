@@ -48,8 +48,8 @@ import com.lightspark.androiddemo.ui.LoadingPage
 import com.lightspark.androiddemo.ui.theme.LightsparkTheme
 import com.lightspark.androiddemo.ui.theme.Success
 import com.lightspark.androiddemo.wallet.WalletDashboardView
-import com.lightspark.sdk.Lce
-import com.lightspark.sdk.graphql.WalletDashboard
+import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.server.graphql.WalletDashboard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
                         )
                         LoadingPage()
                     }
+
                     is Lce.Content -> {
                         val token = (tokenState as Lce.Content).data
                         MainAppView(

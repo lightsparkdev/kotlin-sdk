@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EnumSerializer</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../../images/lightspark-logo-white.svg">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>lightspark-server-sdk</span>
+            </a>
+    </div>
+    <div>
+1.0.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":lightspark-server-sdk:dokkaHtml/commonMain">common</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-server-sdk::com.lightspark.sdk.util/EnumSerializer///PointingToDeclaration//-629311722">
+  <div class="breadcrumbs"><a href="../../../index.html">lightspark-server-sdk</a><span class="delimiter">/</span><a href="../index.html">com.lightspark.sdk.util</a><span class="delimiter">/</span><span class="current">EnumSerializer</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Enum</span><wbr></wbr><span><span>Serializer</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="index.html">EnumSerializer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enumClass<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fromString<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="index.html">T</a></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="kotlinx.serialization/KSerializer///PointingToDeclaration/">KSerializer</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt; </span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="Inheritors">Inheritors</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="1372572823%2FConstructors%2F-629311722" anchor-label="EnumSerializer" id="1372572823%2FConstructors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-enum-serializer.html"><span>Enum</span><wbr></wbr><span><span>Serializer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1372572823%2FConstructors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-enum/index.html">Enum</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><a href="-enum-serializer.html"><span class="token function">EnumSerializer</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enumClass<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">fromString<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="index.html">T</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-148720611%2FFunctions%2F-629311722" anchor-label="deserialize" id="-148720611%2FFunctions%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="deserialize.html"><span><span>deserialize</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-148720611%2FFunctions%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="deserialize.html"><span class="token function">deserialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">decoder<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.encoding/Decoder///PointingToDeclaration/">Decoder</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="16207355%2FFunctions%2F-629311722" anchor-label="serialize" id="16207355%2FFunctions%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="serialize.html"><span><span>serialize</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="16207355%2FFunctions%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">encoder<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.encoding/Encoder///PointingToDeclaration/">Encoder</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html">T</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="1450702161%2FProperties%2F-629311722" anchor-label="descriptor" id="1450702161%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="descriptor.html"><span><span>descriptor</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1450702161%2FProperties%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><a data-name="1450702161%2FProperties%2F-629311722" anchor-label="descriptor" id="1450702161%2FProperties%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="descriptor.html">descriptor</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.descriptors/SerialDescriptor///PointingToDeclaration/">SerialDescriptor</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Inheritors</h2>
+      <div class="table" data-togglable="Inheritors"><a data-name="1329018747%2FInheritors%2F-629311722" anchor-label="BitcoinNetworkSerializer" id="1329018747%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-bitcoin-network-serializer/index.html">BitcoinNetworkSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1329018747%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="1023243358%2FInheritors%2F-629311722" anchor-label="ChannelStatusSerializer" id="1023243358%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-channel-status-serializer/index.html">ChannelStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1023243358%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="429098582%2FInheritors%2F-629311722" anchor-label="CurrencyUnitSerializer" id="429098582%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-currency-unit-serializer/index.html">CurrencyUnitSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="429098582%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="333137694%2FInheritors%2F-629311722" anchor-label="HtlcAttemptFailureCodeSerializer" id="333137694%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-htlc-attempt-failure-code-serializer/index.html">HtlcAttemptFailureCodeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="333137694%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="538009932%2FInheritors%2F-629311722" anchor-label="IncomingPaymentAttemptStatusSerializer" id="538009932%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-incoming-payment-attempt-status-serializer/index.html">IncomingPaymentAttemptStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="538009932%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-846319892%2FInheritors%2F-629311722" anchor-label="InvoiceTypeSerializer" id="-846319892%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-invoice-type-serializer/index.html">InvoiceTypeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-846319892%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="1862909054%2FInheritors%2F-629311722" anchor-label="LightsparkNodePurposeSerializer" id="1862909054%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-lightspark-node-purpose-serializer/index.html">LightsparkNodePurposeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1862909054%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-428730800%2FInheritors%2F-629311722" anchor-label="LightsparkNodeStatusSerializer" id="-428730800%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-lightspark-node-status-serializer/index.html">LightsparkNodeStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-428730800%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="563474663%2FInheritors%2F-629311722" anchor-label="NodeAddressTypeSerializer" id="563474663%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-node-address-type-serializer/index.html">NodeAddressTypeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="563474663%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="910192454%2FInheritors%2F-629311722" anchor-label="OutgoingPaymentAttemptStatusSerializer" id="910192454%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-outgoing-payment-attempt-status-serializer/index.html">OutgoingPaymentAttemptStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="910192454%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-56752477%2FInheritors%2F-629311722" anchor-label="PaymentFailureReasonSerializer" id="-56752477%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-payment-failure-reason-serializer/index.html">PaymentFailureReasonSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-56752477%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-1397660976%2FInheritors%2F-629311722" anchor-label="PaymentRequestStatusSerializer" id="-1397660976%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-payment-request-status-serializer/index.html">PaymentRequestStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1397660976%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="1937719932%2FInheritors%2F-629311722" anchor-label="PermissionSerializer" id="1937719932%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-permission-serializer/index.html">PermissionSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1937719932%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="1386793341%2FInheritors%2F-629311722" anchor-label="RoutingTransactionFailureReasonSerializer" id="1386793341%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-routing-transaction-failure-reason-serializer/index.html">RoutingTransactionFailureReasonSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1386793341%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-1988966685%2FInheritors%2F-629311722" anchor-label="TransactionStatusSerializer" id="-1988966685%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-transaction-status-serializer/index.html">TransactionStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1988966685%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-425435109%2FInheritors%2F-629311722" anchor-label="TransactionTypeSerializer" id="-425435109%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-transaction-type-serializer/index.html">TransactionTypeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-425435109%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-1697986482%2FInheritors%2F-629311722" anchor-label="WebhookEventTypeSerializer" id="-1697986482%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-webhook-event-type-serializer/index.html">WebhookEventTypeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1697986482%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-220253773%2FInheritors%2F-629311722" anchor-label="WithdrawalModeSerializer" id="-220253773%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-withdrawal-mode-serializer/index.html">WithdrawalModeSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-220253773%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+<a data-name="-531716569%2FInheritors%2F-629311722" anchor-label="WithdrawalRequestStatusSerializer" id="-531716569%2FInheritors%2F-629311722" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../../com.lightspark.sdk.model/-withdrawal-request-status-serializer/index.html">WithdrawalRequestStatusSerializer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-531716569%2FInheritors%2F-629311722"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
