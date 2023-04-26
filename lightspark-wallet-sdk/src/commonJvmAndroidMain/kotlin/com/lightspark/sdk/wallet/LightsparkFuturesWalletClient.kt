@@ -5,6 +5,7 @@ import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.LightsparkAuthenticationException
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.wallet.auth.*
+import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import java.util.concurrent.CompletableFuture
@@ -53,12 +54,13 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      *
      * @param accountId The account ID to login with. This is specific to your company's account.
      * @param jwt The JWT to use for authentication of this user.
+     * @param storage A [JwtStorage] implementation that will store the new JWT token info.
      * @return The output of the login operation, including the access token, expiration time, and wallet info.
      * @throws LightsparkException if the login fails.
      */
     @Throws(LightsparkException::class, CancellationException::class)
-    fun loginWithJWT(accountId: String, jwt: String): CompletableFuture<LoginWithJWTOutput> =
-        coroutineScope.future { coroutinesClient.loginWithJWT(accountId, jwt) }
+    fun loginWithJWT(accountId: String, jwt: String, storage: JwtStorage): CompletableFuture<LoginWithJWTOutput> =
+        coroutineScope.future { coroutinesClient.loginWithJWT(accountId, jwt, storage) }
 
     /**
      * Deploys a wallet in the Lightspark infrastructure. This is an asynchronous operation, the caller should then poll

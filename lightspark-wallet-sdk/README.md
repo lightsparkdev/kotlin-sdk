@@ -27,7 +27,11 @@ To initialize a client, you'll need to use the `ClientConfig` object.
 val lightsparkClient = LightsparkCoroutinesWalletClient(ClientConfig())
 
 // Log in using a custom JWT login:
-val loginResults = lightsparkClient.loginWithJWT("your-account-id", "your-jwt-token")
+val loginResults = lightsparkClient.loginWithJWT(
+  "your-account-id",
+  "your-jwt-token",
+  SharedPrefsJwtStorage(applicationContext)
+)
 Log.d("Lightspark", "Current wallet info: ${loginResults.wallet}")
 
 // An example API call fetching the dashboard info for the active wallet:
@@ -38,13 +42,14 @@ or in Java using the synchronous client:
 
 ```java
 // Initialize the client with account token info:
-LightsparkSyncClient lightsparkClient = new LightsparkSyncClient(
-    new ClientConfig()
-        .setAuthProvider(new AccountApiTokenAuthProvider("your-token-id","your-secret-token"))
-);
+LightsparkSyncClient lightsparkClient = new LightsparkSyncClient(new ClientConfig());
 
 // Log in using a custom JWT login:
-LoginWithJWTOutput loginResults = lightsparkClient.loginWithJWT("your-account-id", "your-jwt-token");
+LoginWithJWTOutput loginResults = lightsparkClient.loginWithJWT(
+        "your-account-id",
+        "your-jwt-token",
+        new SharedPrefsJwtStorage(applicationContext)
+);
 Log.d("Lightspark", "Current wallet info: " + loginResults.wallet.toString());
 
 // An example API call fetching the dashboard info for the active wallet:
@@ -53,13 +58,14 @@ WalletDashboard dashboard = lightsparkClient.getWalletDashboard();
 
 or in Java using the Futures client:
 ```java
-LightsparkFuturesClient lightsparkClient = new LightsparkFuturesClient(
-    new ClientConfig()
-        .setAuthProvider(new AccountApiTokenAuthProvider("your-token-id","your-secret-token"))
-);
+LightsparkFuturesClient lightsparkClient = new LightsparkFuturesClient(new ClientConfig());
 
 // Log in using a custom JWT login:
-LoginWithJWTOutput loginResults = lightsparkClient.loginWithJWT("your-account-id", "your-jwt-token");
+LoginWithJWTOutput loginResults = lightsparkClient.loginWithJWT(
+        "your-account-id",
+        "your-jwt-token",
+        new SharedPrefsJwtStorage(applicationContext)
+);
 Log.d("Lightspark", "Current wallet info: " + loginResults.wallet.toString());
 
 // An example API call fetching the dashboard info for the active wallet:

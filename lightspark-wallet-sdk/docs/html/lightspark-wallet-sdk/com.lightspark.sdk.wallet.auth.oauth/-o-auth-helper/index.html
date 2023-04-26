@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>OAuthHelper</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../../images/lightspark-logo-white.svg">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>lightspark-wallet-sdk</span>
+            </a>
+    </div>
+    <div>
+1.0.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-wallet-sdk::com.lightspark.sdk.wallet.auth.oauth/OAuthHelper///PointingToDeclaration//342850574">
+  <div class="breadcrumbs"><a href="../../../index.html">lightspark-wallet-sdk</a><span class="delimiter">/</span><a href="../index.html">com.lightspark.sdk.wallet.auth.oauth</a><span class="delimiter">/</span><span class="current">OAuthHelper</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>OAuth</span><wbr></wbr><span><span>Helper</span></span></h1>
+    <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">OAuthHelper</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a><span class="token punctuation">, </span></span><span class="parameter ">OAuthStateStorage<span class="token operator">: </span><a href="../-o-auth-state-storage/index.html">OAuthStateStorage</a><span class="token operator"> = </span>SharedPrefsOAuthStateStorage(context)<span class="token punctuation">, </span></span><span class="parameter ">serverEnvironment<span class="token operator">: </span><span data-unresolved-link="com.lightspark.sdk.core.requester/ServerEnvironment///PointingToDeclaration/">ServerEnvironment</span><span class="token operator"> = </span>ServerEnvironment.DEV</span></span><span class="token punctuation">)</span></div></div>    </div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="-792448980%2FConstructors%2F342850574" anchor-label="OAuthHelper" id="-792448980%2FConstructors%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-o-auth-helper.html"><span>OAuth</span><wbr></wbr><span><span>Helper</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-792448980%2FConstructors%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-o-auth-helper.html"><span class="token function">OAuthHelper</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Context.html">Context</a><span class="token punctuation">, </span></span><span class="parameter ">OAuthStateStorage<span class="token operator">: </span><a href="../-o-auth-state-storage/index.html">OAuthStateStorage</a><span class="token operator"> = </span>SharedPrefsOAuthStateStorage(context)<span class="token punctuation">, </span></span><span class="parameter ">serverEnvironment<span class="token operator">: </span><span data-unresolved-link="com.lightspark.sdk.core.requester/ServerEnvironment///PointingToDeclaration/">ServerEnvironment</span><span class="token operator"> = </span>ServerEnvironment.DEV</span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="1345147779%2FFunctions%2F342850574" anchor-label="endSession" id="1345147779%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="end-session.html"><span>end</span><wbr></wbr><span><span>Session</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1345147779%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="end-session.html"><span class="token function">endSession</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">completedIntent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/app/PendingIntent.html">PendingIntent</a><span class="token punctuation">, </span></span><span class="parameter ">redirectUri<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">canceledIntent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/app/PendingIntent.html">PendingIntent</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1021698937%2FFunctions%2F342850574" anchor-label="fetchAndPersistRefreshToken" id="-1021698937%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="fetch-and-persist-refresh-token.html"><span>fetch</span><wbr></wbr><span>And</span><wbr></wbr><span>Persist</span><wbr></wbr><span>Refresh</span><wbr></wbr><span><span>Token</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1021698937%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="fetch-and-persist-refresh-token.html"><span class="token function">fetchAndPersistRefreshToken</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientSecret<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">callback<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html">Exception</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="770712965%2FFunctions%2F342850574" anchor-label="getFreshAuthToken" id="770712965%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-fresh-auth-token.html"><span>get</span><wbr></wbr><span>Fresh</span><wbr></wbr><span>Auth</span><wbr></wbr><span><span>Token</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="770712965%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="get-fresh-auth-token.html"><span class="token function">getFreshAuthToken</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1621590085%2FFunctions%2F342850574" anchor-label="handleAuthResponse" id="-1621590085%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="handle-auth-response.html"><span>handle</span><wbr></wbr><span>Auth</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1621590085%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="handle-auth-response.html"><span class="token function">handleAuthResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">intent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Intent.html">Intent</a></span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="2109504335%2FFunctions%2F342850574" anchor-label="handleAuthResponseAndRequestToken" id="2109504335%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="handle-auth-response-and-request-token.html"><span>handle</span><wbr></wbr><span>Auth</span><wbr></wbr><span>Response</span><wbr></wbr><span>And</span><wbr></wbr><span>Request</span><wbr></wbr><span><span>Token</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2109504335%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="handle-auth-response-and-request-token.html"><span class="token function">handleAuthResponseAndRequestToken</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">response<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Intent.html">Intent</a><span class="token punctuation">, </span></span><span class="parameter ">clientSecret<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">callback<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html">Exception</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-447961065%2FFunctions%2F342850574" anchor-label="isAuthorized" id="-447961065%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="is-authorized.html"><span>is</span><wbr></wbr><span><span>Authorized</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-447961065%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="is-authorized.html"><span class="token function">isAuthorized</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1400141739%2FFunctions%2F342850574" anchor-label="launchAuthFlow" id="-1400141739%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="launch-auth-flow.html"><span>launch</span><wbr></wbr><span>Auth</span><wbr></wbr><span><span>Flow</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1400141739%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="launch-auth-flow.html"><span class="token function">launchAuthFlow</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">clientId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">redirectUri<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">completedIntent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/app/PendingIntent.html">PendingIntent</a><span class="token punctuation">, </span></span><span class="parameter ">canceledIntent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/app/PendingIntent.html">PendingIntent</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1578209215%2FFunctions%2F342850574" anchor-label="parseEndSessionResponse" id="1578209215%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="parse-end-session-response.html"><span>parse</span><wbr></wbr><span>End</span><wbr></wbr><span>Session</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1578209215%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="parse-end-session-response.html"><span class="token function">parseEndSessionResponse</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">intent<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/android/content/Intent.html">Intent</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="940501399%2FFunctions%2F342850574" anchor-label="setServerEnvironment" id="940501399%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="set-server-environment.html"><span>set</span><wbr></wbr><span>Server</span><wbr></wbr><span><span>Environment</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="940501399%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="set-server-environment.html"><span class="token function">setServerEnvironment</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">environment<span class="token operator">: </span><span data-unresolved-link="com.lightspark.sdk.core.requester/ServerEnvironment///PointingToDeclaration/">ServerEnvironment</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1392544377%2FFunctions%2F342850574" anchor-label="withAuthToken" id="1392544377%2FFunctions%2F342850574" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="with-auth-token.html"><span>with</span><wbr></wbr><span>Auth</span><wbr></wbr><span><span>Token</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1392544377%2FFunctions%2F342850574"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                  <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/androidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/androidMain">android</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/androidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="with-auth-token.html"><span class="token function">withAuthToken</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

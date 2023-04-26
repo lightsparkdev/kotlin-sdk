@@ -1,11 +1,14 @@
 package com.lightspark.sdk.core.crypto
 
 import java.security.InvalidKeyException
+import java.security.KeyPair
+import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException
 import java.security.Signature
 import java.security.SignatureException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
+import java.security.spec.RSAKeyGenParameterSpec
 
 @Throws(InvalidKeyException::class, NoSuchAlgorithmException::class, SignatureException::class)
 internal actual fun signPayload(payload: ByteArray, key: ByteArray): ByteArray {
@@ -24,4 +27,11 @@ internal actual fun signPayload(payload: ByteArray, key: ByteArray): ByteArray {
     )
     signature.update(payload)
     return signature.sign()
+}
+
+fun generateSigningKeyPair(): KeyPair {
+    val keyGen = KeyPairGenerator.getInstance("RSA")
+    val spec = RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4)
+    keyGen.initialize(spec)
+    return keyGen.generateKeyPair()
 }

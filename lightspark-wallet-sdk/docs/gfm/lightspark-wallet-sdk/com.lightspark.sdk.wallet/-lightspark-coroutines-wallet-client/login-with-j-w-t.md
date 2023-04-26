@@ -3,7 +3,7 @@
 # loginWithJWT
 
 [common]\
-suspend fun [loginWithJWT](login-with-j-w-t.md)(accountId: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), jwt: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)): [LoginWithJWTOutput](../../com.lightspark.sdk.wallet.model/-login-with-j-w-t-output/index.md)
+suspend fun [loginWithJWT](login-with-j-w-t.md)(accountId: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), jwt: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), storage: [JwtStorage](../../com.lightspark.sdk.wallet.auth.jwt/-jwt-storage/index.md)): [LoginWithJWTOutput](../../com.lightspark.sdk.wallet.model/-login-with-j-w-t-output/index.md)
 
 Login using the Custom JWT authentication scheme described in our documentation.
 
@@ -21,6 +21,7 @@ common
 |---|---|
 | accountId | The account ID to login with. This is specific to your company's account. |
 | jwt | The JWT to use for authentication of this user. |
+| storage | A [JwtStorage](../../com.lightspark.sdk.wallet.auth.jwt/-jwt-storage/index.md) implementation that will store the new JWT token info. |
 
 #### Throws
 

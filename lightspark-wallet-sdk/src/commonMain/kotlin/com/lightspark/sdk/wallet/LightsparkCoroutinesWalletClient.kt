@@ -9,19 +9,24 @@ import com.lightspark.sdk.core.crypto.NodeKeyCache
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.core.requester.Requester
 import com.lightspark.sdk.core.requester.ServerEnvironment
-import com.lightspark.sdk.wallet.auth.CustomJwtAuthProvider
+import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider
+import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
+import com.lightspark.sdk.wallet.auth.jwt.JwtTokenInfo
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import com.lightspark.sdk.wallet.util.serializerFormat
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.*
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.*
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
-private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-04-04"
+private const val SCHEMA_ENDPOINT = "graphql/wallet/rc"
 
 /**
  * Main entry point for the Lightspark Wallet SDK.
@@ -70,11 +75,12 @@ class LightsparkCoroutinesWalletClient private constructor(
      *
      * @param accountId The account ID to login with. This is specific to your company's account.
      * @param jwt The JWT to use for authentication of this user.
+     * @param storage A [JwtStorage] implementation that will store the new JWT token info.
      * @return The output of the login operation, including the access token, expiration time, and wallet info.
      * @throws LightsparkException if the login fails.
      */
     @Throws(LightsparkException::class, CancellationException::class)
-    suspend fun loginWithJWT(accountId: String, jwt: String): LoginWithJWTOutput {
+    suspend fun loginWithJWT(accountId: String, jwt: String, storage: JwtStorage): LoginWithJWTOutput {
         val authFailedException = LightsparkException(
             "Failed to complete jwt auth. Please double-check your account configuration.",
             LightsparkErrorCode.JWT_AUTH_ERROR,
@@ -92,7 +98,10 @@ class LightsparkCoroutinesWalletClient private constructor(
             },
         ) ?: throw authFailedException
 
-        setAuthProvider(CustomJwtAuthProvider(output.accessToken, output.validUntil))
+        val authProvider = CustomJwtAuthProvider(storage)
+        authProvider.setTokenInfo(JwtTokenInfo(output.accessToken, output.validUntil))
+        setAuthProvider(authProvider)
+
         return output
     }
 
@@ -112,6 +121,41 @@ class LightsparkCoroutinesWalletClient private constructor(
                 serializerFormat.decodeFromJsonElement<DeployWalletOutput>(it["deploy_wallet"]!!).wallet
             },
         )
+    }
+
+    /**
+     * Deploys a wallet in the Lightspark infrastructure and triggers updates as state changes.
+     * This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `DEPLOYED` (or `FAILED`).
+     *
+     * @return The a flow which emits when wallet status changes.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    suspend fun deployWalletAndAwaitDeployed(): Flow<Wallet> {
+        val initialWallet = deployWallet() ?: return flow {
+            throw LightsparkException(
+                "Failed to deploy wallet",
+                LightsparkErrorCode.WALLET_DEPLOY_FAILED,
+            )
+        }
+        if (initialWallet.status == WalletStatus.DEPLOYED) {
+            return flowOf(initialWallet)
+        }
+        return awaitWalletStatus(setOf(WalletStatus.DEPLOYED, WalletStatus.FAILED))
+    }
+
+    private fun awaitWalletStatus(statuses: Set<WalletStatus>): Flow<Wallet> {
+        // TODO: Switch from polling to a subscription when that's possible.
+        return flow {
+            var wallet = getCurrentWallet() ?: return@flow
+            while (wallet.status !in statuses) {
+                emit(wallet)
+                delay(1000)
+                wallet = getCurrentWallet() ?: return@flow
+            }
+            emit(wallet)
+        }
     }
 
     /**
@@ -138,6 +182,19 @@ class LightsparkCoroutinesWalletClient private constructor(
                 serializerFormat.decodeFromJsonElement<InitializeWalletOutput>(it["initialize_wallet"]!!).wallet
             },
         )
+    }
+
+    suspend fun initializeWalletAndWaitForInitialized(keyType: KeyType, signingPublicKey: String): Flow<Wallet> {
+        val initialWallet = initializeWallet(keyType, signingPublicKey) ?: return flow {
+            throw LightsparkException(
+                "Failed to initialize wallet",
+                LightsparkErrorCode.WALLET_INIT_FAILED,
+            )
+        }
+        if (initialWallet.status == WalletStatus.READY) {
+            return flowOf(initialWallet)
+        }
+        return awaitWalletStatus(setOf(WalletStatus.READY, WalletStatus.FAILED))
     }
 
     /**

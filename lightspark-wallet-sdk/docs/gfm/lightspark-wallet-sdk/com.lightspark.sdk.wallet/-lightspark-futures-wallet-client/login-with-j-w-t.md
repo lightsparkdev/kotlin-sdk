@@ -3,7 +3,7 @@
 # loginWithJWT
 
 [commonJvmAndroid]\
-fun [loginWithJWT](login-with-j-w-t.md)(accountId: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), jwt: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html)): &lt;Error class: unknown class&gt;&lt;LoginWithJWTOutput&gt;
+fun [loginWithJWT](login-with-j-w-t.md)(accountId: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), jwt: [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html), storage: JwtStorage): &lt;Error class: unknown class&gt;&lt;LoginWithJWTOutput&gt;
 
 Login using the Custom JWT authentication scheme described in our documentation.
 
@@ -21,6 +21,7 @@ commonJvmAndroid
 |---|---|
 | accountId | The account ID to login with. This is specific to your company's account. |
 | jwt | The JWT to use for authentication of this user. |
+| storage | A JwtStorage implementation that will store the new JWT token info. |
 
 #### Throws
 

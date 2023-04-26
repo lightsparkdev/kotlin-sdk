@@ -83,7 +83,14 @@ kotlin {
                 compileOnly(libs.androidx.datastore.preferences)
             }
         }
-        val androidUnitTest by getting
+        val androidUnitTest by getting {
+            dependsOn(androidMain)
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.kotest.assertions)
+            }
+        }
         val iosMain by getting {
             dependencies {
                 implementation(libs.ktor.client.darwin)

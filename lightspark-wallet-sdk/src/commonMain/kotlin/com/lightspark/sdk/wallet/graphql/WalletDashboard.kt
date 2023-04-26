@@ -40,17 +40,8 @@ query WalletDashboard(
             created_after_date: ${'$'}transactionsAfterDate
         ) {
             wallet_to_transactions_connection_count: count
-            wallet_to_transactions_connection_total_amount_transacted: total_amount_transacted {
-                ...CurrencyAmountFragment
-            }
             wallet_to_transactions_connection_entities: entities {
                 ...TransactionFragment
-            }
-            wallet_to_transactions_connection_profit_loss: profit_loss {
-                ...CurrencyAmountFragment
-            }
-            wallet_to_transactions_connection_average_fee_earned: average_fee_earned {
-                ...CurrencyAmountFragment
             }
             wallet_to_transactions_connection_page_info: page_info {
                 page_info_has_next_page: has_next_page
@@ -79,7 +70,6 @@ query WalletDashboard(
 }
 
 ${Transaction.FRAGMENT}
-${CurrencyAmount.FRAGMENT}
 ${Balances.FRAGMENT}
 ${PaymentRequest.FRAGMENT}
 """

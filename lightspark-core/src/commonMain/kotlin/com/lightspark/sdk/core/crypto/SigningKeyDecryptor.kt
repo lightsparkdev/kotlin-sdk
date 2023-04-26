@@ -37,14 +37,14 @@ class SigningKeyDecryptor {
 
         val salt = decodedEncryptedKey.copyOfRange(0, saltLength)
         val cipherText = decodedEncryptedKey.copyOfRange(saltLength, decodedEncryptedKey.size)
-        val keyPlusIV = com.lightspark.sdk.core.crypto.pbkdf2(nodePassword, salt, header.i, KEY_LENGTH + ivLength)
+        val keyPlusIV = pbkdf2(nodePassword, salt, header.i, KEY_LENGTH + ivLength)
         val key = keyPlusIV.copyOfRange(0, KEY_LENGTH)
         val iv = keyPlusIV.copyOfRange(KEY_LENGTH, KEY_LENGTH + ivLength)
 
         return if (header.v < 2) {
-            com.lightspark.sdk.core.crypto.decryptKeyCBC(key, iv, cipherText)
+            decryptKeyCBC(key, iv, cipherText)
         } else {
-            com.lightspark.sdk.core.crypto.decryptKeyGCM(key, iv, cipherText)
+            decryptKeyGCM(key, iv, cipherText)
         }
     }
 
@@ -58,8 +58,8 @@ class SigningKeyDecryptor {
         val nonce = decodedEncryptedKey.copyOfRange(0, 12)
         val cipherText =
             decodedEncryptedKey.copyOfRange(12, decodedEncryptedKey.size - 8)
-        val key = com.lightspark.sdk.core.crypto.pbkdf2(nodePassword, salt, header.i, KEY_LENGTH)
-        return com.lightspark.sdk.core.crypto.decryptKeyGCM(key, nonce, cipherText)
+        val key = pbkdf2(nodePassword, salt, header.i, KEY_LENGTH)
+        return decryptKeyGCM(key, nonce, cipherText)
     }
 }
 
