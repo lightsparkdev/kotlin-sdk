@@ -24,7 +24,7 @@ class ClientIntegrationTests {
     // Read the token ID and secrets from the environment.
     private val API_TOKEN_CLIENT_ID = getPlatform().getEnv("LIGHTSPARK_API_TOKEN_CLIENT_ID")!!
     private val API_TOKEN_CLIENT_SECRET = getPlatform().getEnv("LIGHTSPARK_API_TOKEN_CLIENT_SECRET")!!
-    private val NODE_PASSWORD = getPlatform().getEnv("LIGHTSPARK_TEST_NODE_PASSWORD")!!
+    private val NODE_PASSWORD = getPlatform().getEnv("LIGHTSPARK_TEST_NODE_PASSWORD") ?: "1234!@#$"
 
     private val config = ClientConfig()
         .setServerUrl(ServerEnvironment.DEV.graphQLUrl)

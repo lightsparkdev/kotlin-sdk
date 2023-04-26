@@ -29,7 +29,7 @@ private const val SCHEMA_ENDPOINT = "graphql/server/2023-04-04"
  * // Initialize the client with account token info:
  * val lightsparkClient = LightsparkCoroutinesClient(ClientConfig(
  *     authProvider = AccountApiTokenAuthProvider(
- *         tokenId = "your-token-id"
+ *         tokenId = "your-token-id",
  *         token = "your-secret-token"
  *     )
  * ))
