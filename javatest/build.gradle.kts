@@ -15,6 +15,7 @@ java {
         testImplementation("com.google.code.gson:gson:2.10.1")
         testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
         implementation(project(":lightspark-server-sdk"))
+        implementation(project(":lightspark-core"))
     }
 }
 

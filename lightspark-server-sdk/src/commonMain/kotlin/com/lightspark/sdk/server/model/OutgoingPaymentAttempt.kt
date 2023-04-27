@@ -5,13 +5,13 @@ package com.lightspark.sdk.server.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.server.util.serializerFormat
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * An attempt for a payment over a route from sender node to recipient node.
@@ -97,7 +97,7 @@ query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}fi
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("hops")) { "hops not found" }
             return@Query serializerFormat.decodeFromJsonElement<OutgoingPaymentAttemptToHopsConnection>(connection)

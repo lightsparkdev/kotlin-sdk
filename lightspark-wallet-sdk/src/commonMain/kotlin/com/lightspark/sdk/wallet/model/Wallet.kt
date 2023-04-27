@@ -5,13 +5,13 @@ package com.lightspark.sdk.wallet.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.wallet.util.serializerFormat
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  *
@@ -203,7 +203,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                 add("created_before_date", createdBeforeDate)
                 add("statuses", statuses)
                 add("types", types)
-            },
+            }
         ) {
             val connection =
                 requireNotNull(it["current_wallet"]?.jsonObject?.get("transactions")) { "transactions not found" }
@@ -278,7 +278,7 @@ query FetchWalletToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: ID, 
                 add("after", after)
                 add("created_after_date", createdAfterDate)
                 add("created_before_date", createdBeforeDate)
-            },
+            }
         ) {
             val connection =
                 requireNotNull(it["current_wallet"]?.jsonObject?.get("payment_requests")) { "payment_requests not found" }

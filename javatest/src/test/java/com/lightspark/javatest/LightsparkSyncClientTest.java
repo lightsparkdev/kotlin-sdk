@@ -1,10 +1,12 @@
 package com.lightspark.javatest;
 
-import static com.lightspark.sdk.server.util.PlatformKt.getPlatform;
+import static com.lightspark.sdk.core.util.PlatformKt.getPlatform;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
+import com.lightspark.sdk.core.requester.Query;
+import com.lightspark.sdk.core.requester.ServerEnvironment;
 import com.lightspark.sdk.server.ClientConfig;
 import com.lightspark.sdk.server.LightsparkSyncClient;
 import com.lightspark.sdk.server.auth.AccountApiTokenAuthProvider;
@@ -15,8 +17,6 @@ import com.lightspark.sdk.server.model.AccountToTransactionsConnection;
 import com.lightspark.sdk.server.model.BitcoinNetwork;
 import com.lightspark.sdk.server.model.LightsparkNode;
 import com.lightspark.sdk.server.model.Transaction;
-import com.lightspark.sdk.server.requester.Query;
-import com.lightspark.sdk.server.requester.ServerEnvironment;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,10 +1,12 @@
 package com.lightspark.javatest;
 
-import static com.lightspark.sdk.server.util.PlatformKt.getPlatform;
+import static com.lightspark.sdk.core.util.PlatformKt.getPlatform;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
+import com.lightspark.sdk.core.requester.Query;
+import com.lightspark.sdk.core.requester.ServerEnvironment;
 import com.lightspark.sdk.server.ClientConfig;
 import com.lightspark.sdk.server.LightsparkFuturesClient;
 import com.lightspark.sdk.server.auth.AccountApiTokenAuthProvider;
@@ -15,8 +17,6 @@ import com.lightspark.sdk.server.model.AccountToTransactionsConnection;
 import com.lightspark.sdk.server.model.BitcoinNetwork;
 import com.lightspark.sdk.server.model.LightsparkNode;
 import com.lightspark.sdk.server.model.Transaction;
-import com.lightspark.sdk.server.requester.Query;
-import com.lightspark.sdk.server.requester.ServerEnvironment;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class LightsparkFuturesTest {
+public class LightsparkFuturesClientTest {
     // Read the token ID and secrets from the environment.
     private static final String API_TOKEN_CLIENT_ID = getPlatform().getEnv("LIGHTSPARK_API_TOKEN_CLIENT_ID");
     private static final String API_TOKEN_CLIENT_SECRET = getPlatform().getEnv("LIGHTSPARK_API_TOKEN_CLIENT_SECRET");

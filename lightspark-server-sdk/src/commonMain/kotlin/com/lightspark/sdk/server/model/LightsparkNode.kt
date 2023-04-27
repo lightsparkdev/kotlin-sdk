@@ -5,13 +5,13 @@ package com.lightspark.sdk.server.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.server.util.serializerFormat
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * This is a node that is managed by Lightspark and is managed within the current connected account. It contains many details about the node configuration, state, and metadata.
@@ -99,7 +99,7 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
                 add("entity_id", id)
                 add("first", first)
                 add("types", types)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("addresses")) { "addresses not found" }
             return@Query serializerFormat.decodeFromJsonElement<NodeToAddressesConnection>(connection)
@@ -226,7 +226,7 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("channels")) { "channels not found" }
             return@Query serializerFormat.decodeFromJsonElement<LightsparkNodeToChannelsConnection>(connection)

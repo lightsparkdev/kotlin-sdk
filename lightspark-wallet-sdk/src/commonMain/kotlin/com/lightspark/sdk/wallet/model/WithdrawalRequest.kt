@@ -5,11 +5,11 @@ package com.lightspark.sdk.wallet.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.wallet.util.serializerFormat
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlin.jvm.JvmStatic
 
 /**
  *

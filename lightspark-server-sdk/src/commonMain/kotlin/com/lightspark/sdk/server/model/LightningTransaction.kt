@@ -5,10 +5,10 @@ package com.lightspark.sdk.server.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.server.util.serializerFormat
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlin.jvm.JvmStatic
 
 /**
  *

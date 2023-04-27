@@ -5,11 +5,11 @@ package com.lightspark.sdk.server.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.server.util.serializerFormat
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlin.jvm.JvmStatic
 
 /**
  * This object represents a BOLT #11 invoice (https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) initiated by a Lightspark Node.

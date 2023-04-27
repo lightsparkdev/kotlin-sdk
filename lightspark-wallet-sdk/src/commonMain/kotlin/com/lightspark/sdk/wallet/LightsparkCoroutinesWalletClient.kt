@@ -151,7 +151,7 @@ class LightsparkCoroutinesWalletClient private constructor(
             var wallet = getCurrentWallet() ?: return@flow
             while (wallet.status !in statuses) {
                 emit(wallet)
-                delay(1000)
+                delay(3000)
                 wallet = getCurrentWallet() ?: return@flow
             }
             emit(wallet)
@@ -184,6 +184,16 @@ class LightsparkCoroutinesWalletClient private constructor(
         )
     }
 
+    /**
+     * Initializes a wallet in the Lightspark infrastructure and syncs it to the Bitcoin network and triggers updates
+     * as state changes. This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `READY` (or `FAILED`).
+     *
+     * @param keyType The type of key to use for the wallet.
+     * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @return A flow of Wallet updates.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
     suspend fun initializeWalletAndWaitForInitialized(keyType: KeyType, signingPublicKey: String): Flow<Wallet> {
         val initialWallet = initializeWallet(keyType, signingPublicKey) ?: return flow {
             throw LightsparkException(
@@ -212,6 +222,28 @@ class LightsparkCoroutinesWalletClient private constructor(
                 serializerFormat.decodeFromJsonElement<TerminateWalletOutput>(it["terminate_wallet"]!!).wallet
             },
         )
+    }
+
+    /**
+     * Removes the wallet from Lightspark infrastructure. It won't be connected to the Lightning network anymore and
+     * its funds won't be accessible outside of the Funds Recovery Kit process.
+     *
+     * This waits for the wallet to be either `TERMINATED`or `FAILED`. It will periodically fire updates until then.
+     *
+     * @return The wallet updates until it is terminated.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    suspend fun terminateAndWaitForTerminated(): Flow<Wallet> {
+        val initialWallet = terminateWallet() ?: return flow {
+            throw LightsparkException(
+                "Failed to terminate wallet",
+                LightsparkErrorCode.WALLET_TERMINATE_FAILED,
+            )
+        }
+        if (initialWallet.status == WalletStatus.TERMINATED) {
+            return flowOf(initialWallet)
+        }
+        return awaitWalletStatus(setOf(WalletStatus.TERMINATED, WalletStatus.FAILED))
     }
 
     /**

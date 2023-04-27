@@ -5,11 +5,11 @@ package com.lightspark.sdk.server.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.server.util.serializerFormat
-import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlin.jvm.JvmStatic
 
 /**
  * This interface represents a lightning node that can be connected to the Lightning Network to send and receive transactions.
@@ -75,7 +75,7 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
                 add("entity_id", id)
                 add("first", first)
                 add("types", types)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("addresses")) { "addresses not found" }
             return@Query serializerFormat.decodeFromJsonElement<NodeToAddressesConnection>(connection)

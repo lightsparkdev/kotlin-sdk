@@ -11,8 +11,10 @@ import com.lightspark.sdk.wallet.model.Wallet
 import com.lightspark.sdk.wallet.model.WalletStatus
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.util.decodeBase64Bytes
+import io.ktor.util.encodeBase64
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -26,10 +28,10 @@ import kotlin.test.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
     // Read the token ID and secrets from the environment.
-    private val API_ACCOUNT_ID = getPlatform().getEnv("LIGHTSPARK_ACCOUNT_ID")!!
-    private val API_JWT = getPlatform().getEnv("LIGHTSPARK_JWT")!!
-    private val WALLET_SIGNING_PUB_KEY = getPlatform().getEnv("LIGHTSPARK_WALLET_PUB_KEY")
-    private val WALLET_SIGNING_PRIV_KEY = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY")
+    private val apiAccountId = getPlatform().getEnv("LIGHTSPARK_ACCOUNT_ID")!!
+    private val apiJwt = getPlatform().getEnv("LIGHTSPARK_JWT")!!
+    private var signingPubKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PUB_KEY")
+    private var signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY")
 
     private val jwtStorage = InMemoryJwtStorage()
     private val config = ClientConfig()
@@ -38,32 +40,57 @@ class ClientIntegrationTests {
     private val client = LightsparkCoroutinesWalletClient(config)
 
     private fun runAuthedTest(test: suspend TestScope.() -> Unit) = runTest {
-        val output = client.loginWithJWT(API_ACCOUNT_ID, API_JWT, jwtStorage)
-        deployWalletIfNotDeployed(output.wallet)
+        val output = client.loginWithJWT(apiAccountId, apiJwt, jwtStorage)
+        ensureWalletDeployedAndInitialized(output.wallet)
         test()
     }
 
-    private suspend fun deployWalletIfNotDeployed(wallet: Wallet) {
-        if (wallet.status != WalletStatus.NOT_SETUP) {
-            return
-        }
-        client.deployWalletAndAwaitDeployed().collect {
-            print("Wallet update: $it")
-            it.status.shouldNotBe(WalletStatus.FAILED)
-            if (it.status == WalletStatus.DEPLOYED) {
-                println("Wallet deployed!")
+    private suspend fun ensureWalletDeployedAndInitialized(wallet: Wallet) {
+        var currentWallet = wallet
+        if (wallet.status == WalletStatus.NOT_SETUP || wallet.status == WalletStatus.TERMINATED) {
+            client.deployWalletAndAwaitDeployed().collect {
+                println("Wallet update: $it")
+                it.status.shouldNotBe(WalletStatus.FAILED)
+                if (it.status == WalletStatus.DEPLOYED) {
+                    println("Wallet deployed!")
+                }
+                currentWallet = it
             }
         }
-        val keypair = generateSigningKeyPair()
-        println(keypair.public.encoded)
-        client.loadWalletSigningKey(keypair.private.encoded)
-        client.initializeWalletAndWaitForInitialized(KeyType.RSA_OAEP, keypair.public.encoded.base64Encoded).collect {
-            print("Wallet update: $it")
-            it.status.shouldNotBe(WalletStatus.FAILED)
-            if (it.status == WalletStatus.READY) {
-                println("Wallet initialized!")
-            }
+
+        if (currentWallet.status == WalletStatus.DEPLOYED) {
+            val keypair = generateSigningKeyPair()
+            println("Save these keys:")
+            println(keypair.public.encoded.encodeBase64())
+            println(keypair.private.encoded.encodeBase64())
+            signingPubKey = keypair.public.encoded.base64Encoded
+            signingPrivKey = keypair.private.encoded.base64Encoded
+            client.loadWalletSigningKey(keypair.private.encoded)
+            client.initializeWalletAndWaitForInitialized(KeyType.RSA_OAEP, keypair.public.encoded.base64Encoded)
+                .collect {
+                    println("Wallet update: $it")
+                    it.status.shouldNotBe(WalletStatus.FAILED)
+                    if (it.status == WalletStatus.READY) {
+                        println("Wallet initialized!")
+                    }
+                    currentWallet = it
+                }
         }
+
+        println("Post-initialized wallet: $currentWallet")
+    }
+
+    // Disabled because it's destructive and requires a new wallet to be deployed. Slows the test suite down.
+    // @Test
+    fun `terminate wallet`() = runAuthedTest {
+        var wallet: Wallet? = null
+        client.terminateAndWaitForTerminated().collect {
+            println("Wallet update: $it")
+            it.status.shouldNotBe(WalletStatus.FAILED)
+            wallet = it
+        }
+        wallet.shouldNotBeNull()
+        wallet?.status.shouldBe(WalletStatus.TERMINATED)
     }
 
     @Test
@@ -160,7 +187,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `send a payment for an invoice`() = runAuthedTest {
-        client.loadWalletSigningKey(WALLET_SIGNING_PRIV_KEY!!.decodeBase64Bytes())
+        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
 
         // Just paying a pre-existing AMP invoice.
         val ampInvoice =
@@ -170,6 +197,33 @@ class ClientIntegrationTests {
         val payment = client.payInvoice(ampInvoice, maxFeesMsats = 100_000, amountMsats = 10_000)
         payment.shouldNotBeNull()
         println("Payment: $payment")
+    }
+
+    @Test
+    fun `test createBitcoinFundingAddress`() = runAuthedTest {
+        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        val address = client.createBitcoinFundingAddress()
+        address.shouldNotBeNull()
+        println("Created address: $address")
+    }
+
+    @Test
+    fun `test getLightningFeeEstimateForInvoice`() = runAuthedTest {
+        val ampInvoice =
+            "lnbcrt1pjr8xwypp5xqj2jfpkz095s8zu57ktsq8vt8yazwcmqpcke9pvl67ne9cpdr0qdqj2a5xzumnwd6hqurswqcqzpgxq9z0rgqs" +
+                "p55hfn0caa5sexea8u979cckkmwelw6h3zpwel5l8tn8s0elgwajss9q8pqqqssqefmmw79tknhl5xhnh7yfepzypxknwr9r4ya7" +
+                "ueqa6vz20axvys8se986hwj6gppeyzst44hm4yl04c4dqjjpqgtt0df254q087sjtfsq35yagj"
+        val estimate = client.getLightningFeeEstimateForInvoice(ampInvoice, 100_000)
+        estimate.shouldNotBeNull()
+        println("Fee estimate: $estimate")
+    }
+
+    @Test
+    fun `test getLightningFeeEstimateForNode`() = runAuthedTest {
+        val destinationPublicKey = "03031864387b8f63ca4ffaeecd8aa973364bf31964f19c74343037b18d75e2d4f7"
+        val estimate = client.getLightningFeeEstimateForNode(destinationPublicKey, 100_000)
+        estimate.shouldNotBeNull()
+        println("Fee estimate: $estimate")
     }
 
     // TODO: Add tests for withdrawals and deposits.
