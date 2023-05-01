@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
@@ -12,7 +13,7 @@ plugins {
     id(libs.plugins.dokka.get().pluginId)
     alias(libs.plugins.buildKonfig)
     alias(libs.plugins.gradleS3)
-    alias(libs.plugins.mavenPublish)
+    id(libs.plugins.mavenPublish.get().pluginId)
 }
 
 buildscript {
@@ -21,10 +22,10 @@ buildscript {
     }
 }
 
-val VERSION = "1.0.0-SNAPSHOT"
+val VERSION_NAME: String by project
 
 kotlin {
-    version = VERSION
+    version = VERSION_NAME
     android {
         publishLibraryVariants("release")
     }
@@ -46,7 +47,6 @@ kotlin {
             dependencies {
                 implementation(libs.kase64)
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.krypt)
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
@@ -98,7 +98,7 @@ buildkonfig {
     objectName = "LightsparkConfig"
 
     defaultConfigs {
-        buildConfigField(STRING, "VERSION", VERSION)
+        buildConfigField(STRING, "VERSION", VERSION_NAME)
     }
 }
 
@@ -114,15 +114,11 @@ kotlin {
     }
 }
 
-mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
-
-    signAllPublications()
-}
+mavenPublishing {}
 
 android {
     namespace = "com.lightspark.sdk.server"
-    version = VERSION
+    version = VERSION_NAME
     compileSdk = 33
     defaultConfig {
         minSdk = 24

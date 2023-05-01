@@ -46,6 +46,7 @@ gradleClasspath-android = { module = "com.android.tools.build:gradle", version.r
 gradleClasspath-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 gradleClasspath-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 gradleClasspath-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradleClasspath-mavenPublish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "mavenPublish" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material = { module = "androidx.compose.material3:material3" }

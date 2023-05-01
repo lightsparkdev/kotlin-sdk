@@ -80,6 +80,16 @@ class ClientIntegrationTests {
         println("Post-initialized wallet: $currentWallet")
     }
 
+    @Test
+    fun `key generation`() = runAuthedTest {
+        val keypair = generateSigningKeyPair()
+        println("Save these keys:")
+        println(keypair.public.encoded.encodeBase64())
+        println(keypair.private.encoded.encodeBase64())
+        signingPubKey = keypair.public.encoded.base64Encoded
+        signingPrivKey = keypair.private.encoded.base64Encoded
+    }
+
     // Disabled because it's destructive and requires a new wallet to be deployed. Slows the test suite down.
     // @Test
     fun `terminate wallet`() = runAuthedTest {

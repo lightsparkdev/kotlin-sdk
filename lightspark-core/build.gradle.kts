@@ -12,7 +12,7 @@ plugins {
     id(libs.plugins.dokka.get().pluginId)
     alias(libs.plugins.buildKonfig)
     alias(libs.plugins.gradleS3)
-    alias(libs.plugins.mavenPublish)
+    id(libs.plugins.mavenPublish.get().pluginId)
 }
 
 buildscript {
@@ -21,10 +21,10 @@ buildscript {
     }
 }
 
-val VERSION = "1.0.0-SNAPSHOT"
+val VERSION_NAME: String by project
 
 kotlin {
-    version = VERSION
+    version = VERSION_NAME
     android {
         publishLibraryVariants("release")
     }
@@ -97,7 +97,7 @@ buildkonfig {
     objectName = "LightsparkCoreConfig"
 
     defaultConfigs {
-        buildConfigField(STRING, "VERSION", VERSION)
+        buildConfigField(STRING, "VERSION", VERSION_NAME)
     }
 }
 
@@ -114,14 +114,11 @@ kotlin {
 }
 
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01)
-
-    signAllPublications()
 }
 
 android {
     namespace = "com.lightspark.sdk.core"
-    version = VERSION
+    version = VERSION_NAME
     compileSdk = 33
     defaultConfig {
         minSdk = 24

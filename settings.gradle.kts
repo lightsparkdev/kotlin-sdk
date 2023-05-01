@@ -19,5 +19,6 @@ rootProject.name = "Lightspark"
 include(":lightspark-server-sdk")
 include(":lightspark-wallet-sdk")
 include(":lightspark-core")
-include(":androiddemo")
+include(":androidwalletdemo")
 include(":javatest")
+include(":lightspark-oauth")

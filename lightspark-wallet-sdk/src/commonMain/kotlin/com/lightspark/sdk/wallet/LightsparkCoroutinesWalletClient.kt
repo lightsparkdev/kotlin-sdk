@@ -478,6 +478,26 @@ class LightsparkCoroutinesWalletClient private constructor(
     }
 
     /**
+     * Unlocks the wallet for use with the SDK for the current application session by specifying a key alias in the
+     * KeyStore where the wallet's key is stored.
+     *
+     * This function or [loadWalletSigningKey] must be called before any other functions that require wallet signing
+     * keys, including [payInvoice].
+     *
+     * This function is intended for use in cases where the wallet's private signing key is already saved by the
+     * application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and
+     * that it is the correct key for the wallet. Otherwise signed requests will fail.
+     *
+     * @param signingKeyAlias The key alias in the KeyStore of the wallet's private signing key.
+     * @throws LightsparkAuthenticationException if the user is not authenticated.
+     */
+    @Throws(LightsparkAuthenticationException::class)
+    fun loadWalletSigningKeyAlias(signingKeyAlias: String) {
+        requireValidAuth()
+        nodeKeyCache.setAlias(WALLET_NODE_ID_KEY, signingKeyAlias)
+    }
+
+    /**
      * Creates an L1 Bitcoin wallet address which can be used to deposit or withdraw funds from the Lightning wallet.
      *
      * @return The newly created L1 wallet address.

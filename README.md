@@ -22,5 +22,5 @@ Android environment and is used by the sample app in this repository. See its RE
 ### Building and running the sample app
 
 You can build the SDK and sample app using Gradle or Android Studio. The easiest option is to open
-this root directory as a project in Android studio and run the `androiddemo` app configuration on an
+this root directory as a project in Android studio and run the `androidwalletdemo` app configuration on an
 Android device or emulator.

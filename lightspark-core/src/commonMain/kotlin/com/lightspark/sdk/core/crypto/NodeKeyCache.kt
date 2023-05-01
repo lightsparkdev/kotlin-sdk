@@ -5,10 +5,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class NodeKeyCache {
     private val keyCache = mutableMapOf<String, ByteArray>()
+    private val keyAliasCache = mutableMapOf<String, String>()
     private val unlockedNodesFlow = MutableStateFlow<Set<String>>(emptySet())
 
     fun contains(nodeId: String): Boolean {
-        return keyCache.containsKey(nodeId)
+        return keyCache.containsKey(nodeId) || keyAliasCache.containsKey(nodeId)
     }
 
     operator fun get(nodeId: String): ByteArray {
@@ -17,24 +18,38 @@ class NodeKeyCache {
 
     operator fun set(nodeId: String, key: ByteArray) {
         keyCache[nodeId] = key
-        val didWork = unlockedNodesFlow.tryEmit(keyCache.keys)
+        onCachedKeysChanged()
+    }
+
+    private fun onCachedKeysChanged() {
+        val didWork = unlockedNodesFlow.tryEmit(keyCache.keys + keyAliasCache.keys)
         if (!didWork) {
-            unlockedNodesFlow.value = keyCache.keys
+            unlockedNodesFlow.value = keyCache.keys + keyAliasCache.keys
         }
     }
 
-    fun safeGetKey(nodeId: String): ByteArray? {
-        return keyCache[nodeId]
+    fun containsAlias(nodeId: String): Boolean {
+        return keyAliasCache.containsKey(nodeId)
+    }
+
+    fun getAlias(nodeId: String): String {
+        return keyAliasCache[nodeId] ?: throw MissingKeyException(nodeId)
+    }
+
+    fun setAlias(nodeId: String, alias: String) {
+        keyAliasCache[nodeId] = alias
+        onCachedKeysChanged()
     }
 
     fun remove(nodeId: String) {
         keyCache.remove(nodeId)
-        unlockedNodesFlow.tryEmit(keyCache.keys)
+        onCachedKeysChanged()
     }
 
     fun clear() {
         keyCache.clear()
-        unlockedNodesFlow.tryEmit(emptySet())
+        keyAliasCache.clear()
+        onCachedKeysChanged()
     }
 
     fun observeCachedNodeIds(): Flow<Set<String>> = unlockedNodesFlow

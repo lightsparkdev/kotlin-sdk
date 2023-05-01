@@ -8,6 +8,8 @@ import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.BETA_HEADER_KEY
 import com.lightspark.sdk.core.auth.BETA_HEADER_VALUE
 import com.lightspark.sdk.core.crypto.NodeKeyCache
+import com.lightspark.sdk.core.crypto.signPayload
+import com.lightspark.sdk.core.crypto.signUsingAlias
 import com.lightspark.sdk.core.util.format
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
@@ -137,8 +139,6 @@ class Requester constructor(
             return bodyData to headers
         }
 
-        val nodeKey = nodeKeyCache[signingNodeId]
-
         val newBodyData = bodyData.toMutableMap().apply {
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
             // spit out a signed int, which the backend can't decode.
@@ -146,7 +146,11 @@ class Requester constructor(
             put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { JsonObject(it) }
         val newBodyString = Json.encodeToString(newBodyData)
-        val signature = com.lightspark.sdk.core.crypto.signPayload(newBodyString.encodeToByteArray(), nodeKey)
+        val signature = if (nodeKeyCache.containsAlias(signingNodeId)) {
+            signUsingAlias(newBodyString.encodeToByteArray(), nodeKeyCache.getAlias(signingNodeId))
+        }else {
+            signPayload(newBodyString.encodeToByteArray(), nodeKeyCache[signingNodeId])
+        }
         val newHeaders = headers.toMutableMap().apply {
             this["X-LIGHTSPARK-SIGNING"] =
                 "{\"v\":1,\"signature\":\"${signature.base64Encoded}\"}"
