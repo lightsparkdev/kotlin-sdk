@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>requestWithdrawal</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../../images/lightspark-logo-white.svg">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>lightspark-server-sdk</span>
+            </a>
+    </div>
+    <div>
+0.1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":lightspark-server-sdk:dokkaHtml/commonMain">common</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-server-sdk::com.lightspark.sdk.server/LightsparkCoroutinesClient/requestWithdrawal/#kotlin.String#kotlin.Long#kotlin.String#com.lightspark.sdk.server.model.WithdrawalMode/PointingToDeclaration//-629311722">
+  <div class="breadcrumbs"><a href="../../../index.html">lightspark-server-sdk</a><span class="delimiter">/</span><a href="../index.html">com.lightspark.sdk.server</a><span class="delimiter">/</span><a href="index.html">LightsparkCoroutinesClient</a><span class="delimiter">/</span><span class="current">requestWithdrawal</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>request</span><wbr></wbr><span><span>Withdrawal</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="request-withdrawal.html"><span class="token function">requestWithdrawal</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">nodeId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">amountSats<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter ">bitcoinAddress<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">mode<span class="token operator">: </span><a href="../../com.lightspark.sdk.server.model/-withdrawal-mode/index.html">WithdrawalMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.lightspark.sdk.server.model/-withdrawal-request/index.html">WithdrawalRequest</a></div><p class="paragraph">Withdraws funds from the account and sends it to the requested bitcoin address.</p><p class="paragraph">Depending on the chosen mode, it will first take the funds from the wallet, and if applicable, close channels appropriately to recover enough funds and reopen channels with the remaining funds. The process is asynchronous and may take up to a few minutes. You can check the progress by polling the <code class="lang-kotlin">WithdrawalRequest</code> that is created, or by subscribing to a webhook.</p><h4 class="">Parameters</h4><div data-togglable="Parameters"><div class="table" data-togglable="Parameters"><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>node</span><wbr></wbr><span><span>Id</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The ID of the node to withdraw funds from.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>amount</span><wbr></wbr><span><span>Sats</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The amount of funds to withdraw in SATOSHI.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>bitcoin</span><wbr></wbr><span><span>Address</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The Bitcoin address to withdraw funds to.</p></div></div></div></div></div><div class="table-row" data-filterable-current=":lightspark-server-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-server-sdk:dokkaHtml/commonMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span><span>mode</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The mode to use for the withdrawal. See <code class="lang-kotlin">WithdrawalMode</code> for more information.</p></div></div></div></div></div></div></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.lightspark.androidwalletdemo
 
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androidwalletdemo.auth.AuthState
@@ -11,7 +12,6 @@ import com.lightspark.androidwalletdemo.settings.SavedPrefs
 import com.lightspark.androidwalletdemo.wallet.WalletRepository
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.requester.ServerEnvironment
-import com.lightspark.sdk.wallet.graphql.WalletDashboard
 import com.lightspark.sdk.wallet.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -134,10 +134,14 @@ class MainViewModel @Inject constructor(
         prefsStore.setServerEnvironment(environment)
     }
 
-    fun unlockWallet(nodePassword: String) = viewModelScope.launch(context = Dispatchers.IO) {
-        isUnlocking.value = true
-        attemptKeyStoreUnlock()
-        isUnlocking.value = false
+    fun unlockWallet(signingPrivateKeyPEM: String) = viewModelScope.launch(context = Dispatchers.IO) {
+        walletRepository.unlockWallet(Base64.decode(signingPrivateKeyPEM, Base64.DEFAULT)).collect {
+            when (it) {
+                is Lce.Loading -> isUnlocking.value = true
+                is Lce.Error -> isUnlocking.value = false
+                is Lce.Content -> isUnlocking.value = false
+            }
+        }
     }
 
     fun deployWallet() = viewModelScope.launch(context = Dispatchers.IO) {

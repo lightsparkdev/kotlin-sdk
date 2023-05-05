@@ -5,18 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
+import com.lightspark.sdk.ClientConfig;
+import com.lightspark.sdk.LightsparkFuturesClient;
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider;
 import com.lightspark.sdk.core.requester.Query;
 import com.lightspark.sdk.core.requester.ServerEnvironment;
-import com.lightspark.sdk.server.ClientConfig;
-import com.lightspark.sdk.server.LightsparkFuturesClient;
-import com.lightspark.sdk.server.auth.AccountApiTokenAuthProvider;
-import com.lightspark.sdk.server.graphql.AccountDashboard;
-import com.lightspark.sdk.server.model.Account;
-import com.lightspark.sdk.server.model.AccountToNodesConnection;
-import com.lightspark.sdk.server.model.AccountToTransactionsConnection;
-import com.lightspark.sdk.server.model.BitcoinNetwork;
-import com.lightspark.sdk.server.model.LightsparkNode;
-import com.lightspark.sdk.server.model.Transaction;
+import com.lightspark.sdk.graphql.AccountDashboard;
+import com.lightspark.sdk.model.Account;
+import com.lightspark.sdk.model.AccountToNodesConnection;
+import com.lightspark.sdk.model.AccountToTransactionsConnection;
+import com.lightspark.sdk.model.BitcoinNetwork;
+import com.lightspark.sdk.model.LightsparkNode;
+import com.lightspark.sdk.model.Transaction;
 
 import org.junit.jupiter.api.Test;
 

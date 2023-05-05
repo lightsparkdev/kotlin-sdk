@@ -47,6 +47,11 @@ class WalletRepository @Inject constructor(
 
     suspend fun initializeWallet(): Flow<Lce<Wallet>> {
         // TODO: Add some form of key recovery here so that keys don't get stuck.
+
+        // Here, we're generating a key pair directly in the Android KeyStore. Note that this means that we won't be
+        // able to export that key for the user, but it does come with increased security. If you'd like to manage your
+        // own keys or store them in some other way in your own app code, you can still generate a valid key pair using
+        // the [generateSigningKeyPair] function in the SDK.
         val keyPair = generateSigningKeyPairInAndroidKeyStore(LIGHTSPARK_SIGNING_KEY_ALIAS)
         walletClient.loadWalletSigningKeyAlias(LIGHTSPARK_SIGNING_KEY_ALIAS)
         return walletClient.initializeWalletAndWaitForInitialized(

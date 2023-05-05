@@ -62,7 +62,7 @@ fun RequestPaymentScreen(
     var isEnteringAmount by remember { mutableStateOf(false) }
 
     if (isEnteringAmount) {
-        return RequestPaymentAmountScreen(
+        RequestPaymentAmountScreen(
             onAmountEntered = { amount ->
                 createInvoice?.invoke(amount)
                 isEnteringAmount = false
@@ -70,6 +70,7 @@ fun RequestPaymentScreen(
             onBack = { isEnteringAmount = false },
             modifier = modifier,
         )
+        return
     }
 
     when (uiState) {
@@ -134,13 +135,21 @@ fun RequestPaymentAmountScreen(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        BasicTextField(
-            value = amount.value.toString() + " SATs",
-            onValueChange = { amount = CurrencyAmountArg(it.removeSuffix(" SATs").toLong(), CurrencyUnit.SATOSHI) },
-            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
-            textStyle = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
-            singleLine = true,
-        )
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.CenterHorizontally)) {
+            BasicTextField(
+                value = amount.value.toString(),
+                onValueChange = { amount = CurrencyAmountArg(it.toLongOrNull() ?: 0, CurrencyUnit.SATOSHI) },
+                textStyle = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.End),
+                singleLine = true,
+            )
+            Text(
+                text = " SATs",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(start = 8.dp),
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = { onAmountEntered(amount) },

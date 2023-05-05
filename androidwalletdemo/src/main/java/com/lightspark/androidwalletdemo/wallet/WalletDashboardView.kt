@@ -56,7 +56,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.lightspark.androidwalletdemo.R
 import com.lightspark.androidwalletdemo.auth.ui.MissingCredentialsScreen
-import com.lightspark.androidwalletdemo.auth.ui.NodePasswordDialog
+import com.lightspark.androidwalletdemo.auth.ui.NodeKeyDialog
 import com.lightspark.androidwalletdemo.model.WalletLockStatus
 import com.lightspark.androidwalletdemo.navigation.Screen
 import com.lightspark.androidwalletdemo.ui.LoadingPage
@@ -152,7 +152,7 @@ fun WalletDashboardView(
 
             is Lce.Error -> {
                 when ((walletData.exception as? LightsparkException)?.errorCode) {
-                    LightsparkErrorCode.NO_CREDENTIALS -> {
+                    LightsparkErrorCode.NO_CREDENTIALS.name -> {
                         MissingCredentialsScreen(
                             modifier = modifier.fillMaxSize(),
                             buttonText = "Log in",
@@ -277,7 +277,7 @@ fun WalletHeader(
     onUnlockRequest: ((password: String) -> Unit)? = null,
     attemptKeyStoreUnlock: () -> Boolean = { false },
 ) {
-    var passwordDialogOpen by remember { mutableStateOf(false) }
+    var keyDialogOpen by remember { mutableStateOf(false) }
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
     val buttonAlpha by animateFloatAsState(targetValue = max(0f, 1f - offsetDp.value / 50f))
@@ -304,7 +304,7 @@ fun WalletHeader(
         Spacer(modifier = Modifier.weight(.2f))
         UnlockButton(walletUnlockStatus, buttonHeightFactor, buttonAlpha) {
             if (walletUnlockStatus == WalletLockStatus.LOCKED && !attemptKeyStoreUnlock()) {
-                passwordDialogOpen = true
+                keyDialogOpen = true
             }
         }
         WalletBalances(walletData, scrollOffset, modifier = Modifier.weight(.4f))
@@ -320,9 +320,9 @@ fun WalletHeader(
             )
         }
     }
-    NodePasswordDialog(
-        open = passwordDialogOpen,
-        onDismiss = { passwordDialogOpen = false },
+    NodeKeyDialog(
+        open = keyDialogOpen,
+        onDismiss = { keyDialogOpen = false },
     ) {
         onUnlockRequest?.invoke(it)
     }

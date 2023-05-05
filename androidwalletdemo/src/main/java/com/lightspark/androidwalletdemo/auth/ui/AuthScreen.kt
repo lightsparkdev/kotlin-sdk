@@ -43,7 +43,7 @@ fun AuthScreen(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (savedCredentials != null) {
+        if (savedCredentials.data != null) {
             Text(
                 "You're logged in with the JWT listed below. If you'd like to log in with a different account, " +
                     "just enter your new credentials below and tap \"Submit\".",

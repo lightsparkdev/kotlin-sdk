@@ -1,0 +1,12 @@
+## Lightspark Android Wallet demo
+
+This is a simple demo wallet which demonstrates how to use the Lightspark Wallet SDK to create and
+deploy a wallet, make and receive payments, and more. Here are some pointers to relevant code for
+various examples:
+
+ - [Logging in with a JWT - MainViewModel.kt line 40](./src/main/java/com/lightspark/androidwalletdemo/MainViewModel.kt)
+ - [Deploying a new wallet - WalletRepository::deployWallet](./src/main/java/com/lightspark/androidwalletdemo/wallet/WalletRepository.kt)
+ - [Generating keys and initializing a wallet - WalletRepository::initializeWallet](./src/main/java/com/lightspark/androidwalletdemo/wallet/WalletRepository.kt)
+ - [Unlocking a wallet to make payments - WalletRepository::attemptKeyStoreUnlock](./src/main/java/com/lightspark/androidwalletdemo/wallet/WalletRepository.kt)
+ - [Creating, Decoding, and Paying Invoices - PaymentRepository.kt](./src/main/java/com/lightspark/androidwalletdemo/wallet/PaymentRepository.kt)
+ - [Scanning an invoice QR code - InvoiceQrScanner.kt](./src/main/java/com/lightspark/androidwalletdemo/sendpayment/InvoiceQrScanner.kt)

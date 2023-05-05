@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>com.lightspark.sdk.graphql</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../images/lightspark-logo-white.svg">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../index.html">
+                    <span>lightspark-sdk</span>
+            </a>
+    </div>
+    <div>
+0.1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":lightspark-sdk:dokkaHtml/commonMain">common</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-sdk::com.lightspark.sdk.graphql////PointingToDeclaration//-1099833818">
+  <div class="breadcrumbs"><a href="../../index.html">lightspark-sdk</a><span class="delimiter">/</span><span class="current">com.lightspark.sdk.graphql</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="-1479925418%2FClasslikes%2F-1099833818" anchor-label="AccountDashboard" id="-1479925418%2FClasslikes%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-account-dashboard/index.html"><span>Account</span><wbr></wbr><span><span>Dashboard</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1479925418%2FClasslikes%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="-account-dashboard/index.html">AccountDashboard</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>name<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>nodeConnection<span class="token operator">: </span><a href="-account-nodes-connection/index.html">AccountNodesConnection</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>blockchainBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-blockchain-balance/index.html">BlockchainBalance</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>localBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>remoteBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="598099862%2FClasslikes%2F-1099833818" anchor-label="AccountNode" id="598099862%2FClasslikes%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-account-node/index.html"><span>Account</span><wbr></wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="598099862%2FClasslikes%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="-account-node/index.html">AccountNode</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>color<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>displayName<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>purpose<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-lightspark-node-purpose/index.html">LightsparkNodePurpose</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>publicKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>status<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-lightspark-node-status/index.html">LightsparkNodeStatus</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>addresses<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-node-to-addresses-connection/index.html">NodeToAddressesConnection</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>localBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>remoteBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>blockchainBalance<span class="token operator">: </span><a href="-account-node/-node-balances/index.html">AccountNode.NodeBalances</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1803700965%2FClasslikes%2F-1099833818" anchor-label="AccountNodesConnection" id="-1803700965%2FClasslikes%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-account-nodes-connection/index.html"><span>Account</span><wbr></wbr><span>Nodes</span><wbr></wbr><span><span>Connection</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1803700965%2FClasslikes%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="-account-nodes-connection/index.html">AccountNodesConnection</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>nodes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-account-node/index.html">AccountNode</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>count<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="330885706%2FClasslikes%2F-1099833818" anchor-label="WalletDashboard" id="330885706%2FClasslikes%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-wallet-dashboard/index.html"><span>Wallet</span><wbr></wbr><span><span>Dashboard</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="330885706%2FClasslikes%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="-wallet-dashboard/index.html">WalletDashboard</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>displayName<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>purpose<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-lightspark-node-purpose/index.html">LightsparkNodePurpose</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>color<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>publicKey<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>status<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-lightspark-node-status/index.html">LightsparkNodeStatus</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>addresses<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../com.lightspark.sdk.model/-node-address/index.html">NodeAddress</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>localBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>remoteBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-currency-amount/index.html">CurrencyAmount</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>blockchainBalance<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-blockchain-balance/index.html">BlockchainBalance</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>recentTransactions<span class="token operator">: </span><a href="../com.lightspark.sdk.model/-account-to-transactions-connection/index.html">AccountToTransactionsConnection</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-1753984489%2FProperties%2F-1099833818" anchor-label="AccountDashboardQuery" id="-1753984489%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-account-dashboard-query.html"><span>Account</span><wbr></wbr><span>Dashboard</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1753984489%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1753984489%2FProperties%2F-1099833818" anchor-label="AccountDashboardQuery" id="-1753984489%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-account-dashboard-query.html">AccountDashboardQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="322699648%2FProperties%2F-1099833818" anchor-label="BitcoinFeeEstimateQuery" id="322699648%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-bitcoin-fee-estimate-query.html"><span>Bitcoin</span><wbr></wbr><span>Fee</span><wbr></wbr><span>Estimate</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="322699648%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="322699648%2FProperties%2F-1099833818" anchor-label="BitcoinFeeEstimateQuery" id="322699648%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-bitcoin-fee-estimate-query.html">BitcoinFeeEstimateQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1667947870%2FProperties%2F-1099833818" anchor-label="CreateApiTokenMutation" id="1667947870%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-create-api-token-mutation.html"><span>Create</span><wbr></wbr><span>Api</span><wbr></wbr><span>Token</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1667947870%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="1667947870%2FProperties%2F-1099833818" anchor-label="CreateApiTokenMutation" id="1667947870%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-create-api-token-mutation.html">CreateApiTokenMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1863870978%2FProperties%2F-1099833818" anchor-label="CreateInvoiceMutation" id="-1863870978%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-create-invoice-mutation.html"><span>Create</span><wbr></wbr><span>Invoice</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1863870978%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1863870978%2FProperties%2F-1099833818" anchor-label="CreateInvoiceMutation" id="-1863870978%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-create-invoice-mutation.html">CreateInvoiceMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="615848722%2FProperties%2F-1099833818" anchor-label="CreateNodeWalletAddressMutation" id="615848722%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-create-node-wallet-address-mutation.html"><span>Create</span><wbr></wbr><span>Node</span><wbr></wbr><span>Wallet</span><wbr></wbr><span>Address</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="615848722%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="615848722%2FProperties%2F-1099833818" anchor-label="CreateNodeWalletAddressMutation" id="615848722%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-create-node-wallet-address-mutation.html">CreateNodeWalletAddressMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1847480228%2FProperties%2F-1099833818" anchor-label="CurrentAccountQuery" id="1847480228%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-current-account-query.html"><span>Current</span><wbr></wbr><span>Account</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1847480228%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="1847480228%2FProperties%2F-1099833818" anchor-label="CurrentAccountQuery" id="1847480228%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-current-account-query.html">CurrentAccountQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1952810567%2FProperties%2F-1099833818" anchor-label="DecodeInvoiceQuery" id="-1952810567%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-decode-invoice-query.html"><span>Decode</span><wbr></wbr><span>Invoice</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1952810567%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1952810567%2FProperties%2F-1099833818" anchor-label="DecodeInvoiceQuery" id="-1952810567%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-decode-invoice-query.html">DecodeInvoiceQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1276524145%2FProperties%2F-1099833818" anchor-label="DeleteApiTokenMutation" id="-1276524145%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-delete-api-token-mutation.html"><span>Delete</span><wbr></wbr><span>Api</span><wbr></wbr><span>Token</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1276524145%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1276524145%2FProperties%2F-1099833818" anchor-label="DeleteApiTokenMutation" id="-1276524145%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-delete-api-token-mutation.html">DeleteApiTokenMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1317479086%2FProperties%2F-1099833818" anchor-label="FundNodeMutation" id="-1317479086%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-fund-node-mutation.html"><span>Fund</span><wbr></wbr><span>Node</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1317479086%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1317479086%2FProperties%2F-1099833818" anchor-label="FundNodeMutation" id="-1317479086%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-fund-node-mutation.html">FundNodeMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="548562712%2FProperties%2F-1099833818" anchor-label="LightningFeeEstimateForInvoiceQuery" id="548562712%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-lightning-fee-estimate-for-invoice-query.html"><span>Lightning</span><wbr></wbr><span>Fee</span><wbr></wbr><span>Estimate</span><wbr></wbr><span>For</span><wbr></wbr><span>Invoice</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="548562712%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="548562712%2FProperties%2F-1099833818" anchor-label="LightningFeeEstimateForInvoiceQuery" id="548562712%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-lightning-fee-estimate-for-invoice-query.html">LightningFeeEstimateForInvoiceQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-962898495%2FProperties%2F-1099833818" anchor-label="LightningFeeEstimateForNodeQuery" id="-962898495%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-lightning-fee-estimate-for-node-query.html"><span>Lightning</span><wbr></wbr><span>Fee</span><wbr></wbr><span>Estimate</span><wbr></wbr><span>For</span><wbr></wbr><span>Node</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-962898495%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-962898495%2FProperties%2F-1099833818" anchor-label="LightningFeeEstimateForNodeQuery" id="-962898495%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-lightning-fee-estimate-for-node-query.html">LightningFeeEstimateForNodeQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="858592468%2FProperties%2F-1099833818" anchor-label="PayInvoiceMutation" id="858592468%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-pay-invoice-mutation.html"><span>Pay</span><wbr></wbr><span>Invoice</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="858592468%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="858592468%2FProperties%2F-1099833818" anchor-label="PayInvoiceMutation" id="858592468%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-pay-invoice-mutation.html">PayInvoiceMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1983122214%2FProperties%2F-1099833818" anchor-label="RecoverNodeSigningKeyQuery" id="-1983122214%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-recover-node-signing-key-query.html"><span>Recover</span><wbr></wbr><span>Node</span><wbr></wbr><span>Signing</span><wbr></wbr><span>Key</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1983122214%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1983122214%2FProperties%2F-1099833818" anchor-label="RecoverNodeSigningKeyQuery" id="-1983122214%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-recover-node-signing-key-query.html">RecoverNodeSigningKeyQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2140700469%2FProperties%2F-1099833818" anchor-label="RequestWithdrawalMutation" id="-2140700469%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-request-withdrawal-mutation.html"><span>Request</span><wbr></wbr><span>Withdrawal</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2140700469%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-2140700469%2FProperties%2F-1099833818" anchor-label="RequestWithdrawalMutation" id="-2140700469%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-request-withdrawal-mutation.html">RequestWithdrawalMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-521538671%2FProperties%2F-1099833818" anchor-label="SendPaymentMutation" id="-521538671%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-send-payment-mutation.html"><span>Send</span><wbr></wbr><span>Payment</span><wbr></wbr><span><span>Mutation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-521538671%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-521538671%2FProperties%2F-1099833818" anchor-label="SendPaymentMutation" id="-521538671%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-send-payment-mutation.html">SendPaymentMutation</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1912778076%2FProperties%2F-1099833818" anchor-label="SingleNodeDashboardQuery" id="-1912778076%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-single-node-dashboard-query.html"><span>Single</span><wbr></wbr><span>Node</span><wbr></wbr><span>Dashboard</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1912778076%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1912778076%2FProperties%2F-1099833818" anchor-label="SingleNodeDashboardQuery" id="-1912778076%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-single-node-dashboard-query.html">SingleNodeDashboardQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1863087806%2FProperties%2F-1099833818" anchor-label="TransactionsForNode" id="-1863087806%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-transactions-for-node.html"><span>Transactions</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1863087806%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1863087806%2FProperties%2F-1099833818" anchor-label="TransactionsForNode" id="-1863087806%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="-transactions-for-node.html">TransactionsForNode</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1623267275%2FProperties%2F-1099833818" anchor-label="TransactionSubscriptionQuery" id="-1623267275%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-transaction-subscription-query.html"><span>Transaction</span><wbr></wbr><span>Subscription</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1623267275%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-1623267275%2FProperties%2F-1099833818" anchor-label="TransactionSubscriptionQuery" id="-1623267275%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-transaction-subscription-query.html">TransactionSubscriptionQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-918613250%2FProperties%2F-1099833818" anchor-label="WithdrawFundsQuery" id="-918613250%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a>
+        <div class="table-row" data-filterable-current=":lightspark-sdk:dokkaHtml/commonMain" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-withdraw-funds-query.html"><span>Withdraw</span><wbr></wbr><span>Funds</span><wbr></wbr><span><span>Query</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-918613250%2FProperties%2F-1099833818"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-sdk:dokkaHtml/commonMain"><a data-name="-918613250%2FProperties%2F-1099833818" anchor-label="WithdrawFundsQuery" id="-918613250%2FProperties%2F-1099833818" data-filterable-set=":lightspark-sdk:dokkaHtml/commonMain"></a><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-withdraw-funds-query.html">WithdrawFundsQuery</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

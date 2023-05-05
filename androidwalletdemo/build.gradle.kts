@@ -91,8 +91,8 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(project(":lightspark-wallet-sdk"))
-    implementation(project(":lightspark-core"))
+    implementation(project(":wallet-sdk"))
+    implementation(project(":core"))
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

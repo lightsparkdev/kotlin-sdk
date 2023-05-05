@@ -5,18 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
+import com.lightspark.sdk.ClientConfig;
+import com.lightspark.sdk.LightsparkSyncClient;
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider;
 import com.lightspark.sdk.core.requester.Query;
 import com.lightspark.sdk.core.requester.ServerEnvironment;
-import com.lightspark.sdk.server.ClientConfig;
-import com.lightspark.sdk.server.LightsparkSyncClient;
-import com.lightspark.sdk.server.auth.AccountApiTokenAuthProvider;
-import com.lightspark.sdk.server.graphql.AccountDashboard;
-import com.lightspark.sdk.server.model.Account;
-import com.lightspark.sdk.server.model.AccountToNodesConnection;
-import com.lightspark.sdk.server.model.AccountToTransactionsConnection;
-import com.lightspark.sdk.server.model.BitcoinNetwork;
-import com.lightspark.sdk.server.model.LightsparkNode;
-import com.lightspark.sdk.server.model.Transaction;
+import com.lightspark.sdk.graphql.AccountDashboard;
+import com.lightspark.sdk.model.Account;
+import com.lightspark.sdk.model.AccountToNodesConnection;
+import com.lightspark.sdk.model.AccountToTransactionsConnection;
+import com.lightspark.sdk.model.BitcoinNetwork;
+import com.lightspark.sdk.model.LightsparkNode;
+import com.lightspark.sdk.model.Transaction;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,14 +36,14 @@ public class LightsparkSyncClientTest {
     private final LightsparkSyncClient client = new LightsparkSyncClient(config);
 
     @Test
-    public void testAccountDashboard() {
+    public void testAccountDashboard() throws Exception {
         AccountDashboard dashboard = client.getFullAccountDashboard(BitcoinNetwork.REGTEST, null);
         assertNotNull(dashboard);
         System.out.println(dashboard);
     }
 
     @Test
-    public void testNodeQueries() {
+    public void testNodeQueries() throws Exception {
         Account account = client.getCurrentAccount();
         assertNotNull(account);
         List<LightsparkNode> nodes = Objects.requireNonNull(client.executeQuery(account.getNodesQuery())).getEntities();
@@ -53,7 +53,7 @@ public class LightsparkSyncClientTest {
     }
 
     @Test
-    public void testRawQuery() {
+    public void testRawQuery() throws Exception {
         Map<String, String> variables = new HashMap<>();
         variables.put("network", BitcoinNetwork.REGTEST.name());
         Integer conductivity = client.executeQuery(new Query<>(
@@ -75,7 +75,7 @@ public class LightsparkSyncClientTest {
     }
 
     @Test
-    public void testFirstPageOfPagination() {
+    public void testFirstPageOfPagination() throws Exception {
         Account account = client.getCurrentAccount();
         assertNotNull(account);
         AccountToTransactionsConnection connection = client.executeQuery(
@@ -93,7 +93,7 @@ public class LightsparkSyncClientTest {
     }
 
     @Test
-    public void testAllPagesOfPagination() {
+    public void testAllPagesOfPagination() throws Exception {
         Account account = client.getCurrentAccount();
         assertNotNull(account);
         AccountToTransactionsConnection connection = client.executeQuery(
@@ -119,14 +119,14 @@ public class LightsparkSyncClientTest {
     }
 
     @Test
-    public void testEntityRequest() {
+    public void testEntityRequest() throws Exception {
         String nodeId = getNodeId();
         LightsparkNode node = client.executeQuery(LightsparkNode.getLightsparkNodeQuery(nodeId));
         assertNotNull(node);
         System.out.println("Node ID = " + node.getId());
     }
 
-    private String getNodeId() {
+    private String getNodeId() throws Exception {
         Account account = client.getCurrentAccount();
         assertNotNull(account);
         AccountToNodesConnection connection = client.executeQuery(

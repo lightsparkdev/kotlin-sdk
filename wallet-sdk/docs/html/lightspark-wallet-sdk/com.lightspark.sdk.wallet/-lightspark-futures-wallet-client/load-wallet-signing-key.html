@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>loadWalletSigningKey</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+<link href="../../../images/lightspark-logo-white.svg">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>lightspark-wallet-sdk</span>
+            </a>
+    </div>
+    <div>
+0.1.0-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain">commonJvmAndroid</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="lightspark-wallet-sdk::com.lightspark.sdk.wallet/LightsparkFuturesWalletClient/loadWalletSigningKey/#kotlin.ByteArray/PointingToDeclaration//-1350031860">
+  <div class="breadcrumbs"><a href="../../../index.html">lightspark-wallet-sdk</a><span class="delimiter">/</span><a href="../index.html">com.lightspark.sdk.wallet</a><span class="delimiter">/</span><a href="index.html">LightsparkFuturesWalletClient</a><span class="delimiter">/</span><span class="current">loadWalletSigningKey</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>load</span><wbr></wbr><span>Wallet</span><wbr></wbr><span>Signing</span><wbr></wbr><span><span>Key</span></span></h1>
+  </div>
+  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain" data-active="" data-toggle=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain">commonJvmAndroid</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="load-wallet-signing-key.html"><span class="token function">loadWalletSigningKey</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">signingKeyBytesPEM<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span></div><p class="paragraph">Unlocks the wallet for use with the SDK for the current application session. This function must be called before any other functions that require wallet signing keys, including <a href="pay-invoice.html">payInvoice</a>.</p><p class="paragraph">This function is intended for use in cases where the wallet's private signing key is already saved by the application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and that it is the correct key for the wallet. Otherwise signed requests will fail.</p><h4 class="">Parameters</h4><div data-togglable="Parameters"><div class="table" data-togglable="Parameters"><div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><u><span>signing</span><wbr></wbr><span>Key</span><wbr></wbr><span>Bytes</span><wbr></wbr><span><span>PEM</span></span></u></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">The PEM encoded bytes of the wallet's private signing key.</p></div></div></div></div></div></div></div><h4 class="">Throws</h4><div class="table" data-togglable="Throws"><div class="table-row" data-filterable-current=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain" data-filterable-set=":lightspark-wallet-sdk:dokkaHtml/commonJvmAndroidMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><span data-unresolved-link="com.lightspark.sdk.core.auth/LightsparkAuthenticationException///PointingToDeclaration/"><span>Lightspark</span><wbr></wbr><span>Authentication</span><wbr></wbr><span><span>Exception</span></span></span></div></span></div><div><div class="title"><p class="paragraph">if there is no valid auth.</p></div></div></div></div></div></div>  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>(c) Lightspark Inc.</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
