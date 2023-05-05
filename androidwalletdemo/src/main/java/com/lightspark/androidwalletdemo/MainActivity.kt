@@ -197,6 +197,7 @@ class MainActivity : ComponentActivity() {
                         isLoading = tokenState is Lce.Loading,
                         modifier = Modifier.fillMaxSize(),
                         onSubmit = viewModel::onApiTokenInfoSubmitted,
+                        onDemoLogin = viewModel::onDemoLogin,
                         onServerEnvironmentChange = viewModel::onServerEnvironmentSelected,
                     )
                 }

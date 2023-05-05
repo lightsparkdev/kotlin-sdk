@@ -321,8 +321,6 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         )
     }
 
-    // TODO: Add support for the transaction subscription query.
-
     fun <T> executeQuery(query: Query<T>): T = runBlocking { asyncClient.executeQuery(query) }
 
     fun setBitcoinNetwork(network: BitcoinNetwork) {

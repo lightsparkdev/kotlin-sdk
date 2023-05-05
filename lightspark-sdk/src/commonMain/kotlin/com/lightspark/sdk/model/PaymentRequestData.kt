@@ -36,6 +36,7 @@ fragment PaymentRequestDataFragment on PaymentRequestData {
         }
         invoice_data_created_at: created_at
         invoice_data_expires_at: expires_at
+        invoice_data_memo: memo
         invoice_data_destination: destination {
             type: __typename
             ... on GraphNode {
@@ -156,7 +157,6 @@ fragment PaymentRequestDataFragment on PaymentRequestData {
                 lightspark_node_status: status
             }
         }
-        invoice_data_memo: memo
     }
 }"""
     }

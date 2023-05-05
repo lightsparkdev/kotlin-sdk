@@ -292,8 +292,6 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
      */
     fun isWalletUnlocked(): Boolean = runBlocking { asyncClient.isWalletUnlocked() }
 
-    // TODO: Add support for the transaction subscription query.
-
     /**
      * Executes a raw graphql query against the server.
      */

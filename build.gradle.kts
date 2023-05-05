@@ -26,6 +26,12 @@ buildscript {
 apply(plugin = "org.jetbrains.dokka")
 apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
+tasks.create<Exec>("hasCoreChanged") {
+    group = "release"
+    description = "Checks if the core module has changed since the last release. Fails if so."
+    commandLine("./scripts/check_core_version.sh")
+}
+
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {

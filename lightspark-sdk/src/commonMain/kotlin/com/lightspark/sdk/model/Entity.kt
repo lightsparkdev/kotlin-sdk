@@ -339,6 +339,7 @@ fragment EntityFragment on Entity {
             }
             invoice_data_created_at: created_at
             invoice_data_expires_at: expires_at
+            invoice_data_memo: memo
             invoice_data_destination: destination {
                 type: __typename
                 ... on GraphNode {
@@ -459,7 +460,6 @@ fragment EntityFragment on Entity {
                     lightspark_node_status: status
                 }
             }
-            invoice_data_memo: memo
         }
         invoice_status: status
         invoice_amount_paid: amount_paid {
@@ -623,6 +623,7 @@ fragment EntityFragment on Entity {
                 }
                 invoice_data_created_at: created_at
                 invoice_data_expires_at: expires_at
+                invoice_data_memo: memo
                 invoice_data_destination: destination {
                     type: __typename
                     ... on GraphNode {
@@ -743,7 +744,6 @@ fragment EntityFragment on Entity {
                         lightspark_node_status: status
                     }
                 }
-                invoice_data_memo: memo
             }
         }
         outgoing_payment_failure_reason: failure_reason
@@ -855,6 +855,14 @@ fragment EntityFragment on Entity {
         withdrawal_request_created_at: created_at
         withdrawal_request_updated_at: updated_at
         withdrawal_request_amount: amount {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        withdrawal_request_estimated_amount: estimated_amount {
             type: __typename
             currency_amount_original_value: original_value
             currency_amount_original_unit: original_unit

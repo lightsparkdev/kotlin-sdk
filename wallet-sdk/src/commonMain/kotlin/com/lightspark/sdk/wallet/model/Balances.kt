@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param ownedBalance TODO write a good description
+ * @param availableToSendBalance TODO write a good description
+ * @param availableToWithdrawBalance TODO write a good description
  * @param accountingBalanceL1 TODO write a good description
  * @param accountingBalanceL2 TODO write a good description
  * @param availableBalanceL1 TODO write a good description
@@ -19,6 +22,12 @@ import kotlinx.serialization.Serializable
 @SerialName("Balances")
 data class Balances(
 
+    @SerialName("balances_owned_balance")
+    val ownedBalance: CurrencyAmount,
+    @SerialName("balances_available_to_send_balance")
+    val availableToSendBalance: CurrencyAmount,
+    @SerialName("balances_available_to_withdraw_balance")
+    val availableToWithdrawBalance: CurrencyAmount,
     @SerialName("balances_accounting_balance_l1")
     val accountingBalanceL1: CurrencyAmount,
     @SerialName("balances_accounting_balance_l2")
@@ -38,6 +47,30 @@ data class Balances(
         const val FRAGMENT = """
 fragment BalancesFragment on Balances {
     type: __typename
+    balances_owned_balance: owned_balance {
+        type: __typename
+        currency_amount_original_value: original_value
+        currency_amount_original_unit: original_unit
+        currency_amount_preferred_currency_unit: preferred_currency_unit
+        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+    }
+    balances_available_to_send_balance: available_to_send_balance {
+        type: __typename
+        currency_amount_original_value: original_value
+        currency_amount_original_unit: original_unit
+        currency_amount_preferred_currency_unit: preferred_currency_unit
+        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+    }
+    balances_available_to_withdraw_balance: available_to_withdraw_balance {
+        type: __typename
+        currency_amount_original_value: original_value
+        currency_amount_original_unit: original_unit
+        currency_amount_preferred_currency_unit: preferred_currency_unit
+        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+    }
     balances_accounting_balance_l1: accounting_balance_l1 {
         type: __typename
         currency_amount_original_value: original_value

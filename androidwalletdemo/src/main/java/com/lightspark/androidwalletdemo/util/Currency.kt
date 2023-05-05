@@ -20,6 +20,10 @@ fun CurrencyAmount.displayString(): String {
     return "${preferredCurrencyValueApprox.asShortString()} ${preferredCurrencyUnit.shortName()}"
 }
 
+fun CurrencyAmount.originalDisplayString(): String {
+    return "${originalValue.asShortString()} ${originalUnit.shortName()}"
+}
+
 fun CurrencyAmountArg.displayString(): String {
     return "${value.asShortString()} ${unit.shortName()}"
 }
@@ -38,6 +42,19 @@ fun currencyAmountSats(sats: Long) = CurrencyAmount(
     sats,
     sats.toFloat(),
 )
+
+operator fun CurrencyAmount.plus(other: CurrencyAmount): CurrencyAmount {
+    if (this.originalUnit != other.originalUnit || this.preferredCurrencyUnit != other.preferredCurrencyUnit) {
+        throw IllegalArgumentException("Cannot add amounts with different units")
+    }
+    return CurrencyAmount(
+        this.originalValue + other.originalValue,
+        this.originalUnit,
+        this.preferredCurrencyUnit,
+        this.preferredCurrencyValueRounded + other.preferredCurrencyValueRounded,
+        this.preferredCurrencyValueApprox + other.preferredCurrencyValueApprox,
+    )
+}
 
 fun Long.asShortString(): String {
     // Round to a maximum of 4 decimal places

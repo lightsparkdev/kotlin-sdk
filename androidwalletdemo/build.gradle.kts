@@ -88,6 +88,8 @@ dependencies {
     implementation(libs.androidx.camera.mlkit.vision)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.lightspark.composeqrcode)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

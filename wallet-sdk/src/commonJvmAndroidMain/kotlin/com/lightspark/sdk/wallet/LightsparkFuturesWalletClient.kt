@@ -289,8 +289,6 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      */
     fun isWalletUnlocked(): CompletableFuture<Boolean> = coroutineScope.future { coroutinesClient.isWalletUnlocked() }
 
-    // TODO: Add support for the transaction subscription query.
-
     /**
      * Executes a raw graphql query against the server.
      */

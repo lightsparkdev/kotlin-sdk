@@ -16,9 +16,10 @@ kotlinSerializationJson = "1.4.1"
 krypt = "0.3.1"
 ktlint = "11.3.1"
 ktor = "2.2.3"
+lightsparkCore = "0.1.1"
 mavenPublish = "0.25.2"
 
-# Android Wallet deps:
+# Android Wallet demo deps:
 accompanist = "0.28.0"
 activityCompose = "1.6.1"
 barcodeScanning = "17.0.3"
@@ -32,6 +33,7 @@ junit = "4.13.2"
 junitExt = "1.1.5"
 lifecycleRuntimeKtx = "2.5.1"
 navigationCompose = "2.5.3"
+retrofit = "2.9.0"
 qrCode = "1.0.1"
 zxing = "3.5.1"
 
@@ -93,6 +95,10 @@ androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision",
 mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
 
 lightspark-composeqrcode = { module = "com.lightspark:compose-qr-code", version.ref = "qrCode" }
+lightspark-core = { module = "com.lightspark:lightspark-core", version.ref = "lightsparkCore" }
+
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitExt" }

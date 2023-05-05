@@ -47,9 +47,23 @@ dependencies {
     compileOnly(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
-    implementation(project(":core"))
+    // Can use this while locally developing, but should use the published version when publishing:
+    // implementation(project(":core"))
+    implementation(libs.lightspark.core)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotest.assertions)
+}
+
+tasks.named("bumpAndTagVersion").configure {
+    doFirst {
+        if (project.configurations["commonMainImplementationDependenciesMetadata"].resolvedConfiguration
+                .lenientConfiguration.artifacts
+                .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
+        ) {
+            throw GradleException("Cannot depend directly on core. Depend on the published module instead.")
+        }
+    }
+    dependsOn(":hasCoreChanged")
 }

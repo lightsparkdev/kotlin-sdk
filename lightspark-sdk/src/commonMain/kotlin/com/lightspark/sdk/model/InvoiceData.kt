@@ -9,6 +9,12 @@ import kotlinx.serialization.Serializable
 
 /**
  * This object represents the BOLT #11 invoice protocol for Lightning Payments. See https://github.com/lightning/bolts/blob/master/11-payment-encoding.md.
+ * @param paymentHash The payment hash of this invoice.
+ * @param amount The requested amount in this invoice. If it is equal to 0, the sender should choose the amount to send.
+ * @param createdAt The date and time when this invoice was created.
+ * @param expiresAt The date and time when this invoice will expire.
+ * @param destination The lightning node that will be paid when fulfilling this invoice.
+ * @param memo A short, UTF-8 encoded, description of the purpose of this invoice.
  */
 @Serializable
 @SerialName("InvoiceData")
@@ -50,6 +56,7 @@ fragment InvoiceDataFragment on InvoiceData {
     }
     invoice_data_created_at: created_at
     invoice_data_expires_at: expires_at
+    invoice_data_memo: memo
     invoice_data_destination: destination {
         type: __typename
         ... on GraphNode {
@@ -170,7 +177,6 @@ fragment InvoiceDataFragment on InvoiceData {
             lightspark_node_status: status
         }
     }
-    invoice_data_memo: memo
 }"""
     }
 }

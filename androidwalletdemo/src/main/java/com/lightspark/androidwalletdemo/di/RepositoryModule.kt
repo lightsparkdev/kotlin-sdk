@@ -1,6 +1,8 @@
 package com.lightspark.androidwalletdemo.di
 
+import com.lightspark.androidwalletdemo.auth.AuthRepository
 import com.lightspark.androidwalletdemo.auth.CredentialsStore
+import com.lightspark.androidwalletdemo.auth.DemoAuthService
 import com.lightspark.androidwalletdemo.wallet.PaymentRepository
 import com.lightspark.androidwalletdemo.wallet.WalletRepository
 import com.lightspark.sdk.wallet.LightsparkCoroutinesWalletClient
@@ -27,4 +29,8 @@ class RepositoryModule {
     @Singleton
     fun providePaymentRepository(walletClient: LightsparkCoroutinesWalletClient): PaymentRepository =
         PaymentRepository(walletClient)
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(demoAuthService: DemoAuthService): AuthRepository = AuthRepository(demoAuthService)
 }

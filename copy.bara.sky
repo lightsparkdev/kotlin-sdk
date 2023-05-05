@@ -185,5 +185,3 @@ core.workflow(
         core.move("python-sdk/", "")
     ],
 )
-
-# TODO: Add python-sdk-push after reworking the directory structure a bit.

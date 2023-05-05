@@ -3,6 +3,7 @@ package com.lightspark.androidwalletdemo
 import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lightspark.androidwalletdemo.auth.AuthRepository
 import com.lightspark.androidwalletdemo.auth.AuthState
 import com.lightspark.androidwalletdemo.auth.CredentialsStore
 import com.lightspark.androidwalletdemo.auth.SavedCredentials
@@ -27,6 +28,7 @@ class MainViewModel @Inject constructor(
     private val credentialsStore: CredentialsStore,
     private val prefsStore: DefaultPrefsStore,
     private val walletRepository: WalletRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     val jwtInfo = credentialsStore.getJwtInfoFlow()
         .runningFold(null to null) { prevInfo: Pair<SavedCredentials?, SavedCredentials?>, tokenInfo ->
@@ -128,6 +130,28 @@ class MainViewModel @Inject constructor(
         tokenSecret: String,
     ) = viewModelScope.launch {
         credentialsStore.setAccountData(tokenId, tokenSecret)
+    }
+
+    fun onDemoLogin(
+        userName: String,
+        password: String,
+    ) = viewModelScope.launch {
+        credentialsStore.setUserName(userName)
+        authRepository.getJwt(userName, password).collect {
+            when (it) {
+                is Lce.Loading -> {
+                    // TODO: Show loading indicator
+                }
+
+                is Lce.Error -> authStatusChange.emit(
+                    AuthEvent(true, "Error logging in: ${it.exception?.message ?: "Unknown error"}"),
+                )
+
+                is Lce.Content -> {
+                    credentialsStore.setAccountData(it.data.accountId, it.data.token)
+                }
+            }
+        }
     }
 
     fun onServerEnvironmentSelected(environment: ServerEnvironment) = viewModelScope.launch {

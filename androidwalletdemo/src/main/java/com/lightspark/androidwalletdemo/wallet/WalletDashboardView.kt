@@ -64,6 +64,8 @@ import com.lightspark.androidwalletdemo.ui.theme.LightsparkTheme
 import com.lightspark.androidwalletdemo.ui.theme.Success
 import com.lightspark.androidwalletdemo.util.currencyAmountSats
 import com.lightspark.androidwalletdemo.util.displayString
+import com.lightspark.androidwalletdemo.util.originalDisplayString
+import com.lightspark.androidwalletdemo.util.plus
 import com.lightspark.androidwalletdemo.util.zeroCurrencyAmount
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkErrorCode
@@ -133,12 +135,15 @@ fun WalletDashboardView(
                             attemptKeyStoreUnlock = attemptKeyStoreUnlock,
                         )
                     }
+
                     in setOf(WalletStatus.NOT_SETUP, WalletStatus.FAILED) -> {
                         NotSetupWallet(onDeployWallet)
                     }
+
                     WalletStatus.DEPLOYED -> {
                         NotInitializedWallet(onInitializeWallet)
                     }
+
                     else -> {
                         Text(
                             text = "Wallet status: ${walletData.data.status}",
@@ -249,7 +254,7 @@ fun ColumnScope.NotSetupWallet(onDeployWallet: () -> Unit) {
 @Composable
 fun ColumnScope.NotInitializedWallet(onInitializeWallet: () -> Unit) {
     Text(
-        text = "Now you need to initialize your wallet with a generated keys.",
+        text = "Now you need to initialize your wallet with a generated keypair.",
         style = MaterialTheme.typography.headlineMedium,
         textAlign = TextAlign.Center,
         modifier = Modifier
@@ -449,15 +454,14 @@ fun WalletBalances(walletData: WalletDashboard, scrollOffset: Float, modifier: M
         verticalArrangement = Arrangement.Center,
         modifier = modifier.graphicsLayer { scaleX = balanceSize; scaleY = balanceSize },
     ) {
+        val totalAccountingBalance = walletData.balances?.ownedBalance ?: zeroCurrencyAmount()
         Text(
-            text = "\$XX,XXX.XX USD",
+            text = totalAccountingBalance.originalDisplayString(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
-            text = (
-                walletData.balances?.accountingBalanceL2 ?: zeroCurrencyAmount()
-                ).displayString(),
+            text = totalAccountingBalance.displayString(),
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -492,6 +496,9 @@ fun WalletPreview() {
                     "My Wallet",
                     status = WalletStatus.READY,
                     balances = Balances(
+                        ownedBalance = currencyAmountSats(600000),
+                        availableToSendBalance = currencyAmountSats(500000),
+                        availableToWithdrawBalance = currencyAmountSats(600000),
                         accountingBalanceL1 = currencyAmountSats(100000),
                         accountingBalanceL2 = currencyAmountSats(500000),
                         availableBalanceL1 = currencyAmountSats(100000),

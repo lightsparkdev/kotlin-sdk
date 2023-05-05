@@ -740,6 +740,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                 }
                                 invoice_data_created_at: created_at
                                 invoice_data_expires_at: expires_at
+                                invoice_data_memo: memo
                                 invoice_data_destination: destination {
                                     type: __typename
                                     ... on GraphNode {
@@ -860,7 +861,6 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                         lightspark_node_status: status
                                     }
                                 }
-                                invoice_data_memo: memo
                             }
                         }
                         outgoing_payment_failure_reason: failure_reason
@@ -1007,6 +1007,7 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                             }
                             invoice_data_created_at: created_at
                             invoice_data_expires_at: expires_at
+                            invoice_data_memo: memo
                             invoice_data_destination: destination {
                                 type: __typename
                                 ... on GraphNode {
@@ -1127,7 +1128,6 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                     lightspark_node_status: status
                                 }
                             }
-                            invoice_data_memo: memo
                         }
                         invoice_status: status
                         invoice_amount_paid: amount_paid {

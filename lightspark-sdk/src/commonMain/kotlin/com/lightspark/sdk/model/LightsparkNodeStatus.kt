@@ -23,6 +23,8 @@ enum class LightsparkNodeStatus(val rawValue: String) {
 
     TERMINATED("TERMINATED"),
 
+    TERMINATING("TERMINATING"),
+
     WALLET_LOCKED("WALLET_LOCKED"),
 
     FAILED_TO_DEPLOY("FAILED_TO_DEPLOY"),

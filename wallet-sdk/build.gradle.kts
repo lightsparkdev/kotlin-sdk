@@ -49,7 +49,9 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
-                implementation(project(":core"))
+                // Can use this while locally developing, but should use the published version when publishing:
+                // implementation(project(":core"))
+                implementation(libs.lightspark.core)
             }
         }
         val commonTest by getting {
@@ -110,7 +112,7 @@ buildkonfig {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.freeCompilerArgs = listOf(
-        "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
     )
 }
 
@@ -149,6 +151,18 @@ tasks.dokkaHtml {
         // Text used in the footer
         footerMessage = "(c) Lightspark Inc."
     }
+}
+
+tasks.named("bumpAndTagVersion").configure {
+    doFirst {
+        if (project.configurations["commonMainImplementationDependenciesMetadata"].resolvedConfiguration
+                .lenientConfiguration.artifacts
+                .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
+        ) {
+            throw GradleException("Cannot depend directly on core. Depend on the published module instead.")
+        }
+    }
+    dependsOn(":hasCoreChanged")
 }
 
 tasks.register<Copy>("generateSdkDocs") {

@@ -664,8 +664,6 @@ class LightsparkCoroutinesClient private constructor(
         )
     }
 
-    // TODO: Add support for the transaction subscription query.
-
     suspend fun <T> executeQuery(query: Query<T>): T {
         return requester.executeQuery(query)
     }

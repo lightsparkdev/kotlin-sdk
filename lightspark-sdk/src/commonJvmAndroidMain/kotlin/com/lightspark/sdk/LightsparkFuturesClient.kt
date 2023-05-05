@@ -350,8 +350,6 @@ class LightsparkFuturesClient(config: ClientConfig) {
     fun loadNodeSigningKey(nodeId: String, signingKeyBytesPEM: ByteArray) =
         coroutinesClient.loadNodeSigningKey(nodeId, signingKeyBytesPEM)
 
-    // TODO: Add support for the transaction subscription query.
-
     fun <T> executeQuery(query: Query<T>): CompletableFuture<T> =
         coroutineScope.future { coroutinesClient.executeQuery(query) }
 

@@ -40,7 +40,7 @@ while (!force) {
 }
 
 setCurrentVersion(tagVersion)
-setVersionInDocs(tagVersion, nextSnapshot)
+setVersionInDocs(tagVersion, projectName)
 
 runCommand("git", "commit", "-a", "-m", "Bump $projectName to version $tagVersion")
 runCommand("git", "tag", "$projectName-v$tagVersion")
@@ -66,7 +66,7 @@ fun runCommand(vararg args: String): String {
 }
 
 fun setCurrentVersion(version: String) {
-    print("Setting version in gradle props")
+    println("Setting version in gradle props")
     val gradleProperties = File("./gradle.properties")
     val newContent = gradleProperties.readLines().joinToString(separator = "\n", postfix = "\n") {
         it.replace(Regex("VERSION_NAME=.*"), "VERSION_NAME=$version")
@@ -133,7 +133,7 @@ fun getNextSnapshot(version: String): String {
     return components.joinToString(".") + "-SNAPSHOT"
 }
 
-fun setVersionInDocs(version: String, nextSnapshot: String) {
+fun setVersionInDocs(version: String, projectName: String) {
     for (file in File("docs/source").walk() + File("README.md")) {
         if (file.isDirectory || !(file.name.endsWith(".md") || file.name.endsWith(".mdx"))) continue
 
@@ -147,5 +147,16 @@ fun setVersionInDocs(version: String, nextSnapshot: String) {
                 "artifact/com.lightspark/${it.groupValues[1]}/$version)"
             }
         file.writeText(content)
+    }
+    val libsFile = File("../gradle/libs.versions.toml")
+    val currentContent = libsFile.readText()
+    val libRegexMatch = Regex("""lightspark-$projectName = \{ module = "com.lightspark:(.+)", version.ref = "(.+)"""").find(currentContent)
+    if (libRegexMatch != null) {
+        val currentLibVersionName = libRegexMatch.groupValues[2]
+        val content = libsFile.readText()
+            .replace(Regex("""$currentLibVersionName = "(.+)"""")) {
+                """$currentLibVersionName = "$version""""
+            }
+        libsFile.writeText(content)
     }
 }
