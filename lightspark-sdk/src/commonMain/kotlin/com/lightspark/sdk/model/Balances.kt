@@ -1,7 +1,7 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
 @file:Suppress("ktlint:max-line-length")
 
-package com.lightspark.sdk.wallet.model
+package com.lightspark.sdk.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

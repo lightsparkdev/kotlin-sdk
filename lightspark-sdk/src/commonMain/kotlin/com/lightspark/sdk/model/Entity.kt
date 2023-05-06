@@ -817,6 +817,41 @@ fragment EntityFragment on Entity {
         }
         routing_transaction_failure_reason: failure_reason
     }
+    ... on Wallet {
+        type: __typename
+        wallet_id: id
+        wallet_created_at: created_at
+        wallet_updated_at: updated_at
+        wallet_last_login_at: last_login_at
+        wallet_balances: balances {
+            type: __typename
+            balances_owned_balance: owned_balance {
+                type: __typename
+                currency_amount_original_value: original_value
+                currency_amount_original_unit: original_unit
+                currency_amount_preferred_currency_unit: preferred_currency_unit
+                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+            }
+            balances_available_to_send_balance: available_to_send_balance {
+                type: __typename
+                currency_amount_original_value: original_value
+                currency_amount_original_unit: original_unit
+                currency_amount_preferred_currency_unit: preferred_currency_unit
+                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+            }
+            balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                type: __typename
+                currency_amount_original_value: original_value
+                currency_amount_original_unit: original_unit
+                currency_amount_preferred_currency_unit: preferred_currency_unit
+                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+            }
+        }
+        wallet_third_party_identifier: third_party_identifier
+    }
     ... on Withdrawal {
         type: __typename
         withdrawal_id: id

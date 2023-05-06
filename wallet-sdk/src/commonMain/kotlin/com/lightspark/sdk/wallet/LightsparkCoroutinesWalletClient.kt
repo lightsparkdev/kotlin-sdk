@@ -26,7 +26,7 @@ import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
-private const val SCHEMA_ENDPOINT = "graphql/wallet/rc"
+private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-05-05"
 
 /**
  * Main entry point for the Lightspark Wallet SDK.

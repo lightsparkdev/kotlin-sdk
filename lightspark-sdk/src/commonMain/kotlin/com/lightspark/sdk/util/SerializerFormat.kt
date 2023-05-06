@@ -23,6 +23,7 @@ import com.lightspark.sdk.model.PaymentRequest
 import com.lightspark.sdk.model.PaymentRequestData
 import com.lightspark.sdk.model.RoutingTransaction
 import com.lightspark.sdk.model.Transaction
+import com.lightspark.sdk.model.Wallet
 import com.lightspark.sdk.model.Withdrawal
 import com.lightspark.sdk.model.WithdrawalRequest
 import kotlinx.serialization.json.Json
@@ -47,6 +48,7 @@ private val serializerModule = SerializersModule {
         subclass(OutgoingPayment::class)
         subclass(OutgoingPaymentAttempt::class)
         subclass(RoutingTransaction::class)
+        subclass(Wallet::class)
         subclass(Withdrawal::class)
         subclass(WithdrawalRequest::class)
     }
