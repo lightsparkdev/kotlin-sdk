@@ -35,7 +35,6 @@ class ClientIntegrationTests {
 
     private val jwtStorage = InMemoryJwtStorage()
     private val config = ClientConfig()
-        .setServerUrl(ServerEnvironment.DEV.graphQLUrl)
         .setAuthProvider(CustomJwtAuthProvider(jwtStorage))
     private val client = LightsparkCoroutinesWalletClient(config)
 

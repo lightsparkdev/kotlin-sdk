@@ -10,6 +10,7 @@ environment to integrate with a Lightspark Lightning wallet.
 Start by installing the SDK from maven:
 
 **build.gradle:**
+
 ```groovy
   dependencies {
     implementation "com.lightspark:wallet-sdk:0.1.0"
@@ -17,6 +18,7 @@ Start by installing the SDK from maven:
 ```
 
 or with **build.gradle.kts:**
+
 ```kotlin
   dependencies {
     implementation("com.lightspark:wallet-sdk:0.1.0")
@@ -97,9 +99,9 @@ a JWT allocated for the user by your own server.
 ![jwt diagram](./docs/jwt-diagram.png)
 
 First, you'll need to register your account public key with Lightspark. You can do this from
-the [Lightspark API Tokens page](https://app.lightspark.com/api-config). You'll need to provide the
-public key for the account you want to use to sign JWTs. You can generate a keypair using the _
-ES256_ algorithm using the following command:
+the [Lightspark account settings page](https://app.lightspark.com/https://app.lightspark.com/account#security).
+You'll need to provide the public key for the account you want to use to sign JWTs. You can generate a keypair using
+the _ES256_ algorithm using the following command:
 
 ```bash
 openssl ecparam -genkey -name prime256v1 -noout -out private.key
@@ -140,8 +142,7 @@ const token = jwt.sign(claims, "your private key");
 // Now send the token back to the client so that they can use it to authenticate with the Lightspark SDK.
 ```
 
-Now on the client, you can login using the JWT and your company's account ID from the api tokens
-page:
+Now on the client, you can login using the JWT and your company's account ID from the account settings page:
 
 ```kotlin
 client.loginWithJWT(ACCOUNT_ID, jwt, SharedPrefsJwtStorage(applicationContext))
@@ -155,7 +156,7 @@ implementation, you can recover the credentials at app startup like so:
 
 ```kotlin
 val jwtStorage = SharedPrefsJwtStorage(applicationContext)
-val client = LightsparkCoroutinesWalletClient(CustomJwtAuthProvider(jwtStorage))
+val client = LightsparkCoroutinesWalletClient(ClientConfig(authProvider = CustomJwtAuthProvider(jwtStorage)))
 ```
 
 ### Deploying and initializing a wallet
