@@ -1,6 +1,0 @@
-//[lightspark-wallet-sdk](../../../index.md)/[com.lightspark.sdk.wallet.model](../index.md)/[FeeEstimate](index.md)/[feeFast](fee-fast.md)
-
-# feeFast
-
-[common]\
-val [feeFast](fee-fast.md): [CurrencyAmount](../-currency-amount/index.md)

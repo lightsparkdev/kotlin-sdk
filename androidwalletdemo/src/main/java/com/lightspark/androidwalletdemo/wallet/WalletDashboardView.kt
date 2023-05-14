@@ -499,12 +499,6 @@ fun WalletPreview() {
                         ownedBalance = currencyAmountSats(600000),
                         availableToSendBalance = currencyAmountSats(500000),
                         availableToWithdrawBalance = currencyAmountSats(600000),
-                        accountingBalanceL1 = currencyAmountSats(100000),
-                        accountingBalanceL2 = currencyAmountSats(500000),
-                        availableBalanceL1 = currencyAmountSats(100000),
-                        availableBalanceL2 = currencyAmountSats(500000),
-                        settledBalanceL1 = currencyAmountSats(100000),
-                        settledBalanceL2 = currencyAmountSats(500000),
                     ),
                     recentTransactions = WalletToTransactionsConnection(
                         PageInfo(),

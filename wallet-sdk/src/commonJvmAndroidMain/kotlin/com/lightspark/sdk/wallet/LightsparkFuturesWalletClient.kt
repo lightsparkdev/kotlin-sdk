@@ -8,12 +8,12 @@ import com.lightspark.sdk.wallet.auth.*
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
-import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.serialization.json.*
+import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Main entry point for the Lightspark SDK using the Java Futures API.
@@ -80,13 +80,19 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      *
      * @param keyType The type of key to use for the wallet.
      * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param signingPrivateKey The base64-encoded private key to use for signing transactions. This will not leave the
+     *     device, it will be used to sign transactions locally.
      * @return The wallet that was initialized.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
     @Throws(LightsparkAuthenticationException::class, CancellationException::class)
-    suspend fun initializeWallet(keyType: KeyType, signingPublicKey: String): CompletableFuture<Wallet> =
+    suspend fun initializeWallet(
+        keyType: KeyType,
+        signingPublicKey: String,
+        signingPrivateKey: String,
+    ): CompletableFuture<Wallet> =
         coroutineScope.future {
-            coroutinesClient.initializeWallet(keyType, signingPublicKey)
+            coroutinesClient.initializeWallet(keyType, signingPublicKey, signingPrivateKey)
         }
 
     /**

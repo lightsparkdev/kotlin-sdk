@@ -1,9 +1,13 @@
+# Module wallet-sdk
+
 ## Lightspark Kotlin Wallet SDK 🤖
 
 This is a Kotlin (multiplatform) Wallet SDK for the Lightspark API. It can be used from an Android
 environment to integrate with a Lightspark Lightning wallet.
 
 **NOTE:** This SDK is still in beta and is subject to change.
+
+[API Reference](https://app.lightspark.com/docs/reference/kotlin/wallet-sdk/index.html)
 
 ### Getting started
 
@@ -13,7 +17,7 @@ Start by installing the SDK from maven:
 
 ```groovy
   dependencies {
-    implementation "com.lightspark:wallet-sdk:0.1.0"
+    implementation "com.lightspark:wallet-sdk:0.1.1"
   }
 ```
 
@@ -21,7 +25,7 @@ or with **build.gradle.kts:**
 
 ```kotlin
   dependencies {
-    implementation("com.lightspark:wallet-sdk:0.1.0")
+    implementation("com.lightspark:wallet-sdk:0.1.1")
   }
 ```
 
@@ -96,7 +100,7 @@ The current version of the SDK supports JWT authentication, which is intended fo
 To authenticate, you'll need to login using your Lightspark account ID and
 a JWT allocated for the user by your own server.
 
-![jwt diagram](./docs/jwt-diagram.png)
+![jwt diagram](../docs/images/jwt-diagram.png)
 
 First, you'll need to register your account public key with Lightspark. You can do this from
 the [Lightspark account settings page](https://app.lightspark.com/https://app.lightspark.com/account#security).
@@ -161,7 +165,7 @@ val client = LightsparkCoroutinesWalletClient(ClientConfig(authProvider = Custom
 
 ### Deploying and initializing a wallet
 
-![wallet state diagram](./docs/wallet-state-diagram.png)
+![wallet state diagram](../docs/images/wallet-state-diagram.png)
 
 When a user logs in for the first time, initially, their wallet will be in a `NOT_SETUP` status. You
 can identify this status by querying the current wallet:
@@ -221,7 +225,8 @@ either by polling the wallet, or by using Flow helpers:
 ```kotlin
 val wallet = client.initializeWalletAndWaitForInitialized(
     keyType = KeyType.RSA_OAEP,
-    signingPublicKey = Base64.encodeToString(sigingWalletPublicKey, Base64.NO_WRAP)
+    signingPublicKey = Base64.encodeToString(sigingWalletPublicKey, Base64.NO_WRAP),
+    signingPrivateKey = Base64.encodeToString(sigingWalletPrivateKey, Base64.NO_WRAP)
 ).collect {
     Log.d("Lightspark", "Wallet status: ${it.status}")
 }

@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.*
+import saschpe.kase64.base64DecodedBytes
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
@@ -159,12 +160,15 @@ class LightsparkCoroutinesWalletClient private constructor(
      *
      * @param keyType The type of key to use for the wallet.
      * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param signingPrivateKey The base64-encoded private key to use for signing transactions. This will not leave the
+     *     device. It is only used for signing this request.
      * @return The wallet that was initialized.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
     @Throws(LightsparkAuthenticationException::class, CancellationException::class)
-    suspend fun initializeWallet(keyType: KeyType, signingPublicKey: String): Wallet {
+    suspend fun initializeWallet(keyType: KeyType, signingPublicKey: String, signingPrivateKey: String): Wallet {
         requireValidAuth()
+        loadWalletSigningKey(signingPrivateKey.base64DecodedBytes)
         return executeQuery(
             Query(
                 InitializeWallet,
@@ -172,6 +176,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                     add("key_type", keyType)
                     add("signing_public_key", signingPublicKey)
                 },
+                signingNodeId = WALLET_NODE_ID_KEY,
             ) {
                 serializerFormat.decodeFromJsonElement<InitializeWalletOutput>(it["initialize_wallet"]!!).wallet
             },
@@ -185,11 +190,17 @@ class LightsparkCoroutinesWalletClient private constructor(
      *
      * @param keyType The type of key to use for the wallet.
      * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param signingPrivateKey The base64-encoded private key to use for signing transactions. This will not leave the
+     *    device. It is only used for signing this request.
      * @return A flow of Wallet updates.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
-    suspend fun initializeWalletAndWaitForInitialized(keyType: KeyType, signingPublicKey: String): Flow<Wallet> {
-        val initialWallet = initializeWallet(keyType, signingPublicKey)
+    suspend fun initializeWalletAndWaitForInitialized(
+        keyType: KeyType,
+        signingPublicKey: String,
+        signingPrivateKey: String,
+    ): Flow<Wallet> {
+        val initialWallet = initializeWallet(keyType, signingPublicKey, signingPrivateKey)
         if (initialWallet.status == WalletStatus.READY) {
             return flowOf(initialWallet)
         }

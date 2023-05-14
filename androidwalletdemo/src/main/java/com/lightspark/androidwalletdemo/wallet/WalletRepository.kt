@@ -56,7 +56,8 @@ class WalletRepository @Inject constructor(
         walletClient.loadWalletSigningKeyAlias(LIGHTSPARK_SIGNING_KEY_ALIAS)
         return walletClient.initializeWalletAndWaitForInitialized(
             keyType = KeyType.RSA_OAEP,
-            signingPublicKey = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+            signingPublicKey = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP),
+            signingPrivateKey = Base64.encodeToString(keyPair.private.encoded, Base64.NO_WRAP)
         ).asLce().flowOn(Dispatchers.IO)
     }
 

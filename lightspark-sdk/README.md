@@ -1,24 +1,28 @@
+# Module lightspark-sdk
+
 ## Lightspark Kotlin SDK 🤖
 
 This is a Kotlin (multiplatform) SDK which is a simple wrapper around the Lightspark GraphQL server
 API. It's used to manage accounts, nodes, wallets, etc. It can authenticate using an Account API
 token retrieved from your Lightspark account dashboard or via the oauth module.
 
-### Usage
+[API Reference](https://app.lightspark.com/docs/reference/kotlin/lightspark-sdk/index.html)
+
+### Getting Started
 
 Start by installing the SDK from maven:
 
 **build.gradle:**
 ```groovy
   dependencies {
-    implementation "com.lightspark:lightspark-sdk:0.1.3"
+    implementation "com.lightspark:lightspark-sdk:0.1.4"
   }
 ```
 
 or with **build.gradle.kts:**
 ```kotlin
   dependencies {
-    implementation("com.lightspark:lightspark-sdk:0.1.3")
+    implementation("com.lightspark:lightspark-sdk:0.1.4")
   }
 ```
 

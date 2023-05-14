@@ -8,10 +8,10 @@ import com.lightspark.sdk.wallet.auth.*
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.jvm.JvmOverloads
 
 /**
  * Main entry point for the Lightspark SDK which makes synchronous, blocking API calls.
@@ -91,12 +91,14 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
      *
      * @param keyType The type of key to use for the wallet.
      * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param signingPrivateKey The base64-encoded private key to use for signing transactions. This will not leave the
+     *     device, it will be used to sign transactions locally.
      * @return The wallet that was initialized.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
     @Throws(LightsparkAuthenticationException::class, CancellationException::class)
-    fun initializeWallet(keyType: KeyType, signingPublicKey: String): Wallet = runBlocking {
-        asyncClient.initializeWallet(keyType, signingPublicKey)
+    fun initializeWallet(keyType: KeyType, signingPublicKey: String, signingPrivateKey: String): Wallet = runBlocking {
+        asyncClient.initializeWallet(keyType, signingPublicKey, signingPrivateKey)
     }
 
     /**

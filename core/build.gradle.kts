@@ -1,7 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -131,17 +129,6 @@ android {
     dependencies {
         dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:${libs.versions.dokka.get()}")
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
-    }
-}
-
-tasks.dokkaHtml {
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        // Dokka's stylesheets and assets with conflicting names will be overriden.
-        customStyleSheets = listOf(file("docs/overrides/logo-styles.css"))
-        customAssets = listOf(file("docs/overrides/lightspark-logo-white.svg"))
-
-        // Text used in the footer
-        footerMessage = "(c) Lightspark Inc."
     }
 }
 

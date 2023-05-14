@@ -1,6 +1,0 @@
-//[lightspark-server-sdk](../../../index.md)/[com.lightspark.sdk.server.auth](../index.md)/[AccountApiTokenAuthProvider](index.md)/[AccountApiTokenAuthProvider](-account-api-token-auth-provider.md)
-
-# AccountApiTokenAuthProvider
-
-[common]\
-fun [AccountApiTokenAuthProvider](-account-api-token-auth-provider.md)(tokenId: String, tokenSecret: String)

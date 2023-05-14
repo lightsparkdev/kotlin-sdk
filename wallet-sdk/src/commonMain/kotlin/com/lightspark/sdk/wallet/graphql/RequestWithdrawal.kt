@@ -4,7 +4,7 @@ import com.lightspark.sdk.wallet.model.WithdrawalRequest
 
 const val RequestWithdrawalMutation = """
   mutation RequestWithdrawal(
-    ${'$'}amount_sats: Int!
+    ${'$'}amount_sats: Long!
     ${'$'}bitcoin_address: String!
   ) {
     request_withdrawal(input: {

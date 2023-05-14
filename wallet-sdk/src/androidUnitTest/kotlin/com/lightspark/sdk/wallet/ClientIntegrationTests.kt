@@ -1,7 +1,6 @@
 package com.lightspark.sdk.wallet
 
 import com.lightspark.sdk.core.crypto.generateSigningKeyPair
-import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider
 import com.lightspark.sdk.wallet.auth.jwt.InMemoryJwtStorage
@@ -65,7 +64,11 @@ class ClientIntegrationTests {
             signingPubKey = keypair.public.encoded.base64Encoded
             signingPrivKey = keypair.private.encoded.base64Encoded
             client.loadWalletSigningKey(keypair.private.encoded)
-            client.initializeWalletAndWaitForInitialized(KeyType.RSA_OAEP, keypair.public.encoded.base64Encoded)
+            client.initializeWalletAndWaitForInitialized(
+                KeyType.RSA_OAEP,
+                keypair.public.encoded.base64Encoded,
+                keypair.private.encoded.base64Encoded,
+            )
                 .collect {
                     println("Wallet update: $it")
                     it.status.shouldNotBe(WalletStatus.FAILED)
