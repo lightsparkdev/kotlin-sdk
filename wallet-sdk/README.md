@@ -17,7 +17,7 @@ Start by installing the SDK from maven:
 
 ```groovy
   dependencies {
-    implementation "com.lightspark:wallet-sdk:0.1.1"
+    implementation "com.lightspark:wallet-sdk:0.1.2"
   }
 ```
 
@@ -25,7 +25,7 @@ or with **build.gradle.kts:**
 
 ```kotlin
   dependencies {
-    implementation("com.lightspark:wallet-sdk:0.1.1")
+    implementation("com.lightspark:wallet-sdk:0.1.2")
   }
 ```
 

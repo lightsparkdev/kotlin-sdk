@@ -1,5 +1,7 @@
 package com.lightspark.sdk.wallet.util
 
+import com.lightspark.sdk.wallet.model.ChannelClosingTransaction
+import com.lightspark.sdk.wallet.model.ChannelOpeningTransaction
 import com.lightspark.sdk.wallet.model.Deposit
 import com.lightspark.sdk.wallet.model.Entity
 import com.lightspark.sdk.wallet.model.IncomingPayment
@@ -21,6 +23,8 @@ import kotlinx.serialization.modules.subclass
 
 private val serializerModule = SerializersModule {
     polymorphic(Entity::class) {
+        subclass(ChannelClosingTransaction::class)
+        subclass(ChannelOpeningTransaction::class)
         subclass(Deposit::class)
         subclass(IncomingPayment::class)
         subclass(Invoice::class)
@@ -34,6 +38,8 @@ private val serializerModule = SerializersModule {
         subclass(OutgoingPayment::class)
     }
     polymorphic(OnChainTransaction::class) {
+        subclass(ChannelClosingTransaction::class)
+        subclass(ChannelOpeningTransaction::class)
         subclass(Deposit::class)
         subclass(Withdrawal::class)
     }
@@ -44,6 +50,8 @@ private val serializerModule = SerializersModule {
         subclass(InvoiceData::class)
     }
     polymorphic(Transaction::class) {
+        subclass(ChannelClosingTransaction::class)
+        subclass(ChannelOpeningTransaction::class)
         subclass(Deposit::class)
         subclass(IncomingPayment::class)
         subclass(OutgoingPayment::class)
