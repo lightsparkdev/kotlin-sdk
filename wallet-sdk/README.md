@@ -2,6 +2,8 @@
 
 ## Lightspark Kotlin Wallet SDK 🤖
 
+![Maven Central](https://img.shields.io/maven-central/v/com.lightspark/wallet-sdk)
+
 This is a Kotlin (multiplatform) Wallet SDK for the Lightspark API. It can be used from an Android
 environment to integrate with a Lightspark Lightning wallet.
 
