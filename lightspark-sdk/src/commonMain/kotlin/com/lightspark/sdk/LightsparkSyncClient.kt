@@ -7,10 +7,10 @@ import com.lightspark.sdk.core.auth.LightsparkAuthenticationException
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.*
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmOverloads
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 
 /**
  * Main entry point for the Lightspark SDK which makes synchronous, blocking API calls.

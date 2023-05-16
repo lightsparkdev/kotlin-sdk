@@ -1,9 +1,6 @@
 package com.lightspark.sdk.wallet.graphql
 
 import com.lightspark.sdk.wallet.model.*
-import com.lightspark.sdk.wallet.model.CurrencyAmount
-import com.lightspark.sdk.wallet.model.WalletStatus
-import com.lightspark.sdk.wallet.model.WalletToTransactionsConnection
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

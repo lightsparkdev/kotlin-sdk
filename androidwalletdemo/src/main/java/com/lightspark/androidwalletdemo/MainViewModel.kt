@@ -15,11 +15,11 @@ import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.wallet.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 // TODO: This class should probably be broken up into 2 ViewModels.
 @HiltViewModel

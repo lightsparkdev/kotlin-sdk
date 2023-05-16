@@ -1,8 +1,8 @@
 package com.lightspark.sdk
 
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
-import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.LightsparkNode

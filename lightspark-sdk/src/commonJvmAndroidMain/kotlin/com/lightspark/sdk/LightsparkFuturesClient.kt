@@ -1,8 +1,8 @@
 package com.lightspark.sdk
 
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.requester.Query
-import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.graphql.AccountDashboard
 import com.lightspark.sdk.graphql.WalletDashboard
 import com.lightspark.sdk.model.Account

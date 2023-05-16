@@ -5,11 +5,11 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlin.jvm.JvmStatic
 
 /**
  * One hop signifies a payment moving one node ahead on a payment route; a list of sequential hops defines the path from sender node to recipient node for a payment attempt.

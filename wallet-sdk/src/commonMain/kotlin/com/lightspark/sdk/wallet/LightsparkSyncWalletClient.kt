@@ -8,10 +8,10 @@ import com.lightspark.sdk.wallet.auth.*
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.*
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.jvm.JvmOverloads
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 
 /**
  * Main entry point for the Lightspark SDK which makes synchronous, blocking API calls.

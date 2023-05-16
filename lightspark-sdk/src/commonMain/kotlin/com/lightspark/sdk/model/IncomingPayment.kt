@@ -5,13 +5,13 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 
 /**
  * A transaction that was sent to a Lightspark node on the Lightning Network.
@@ -89,7 +89,7 @@ query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
-            }
+            },
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("attempts")) { "attempts not found" }
             return@Query serializerFormat.decodeFromJsonElement<IncomingPaymentToAttemptsConnection>(connection)

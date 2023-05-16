@@ -65,7 +65,6 @@ import com.lightspark.androidwalletdemo.ui.theme.Success
 import com.lightspark.androidwalletdemo.util.currencyAmountSats
 import com.lightspark.androidwalletdemo.util.displayString
 import com.lightspark.androidwalletdemo.util.originalDisplayString
-import com.lightspark.androidwalletdemo.util.plus
 import com.lightspark.androidwalletdemo.util.zeroCurrencyAmount
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkErrorCode
@@ -79,9 +78,9 @@ import com.lightspark.sdk.wallet.model.TransactionStatus
 import com.lightspark.sdk.wallet.model.WalletStatus
 import com.lightspark.sdk.wallet.model.WalletToPaymentRequestsConnection
 import com.lightspark.sdk.wallet.model.WalletToTransactionsConnection
+import kotlin.math.max
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.math.max
 
 @Composable
 fun WalletDashboardView(

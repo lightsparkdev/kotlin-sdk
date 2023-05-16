@@ -5,13 +5,13 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 
 /**
  *
@@ -61,7 +61,7 @@ query FetchWalletTotalAmountReceived(${'$'}created_after_date: DateTime, ${'$'}c
             variableBuilder = {
                 add("created_after_date", createdAfterDate)
                 add("created_before_date", createdBeforeDate)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_wallet"]?.jsonObject?.get("total_amount_received")) { "total_amount_received not found" }
@@ -91,7 +91,7 @@ query FetchWalletTotalAmountSent(${'$'}created_after_date: DateTime, ${'$'}creat
             variableBuilder = {
                 add("created_after_date", createdAfterDate)
                 add("created_before_date", createdBeforeDate)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_wallet"]?.jsonObject?.get("total_amount_sent")) { "total_amount_sent not found" }

@@ -35,7 +35,6 @@ import com.lightspark.androidwalletdemo.util.currencyAmountSats
 import com.lightspark.androidwalletdemo.util.displayString
 import com.lightspark.sdk.core.util.format
 import com.lightspark.sdk.wallet.model.Deposit
-import com.lightspark.sdk.wallet.model.EntityId
 import com.lightspark.sdk.wallet.model.IncomingPayment
 import com.lightspark.sdk.wallet.model.OutgoingPayment
 import com.lightspark.sdk.wallet.model.Transaction

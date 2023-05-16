@@ -5,6 +5,8 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,8 +14,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 
 /**
  *
@@ -68,7 +68,7 @@ query FetchAccountToApiTokensConnection(${'$'}first: Int) {
 """,
             variableBuilder = {
                 add("first", first)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_account"]?.jsonObject?.get("api_tokens")) { "api_tokens not found" }
@@ -141,7 +141,7 @@ query FetchAccountBlockchainBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], $
             variableBuilder = {
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = it["current_account"]?.jsonObject?.get("blockchain_balance") ?: return@Query null
             return@Query serializerFormat.decodeFromJsonElement<BlockchainBalance>(connection)
@@ -163,7 +163,7 @@ query FetchAccountConductivity(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
             variableBuilder = {
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = it["current_account"]?.jsonObject?.get("conductivity") ?: return@Query null
             return@Query connection.jsonPrimitive.int
@@ -192,7 +192,7 @@ query FetchAccountLocalBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
             variableBuilder = {
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = it["current_account"]?.jsonObject?.get("local_balance") ?: return@Query null
             return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
@@ -331,7 +331,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                 add("first", first)
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = requireNotNull(it["current_account"]?.jsonObject?.get("nodes")) { "nodes not found" }
             return@Query serializerFormat.decodeFromJsonElement<AccountToNodesConnection>(connection)
@@ -360,7 +360,7 @@ query FetchAccountRemoteBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'
             variableBuilder = {
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = it["current_account"]?.jsonObject?.get("remote_balance") ?: return@Query null
             return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
@@ -389,7 +389,7 @@ query FetchAccountUptimePercentage(${'$'}after_date: DateTime, ${'$'}before_date
                 add("before_date", beforeDate)
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
-            }
+            },
         ) {
             val connection = it["current_account"]?.jsonObject?.get("uptime_percentage") ?: return@Query null
             return@Query connection.jsonPrimitive.int
@@ -517,7 +517,7 @@ query FetchAccountToChannelsConnection(${'$'}bitcoin_network: BitcoinNetwork!, $
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
                 add("first", first)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_account"]?.jsonObject?.get("channels")) { "channels not found" }
@@ -960,7 +960,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                 add("lightning_node_id", lightningNodeId)
                 add("statuses", statuses)
                 add("exclude_failures", excludeFailures)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_account"]?.jsonObject?.get("transactions")) { "transactions not found" }
@@ -1159,7 +1159,7 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                 add("before_date", beforeDate)
                 add("bitcoin_network", bitcoinNetwork)
                 add("lightning_node_id", lightningNodeId)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_account"]?.jsonObject?.get("payment_requests")) { "payment_requests not found" }
@@ -1226,7 +1226,7 @@ query FetchAccountToWalletsConnection(${'$'}first: Int) {
 """,
             variableBuilder = {
                 add("first", first)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["current_account"]?.jsonObject?.get("wallets")) { "wallets not found" }

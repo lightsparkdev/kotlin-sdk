@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.*
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -13,8 +13,7 @@ val versionPropertiesFile = project.file("version.properties")
 val versionProperties = Properties()
 try {
     versionProperties.load(FileInputStream(versionPropertiesFile))
-}
-catch(e: Exception) {
+} catch (e: Exception) {
     throw RuntimeException("Unable to load version.properties", e)
 }
 

@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -22,7 +23,6 @@ import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import saschpe.kase64.base64Encoded
-import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {

@@ -4,9 +4,9 @@ import com.lightspark.androidwalletdemo.util.CurrencyAmountArg
 import com.lightspark.sdk.core.wrapWithLceFlow
 import com.lightspark.sdk.wallet.LightsparkCoroutinesWalletClient
 import com.lightspark.sdk.wallet.model.InvoiceType
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
 
 class PaymentRepository @Inject constructor(private val lightsparkClient: LightsparkCoroutinesWalletClient) {
     fun createInvoice(amount: CurrencyAmountArg, memo: String? = null) =

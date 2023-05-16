@@ -10,7 +10,6 @@ import com.lightspark.sdk.core.auth.BETA_HEADER_VALUE
 import com.lightspark.sdk.core.crypto.NodeKeyCache
 import com.lightspark.sdk.core.crypto.signPayload
 import com.lightspark.sdk.core.crypto.signUsingAlias
-import com.lightspark.sdk.core.util.format
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
 import io.ktor.client.request.headers
@@ -18,11 +17,12 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.hours
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimePeriod
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
@@ -33,11 +33,6 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import saschpe.kase64.base64Encoded
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration.Companion.hours
 
 private const val DEFAULT_BASE_URL = "api.lightspark.com"
 

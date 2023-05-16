@@ -6,7 +6,6 @@ import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.asLce
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.crypto.androidKeystoreContainsPrivateKeyForAlias
-import com.lightspark.sdk.core.crypto.generateSigningKeyPair
 import com.lightspark.sdk.core.crypto.generateSigningKeyPairInAndroidKeyStore
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.wrapWithLceFlow
@@ -14,10 +13,10 @@ import com.lightspark.sdk.wallet.LightsparkCoroutinesWalletClient
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.model.KeyType
 import com.lightspark.sdk.wallet.model.Wallet
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
 
 private const val LIGHTSPARK_SIGNING_KEY_ALIAS = "LightsparkSigningKey"
 
@@ -57,7 +56,7 @@ class WalletRepository @Inject constructor(
         return walletClient.initializeWalletAndWaitForInitialized(
             keyType = KeyType.RSA_OAEP,
             signingPublicKey = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP),
-            signingPrivateKey = Base64.encodeToString(keyPair.private.encoded, Base64.NO_WRAP)
+            signingPrivateKey = Base64.encodeToString(keyPair.private.encoded, Base64.NO_WRAP),
         ).asLce().flowOn(Dispatchers.IO)
     }
 

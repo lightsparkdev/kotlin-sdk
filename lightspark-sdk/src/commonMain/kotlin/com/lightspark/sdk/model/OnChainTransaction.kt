@@ -5,10 +5,10 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlin.jvm.JvmStatic
 
 /**
  * Transaction happened on Bitcoin blockchain.

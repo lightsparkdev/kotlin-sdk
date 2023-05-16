@@ -15,6 +15,9 @@ import com.lightspark.sdk.wallet.auth.jwt.JwtTokenInfo
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import com.lightspark.sdk.wallet.util.serializerFormat
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,9 +25,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.*
 import saschpe.kase64.base64DecodedBytes
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmOverloads
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
 private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-05-05"
@@ -357,6 +357,57 @@ class LightsparkCoroutinesWalletClient private constructor(
     }
 
     /**
+     * Pay a lightning invoice from the current wallet.
+     * Waits for the payment to complete successfully or fail, emitting current payment object until it completes.
+     *
+     * Note: This call will fail if the wallet is not unlocked yet via [loadWalletSigningKey]. You must successfully
+     * unlock the wallet before calling this function.
+     *
+     * @param encodedInvoice An encoded string representation of the invoice to pay.
+     * @param maxFeesMsats The maximum fees to pay in milli-satoshis. You must pass a value.
+     *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
+     *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
+     * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
+     * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @return A `Flow<OutgoingPayment>` that will emit the payment details periodically until the payment completes or
+     *     fails.
+     * @throws LightsparkException If the payment fails or if the wallet is locked.
+     */
+    suspend fun payInvoiceAndAwaitCompletion(
+        encodedInvoice: String,
+        maxFeesMsats: Long,
+        amountMsats: Long? = null,
+        timeoutSecs: Int = 60,
+    ): Flow<OutgoingPayment> {
+        val payment = payInvoice(encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs)
+        val completedStatuses = setOf(TransactionStatus.SUCCESS, TransactionStatus.FAILED, TransactionStatus.CANCELLED)
+        if (payment.status in completedStatuses) {
+            return flowOf(payment)
+        }
+        return awaitOutgoingPaymentStatus(payment.id, completedStatuses)
+    }
+
+    private fun awaitOutgoingPaymentStatus(
+        transactionId: String,
+        statuses: Set<TransactionStatus>,
+    ): Flow<OutgoingPayment> {
+        // TODO: Switch from polling to a subscription when that's possible.
+        return flow {
+            var payment =
+                OutgoingPayment.getOutgoingPaymentQuery(transactionId).execute(this@LightsparkCoroutinesWalletClient)
+                    ?: return@flow
+            while (payment.status !in statuses) {
+                emit(payment)
+                delay(1000)
+                payment = OutgoingPayment.getOutgoingPaymentQuery(transactionId)
+                    .execute(this@LightsparkCoroutinesWalletClient)
+                    ?: return@flow
+            }
+            emit(payment)
+        }
+    }
+
+    /**
      * Decode a lightning invoice to get its details included payment amount, destination, etc.
      *
      * @param encodedInvoice An encoded string representation of the invoice to decode.
@@ -611,6 +662,33 @@ class LightsparkCoroutinesWalletClient private constructor(
                 serializerFormat.decodeFromJsonElement(paymentJson)
             },
         )
+    }
+
+    /**
+     * Sends a payment directly to a node on the Lightning Network through the public key of the node without an invoice.
+     * Waits for the payment to complete successfully or fail, emitting current payment object until it completes.
+     *
+     * @param destinationPublicKey The public key of the destination node.
+     * @param amountMsats The amount to pay in milli-satoshis.
+     * @param maxFeesMsats The maximum amount of fees that you want to pay for this payment to be sent.
+     *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
+     *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
+     * @param timeoutSecs The timeout in seconds that we will try to make the payment.
+     * @return A `Flow<OutgoingPayment>` which emits payment object until it completes or fails.
+     * @throws LightsparkException if the payment failed or if the wallet is locked.
+     */
+    suspend fun sendPaymentAndAwaitCompletion(
+        destinationPublicKey: String,
+        amountMsats: Long,
+        maxFeesMsats: Long,
+        timeoutSecs: Int = 60,
+    ): Flow<OutgoingPayment> {
+        val payment = sendPayment(destinationPublicKey, amountMsats, maxFeesMsats, timeoutSecs)
+        val completedStatuses = setOf(TransactionStatus.SUCCESS, TransactionStatus.FAILED, TransactionStatus.CANCELLED)
+        if (payment.status in completedStatuses) {
+            return flowOf(payment)
+        }
+        return awaitOutgoingPaymentStatus(payment.id, completedStatuses)
     }
 
     /**

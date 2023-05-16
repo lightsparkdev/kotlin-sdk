@@ -135,9 +135,11 @@ fun RequestPaymentAmountScreen(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.CenterHorizontally)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+        ) {
             BasicTextField(
                 value = amount.value.toString(),
                 onValueChange = { amount = CurrencyAmountArg(it.toLongOrNull() ?: 0, CurrencyUnit.SATOSHI) },

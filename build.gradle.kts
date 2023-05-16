@@ -1,9 +1,8 @@
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import java.net.URL
+import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
@@ -125,7 +124,7 @@ tasks.named<DokkaMultiModuleTask>("dokkaHtmlMultiModule") {
               "${rootDir.resolve("docs/images/lightspark-logo-white.svg")}"
             ]
           }
-          """.trimIndent()
-        )
+            """.trimIndent(),
+        ),
     )
 }

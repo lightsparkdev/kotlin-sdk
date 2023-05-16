@@ -8,12 +8,12 @@ import com.lightspark.sdk.wallet.auth.*
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
+import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.serialization.json.*
-import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Main entry point for the Lightspark SDK using the Java Futures API.

@@ -82,11 +82,20 @@ fun AuthScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(bottom = 24.dp)
+                .padding(bottom = 24.dp),
         )
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
-            onClick = { uriHandler.openUri("https://jwt.io/#debugger-io?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2FwaS5saWdodHNwYXJrLmNvbSIsInN1YiI6IjUxMWM3ZWI4LTlhZmUtNGY2OS05ODlhLThkMTExM2EzM2YzZCIsInRlc3QiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNzk5MzkzMzYzfQ.FGUxtfnxq1JgTJkY5GkCX-v6X82Zux2FyK8LoZPqDkGagZ5NEj89XcCm9Z8ZTof04ukSRuXsuoLeXe7sJd5Ncw&publicKey=-----BEGIN%20PUBLIC%20KEY-----%0AMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs%2Fo5%2BuQbTjL3chynL4wXgUg2R9%0Aq9UU8I5mEovUf86QZ7kOBIjJwqnzD1omageEHWwHdBO6B%2BdFabmdT9POxg%3D%3D%0A-----END%20PUBLIC%20KEY-----") },
+            onClick = {
+                uriHandler.openUri(
+                    "https://jwt.io/#debugger-io?token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL" +
+                        "2FwaS5saWdodHNwYXJrLmNvbSIsInN1YiI6IjUxMWM3ZWI4LTlhZmUtNGY2OS05ODlhLThkMTExM2EzM2YzZCIsInRlc" +
+                        "3QiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNzk5MzkzMzYzfQ.FGUxtfnxq1JgTJkY5GkCX-v6X82Zux2FyK" +
+                        "8LoZPqDkGagZ5NEj89XcCm9Z8ZTof04ukSRuXsuoLeXe7sJd5Ncw&publicKey=-----BEGIN%20PUBLIC%20KEY----" +
+                        "-%0AMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs%2Fo5%2BuQbTjL3chynL4wXgUg2R9%0Aq9UU8I5mEovUf86QZ" +
+                        "7kOBIjJwqnzD1omageEHWwHdBO6B%2BdFabmdT9POxg%3D%3D%0A-----END%20PUBLIC%20KEY-----",
+                )
+            },
             enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth(0.8f),
@@ -103,7 +112,7 @@ fun AuthScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(bottom = 24.dp)
+                .padding(bottom = 24.dp),
         )
         TextField(
             label = { Text("User name", style = MaterialTheme.typography.labelMedium) },
@@ -120,7 +129,9 @@ fun AuthScreen(
             visualTransformation = PasswordVisualTransformation(),
             onValueChange = { password = it },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(0.8f).padding(bottom = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(bottom = 8.dp),
         )
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground),
@@ -140,7 +151,7 @@ fun AuthScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(bottom = 12.dp)
+                .padding(bottom = 12.dp),
         )
         TextField(
             label = { Text("Account ID", style = MaterialTheme.typography.labelMedium) },

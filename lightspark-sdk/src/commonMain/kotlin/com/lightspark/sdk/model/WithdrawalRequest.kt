@@ -5,13 +5,13 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 
 /**
  *
@@ -108,14 +108,14 @@ query FetchWithdrawalRequestToChannelClosingTransactionsConnection(${'$'}entity_
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["entity"]?.jsonObject?.get("channel_closing_transactions")) {
                     "channel_closing_transactions not found"
                 }
             return@Query serializerFormat.decodeFromJsonElement<WithdrawalRequestToChannelClosingTransactionsConnection>(
-                connection
+                connection,
             )
         }
     }
@@ -177,14 +177,14 @@ query FetchWithdrawalRequestToChannelOpeningTransactionsConnection(${'$'}entity_
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
-            }
+            },
         ) {
             val connection =
                 requireNotNull(it["entity"]?.jsonObject?.get("channel_opening_transactions")) {
                     "channel_opening_transactions not found"
                 }
             return@Query serializerFormat.decodeFromJsonElement<WithdrawalRequestToChannelOpeningTransactionsConnection>(
-                connection
+                connection,
             )
         }
     }

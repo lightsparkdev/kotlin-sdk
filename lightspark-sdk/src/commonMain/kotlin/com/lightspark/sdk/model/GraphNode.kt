@@ -5,12 +5,12 @@ package com.lightspark.sdk.model
 
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
+import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import kotlin.jvm.JvmStatic
 
 /**
  * This is a node on the Lightning Network, managed by a third party. The information about this node is public data that has been obtained by observing the Lightning Network.
@@ -71,7 +71,7 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
                 add("entity_id", id)
                 add("first", first)
                 add("types", types)
-            }
+            },
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("addresses")) { "addresses not found" }
             return@Query serializerFormat.decodeFromJsonElement<NodeToAddressesConnection>(connection)

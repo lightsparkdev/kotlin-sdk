@@ -143,8 +143,8 @@ android {
 tasks.named("bumpAndTagVersion").configure {
     doFirst {
         if (project.configurations["commonMainImplementationDependenciesMetadata"].resolvedConfiguration
-                .lenientConfiguration.artifacts
-                .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
+            .lenientConfiguration.artifacts
+            .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
         ) {
             throw GradleException("Cannot depend directly on core. Depend on the published module instead.")
         }

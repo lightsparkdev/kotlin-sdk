@@ -7,9 +7,9 @@ import com.lightspark.androidwalletdemo.wallet.PaymentRepository
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.wallet.model.CurrencyUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import javax.inject.Inject
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
