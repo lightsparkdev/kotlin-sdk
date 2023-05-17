@@ -26,6 +26,11 @@ val tagVersion = if (hasVersion) {
     getCurrentVersion().dropLast("-SNAPSHOT".length)
 }
 
+if (getCurrentVersion() == tagVersion) {
+    println("The current version is already $tagVersion. Nothing to do.")
+    exitProcess(0)
+}
+
 val nextSnapshot = getNextSnapshot(tagVersion)
 
 
