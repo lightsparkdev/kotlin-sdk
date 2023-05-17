@@ -16,8 +16,11 @@ if (runCommand("git", "status", "--porcelain").isNotEmpty()) {
 
 val projectName = File(".").canonicalFile.name ?: throw Exception("Couldn't find project name")
 val force = args.contains("-f")
-val tagVersion = if ((args.size == 1 && !force) || args.size == 2) {
-    args.first { it != "-f" }
+val tagAndSnapshot = args.contains("-t")
+val hasVersion = args.contains("-v") && args.size >= 2
+val tagVersion = if (hasVersion) {
+    val versionIndex = args.indexOfFirst { it == "-v" } + 1
+    args[versionIndex]
 } else {
     println("Defaulting to the current SNAPSHOT version.")
     getCurrentVersion().dropLast("-SNAPSHOT".length)
@@ -43,10 +46,12 @@ setCurrentVersion(tagVersion)
 setVersionInDocs(tagVersion, projectName)
 
 runCommand("git", "commit", "-a", "-m", "Bump $projectName to version $tagVersion")
-runCommand("git", "tag", "$projectName-v$tagVersion")
+if (tagAndSnapshot) {
+    runCommand("git", "tag", "$projectName-v$tagVersion")
 
-setCurrentVersion(nextSnapshot)
-runCommand("git", "commit", "-a", "-m", "Bump $projectName to snapshot version $nextSnapshot")
+    setCurrentVersion(nextSnapshot)
+    runCommand("git", "commit", "-a", "-m", "Bump $projectName to snapshot version $nextSnapshot")
+}
 
 println("Everything is done. Verify everything is ok and push upstream to trigger the new version.")
 
