@@ -26,7 +26,7 @@ val tagVersion = if (hasVersion) {
     getCurrentVersion().dropLast("-SNAPSHOT".length)
 }
 
-if (getCurrentVersion() == tagVersion) {
+if (getCurrentVersionWithSnapshot() == tagVersion) {
     println("The current version is already $tagVersion. Nothing to do.")
     exitProcess(0)
 }
@@ -103,6 +103,27 @@ fun getCurrentVersion(): String {
     }
 
     return matchResult.groupValues[1] + "-SNAPSHOT"
+}
+
+fun getCurrentVersionWithSnapshot(): String {
+    val versionLines = File("./gradle.properties").readLines().filter { it.startsWith("VERSION_NAME=") }
+
+    require(versionLines.isNotEmpty()) {
+        "cannot find the version in ./gradle.properties"
+    }
+
+    require(versionLines.size == 1) {
+        "multiple versions found in ./gradle.properties"
+    }
+
+    val regex = Regex("VERSION_NAME=(.*)$")
+    val matchResult = regex.matchEntire(versionLines.first())
+
+    require(matchResult != null) {
+        "'${versionLines.first()}' doesn't match VERSION_NAME=(.*)$"
+    }
+
+    return matchResult.groupValues[1]
 }
 
 fun getNextSnapshot(version: String): String {
