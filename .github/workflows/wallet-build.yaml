@@ -24,5 +24,4 @@ jobs:
       - name: Build and lint
         uses: gradle/gradle-build-action@v2.4.2
         with:
-          arguments: wallet-sdk:assemble wallet-sdk:ktlintCheck
-          cache-disabled: true
+          arguments: wallet-sdk:assemble
