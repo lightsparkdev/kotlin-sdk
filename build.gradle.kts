@@ -1,8 +1,9 @@
+
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
-import java.net.URL
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import java.net.URL
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
@@ -41,6 +42,9 @@ subprojects {
         outputToConsole.set(true)
         verbose.set(true)
         disabledRules.set(listOf("no-wildcard-imports"))
+        filter {
+            exclude("**/buildkonfig/**")
+        }
     }
 
     tasks.create<Exec>("bumpAndTagVersion") {
