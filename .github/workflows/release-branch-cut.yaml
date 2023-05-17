@@ -24,9 +24,9 @@ jobs:
         run: |
           if [[ $GITHUB_REF =~ release/(.*)(-v) ]]; then
               sdk_name=${BASH_REMATCH[1]}
-              version=${GITHUB_REF#*-v}
+              rel_version=${GITHUB_REF#*-v}
               echo "sdk_name=$sdk_name" >> "$GITHUB_ENV"
-              echo "version=$rel_version" >> "$GITHUB_ENV"
+              echo "rel_version=$rel_version" >> "$GITHUB_ENV"
           else
               echo "Unable to parse sdk_name and version from GITHUB_REF: $GITHUB_REF"
               exit 1
