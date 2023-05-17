@@ -40,12 +40,12 @@ jobs:
 #        with:
 #          arguments: "${{ env.sdk_name }}:assemble"
       - name: Merge version updates
-        run: |
-          git push
-      - name: Merge to develop
+        run: git push
+      - name: Checkout develop
         uses: actions/checkout@v3
         with:
           ref: develop
+      - name: Merge into develop
         run: |
           git merge $GITHUB_REF
           git push
