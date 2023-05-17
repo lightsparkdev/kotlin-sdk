@@ -5,7 +5,7 @@ on:
     paths:
       - 'wallet-sdk/**'
       - 'core/**'
-      - './build.gradle.kts'
+      - 'build.gradle.kts'
       - '.github/workflows/wallet-build.yaml'
 
 jobs:
