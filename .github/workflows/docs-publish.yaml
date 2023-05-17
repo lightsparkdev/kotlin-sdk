@@ -1,7 +1,7 @@
 name: Publish SDK Docs
 
 on:
-  workflow-run:
+  workflow_run:
     workflows: [ SDK Core Publish, Lightspark SDK Publish, Wallet SDK Publish ]
     types:
       - completed
