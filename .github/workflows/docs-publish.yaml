@@ -1,0 +1,30 @@
+name: Publish SDK Docs
+
+on:
+  workflow-call:
+
+jobs:
+  publish-docs:
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: "Configure AWS credentials"
+        uses: "aws-actions/configure-aws-credentials@v1"
+        with:
+          role-to-assume: "arn:aws:iam::674966927423:role/github-actions"
+          aws-region: "us-west-2"
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
+      - name: Build dokka
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: dokkaHtmlMultiModule
+      - name: "Upload to S3"
+        run: |
+          aws s3 sync build/dokka/htmlMultiModule s3://lightspark-dev-web/docs/reference/kotlin --delete
