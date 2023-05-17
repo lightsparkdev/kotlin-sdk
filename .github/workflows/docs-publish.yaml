@@ -1,10 +1,14 @@
 name: Publish SDK Docs
 
 on:
-  workflow-call:
+  workflow-run:
+    workflows: [ SDK Core Publish, Lightspark SDK Publish, Wallet SDK Publish ]
+    types:
+      - completed
 
 jobs:
   publish-docs:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-11
 
     steps:

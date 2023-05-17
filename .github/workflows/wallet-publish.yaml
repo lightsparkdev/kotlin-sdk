@@ -28,9 +28,3 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY_IN_MEMORY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
-
-  publish-docs:
-    needs: [ "publish" ]
-    if: "success()"
-    steps:
-      - uses: ./.github/workflows/workflow-2.yml
