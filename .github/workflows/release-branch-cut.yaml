@@ -42,18 +42,19 @@ jobs:
 #        uses: gradle/gradle-build-action@v2.4.2
 #        with:
 #          arguments: "${{ env.sdk_name }}:assemble"
-      - name: Merge version updates
-        run: git push
-      - name: Merge into develop
-        run: |
-          git checkout develop
-          git merge ${GITHUB_REF#refs/heads/}
-          git push
+#       - name: Merge version updates
+#         run: git push
+#       - name: Merge into develop
+#         run: |
+#           git checkout develop
+#           git merge ${GITHUB_REF#refs/heads/}
+#           git push
       - name: Create Merge PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           branch_name=${GITHUB_REF#refs/heads/}
+          echo ${{ toJSON(github.event) }}
           gh pr create --title "Merge $branch_name into main" \
             --body "This PR was automatically created by the release branch cut workflow.\nSDK=${{ env.sdk_name }}\nVERSION=${{ env.rel_version }}"\
             --base main\
