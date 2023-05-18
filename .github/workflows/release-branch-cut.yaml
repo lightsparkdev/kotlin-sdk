@@ -48,8 +48,11 @@ jobs:
           ref: develop
       - name: Merge into develop
         run: |
-          git fetch origin ${GITHUB_REF#refs/heads/}
-          git merge origin/${GITHUB_REF#refs/heads/}
+          branch_name=${GITHUB_REF#refs/heads/}
+          git fetch origin $branch_name
+          git checkout $branch_name
+          git checkout develop
+          git merge $branch_name
           git push
       - name: Create Merge PR
         env:
