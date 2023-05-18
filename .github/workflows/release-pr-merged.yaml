@@ -1,0 +1,43 @@
+name: Release PR Merged
+
+on:
+  pull-request:
+    types:
+      - closed
+    branches:
+      - 'main'
+
+jobs:
+  tag-release:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Environment Variables
+        run: |
+          if [[ MERGED_BRANCH =~ release/(.*)(-v) ]]; then
+              sdk_name=${BASH_REMATCH[1]}
+              rel_version=${MERGED_BRANCH#*-v}
+              echo "sdk_name=$sdk_name" >> "$GITHUB_ENV"
+              echo "rel_version=$rel_version" >> "$GITHUB_ENV"
+              echo "tag_name=${sdk_name}-v${rel_version}" >> "$GITHUB_ENV"
+          else
+              echo "Unable to parse sdk_name and version from MERGED_BRANCH: $MERGED_BRANCH"
+              exit 1
+          fi
+        env:
+          MERGED_BRANCH: ${{ github.head_ref }}
+      - name: Tag Version
+        run: |
+          git tag ${{ env.tag_name }}
+          git push --tags
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ env.tag_name }} -d \
+          --notes "${{ env.sdk_name }} release version ${{ env.rel_version }}" \
+          --title ${{ env.tag_name }} \
