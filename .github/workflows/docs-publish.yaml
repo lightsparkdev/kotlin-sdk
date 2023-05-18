@@ -21,7 +21,7 @@ jobs:
       - name: "Configure AWS credentials"
         uses: "aws-actions/configure-aws-credentials@v1"
         with:
-          role-to-assume: "arn:aws:iam::674966927423:role/github-actions"
+          role-to-assume: "arn:aws:iam::${{secrets.AWS_ACCOUNT_ID_DEV}}:role/github-actions-sdk"
           aws-region: "us-west-2"
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
@@ -31,4 +31,4 @@ jobs:
           arguments: dokkaHtmlMultiModule
       - name: "Upload to S3"
         run: |
-          aws s3 sync build/dokka/htmlMultiModule s3://lightspark-dev-web/docs/reference/kotlin --delete
+          aws s3 sync build/dokka/htmlMultiModule s3://${{secrets.FRONTEND_BUCKET_DEV}}/docs/reference/kotlin --delete
