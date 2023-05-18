@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-wallet-sdk:
-    if: ${{ startsWith(github.event.release.tag_name, 'core-' }}
+    if: ${{ startsWith(github.event.release.tag_name, 'core-') }}
     runs-on: macos-11
 
     steps:
