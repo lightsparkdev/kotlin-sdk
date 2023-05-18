@@ -10,6 +10,7 @@ jobs:
     runs-on: macos-11
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v3
@@ -47,15 +48,16 @@ jobs:
           ref: develop
       - name: Merge into develop
         run: |
-          git merge $GITHUB_REF
+          git merge ${GITHUB_REF#refs/heads/}
           git push
       - name: Create Merge PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create --title "Merge $GITHUB_REF into main" \
+          branch_name=${GITHUB_REF#refs/heads/}
+          gh pr create --title "Merge $branch_name into main" \
             --body "This PR was automatically created by the release branch cut workflow.\nSDK=${{ env.sdk_name }}\nVERSION=${{ env.rel_version }}"\
             --base main\
-            --head $GITHUB_REF\
+            --head $branch_name\
             --assignee ${{ github.event.push.pusher.name }}
           
