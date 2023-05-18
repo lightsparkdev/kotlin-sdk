@@ -50,7 +50,21 @@ subprojects {
     tasks.create<Exec>("bumpAndTagVersion") {
         group = "release"
         description = "Tags the current version in git."
-        commandLine("../scripts/versions.main.kts", "-f")
+        val cmd = mutableListOf("../scripts/versions.main.kts", "-f", "-t")
+        if (project.hasProperty("newVersion")) {
+            cmd.add(project.properties["newVersion"].toString())
+        }
+        commandLine(*cmd.toTypedArray())
+    }
+
+    tasks.create<Exec>("bumpVersion") {
+        group = "release"
+        description = "Tags the current version in git."
+        val cmd = mutableListOf("../scripts/versions.main.kts", "-f")
+        if (project.hasProperty("newVersion")) {
+            cmd.addAll(listOf("-v", project.properties["newVersion"].toString()))
+        }
+        commandLine(*cmd.toTypedArray())
     }
 
     tasks.withType<DokkaTaskPartial>().configureEach {

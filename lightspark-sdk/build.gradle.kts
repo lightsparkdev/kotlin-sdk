@@ -107,7 +107,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     )
 }
 
-tasks.named("bumpAndTagVersion").configure {
+tasks.matching { name == "bumpAndTagVersion" || name == "bumpVersion" }.configureEach {
     doFirst {
         if (project.configurations["commonMainImplementationDependenciesMetadata"].resolvedConfiguration
             .lenientConfiguration.artifacts

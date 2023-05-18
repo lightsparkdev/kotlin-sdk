@@ -7,6 +7,9 @@ on:
       - 'core/**'
       - 'build.gradle.kts'
       - '.github/workflows/lightspark-sdk-build.yaml'
+    branches:
+      - 'main'
+      - 'develop'
 
 jobs:
   build:

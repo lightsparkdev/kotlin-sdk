@@ -16,11 +16,19 @@ if (runCommand("git", "status", "--porcelain").isNotEmpty()) {
 
 val projectName = File(".").canonicalFile.name ?: throw Exception("Couldn't find project name")
 val force = args.contains("-f")
-val tagVersion = if ((args.size == 1 && !force) || args.size == 2) {
-    args.first { it != "-f" }
+val tagAndSnapshot = args.contains("-t")
+val hasVersion = args.contains("-v") && args.size >= 2
+val tagVersion = if (hasVersion) {
+    val versionIndex = args.indexOfFirst { it == "-v" } + 1
+    args[versionIndex]
 } else {
     println("Defaulting to the current SNAPSHOT version.")
     getCurrentVersion().dropLast("-SNAPSHOT".length)
+}
+
+if (getCurrentVersionWithSnapshot() == tagVersion) {
+    println("The current version is already $tagVersion. Nothing to do.")
+    exitProcess(0)
 }
 
 val nextSnapshot = getNextSnapshot(tagVersion)
@@ -43,10 +51,12 @@ setCurrentVersion(tagVersion)
 setVersionInDocs(tagVersion, projectName)
 
 runCommand("git", "commit", "-a", "-m", "Bump $projectName to version $tagVersion")
-runCommand("git", "tag", "$projectName-v$tagVersion")
+if (tagAndSnapshot) {
+    runCommand("git", "tag", "$projectName-v$tagVersion")
 
-setCurrentVersion(nextSnapshot)
-runCommand("git", "commit", "-a", "-m", "Bump $projectName to snapshot version $nextSnapshot")
+    setCurrentVersion(nextSnapshot)
+    runCommand("git", "commit", "-a", "-m", "Bump $projectName to snapshot version $nextSnapshot")
+}
 
 println("Everything is done. Verify everything is ok and push upstream to trigger the new version.")
 
@@ -93,6 +103,27 @@ fun getCurrentVersion(): String {
     }
 
     return matchResult.groupValues[1] + "-SNAPSHOT"
+}
+
+fun getCurrentVersionWithSnapshot(): String {
+    val versionLines = File("./gradle.properties").readLines().filter { it.startsWith("VERSION_NAME=") }
+
+    require(versionLines.isNotEmpty()) {
+        "cannot find the version in ./gradle.properties"
+    }
+
+    require(versionLines.size == 1) {
+        "multiple versions found in ./gradle.properties"
+    }
+
+    val regex = Regex("VERSION_NAME=(.*)$")
+    val matchResult = regex.matchEntire(versionLines.first())
+
+    require(matchResult != null) {
+        "'${versionLines.first()}' doesn't match VERSION_NAME=(.*)$"
+    }
+
+    return matchResult.groupValues[1]
 }
 
 fun getNextSnapshot(version: String): String {
