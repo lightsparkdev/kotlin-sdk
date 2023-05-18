@@ -3,5 +3,5 @@
 package com.lightspark.sdk.core.crypto
 
 internal actual fun signUsingAlias(payload: ByteArray, keyAlias: String): ByteArray {
-    TODO
+    throw IllegalStateException("Not yet implemented for jvm")
 }
