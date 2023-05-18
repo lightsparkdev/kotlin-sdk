@@ -16,7 +16,7 @@ kotlinSerializationJson = "1.4.1"
 krypt = "0.3.1"
 ktlint = "11.3.1"
 ktor = "2.2.3"
-lightsparkCore = "0.1.3"
+lightsparkCore = "0.2.0"
 mavenPublish = "0.25.2"
 
 # Android Wallet demo deps:
