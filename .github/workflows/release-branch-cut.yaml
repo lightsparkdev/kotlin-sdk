@@ -48,6 +48,7 @@ jobs:
           ref: develop
       - name: Merge into develop
         run: |
+          git fetch ${GITHUB_REF#refs/heads/}
           git merge ${GITHUB_REF#refs/heads/}
           git push
       - name: Create Merge PR
