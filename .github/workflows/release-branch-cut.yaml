@@ -34,14 +34,14 @@ jobs:
               echo "Unable to parse sdk_name and version from GITHUB_REF: $GITHUB_REF"
               exit 1
           fi
-#      - name: Bump Version
-#        uses: gradle/gradle-build-action@v2.4.2
-#        with:
-#          arguments: "${{ env.sdk_name }}:bumpVersion -PnewVersion=${{ env.rel_version }}"
-#      - name: Build
-#        uses: gradle/gradle-build-action@v2.4.2
-#        with:
-#          arguments: "${{ env.sdk_name }}:assemble"
+      - name: Bump Version
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: "${{ env.sdk_name }}:bumpVersion -PnewVersion=${{ env.rel_version }}"
+      - name: Build
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: "${{ env.sdk_name }}:assemble"
       - name: Merge version updates
         run: git push
       - name: Merge into develop
@@ -58,5 +58,4 @@ jobs:
             --body "This PR was automatically created by the release branch cut workflow.\nSDK=${{ env.sdk_name }}\nVERSION=${{ env.rel_version }}"\
             --base main\
             --head $branch_name\
-            --assignee ${{ github.event.push.pusher.name }}
-          
+            --assignee ${{ github.event.pusher.name }}
