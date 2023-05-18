@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-wallet-sdk:
-    if: ${{ startsWith(github.event.release.tag_name, 'lightspark-sdk-' }}
+    if: ${{ startsWith(github.event.release.tag_name, 'lightspark-sdk-') }}
     runs-on: macos-11
 
     steps:
