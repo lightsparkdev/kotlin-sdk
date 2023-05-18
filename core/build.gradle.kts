@@ -1,6 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -27,13 +26,6 @@ kotlin {
         publishLibraryVariants("release")
     }
 
-    val xcf = XCFramework()
-    ios {
-        binaries.framework {
-            baseName = "shared"
-            xcf.add(this)
-        }
-    }
     jvm {
         // This doesn't work, unfortunately.. https://youtrack.jetbrains.com/issue/KT-30878
         // withJava()
@@ -81,12 +73,6 @@ kotlin {
             }
         }
         val androidUnitTest by getting
-        val iosMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
-        }
-        val iosTest by getting
     }
 }
 

@@ -1,6 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -27,13 +26,6 @@ kotlin {
         publishLibraryVariants("release")
     }
 
-    val xcf = XCFramework()
-    ios {
-        binaries.framework {
-            baseName = "shared"
-            xcf.add(this)
-        }
-    }
     jvm {
         // This doesn't work, unfortunately.. https://youtrack.jetbrains.com/issue/KT-30878
         // withJava()
@@ -83,12 +75,6 @@ kotlin {
             }
         }
         val androidUnitTest by getting
-        val iosMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
-        }
-        val iosTest by getting
     }
 }
 
@@ -110,8 +96,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 tasks.matching { name == "bumpAndTagVersion" || name == "bumpVersion" }.configureEach {
     doFirst {
         if (project.configurations["commonMainImplementationDependenciesMetadata"].resolvedConfiguration
-            .lenientConfiguration.artifacts
-            .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
+                .lenientConfiguration.artifacts
+                .any { it.moduleVersion.id.group == "Lightspark" && it.moduleVersion.id.name == "core" }
         ) {
             throw GradleException("Cannot depend directly on core. Depend on the published module instead.")
         }
