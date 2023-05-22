@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
  * @param amount The requested amount in this invoice. If it is equal to 0, the sender should choose the amount to send.
  * @param createdAt The date and time when this invoice was created.
  * @param expiresAt The date and time when this invoice will expire.
+ * @param destination The lightning node that will be paid when fulfilling this invoice.
  * @param memo A short, UTF-8 encoded, description of the purpose of this invoice.
  */
 @Serializable
@@ -31,6 +32,8 @@ data class InvoiceData(
     val createdAt: Instant,
     @SerialName("invoice_data_expires_at")
     val expiresAt: Instant,
+    @SerialName("invoice_data_destination")
+    val destination: GraphNode,
     @SerialName("invoice_data_memo")
     val memo: String? = null,
 ) : PaymentRequestData {
@@ -54,6 +57,18 @@ fragment InvoiceDataFragment on InvoiceData {
     invoice_data_created_at: created_at
     invoice_data_expires_at: expires_at
     invoice_data_memo: memo
+    invoice_data_destination: destination {
+        type: __typename
+        graph_node_id: id
+        graph_node_created_at: created_at
+        graph_node_updated_at: updated_at
+        graph_node_alias: alias
+        graph_node_bitcoin_network: bitcoin_network
+        graph_node_color: color
+        graph_node_conductivity: conductivity
+        graph_node_display_name: display_name
+        graph_node_public_key: public_key
+    }
 }"""
     }
 }

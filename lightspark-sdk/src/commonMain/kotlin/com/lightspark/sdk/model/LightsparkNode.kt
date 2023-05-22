@@ -99,7 +99,7 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
                 add("entity_id", id)
                 add("first", first)
                 add("types", types)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("addresses")) { "addresses not found" }
             return@Query serializerFormat.decodeFromJsonElement<NodeToAddressesConnection>(connection)
@@ -226,7 +226,7 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("channels")) { "channels not found" }
             return@Query serializerFormat.decodeFromJsonElement<LightsparkNodeToChannelsConnection>(connection)

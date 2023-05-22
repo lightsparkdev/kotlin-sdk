@@ -1,10 +1,10 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
 @file:Suppress("ktlint:max-line-length")
 
-package com.lightspark.sdk.model
+package com.lightspark.sdk.wallet.model
 
 import com.lightspark.sdk.core.requester.Query
-import com.lightspark.sdk.util.serializerFormat
+import com.lightspark.sdk.wallet.util.serializerFormat
 import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName

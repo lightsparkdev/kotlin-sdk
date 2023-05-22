@@ -89,7 +89,7 @@ query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("attempts")) { "attempts not found" }
             return@Query serializerFormat.decodeFromJsonElement<IncomingPaymentToAttemptsConnection>(connection)

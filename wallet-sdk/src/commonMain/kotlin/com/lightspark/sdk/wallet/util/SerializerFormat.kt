@@ -4,10 +4,12 @@ import com.lightspark.sdk.wallet.model.ChannelClosingTransaction
 import com.lightspark.sdk.wallet.model.ChannelOpeningTransaction
 import com.lightspark.sdk.wallet.model.Deposit
 import com.lightspark.sdk.wallet.model.Entity
+import com.lightspark.sdk.wallet.model.GraphNode
 import com.lightspark.sdk.wallet.model.IncomingPayment
 import com.lightspark.sdk.wallet.model.Invoice
 import com.lightspark.sdk.wallet.model.InvoiceData
 import com.lightspark.sdk.wallet.model.LightningTransaction
+import com.lightspark.sdk.wallet.model.Node
 import com.lightspark.sdk.wallet.model.OnChainTransaction
 import com.lightspark.sdk.wallet.model.OutgoingPayment
 import com.lightspark.sdk.wallet.model.PaymentRequest
@@ -26,6 +28,7 @@ private val serializerModule = SerializersModule {
         subclass(ChannelClosingTransaction::class)
         subclass(ChannelOpeningTransaction::class)
         subclass(Deposit::class)
+        subclass(GraphNode::class)
         subclass(IncomingPayment::class)
         subclass(Invoice::class)
         subclass(OutgoingPayment::class)
@@ -36,6 +39,9 @@ private val serializerModule = SerializersModule {
     polymorphic(LightningTransaction::class) {
         subclass(IncomingPayment::class)
         subclass(OutgoingPayment::class)
+    }
+    polymorphic(Node::class) {
+        subclass(GraphNode::class)
     }
     polymorphic(OnChainTransaction::class) {
         subclass(ChannelClosingTransaction::class)

@@ -97,7 +97,7 @@ query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}fi
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
-            },
+            }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("hops")) { "hops not found" }
             return@Query serializerFormat.decodeFromJsonElement<OutgoingPaymentAttemptToHopsConnection>(connection)
