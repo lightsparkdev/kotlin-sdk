@@ -678,7 +678,7 @@ class LightsparkCoroutinesClient private constructor(
      *     amount invoices.
      */
     suspend fun createTestModePayment(
-        localNodeId: String
+        localNodeId: String,
         encodedInvoice: String,
         amountMsats: Long? = null,
     ): OutgoingPayment {
