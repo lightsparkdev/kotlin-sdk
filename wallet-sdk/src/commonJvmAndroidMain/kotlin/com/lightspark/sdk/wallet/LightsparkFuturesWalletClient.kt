@@ -126,6 +126,8 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
     /**
      * Creates a lightning invoice for the current wallet.
      *
+     * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
+     *
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
@@ -147,7 +149,8 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      * Note: This call will fail if the wallet is not unlocked yet via [loadWalletSigningKey]. You must successfully
      * unlock the wallet before calling this function.
      *
-     * Test mode note: For test mode, you should use the [createTestModePayment] function instead.
+     * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
+     * pay in test mode.
      *
      * @param encodedInvoice An encoded string representation of the invoice to pay.
      * @param maxFeesMsats The maximum fees to pay in milli-satoshis. You must pass a value.

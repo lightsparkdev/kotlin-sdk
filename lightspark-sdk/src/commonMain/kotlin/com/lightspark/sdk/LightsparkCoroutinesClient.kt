@@ -12,46 +12,11 @@ import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.core.requester.Requester
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.graphql.*
-import com.lightspark.sdk.graphql.AccountDashboard
-import com.lightspark.sdk.graphql.AccountDashboardQuery
-import com.lightspark.sdk.graphql.BitcoinFeeEstimateQuery
-import com.lightspark.sdk.graphql.CreateApiTokenMutation
-import com.lightspark.sdk.graphql.CreateInvoiceMutation
-import com.lightspark.sdk.graphql.CreateNodeWalletAddressMutation
-import com.lightspark.sdk.graphql.CurrentAccountQuery
-import com.lightspark.sdk.graphql.DecodeInvoiceQuery
-import com.lightspark.sdk.graphql.DeleteApiTokenMutation
-import com.lightspark.sdk.graphql.FundNodeMutation
-import com.lightspark.sdk.graphql.LightningFeeEstimateForInvoiceQuery
-import com.lightspark.sdk.graphql.LightningFeeEstimateForNodeQuery
-import com.lightspark.sdk.graphql.PayInvoiceMutation
-import com.lightspark.sdk.graphql.RecoverNodeSigningKeyQuery
-import com.lightspark.sdk.graphql.RequestWithdrawalMutation
-import com.lightspark.sdk.graphql.SendPaymentMutation
-import com.lightspark.sdk.graphql.SingleNodeDashboardQuery
-import com.lightspark.sdk.graphql.WalletDashboard
 import com.lightspark.sdk.model.*
-import com.lightspark.sdk.model.Account
-import com.lightspark.sdk.model.BitcoinNetwork
-import com.lightspark.sdk.model.CreateApiTokenOutput
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.FeeEstimate
-import com.lightspark.sdk.model.InvoiceData
-import com.lightspark.sdk.model.InvoiceType
-import com.lightspark.sdk.model.LightningFeeEstimateOutput
-import com.lightspark.sdk.model.LightsparkNodePurpose
-import com.lightspark.sdk.model.LightsparkNodeStatus
-import com.lightspark.sdk.model.NodeToAddressesConnection
-import com.lightspark.sdk.model.OutgoingPayment
-import com.lightspark.sdk.model.Permission
-import com.lightspark.sdk.model.WithdrawalMode
-import com.lightspark.sdk.model.WithdrawalRequest
 import com.lightspark.sdk.util.serializerFormat
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmOverloads
+import saschpe.kase64.base64DecodedBytes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
-import saschpe.kase64.base64DecodedBytes
 
 private const val SCHEMA_ENDPOINT = "graphql/server/2023-04-04"
 
@@ -207,6 +172,8 @@ class LightsparkCoroutinesClient private constructor(
     /**
      * Creates a lightning invoice for the given node.
      *
+     * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
+     *
      * @param nodeId The ID of the node for which to create the invoice.
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
@@ -243,6 +210,9 @@ class LightsparkCoroutinesClient private constructor(
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
      * function. You must successfully unlock the node with its password before calling this function.
+     *
+     * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
+     * pay in test mode.
      *
      * @param nodeId The ID of the node which will pay the invoice.
      * @param encodedInvoice An encoded string representation of the invoice to pay.

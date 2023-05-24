@@ -111,6 +111,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
     /**
      * Creates a lightning invoice for the given node.
      *
+     * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
+     *
      * @param nodeId The ID of the node for which to create the invoice.
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
@@ -130,6 +132,9 @@ class LightsparkFuturesClient(config: ClientConfig) {
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
      * function. You must successfully unlock the node with its password before calling this function.
+     *
+     * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
+     * pay in test mode.
      *
      * @param nodeId The ID of the node which will pay the invoice.
      * @param encodedInvoice An encoded string representation of the invoice to pay.
