@@ -1,19 +1,24 @@
 package com.lightspark.sdk.wallet
 
 import com.lightspark.sdk.core.crypto.generateSigningKeyPair
+import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider
 import com.lightspark.sdk.wallet.auth.jwt.InMemoryJwtStorage
 import com.lightspark.sdk.wallet.model.KeyType
+import com.lightspark.sdk.wallet.model.OutgoingPayment
 import com.lightspark.sdk.wallet.model.Transaction
+import com.lightspark.sdk.wallet.model.TransactionStatus
 import com.lightspark.sdk.wallet.model.Wallet
 import com.lightspark.sdk.wallet.model.WalletStatus
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import saschpe.kase64.base64Encoded
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -22,11 +27,11 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
-import saschpe.kase64.base64Encoded
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
-    // Read the token ID and secrets from the environment.
+    // Read the token ID and secrets from the environment. See wallet-cli docs to get your environment set up to run
+    // these tests. https://app.lightspark.com/docs/wallet-sdk/wallet-cli
     private val apiAccountId = getPlatform().getEnv("LIGHTSPARK_ACCOUNT_ID")!!
     private val apiJwt = getPlatform().getEnv("LIGHTSPARK_JWT")!!
     private var signingPubKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PUB_KEY")
@@ -236,6 +241,39 @@ class ClientIntegrationTests {
         val estimate = client.getLightningFeeEstimateForNode(destinationPublicKey, 100_000)
         estimate.shouldNotBeNull()
         println("Fee estimate: $estimate")
+    }
+
+    @Test
+    fun `test paying a test mode invoice`() = runTest {
+        val testWalletSuffix = "_testdevregtest"
+        val jwt = getPlatform().getEnv("LIGHTSPARK_JWT$testWalletSuffix")!!
+        val signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY$testWalletSuffix")
+        val output = client.loginWithJWT(apiAccountId, jwt, jwtStorage)
+        ensureWalletDeployedAndInitialized(output.wallet)
+        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        val invoice = client.createTestModeInvoice(100_000, "test invoice")
+        var outgoingPayment: OutgoingPayment? = null
+        client.payInvoiceAndAwaitCompletion(invoice, maxFeesMsats = 100_000).collect {
+            outgoingPayment = it
+        }
+        outgoingPayment.shouldNotBeNull()
+        outgoingPayment?.status.shouldBe(TransactionStatus.SUCCESS)
+    }
+
+    @Test
+    fun `test creating a test mode payment`() = runTest {
+        // NOTE: This test assumes you have a wallet saved with the name "testregtest". See the wallet-cli docs for
+        // instructions on how to create these test wallets: https://app.lightspark.com/docs/wallet-sdk/wallet-cli
+        val testWalletSuffix = "_testregtest"
+        val jwt = getPlatform().getEnv("LIGHTSPARK_JWT$testWalletSuffix")!!
+        val signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY$testWalletSuffix")
+        val output = client.loginWithJWT(apiAccountId, jwt, jwtStorage)
+        ensureWalletDeployedAndInitialized(output.wallet)
+        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        val invoice = client.createInvoice(100_000, "test invoice")
+        val payment = client.createTestModePayment(invoice.encodedPaymentRequest)
+        payment.shouldNotBeNull()
+        payment.status.shouldBeIn(TransactionStatus.PENDING, TransactionStatus.SUCCESS)
     }
 
     // TODO: Add tests for withdrawals and deposits.

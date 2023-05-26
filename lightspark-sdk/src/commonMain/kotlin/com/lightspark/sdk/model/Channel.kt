@@ -93,7 +93,7 @@ query FetchChannelUptimePercentage(${'$'}entity_id: ID!, ${'$'}after_date: DateT
                 add("entity_id", id)
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
-            },
+            }
         ) {
             val connection = it["entity"]?.jsonObject?.get("uptime_percentage") ?: return@Query null
             return@Query connection.jsonPrimitive.int
@@ -101,11 +101,7 @@ query FetchChannelUptimePercentage(${'$'}entity_id: ID!, ${'$'}after_date: DateT
     }
 
     @JvmOverloads
-    fun getTransactionsQuery(
-        types: List<TransactionType>? = null,
-        afterDate: Instant? = null,
-        beforeDate: Instant? = null,
-    ): Query<ChannelToTransactionsConnection> {
+    fun getTransactionsQuery(types: List<TransactionType>? = null, afterDate: Instant? = null, beforeDate: Instant? = null): Query<ChannelToTransactionsConnection> {
         return Query(
             queryPayload = """
 query FetchChannelToTransactionsConnection(${'$'}entity_id: ID!, ${'$'}types: [TransactionType!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {
@@ -148,7 +144,7 @@ query FetchChannelToTransactionsConnection(${'$'}entity_id: ID!, ${'$'}types: [T
                 add("types", types)
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
-            },
+            }
         ) {
             val connection =
                 requireNotNull(it["entity"]?.jsonObject?.get("transactions")) { "transactions not found" }

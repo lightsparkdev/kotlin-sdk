@@ -6,13 +6,19 @@ import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.LightsparkNode
+import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.Transaction
+import com.lightspark.sdk.model.TransactionStatus
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.ktor.util.decodeBase64Bytes
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
@@ -193,6 +199,33 @@ class ClientIntegrationTests {
         channels.entities.shouldNotBeEmpty()
         println("Got ${channels.entities.size} channels")
         println("Channel IDs: ${channels.entities.map { it.id }}")
+    }
+
+    @Test
+    fun `test paying a test mode invoice`() = runTest {
+        val node = getFirstNode()
+        val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
+        unlocked.shouldBeTrue()
+        val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
+        var outgoingPayment: OutgoingPayment? = client.payInvoice(node.id, invoice, maxFeesMsats = 100_000)
+        outgoingPayment.shouldNotBeNull()
+        while (outgoingPayment?.status == TransactionStatus.PENDING) {
+            delay(500)
+            outgoingPayment = OutgoingPayment.getOutgoingPaymentQuery(outgoingPayment.id).execute(client)
+            println("Payment status: ${outgoingPayment?.status}")
+        }
+        outgoingPayment?.status.shouldBe(TransactionStatus.SUCCESS)
+    }
+
+    @Test
+    fun `test creating a test mode payment`() = runTest {
+        val node = getFirstNode()
+        val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
+        unlocked.shouldBeTrue()
+        val invoice = client.createInvoice(node.id, 100_000, "test invoice")
+        val payment = client.createTestModePayment(node.id, invoice.encodedPaymentRequest)
+        payment.shouldNotBeNull()
+        payment.status.shouldBeIn(TransactionStatus.PENDING, TransactionStatus.SUCCESS)
     }
 
     // TODO: Add tests for withdrawals and deposits.

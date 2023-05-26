@@ -12,46 +12,11 @@ import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.core.requester.Requester
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.graphql.*
-import com.lightspark.sdk.graphql.AccountDashboard
-import com.lightspark.sdk.graphql.AccountDashboardQuery
-import com.lightspark.sdk.graphql.BitcoinFeeEstimateQuery
-import com.lightspark.sdk.graphql.CreateApiTokenMutation
-import com.lightspark.sdk.graphql.CreateInvoiceMutation
-import com.lightspark.sdk.graphql.CreateNodeWalletAddressMutation
-import com.lightspark.sdk.graphql.CurrentAccountQuery
-import com.lightspark.sdk.graphql.DecodeInvoiceQuery
-import com.lightspark.sdk.graphql.DeleteApiTokenMutation
-import com.lightspark.sdk.graphql.FundNodeMutation
-import com.lightspark.sdk.graphql.LightningFeeEstimateForInvoiceQuery
-import com.lightspark.sdk.graphql.LightningFeeEstimateForNodeQuery
-import com.lightspark.sdk.graphql.PayInvoiceMutation
-import com.lightspark.sdk.graphql.RecoverNodeSigningKeyQuery
-import com.lightspark.sdk.graphql.RequestWithdrawalMutation
-import com.lightspark.sdk.graphql.SendPaymentMutation
-import com.lightspark.sdk.graphql.SingleNodeDashboardQuery
-import com.lightspark.sdk.graphql.WalletDashboard
 import com.lightspark.sdk.model.*
-import com.lightspark.sdk.model.Account
-import com.lightspark.sdk.model.BitcoinNetwork
-import com.lightspark.sdk.model.CreateApiTokenOutput
-import com.lightspark.sdk.model.CurrencyAmount
-import com.lightspark.sdk.model.FeeEstimate
-import com.lightspark.sdk.model.InvoiceData
-import com.lightspark.sdk.model.InvoiceType
-import com.lightspark.sdk.model.LightningFeeEstimateOutput
-import com.lightspark.sdk.model.LightsparkNodePurpose
-import com.lightspark.sdk.model.LightsparkNodeStatus
-import com.lightspark.sdk.model.NodeToAddressesConnection
-import com.lightspark.sdk.model.OutgoingPayment
-import com.lightspark.sdk.model.Permission
-import com.lightspark.sdk.model.WithdrawalMode
-import com.lightspark.sdk.model.WithdrawalRequest
 import com.lightspark.sdk.util.serializerFormat
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmOverloads
+import saschpe.kase64.base64DecodedBytes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
-import saschpe.kase64.base64DecodedBytes
 
 private const val SCHEMA_ENDPOINT = "graphql/server/2023-04-04"
 
@@ -125,7 +90,7 @@ class LightsparkCoroutinesClient private constructor(
                 AccountDashboardQuery,
                 {
                     add("network", bitcoinNetwork)
-                    add("nodeIds", nodeIds)
+                    nodeIds?.let { add("nodeIds", nodeIds) }
                 },
             ) {
                 val account =
@@ -207,6 +172,8 @@ class LightsparkCoroutinesClient private constructor(
     /**
      * Creates a lightning invoice for the given node.
      *
+     * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
+     *
      * @param nodeId The ID of the node for which to create the invoice.
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
@@ -225,7 +192,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("nodeId", nodeId)
                     add("amountMsats", amountMsats)
-                    add("memo", memo)
+                    memo?.let { add("memo", memo) }
                     add("type", type)
                 },
             ) {
@@ -243,6 +210,9 @@ class LightsparkCoroutinesClient private constructor(
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
      * function. You must successfully unlock the node with its password before calling this function.
+     *
+     * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
+     * pay in test mode.
      *
      * @param nodeId The ID of the node which will pay the invoice.
      * @param encodedInvoice An encoded string representation of the invoice to pay.
@@ -269,8 +239,8 @@ class LightsparkCoroutinesClient private constructor(
                     add("node_id", nodeId)
                     add("encoded_invoice", encodedInvoice)
                     add("timeout_secs", timeoutSecs)
-                    add("amount_msats", amountMsats)
                     add("maximum_fees_msats", maxFeesMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -345,7 +315,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     add("encoded_payment_request", encodedPaymentRequest)
-                    add("amount_msats", amountMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
             ) {
                 val feeEstimateJson =
@@ -633,7 +603,7 @@ class LightsparkCoroutinesClient private constructor(
         destinationPublicKey: String,
         amountMsats: Long,
         maxFeesMsats: Long,
-        timeoutSecs: Int? = null,
+        timeoutSecs: Int = 60,
     ): OutgoingPayment {
         requireValidAuth()
         return executeQuery(
@@ -659,6 +629,73 @@ class LightsparkCoroutinesClient private constructor(
                         LightsparkErrorCode.PAYMENT_ERROR,
                     )
                 }
+                serializerFormat.decodeFromJsonElement(paymentJson)
+            },
+        )
+    }
+
+    /**
+     * In test mode, generates a Lightning Invoice which can be paid by a local node.
+     * This call is only valid in test mode. You can then pay the invoice using [payInvoice].
+     *
+     * @param localNodeId The ID of the node that will pay the invoice.
+     * @param amountMsats The amount to pay in milli-satoshis.
+     * @param memo An optional memo to attach to the invoice.
+     * @param invoiceType The type of invoice to create.
+     */
+    suspend fun createTestModeInvoice(
+        localNodeId: String,
+        amountMsats: Long,
+        memo: String? = null,
+        invoiceType: InvoiceType? = null,
+    ): String {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CreateTestModeInvoice,
+                {
+                    add("local_node_id", localNodeId)
+                    add("amount_msats", amountMsats)
+                    memo?.let { add("memo", memo) }
+                    add("invoice_type", invoiceType)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["create_test_mode_invoice"]) { "No invoice found in response" }
+                val output = serializerFormat.decodeFromJsonElement<CreateTestModeInvoiceOutput>(outputJson)
+                output.encodedPaymentRequest
+            },
+        )
+    }
+
+    /**
+     * In test mode, simulates a payment of a Lightning Invoice from another node.
+     * This can only be used in test mode and should be used with invoices generated by [createTestModeInvoice].
+     *
+     * @param localNodeId The ID of the node that will receive the payment.
+     * @param encodedInvoice The encoded invoice to pay.
+     * @param amountMsats The amount to pay in milli-satoshis for 0-amount invoices. This should be null for non-zero
+     *     amount invoices.
+     */
+    suspend fun createTestModePayment(
+        localNodeId: String,
+        encodedInvoice: String,
+        amountMsats: Long? = null,
+    ): OutgoingPayment {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CreateTestModePayment,
+                {
+                    add("local_node_id", localNodeId)
+                    add("encoded_invoice", encodedInvoice)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["create_test_mode_payment"]) { "No payment output found in response" }
+                val paymentJson =
+                    requireNotNull(outputJson.jsonObject["payment"]) { "No payment found in response" }
                 serializerFormat.decodeFromJsonElement(paymentJson)
             },
         )

@@ -8,6 +8,7 @@ import android.util.Log
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
+import java.security.NoSuchAlgorithmException
 import java.security.Signature
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
@@ -22,8 +23,13 @@ internal actual fun signUsingAlias(payload: ByteArray, keyAlias: String): ByteAr
         Log.w("Lightspark", "Keystore entry is not an instance of a PrivateKeyEntry")
         throw MissingKeyException(keyAlias)
     }
-    val signature = Signature.getInstance("RSASSA-PSS").apply {
-        setParameter(PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1))
+    val signature = try {
+        Signature.getInstance("SHA256withRSA/PSS")
+    } catch (e: NoSuchAlgorithmException) {
+        // Fallback to RSASSA-PSS if SHA256withRSA/PSS is not supported
+        Signature.getInstance("RSASSA-PSS").apply {
+            setParameter(PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1))
+        }
     }
     signature.initSign(entry.privateKey)
     signature.update(payload)
