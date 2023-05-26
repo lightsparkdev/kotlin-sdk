@@ -315,7 +315,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         destinationPublicKey: String,
         amountMsats: Long,
         maxFeesMsats: Long,
-        timeoutSecs: Int? = null,
+        timeoutSecs: Int = 60,
     ): OutgoingPayment = runBlocking {
         asyncClient.sendPayment(
             payerNodeId,

@@ -319,7 +319,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
         destinationPublicKey: String,
         amountMsats: Long,
         maxFeesMsats: Long,
-        timeoutSecs: Int? = null,
+        timeoutSecs: Int = 60,
     ): CompletableFuture<OutgoingPayment> = coroutineScope.future {
         coroutinesClient.sendPayment(
             payerNodeId,

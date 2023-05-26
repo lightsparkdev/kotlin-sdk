@@ -1,5 +1,7 @@
 package com.lightspark.sdk.graphql
 
+import com.lightspark.sdk.model.CreateTestModeInvoiceOutput
+
 const val CreateTestModeInvoice = """
 mutation CreateTestModeInvoice(
     ${'$'}local_node_id: ID!
@@ -13,7 +15,9 @@ mutation CreateTestModeInvoice(
         memo: ${'$'}memo
         invoice_type: ${'$'}invoice_type
     }) {
-        encoded_payment_request
+        ...CreateTestModeInvoiceOutputFragment
     }
 }
+
+${CreateTestModeInvoiceOutput.FRAGMENT}
 """

@@ -1,5 +1,7 @@
 package com.lightspark.sdk.wallet.graphql
 
+import com.lightspark.sdk.wallet.model.CreateTestModeInvoiceOutput
+
 const val CreateTestModeInvoice = """
 mutation CreateTestModeInvoice(
     ${'$'}amount_msats: Long!
@@ -11,7 +13,9 @@ mutation CreateTestModeInvoice(
         memo: ${'$'}memo
         invoice_type: ${'$'}invoice_type
     }) {
-        encoded_payment_request
+        ...CreateTestModeInvoiceOutputFragment
     }
 }
+
+${CreateTestModeInvoiceOutput.FRAGMENT}
 """

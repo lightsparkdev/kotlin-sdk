@@ -300,7 +300,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 CreateInvoiceMutation,
                 {
                     add("amountMsats", amountMsats)
-                    add("memo", memo)
+                    memo?.let { add("memo", memo) }
                     add("type", type)
                 },
             ) {
@@ -347,8 +347,8 @@ class LightsparkCoroutinesWalletClient private constructor(
                 {
                     add("encoded_invoice", encodedInvoice)
                     add("timeout_secs", timeoutSecs)
-                    add("amount_msats", amountMsats)
                     add("maximum_fees_msats", maxFeesMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
                 signingNodeId = WALLET_NODE_ID_KEY,
             ) {
@@ -466,7 +466,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 LightningFeeEstimateForInvoiceQuery,
                 {
                     add("encoded_payment_request", encodedPaymentRequest)
-                    add("amount_msats", amountMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
             ) {
                 val feeEstimateJson =
@@ -713,7 +713,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 CreateTestModeInvoice,
                 {
                     add("amount_msats", amountMsats)
-                    add("memo", memo)
+                    memo?.let { add("memo", memo) }
                     add("invoice_type", invoiceType)
                 },
             ) {
@@ -743,7 +743,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 CreateTestModePayment,
                 {
                     add("encoded_invoice", encodedInvoice)
-                    add("amount_msats", amountMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
             ) {
                 val outputJson =

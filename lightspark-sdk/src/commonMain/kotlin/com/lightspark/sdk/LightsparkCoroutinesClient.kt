@@ -90,7 +90,7 @@ class LightsparkCoroutinesClient private constructor(
                 AccountDashboardQuery,
                 {
                     add("network", bitcoinNetwork)
-                    add("nodeIds", nodeIds)
+                    nodeIds?.let { add("nodeIds", nodeIds) }
                 },
             ) {
                 val account =
@@ -192,7 +192,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("nodeId", nodeId)
                     add("amountMsats", amountMsats)
-                    add("memo", memo)
+                    memo?.let { add("memo", memo) }
                     add("type", type)
                 },
             ) {
@@ -239,8 +239,8 @@ class LightsparkCoroutinesClient private constructor(
                     add("node_id", nodeId)
                     add("encoded_invoice", encodedInvoice)
                     add("timeout_secs", timeoutSecs)
-                    add("amount_msats", amountMsats)
                     add("maximum_fees_msats", maxFeesMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -315,7 +315,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     add("encoded_payment_request", encodedPaymentRequest)
-                    add("amount_msats", amountMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
             ) {
                 val feeEstimateJson =
@@ -603,7 +603,7 @@ class LightsparkCoroutinesClient private constructor(
         destinationPublicKey: String,
         amountMsats: Long,
         maxFeesMsats: Long,
-        timeoutSecs: Int? = null,
+        timeoutSecs: Int = 60,
     ): OutgoingPayment {
         requireValidAuth()
         return executeQuery(
@@ -656,7 +656,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("local_node_id", localNodeId)
                     add("amount_msats", amountMsats)
-                    add("memo", memo)
+                    memo?.let { add("memo", memo) }
                     add("invoice_type", invoiceType)
                 },
             ) {
@@ -689,7 +689,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("local_node_id", localNodeId)
                     add("encoded_invoice", encodedInvoice)
-                    add("amount_msats", amountMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
                 },
             ) {
                 val outputJson =
