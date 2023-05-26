@@ -54,8 +54,7 @@ jobs:
             --base develop\
             --head $branch_name\
             --assignee ${{ github.event.pusher.name }}`
-          gh pr review $PR_URL --approve
-          gh pr merge $PR_URL -m --admin
+          gh pr merge $PR_URL --auto -m
       - name: Create Merge PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
