@@ -2,7 +2,7 @@ name: Lightspark SDK Publish
 
 on:
   release:
-    types: [ created ]
+    types: [ published ]
 
 jobs:
   publish-wallet-sdk:
