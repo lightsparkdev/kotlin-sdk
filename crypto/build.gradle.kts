@@ -72,14 +72,14 @@ kotlin {
             dependsOn(commonJvmAndroidMain)
             dependencies {
                 implementation(libs.kotlinx.coroutines.jdk8)
-                implementation("fr.acinq.secp256k1:secp256k1-kmp-jni-jvm:0.10.0")
+                implementation(libs.acinq.secp256k1.jni.jvm)
             }
         }
 
         val androidMain by getting {
             dependsOn(commonJvmAndroidMain)
             dependencies {
-                implementation("fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.10.0")
+                implementation(libs.acinq.secp256k1.jni.android)
             }
         }
         val androidUnitTest by getting
