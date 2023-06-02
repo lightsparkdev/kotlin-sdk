@@ -5,6 +5,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }
 }
 
 java {

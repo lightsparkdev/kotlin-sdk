@@ -5,10 +5,6 @@ import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import java.net.URL
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
-}
-
 buildscript {
     dependencies {
         classpath(libs.gradleClasspath.android)
