@@ -37,15 +37,7 @@ kotlin {
         }
     }
 
-//    js(IR) {
-//        browser {
-//            binaries.executable()
-//        }
-//
-//        nodejs {
-//            binaries.executable()
-//        }
-//    }
+    // TODO: Add JS support if we can get a working secp256 and bip32 implementation.
 
     jvm {
         // This doesn't work, unfortunately.. https://youtrack.jetbrains.com/issue/KT-30878
