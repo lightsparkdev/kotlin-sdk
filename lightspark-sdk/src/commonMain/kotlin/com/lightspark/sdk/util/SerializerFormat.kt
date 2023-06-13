@@ -15,6 +15,7 @@ import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.model.InvoiceData
 import com.lightspark.sdk.model.LightningTransaction
 import com.lightspark.sdk.model.LightsparkNode
+import com.lightspark.sdk.model.LightsparkNodeOwner
 import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OnChainTransaction
 import com.lightspark.sdk.model.OutgoingPayment
@@ -56,6 +57,10 @@ private val serializerModule = SerializersModule {
         subclass(IncomingPayment::class)
         subclass(OutgoingPayment::class)
         subclass(RoutingTransaction::class)
+    }
+    polymorphic(LightsparkNodeOwner::class) {
+        subclass(Account::class)
+        subclass(Wallet::class)
     }
     polymorphic(Node::class) {
         subclass(GraphNode::class)

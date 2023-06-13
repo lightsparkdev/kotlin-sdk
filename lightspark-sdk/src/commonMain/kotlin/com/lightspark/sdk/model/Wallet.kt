@@ -19,6 +19,7 @@ import kotlinx.serialization.json.jsonObject
  * @param createdAt The date and time when the entity was first created.
  * @param updatedAt The date and time when the entity was last updated.
  * @param thirdPartyIdentifier The unique identifier of this wallet, as provided by the Lightspark Customer during login.
+ * @param status The status of this wallet.
  * @param lastLoginAt The date and time when the wallet user last logged in.
  * @param balances The balances that describe the funds in this wallet.
  */
@@ -34,11 +35,13 @@ data class Wallet(
     override val updatedAt: Instant,
     @SerialName("wallet_third_party_identifier")
     val thirdPartyIdentifier: String,
+    @SerialName("wallet_status")
+    val status: WalletStatus,
     @SerialName("wallet_last_login_at")
     val lastLoginAt: Instant? = null,
     @SerialName("wallet_balances")
     val balances: Balances? = null,
-) : Entity {
+) : LightsparkNodeOwner, Entity {
     @JvmOverloads
     fun getTotalAmountReceivedQuery(createdAfterDate: Instant? = null, createdBeforeDate: Instant? = null): Query<CurrencyAmount> {
         return Query(
@@ -101,11 +104,11 @@ query FetchWalletTotalAmountSent(${'$'}created_after_date: DateTime, ${'$'}creat
 
     companion object {
         @JvmStatic
-        fun getWalletQuery(): Query<Wallet> {
+        fun getWalletQuery(id: String): Query<Wallet> {
             return Query(
                 queryPayload = """
-query GetWallet {
-    current_wallet {
+query GetWallet(${'$'}id: ID!) {
+    entity(id: ${'$'}id) {
         ... on Wallet {
             ...WalletFragment
         }
@@ -114,9 +117,9 @@ query GetWallet {
 
 $FRAGMENT
 """,
-                variableBuilder = { },
+                variableBuilder = { add("id", id) },
             ) {
-                val entity = requireNotNull(it["current_wallet"]) { "Entity not found" }
+                val entity = requireNotNull(it["entity"]) { "Entity not found" }
                 serializerFormat.decodeFromJsonElement(entity)
             }
         }
@@ -156,6 +159,7 @@ fragment WalletFragment on Wallet {
         }
     }
     wallet_third_party_identifier: third_party_identifier
+    wallet_status: status
 }"""
     }
 }
