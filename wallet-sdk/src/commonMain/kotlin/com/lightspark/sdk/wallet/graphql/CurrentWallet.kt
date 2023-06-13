@@ -11,3 +11,13 @@ query CurrentWallet {
 
 ${Wallet.FRAGMENT}
 """
+
+const val CurrentWalletSubscription = """
+subscription CurrentWallet {
+    current_wallet {
+        ...WalletFragment
+    }
+}
+
+${Wallet.FRAGMENT}
+"""

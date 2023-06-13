@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
 
-class VariableBuilder(val jsonSerialFormat: Json) {
+class JsonObjectBuilder(val jsonSerialFormat: Json) {
     val variables = mutableMapOf<String, JsonElement>()
 
     fun add(name: String, value: JsonElement) {
@@ -38,8 +38,16 @@ class VariableBuilder(val jsonSerialFormat: Json) {
     }
 }
 
-fun variables(jsonSerialFormat: Json, builder: VariableBuilder.() -> Unit): JsonObject {
-    val variableBuilder = VariableBuilder(jsonSerialFormat)
-    variableBuilder.builder()
-    return variableBuilder.build()
+fun buildJsonObject(jsonSerialFormat: Json, builder: JsonObjectBuilder.() -> Unit): JsonObject {
+    val jsonObjectBuilder = JsonObjectBuilder(jsonSerialFormat)
+    jsonObjectBuilder.builder()
+    return jsonObjectBuilder.build()
+}
+
+fun Map<String, Any?>.toJsonObject(jsonSerialFormat: Json): JsonObject {
+    val jsonObjectBuilder = JsonObjectBuilder(jsonSerialFormat)
+    forEach { (key, value) ->
+        jsonObjectBuilder.add(key, value)
+    }
+    return jsonObjectBuilder.build()
 }

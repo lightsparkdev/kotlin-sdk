@@ -9,7 +9,7 @@ interface StringDeserializer<T> {
 
 data class Query<T>(
     val queryPayload: String,
-    val variableBuilder: VariableBuilder.() -> Unit,
+    val variableBuilder: JsonObjectBuilder.() -> Unit,
     val signingNodeId: String? = null,
     val deserializer: (JsonObject) -> T,
 ) {

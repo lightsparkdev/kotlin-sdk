@@ -1,6 +1,7 @@
 package com.lightspark.sdk.core.requester
 
 import com.chrynan.krypt.csprng.SecureRandom
+import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkCoreConfig
 import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
@@ -12,16 +13,20 @@ import com.lightspark.sdk.core.crypto.signPayload
 import com.lightspark.sdk.core.crypto.signUsingAlias
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import saschpe.kase64.base64Encoded
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -32,7 +37,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import saschpe.kase64.base64Encoded
 
 private const val DEFAULT_BASE_URL = "api.lightspark.com"
 
@@ -43,7 +47,9 @@ class Requester constructor(
     private val schemaEndpoint: String,
     private val baseUrl: String = DEFAULT_BASE_URL,
 ) {
-    private val httpClient = HttpClient()
+    private val httpClient = HttpClient {
+        install(WebSockets)
+    }
     private val userAgent =
         "lightspark-kotlin-sdk/${LightsparkCoreConfig.VERSION} ${getPlatform().platformName}/${getPlatform().version}"
     private val defaultHeaders = mapOf(
@@ -53,13 +59,14 @@ class Requester constructor(
         "X-Lightspark-SDK" to userAgent,
     )
     private val secureRandom = SecureRandom()
+    private var websocketConnectionHandler: WebsocketConnectionHandler? = null
 
     @Throws(LightsparkException::class, CancellationException::class)
     suspend fun <T> executeQuery(query: Query<T>): T {
         val response =
             makeRawRequest(
                 query.queryPayload,
-                variables(jsonSerialFormat, query.variableBuilder),
+                buildJsonObject(jsonSerialFormat, query.variableBuilder),
                 query.signingNodeId,
             )
         return query.deserializer(response)
@@ -141,6 +148,51 @@ class Requester constructor(
             )
         }
         return responseData.jsonObject
+    }
+
+    @Throws(LightsparkException::class, CancellationException::class)
+    inline fun <reified T> executeAsSubscription(query: Query<T>): Flow<Lce<T>> {
+        return makeRawSubscription(query).map { response ->
+            try {
+                when (response) {
+                    is Lce.Error -> throw response.exception ?: LightsparkException(
+                        "Unknown error",
+                        LightsparkErrorCode.UNKNOWN,
+                    )
+
+                    is Lce.Loading -> Lce.Loading
+                    is Lce.Content -> {
+                        val dataJson = response.data["data"] ?: throw LightsparkException(
+                            "Invalid response",
+                            LightsparkErrorCode.REQUEST_FAILED,
+                        )
+                        Lce.Content(query.deserializer(dataJson.jsonObject))
+                    }
+                }
+            } catch (e: Exception) {
+                Lce.Error(e)
+            }
+        }
+    }
+
+    @Throws(LightsparkException::class, CancellationException::class)
+    fun makeRawSubscription(
+        query: Query<*>,
+    ): Flow<Lce<JsonObject>> {
+        if (websocketConnectionHandler == null) {
+            websocketConnectionHandler = WebsocketConnectionHandler(
+                httpClient,
+                "wss://$baseUrl/$schemaEndpoint",
+                jsonSerialFormat,
+                {
+                    buildJsonObject(jsonSerialFormat) {
+                        authProvider.withValidAuthToken { add("access_token", it) }
+                    }
+                },
+                defaultHeaders,
+            )
+        }
+        return websocketConnectionHandler!!.execute(query)
     }
 
     private fun addSigningDataIfNeeded(
