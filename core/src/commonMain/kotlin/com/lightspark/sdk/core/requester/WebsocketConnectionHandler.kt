@@ -25,6 +25,19 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
+/**
+ * Handles the connection to the GraphQL WebSocket endpoint.
+ *
+ * This class is responsible for:
+ * - Establishing the connection and managing its lifecycle
+ * - Dealing with the protocol handshake
+ * - Sending and receiving messages via the correct protocol
+ * - Reconnecting when the connection is lost
+ * - Dispatching events to the correct subscription flows
+ *
+ * It is based partially on Apollo's wonderful [WebSocketNetworkTransport](https://github.com/apollographql/apollo-kotlin/blob/main/libraries/apollo-runtime/src/commonMain/kotlin/com/apollographql/apollo3/network/ws/WebSocketNetworkTransport.kt),
+ * but has been modified to fit with the Lightspark SDKs.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class WebsocketConnectionHandler(
     private val httpClient: HttpClient,
@@ -105,7 +118,7 @@ internal class WebsocketConnectionHandler(
             idleJob = null
         }
 
-        while (true) {
+        supervisorLoop@ while (true) {
             when (val message = messages.receive()) {
                 is Event -> {
                     if (message is NetworkError) {
@@ -176,9 +189,19 @@ internal class WebsocketConnectionHandler(
                             continue
                         }
                     }
-                    // TODO(Jeremy): This is gross and should be fixed.
+
+                    // Note: This is a bit of a hack. We need to wait for the protocol to be initialized by the websocket
+                    // coroutine before we can send messages to it.
+                    val protocolWaitInterval = 50L
+                    val protocolWaitTimeLimit = 10_000L
+                    var protocolWaitCount = 0L
                     while (protocol == null) {
-                        delay(100)
+                        if (protocolWaitCount >= protocolWaitTimeLimit) {
+                            messages.send(NetworkError(Exception("Timed out waiting for protocol to be initialized")))
+                            continue@supervisorLoop
+                        }
+                        delay(protocolWaitInterval)
+                        protocolWaitCount += protocolWaitInterval
                     }
 
                     when (message) {
