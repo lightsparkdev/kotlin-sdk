@@ -46,6 +46,7 @@ internal class WebsocketConnectionHandler(
     private val connectionPayload: suspend () -> JsonObject? = { null },
     private val extraHeaders: Map<String, String> = emptyMap(),
     private val idleTimeoutMillis: Long = 60_000L,
+    private val reopenWhen: (suspend (Throwable, attempt: Long) -> Boolean)? = null,
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
 
@@ -124,15 +125,14 @@ internal class WebsocketConnectionHandler(
                     if (message is NetworkError) {
                         closeProtocol()
 
-                        // TODO: Retries:
-//                        if (reopenWhen?.invoke(message.cause, reopenAttemptCount) == true) {
-//                            reopenAttemptCount++
-//                            messages.send(RestartConnection)
-//                        } else {
-//                            reopenAttemptCount = 0L
-//                            // forward the NetworkError downstream. Active flows will throw
-//                            mutableEvents.tryEmit(message)
-//                        }
+                        if (reopenWhen?.invoke(message.cause, reopenAttemptCount) == true) {
+                            reopenAttemptCount++
+                            messages.send(RestartConnection)
+                        } else {
+                            reopenAttemptCount = 0L
+                            // forward the NetworkError downstream. Active flows will throw
+                            mutableEvents.tryEmit(message)
+                        }
                     } else if (message is ConnectionReEstablished) {
                         reopenAttemptCount = 0L
                         activeMessages.values.forEach {
@@ -164,7 +164,12 @@ internal class WebsocketConnectionHandler(
                             connectionJob = coroutineScope.launch {
                                 httpClient.wss(
                                     urlString = url,
-                                    request = { headers.append("Sec-WebSocket-Protocol", "graphql-transport-ws") },
+                                    request = {
+                                        extraHeaders.forEach { (key, value) ->
+                                            headers.append(key, value)
+                                        }
+                                        headers.append("Sec-WebSocket-Protocol", "graphql-transport-ws")
+                                    },
                                 ) {
                                     protocol = GraphQLWebsocketProtocol(
                                         webSocketSession = this,
