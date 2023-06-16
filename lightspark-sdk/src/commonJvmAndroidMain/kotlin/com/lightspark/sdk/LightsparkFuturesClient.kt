@@ -128,6 +128,23 @@ class LightsparkFuturesClient(config: ClientConfig) {
         coroutineScope.future { coroutinesClient.createInvoice(nodeId, amountMsats, memo, type) }
 
     /**
+     * Creates a Lightning invoice for the given node. This should only be used for generating invoices for LNURLs, with
+     * [LightsparkCoroutinesClient.createInvoice] preferred in the general case.
+     *
+     * @param nodeId The ID of the node for which to create the invoice.
+     * @param amountMsats The amount of the invoice in milli-satoshis.
+     * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
+     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     */
+    @JvmOverloads
+    fun createLnurlInvoice(
+        nodeId: String,
+        amountMsats: Long,
+        metadata: String
+    ): CompletableFuture<InvoiceData> =
+        coroutineScope.future { coroutinesClient.createLnurlInvoice(nodeId, amountMsats, metadata) }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]

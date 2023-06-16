@@ -21,6 +21,7 @@ import kotlinx.serialization.json.jsonObject
  * @param bitcoinNetwork The Bitcoin Network this node is deployed in.
  * @param displayName The name of this node in the network. It will be the most human-readable option possible, depending on the data available for this node.
  * @param accountId The account that owns this LightsparkNode.
+ * @param ownerId The owner of this LightsparkNode.
  * @param alias A name that identifies the node. It has no importance in terms of operating the node, it is just a way to identify and search for commercial services or popular nodes. This alias can be changed at any time by the node operator.
  * @param color A hexadecimal string that describes a color. For example "#000000" is black, "#FFFFFF" is white. It has no importance in terms of operating the node, it is just a way to visually differentiate nodes. That color can be changed at any time by the node operator.
  * @param conductivity A summary metric used to capture how well positioned a node is to send, receive, or route transactions efficiently. Maximizing a node's conductivity helps a node’s transactions to be capital efficient. The value is an integer ranging between 0 and 10 (bounds included).
@@ -50,6 +51,8 @@ data class LightsparkNode(
     override val displayName: String,
     @SerialName("lightspark_node_account")
     val accountId: EntityId,
+    @SerialName("lightspark_node_owner")
+    val ownerId: EntityId,
     @SerialName("lightspark_node_alias")
     override val alias: String? = null,
     @SerialName("lightspark_node_color")
@@ -268,6 +271,9 @@ fragment LightsparkNodeFragment on LightsparkNode {
     lightspark_node_display_name: display_name
     lightspark_node_public_key: public_key
     lightspark_node_account: account {
+        id
+    }
+    lightspark_node_owner: owner {
         id
     }
     lightspark_node_blockchain_balance: blockchain_balance {

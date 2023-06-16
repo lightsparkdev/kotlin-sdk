@@ -15,6 +15,7 @@ import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
 import com.lightspark.sdk.util.serializerFormat
 import saschpe.kase64.base64DecodedBytes
+import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
 
@@ -199,6 +200,44 @@ class LightsparkCoroutinesClient private constructor(
                 val invoiceJson =
                     requireNotNull(
                         it["create_invoice"]?.jsonObject?.get("invoice")?.jsonObject?.get("data"),
+                    ) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
+     * Creates a Lightning invoice for the given node. This should only be used for generating invoices for LNURLs, with
+     * [LightsparkCoroutinesClient.createInvoice] preferred in the general case.
+     *
+     * @param nodeId The ID of the node for which to create the invoice.
+     * @param amountMsats The amount of the invoice in milli-satoshis.
+     * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
+     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     */
+    suspend fun createLnurlInvoice(
+        nodeId: String,
+        amountMsats: Long,
+        metadata: String,
+    ): InvoiceData {
+        requireValidAuth()
+
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(metadata.toByteArray())
+        val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+
+        return executeQuery(
+            Query(
+                CreateLnurlInvoiceMutation,
+                {
+                    add("nodeId", nodeId)
+                    add("amountMsats", amountMsats)
+                    add("metadataHash", metadataHash)
+                },
+            ) {
+                val invoiceJson =
+                    requireNotNull(
+                        it["create_lnurl_invoice"]?.jsonObject?.get("invoice")?.jsonObject?.get("data"),
                     ) { "No invoice found in response" }
                 serializerFormat.decodeFromJsonElement(invoiceJson)
             },

@@ -1,9 +1,11 @@
 package com.lightspark.sdk.wallet.util
 
+import com.lightspark.sdk.wallet.model.AmazonS3FundsRecoveryKit
 import com.lightspark.sdk.wallet.model.ChannelClosingTransaction
 import com.lightspark.sdk.wallet.model.ChannelOpeningTransaction
 import com.lightspark.sdk.wallet.model.Deposit
 import com.lightspark.sdk.wallet.model.Entity
+import com.lightspark.sdk.wallet.model.FundsRecoveryKit
 import com.lightspark.sdk.wallet.model.GraphNode
 import com.lightspark.sdk.wallet.model.IncomingPayment
 import com.lightspark.sdk.wallet.model.Invoice
@@ -35,6 +37,9 @@ private val serializerModule = SerializersModule {
         subclass(Wallet::class)
         subclass(Withdrawal::class)
         subclass(WithdrawalRequest::class)
+    }
+    polymorphic(FundsRecoveryKit::class) {
+        subclass(AmazonS3FundsRecoveryKit::class)
     }
     polymorphic(LightningTransaction::class) {
         subclass(IncomingPayment::class)

@@ -9,6 +9,9 @@ import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 
@@ -47,6 +50,7 @@ import kotlinx.serialization.json.*
  */
 class LightsparkSyncWalletClient constructor(config: ClientConfig) {
     private val asyncClient: LightsparkCoroutinesWalletClient = LightsparkCoroutinesWalletClient(config)
+    private val parallelCoroutineScope = CoroutineScope(Dispatchers.Default)
 
     /**
      * Override the auth token provider for this client to provide custom headers on all API calls.
@@ -98,6 +102,47 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
     @Throws(LightsparkAuthenticationException::class, CancellationException::class)
     fun initializeWallet(keyType: KeyType, signingPublicKey: String, signingPrivateKey: String): Wallet = runBlocking {
         asyncClient.initializeWallet(keyType, signingPublicKey, signingPrivateKey)
+    }
+
+    /**
+     * Deploys a wallet in the Lightspark infrastructure and triggers updates as state changes.
+     * This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `DEPLOYED` (or `FAILED`).
+     *
+     * @param callback A callback that will be called periodically until the wallet is deployed or failed.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun deployWalletAndAwaitDeployed(callback: (Wallet) -> Unit) {
+        runBlocking {
+            asyncClient.deployWalletAndAwaitDeployed().collect {
+                parallelCoroutineScope.launch { callback(it) }
+            }
+        }
+    }
+
+    /**
+     * Initializes a wallet in the Lightspark infrastructure and syncs it to the Bitcoin network and triggers updates
+     * as state changes. This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `READY` (or `FAILED`).
+     *
+     * @param keyType The type of key to use for the wallet.
+     * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param callback A callback that will be called periodically until the wallet is ready or failed.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun initializeWalletAndWaitForInitialized(
+        keyType: KeyType,
+        signingPublicKey: String,
+        signingPrivateKey: String,
+        callback: (Wallet) -> Unit
+    ) {
+        runBlocking {
+            asyncClient.initializeWalletAndWaitForInitialized(keyType, signingPublicKey, signingPrivateKey).collect {
+                parallelCoroutineScope.launch { callback(it) }
+            }
+        }
     }
 
     /**
