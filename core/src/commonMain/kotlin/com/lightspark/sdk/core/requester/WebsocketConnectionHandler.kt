@@ -233,7 +233,6 @@ internal class WebsocketConnectionHandler(
                             delay(idleTimeoutMillis)
                             closeProtocol()
                         }
-
                     } else {
                         idleJob?.cancel()
                         null
@@ -280,8 +279,16 @@ internal class WebsocketConnectionHandler(
                     Lce.Content(responsePayload)
                 }
 
-                is OperationError -> Lce.Error(LightsparkException("Request ${response.id} failed", LightsparkErrorCode.REQUEST_FAILED))
-                is NetworkError -> Lce.Error(LightsparkException("Network error while executing ${response.id}", LightsparkErrorCode.REQUEST_FAILED, response.cause))
+                is OperationError -> Lce.Error(
+                    LightsparkException("Request ${response.id} failed", LightsparkErrorCode.REQUEST_FAILED),
+                )
+                is NetworkError -> Lce.Error(
+                    LightsparkException(
+                        "Network error while executing ${response.id}",
+                        LightsparkErrorCode.REQUEST_FAILED,
+                        response.cause,
+                    ),
+                )
 
                 // Cannot happen as these events are filtered out upstream
                 is ConnectionReEstablished, is OperationComplete -> error("Unexpected event $response")

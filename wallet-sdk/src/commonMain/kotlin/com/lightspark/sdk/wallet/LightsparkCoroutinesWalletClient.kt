@@ -16,7 +16,6 @@ import com.lightspark.sdk.wallet.auth.jwt.JwtTokenInfo
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import com.lightspark.sdk.wallet.util.serializerFormat
-import saschpe.kase64.base64DecodedBytes
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.transformWhile
 import kotlinx.serialization.json.*
+import saschpe.kase64.base64DecodedBytes
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
 private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-05-05"

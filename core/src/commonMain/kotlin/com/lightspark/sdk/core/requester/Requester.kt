@@ -19,7 +19,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
-import saschpe.kase64.base64Encoded
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -37,6 +36,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import saschpe.kase64.base64Encoded
 
 private const val DEFAULT_BASE_URL = "api.lightspark.com"
 

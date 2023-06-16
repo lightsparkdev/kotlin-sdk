@@ -169,7 +169,6 @@ enum class CloseCode(val code: Int) {
     TryAgainLater(1013),
     BadGateway(1013),
 
-
     InternalServerError(4500),
     InternalClientError(4005),
     BadRequest(4400),

@@ -1,7 +1,6 @@
 package com.lightspark.sdk.wallet
 
 import com.lightspark.sdk.core.crypto.generateSigningKeyPair
-import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider
 import com.lightspark.sdk.wallet.auth.jwt.InMemoryJwtStorage
@@ -18,7 +17,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
-import saschpe.kase64.base64Encoded
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -27,6 +25,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import saschpe.kase64.base64Encoded
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
