@@ -50,12 +50,6 @@ internal class WebsocketConnectionHandler(
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
 
-    init {
-        coroutineScope.launch {
-            supervise(this)
-        }
-    }
-
     /**
      * The message queue read by the supervisor.
      *
@@ -94,6 +88,12 @@ internal class WebsocketConnectionHandler(
 
         override fun onClose(code: Int, reason: String) {
             messages.trySend(Dispose)
+        }
+    }
+
+    init {
+        coroutineScope.launch {
+            supervise(this)
         }
     }
 

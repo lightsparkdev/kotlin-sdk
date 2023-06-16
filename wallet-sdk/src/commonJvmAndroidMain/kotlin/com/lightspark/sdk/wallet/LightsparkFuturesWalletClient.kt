@@ -13,6 +13,8 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 
 /**
@@ -93,6 +95,51 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
     ): CompletableFuture<Wallet> =
         coroutineScope.future {
             coroutinesClient.initializeWallet(keyType, signingPublicKey, signingPrivateKey)
+        }
+
+    /**
+     * Deploys a wallet in the Lightspark infrastructure and triggers updates as state changes.
+     * This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `DEPLOYED` (or `FAILED`).
+     *
+     * @param callback A callback that will be called periodically until the wallet is deployed or failed.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun deployWalletAndAwaitDeployed(callback: (Wallet) -> Unit): CompletableFuture<Wallet> =
+        coroutineScope.future {
+            var wallet: Wallet? = null
+            coroutinesClient.deployWalletAndAwaitDeployed().collect {
+                wallet = it
+                coroutineScope.launch { callback(it) }
+            }
+            requireNotNull(wallet) { "Failed to deploy wallet." }
+        }
+
+    /**
+     * Initializes a wallet in the Lightspark infrastructure and syncs it to the Bitcoin network and triggers updates
+     * as state changes. This is an asynchronous operation, which will continue sending the wallet state updates until
+     * the Wallet status changes to `READY` (or `FAILED`).
+     *
+     * @param keyType The type of key to use for the wallet.
+     * @param signingPublicKey The base64-encoded public key to use for signing transactions.
+     * @param callback A callback that will be called periodically until the wallet is ready or failed.
+     * @throws LightsparkAuthenticationException if there is no valid authentication.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun initializeWalletAndWaitForInitialized(
+        keyType: KeyType,
+        signingPublicKey: String,
+        signingPrivateKey: String,
+        callback: (Wallet) -> Unit
+    ): CompletableFuture<Wallet> =
+        coroutineScope.future {
+            var wallet: Wallet? = null
+            coroutinesClient.initializeWalletAndWaitForInitialized(keyType, signingPublicKey, signingPrivateKey).collect {
+                wallet = it
+                coroutineScope.launch { callback(it) }
+            }
+            requireNotNull(wallet) { "Failed to initialize wallet." }
         }
 
     /**

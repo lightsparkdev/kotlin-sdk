@@ -5,6 +5,7 @@ import static com.lightspark.sdk.core.util.PlatformKt.getPlatform;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.lightspark.sdk.wallet.ClientConfig;
+import com.lightspark.sdk.wallet.LightsparkFuturesWalletClient;
 import com.lightspark.sdk.wallet.LightsparkSyncWalletClient;
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider;
 import com.lightspark.sdk.wallet.auth.jwt.InMemoryJwtStorage;
@@ -18,11 +19,12 @@ import org.junit.jupiter.api.Test;
 
 import java.security.KeyPair;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import kotlin.Unit;
 
-public class LightsparkSyncWalletClientTest {
+public class LightsparkFuturesWalletClientTest {
     private String apiAccountId = getPlatform().getEnv("LIGHTSPARK_ACCOUNT_ID");
     private String apiJwt = getPlatform().getEnv("LIGHTSPARK_JWT");
     private String signingPubKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PUB_KEY");
@@ -30,20 +32,20 @@ public class LightsparkSyncWalletClientTest {
     private JwtStorage jwtStorage = new InMemoryJwtStorage();
     private final ClientConfig config = new ClientConfig()
             .setAuthProvider(new CustomJwtAuthProvider(jwtStorage));
-    private final LightsparkSyncWalletClient client;
+    private final LightsparkFuturesWalletClient client;
 
-    LightsparkSyncWalletClientTest() {
+    LightsparkFuturesWalletClientTest() {
         String baseUrl = getPlatform().getEnv("LIGHTSPARK_EXAMPLE_BASE_URL");
         if (baseUrl != null) {
             config.setServerUrl(baseUrl);
         }
-        client = new LightsparkSyncWalletClient(config);
+        client = new LightsparkFuturesWalletClient(config);
     }
 
 
     @Test
     void deployAndInitializeWallet() throws Exception {
-        LoginWithJWTOutput output = client.loginWithJWT(apiAccountId, apiJwt, jwtStorage);
+        LoginWithJWTOutput output = client.loginWithJWT(apiAccountId, apiJwt, jwtStorage).get(5, TimeUnit.SECONDS);
         AtomicReference<Wallet> currentWallet = new AtomicReference<>(output.getWallet());
         if (currentWallet.get().getStatus() == WalletStatus.NOT_SETUP || currentWallet.get().getStatus() == WalletStatus.TERMINATED) {
             client.deployWalletAndAwaitDeployed(wallet -> {
@@ -55,7 +57,7 @@ public class LightsparkSyncWalletClientTest {
                         currentWallet.set(wallet);
                         return Unit.INSTANCE;
                     }
-            );
+            ).get(30, TimeUnit.SECONDS);
         }
 
         if (currentWallet.get().getStatus() == WalletStatus.DEPLOYED) {
@@ -76,7 +78,7 @@ public class LightsparkSyncWalletClientTest {
                         currentWallet.set(wallet);
                         return Unit.INSTANCE;
                     }
-            );
+            ).get(5, TimeUnit.MINUTES);
         }
 
         System.out.println("Post-initialized wallet:" + currentWallet.get());
