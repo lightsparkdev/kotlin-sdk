@@ -2,6 +2,7 @@
 
 package com.lightspark.sdk.wallet
 
+import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.*
@@ -15,14 +16,14 @@ import com.lightspark.sdk.wallet.auth.jwt.JwtTokenInfo
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import com.lightspark.sdk.wallet.util.serializerFormat
-import saschpe.kase64.base64DecodedBytes
 import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.transformWhile
 import kotlinx.serialization.json.*
+import saschpe.kase64.base64DecodedBytes
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
 private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-05-05"
@@ -139,15 +140,22 @@ class LightsparkCoroutinesWalletClient private constructor(
     }
 
     private fun awaitWalletStatus(statuses: Set<WalletStatus>): Flow<Wallet> {
-        // TODO: Switch from polling to a subscription when that's possible.
-        return flow {
-            var wallet = getCurrentWallet() ?: return@flow
-            while (wallet.status !in statuses) {
-                emit(wallet)
-                delay(3000)
-                wallet = getCurrentWallet() ?: return@flow
+        return requester.executeAsSubscription(
+            Query(
+                CurrentWalletSubscription,
+                {},
+            ) {
+                val walletJson = it["current_wallet"] ?: return@Query null
+                serializerFormat.decodeFromJsonElement<Wallet>(walletJson)
+            },
+        ).mapNotNull {
+            when (it) {
+                is Lce.Content -> it.data
+                else -> null
             }
-            emit(wallet)
+        }.transformWhile {
+            emit(it)
+            it.status !in statuses
         }
     }
 
@@ -171,7 +179,7 @@ class LightsparkCoroutinesWalletClient private constructor(
             Query(
                 InitializeWallet,
                 {
-                    add("key_type", keyType)
+                    add("key_type", keyType.rawValue)
                     add("signing_public_key", signingPublicKey)
                 },
                 signingNodeId = WALLET_NODE_ID_KEY,
@@ -301,7 +309,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 {
                     add("amountMsats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("type", type)
+                    add("type", type.rawValue)
                 },
             ) {
                 val invoiceJson =
@@ -394,19 +402,14 @@ class LightsparkCoroutinesWalletClient private constructor(
         transactionId: String,
         statuses: Set<TransactionStatus>,
     ): Flow<OutgoingPayment> {
-        // TODO: Switch from polling to a subscription when that's possible.
-        return flow {
-            var payment =
-                OutgoingPayment.getOutgoingPaymentQuery(transactionId).execute(this@LightsparkCoroutinesWalletClient)
-                    ?: return@flow
-            while (payment.status !in statuses) {
-                emit(payment)
-                delay(1000)
-                payment = OutgoingPayment.getOutgoingPaymentQuery(transactionId)
-                    .execute(this@LightsparkCoroutinesWalletClient)
-                    ?: return@flow
+        return requester.executeAsSubscription(OutgoingPayment.getOutgoingPaymentQuery(transactionId)).mapNotNull {
+            when (it) {
+                is Lce.Content -> it.data
+                else -> null
             }
-            emit(payment)
+        }.transformWhile {
+            emit(it)
+            it.status !in statuses
         }
     }
 
@@ -714,7 +717,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 {
                     add("amount_msats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("invoice_type", invoiceType)
+                    invoiceType?.let { add("invoice_type", it.rawValue) }
                 },
             ) {
                 val outputJson =

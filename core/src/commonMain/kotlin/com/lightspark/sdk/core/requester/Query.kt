@@ -1,5 +1,6 @@
 package com.lightspark.sdk.core.requester
 
+import java.util.UUID
 import kotlin.jvm.JvmOverloads
 import kotlinx.serialization.json.JsonObject
 
@@ -9,10 +10,12 @@ interface StringDeserializer<T> {
 
 data class Query<T>(
     val queryPayload: String,
-    val variableBuilder: VariableBuilder.() -> Unit,
+    val variableBuilder: JsonObjectBuilder.() -> Unit,
     val signingNodeId: String? = null,
     val deserializer: (JsonObject) -> T,
 ) {
+    val id = UUID.randomUUID().toString()
+
     /**
      * This constructor is for convenience when calling from Java rather than Kotlin. The primary constructor is
      * simpler to use from Kotlin if possible.
