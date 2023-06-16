@@ -171,14 +171,13 @@ internal class WebsocketConnectionHandler(
                                         headers.append("Sec-WebSocket-Protocol", "graphql-transport-ws")
                                     },
                                 ) {
-                                    protocol = GraphQLWebsocketProtocol(
-                                        webSocketSession = this,
-                                        connectionPayload = connectionPayload,
-                                        listener = listener,
-                                        jsonSerialFormat = jsonSerialFormat,
-                                    )
                                     try {
-                                        protocol!!.connectionInit()
+                                        protocol = GraphQLWebsocketProtocol(
+                                            webSocketSession = this,
+                                            connectionPayload = connectionPayload,
+                                            listener = listener,
+                                            jsonSerialFormat = jsonSerialFormat,
+                                        ).apply { connectionInit() }
                                     } catch (e: Exception) {
                                         protocol = null
                                         messages.send(NetworkError(e))

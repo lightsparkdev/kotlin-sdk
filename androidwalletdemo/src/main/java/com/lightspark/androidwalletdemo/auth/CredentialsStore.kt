@@ -46,7 +46,7 @@ class CredentialsStore(private val context: Context) {
     fun getJwtInfoFlow() = context.dataStore.data.map { preferences ->
         val accountId = preferences[ACCOUNT_ID_KEY] ?: return@map null
         val jwt = preferences[JWT_KEY] ?: return@map null
-        val userName = preferences[USER_NAME_KEY] ?: return@map null
+        val userName = preferences[USER_NAME_KEY] ?: ""
         SavedCredentials(accountId, jwt, userName)
     }.distinctUntilChanged()
 }
