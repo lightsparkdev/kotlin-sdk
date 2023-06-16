@@ -25,10 +25,6 @@ internal class ConnectionReEstablished : Event {
     override val id: String? = null
 }
 
-internal class GeneralError(val payload: Map<String, Any?>?) : Event {
-    override val id: String? = null
-}
-
 internal class NetworkError(val cause: Throwable) : Event {
     override val id: String? = null
 }

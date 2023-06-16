@@ -234,6 +234,7 @@ internal class WebsocketConnectionHandler(
                             delay(idleTimeoutMillis)
                             closeProtocol()
                         }
+
                     } else {
                         idleJob?.cancel()
                         null
@@ -248,11 +249,10 @@ internal class WebsocketConnectionHandler(
      * inline functions. See https://kotlinlang.org/docs/inline-functions.html#restrictions-for-public-api-inline-functions.
      */
     fun execute(query: Query<*>): Flow<Lce<JsonObject>> {
-        val queryId = UUID.randomUUID().toString()
         return events.onSubscription {
-            messages.send(StartOperation(queryId, query))
+            messages.send(StartOperation(query.id, query))
         }.filter {
-            it.id == queryId || it.id == null
+            it.id == query.id || it.id == null
         }.transformWhile {
             when (it) {
                 is OperationComplete -> {
@@ -267,14 +267,6 @@ internal class WebsocketConnectionHandler(
                 is NetworkError -> {
                     emit(it)
                     false
-                }
-
-                is GeneralError -> {
-                    // The server sends an error without an operation id. This happens when sending an unknown message type
-                    // to https://apollo-fullstack-tutorial.herokuapp.com/ for an example. In that case, this error is not fatal
-                    // and the server will continue honouring other subscriptions, so we just filter the error out and log it.
-                    println("Received general error while executing operation ${queryId}: ${it.payload}")
-                    true
                 }
 
                 else -> {
@@ -293,10 +285,10 @@ internal class WebsocketConnectionHandler(
                 is NetworkError -> Lce.Error(LightsparkException("Network error while executing ${response.id}", LightsparkErrorCode.REQUEST_FAILED, response.cause))
 
                 // Cannot happen as these events are filtered out upstream
-                is ConnectionReEstablished, is OperationComplete, is GeneralError -> error("Unexpected event $response")
+                is ConnectionReEstablished, is OperationComplete -> error("Unexpected event $response")
             }
         }.onCompletion {
-            messages.send(StopOperation(queryId))
+            messages.send(StopOperation(query.id))
         }
     }
 }

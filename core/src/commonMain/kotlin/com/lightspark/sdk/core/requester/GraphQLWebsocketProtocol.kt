@@ -49,7 +49,6 @@ internal class GraphQLWebsocketProtocol(
             }.collect {
                 handleServerMessage(it)
             }
-        listener.onClose(CloseCode.NormalClosure.code, "Normal closure")
     }
 
     suspend fun <T> sendQuery(id: String, query: Query<T>) {
@@ -158,28 +157,6 @@ internal interface GraphQLWebsocketListener {
     fun operationComplete(id: String)
     fun onError(error: Throwable)
     fun onClose(code: Int, reason: String)
-}
-
-interface GraphQLConnectionHandle {
-    suspend fun close()
-    suspend fun <T> sendQuery(id: String, query: Query<T>)
-    suspend fun stopQuery(id: String)
-}
-
-class ProtocolWrappingConnectionHandle : GraphQLConnectionHandle {
-    internal var protocol: GraphQLWebsocketProtocol? = null
-
-    override suspend fun close() {
-        protocol?.close()
-    }
-
-    override suspend fun <T> sendQuery(id: String, query: Query<T>) {
-        protocol?.sendQuery(id, query)
-    }
-
-    override suspend fun stopQuery(id: String) {
-        protocol?.stopQuery(id)
-    }
 }
 
 @Suppress("unused")
