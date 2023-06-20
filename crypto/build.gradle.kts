@@ -37,11 +37,13 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
-        val commonTest by getting {
+        val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.kotest.assertions)
+                implementation(libs.acinq.secp256k1)
+                implementation(libs.acinq.secp256k1.jni.jvm)
             }
         }
         val jvmMain by getting {
