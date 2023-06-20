@@ -70,7 +70,7 @@ class SigningTest {
         val derivationPath = "m/0/2147483647'/1"
         val result = Signing.signMessage(message, privateKeySeed, derivationPath)
         println(result.map { it.toInt() })
-        val expectedSig = "/UJfF9wsDtwkUAcnnJcEmvINBSMbwawWZNmmDy0DXFMtO76NV9AHGlSvYzvZjcxqympNWSqp4mYwebQXBrrw5A=="
+        val expectedSig = "fagpGOb9o/E8g62yL6jV5wtpTVzJ7R4rh0Xt2Uw4fPVd1Q+2ZJbkSrRBRj0bvk1qTSiCvoiCfD5CMEHZL4fAlA=="
         println(expectedSig.base64DecodedBytes.map { it.toInt() })
         assertEquals(expectedSig, result.base64Encoded)
     }
@@ -90,12 +90,12 @@ class SigningTest {
         val result = Signing.signMessage(
             message,
             seed,
-            derivationPath = null,
+            derivationPath = "m",
             addTweak = addTweak,
             multTweak = h1,
         )
         val expectedSignatureBase64 =
-            "/qYwtDRunSIxYdwVT1U6Qr81Mp37zJUYlIRWohi08bIU10J4U5ERTrDv1jaR+7kjtQyovrM0tEUTrDw4M90sQA=="
+            "ZIp/flF8rVliQn96we+12AzWcNX2QxRN1Ma5FGv1YQVMPt9ylLfcGs0knd33jHKuOjHOD7TIkFEoKMelSi9eMA=="
         assertEquals(expectedSignatureBase64, result.base64Encoded)
     }
 
