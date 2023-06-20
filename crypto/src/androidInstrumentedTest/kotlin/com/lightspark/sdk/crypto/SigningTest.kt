@@ -1,12 +1,15 @@
 package com.lightspark.sdk.crypto
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.acinq.secp256k1.Secp256k1
+import org.junit.runner.RunWith
 import saschpe.kase64.base64DecodedBytes
 import saschpe.kase64.base64Encoded
 import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@RunWith(AndroidJUnit4::class)
 class SigningTest {
     @Test
     fun testGetMnemonicSeedPhrase() {
@@ -59,13 +62,16 @@ class SigningTest {
     @Test
     fun testSigningWithDerivedKey() {
         val message = "Hello Crypto World".toByteArray().sha256()
+        println(message.map { it.toInt() })
         val privateKeySeed = (
             "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a878481" +
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
         val result = Signing.signMessage(message, privateKeySeed, derivationPath)
+        println(result.map { it.toInt() })
         val expectedSig = "/UJfF9wsDtwkUAcnnJcEmvINBSMbwawWZNmmDy0DXFMtO76NV9AHGlSvYzvZjcxqympNWSqp4mYwebQXBrrw5A=="
+        println(expectedSig.base64DecodedBytes.map { it.toInt() })
         assertEquals(expectedSig, result.base64Encoded)
     }
 

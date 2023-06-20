@@ -1,5 +1,4 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -24,21 +23,6 @@ kotlin {
         publishLibraryVariants("release")
     }
 
-    val xcf = XCFramework()
-    listOf(
-        iosX64(),
-        iosArm64(),
-        // TODO: Re-enable when https://github.com/ACINQ/secp256k1-kmp/pull/79 is merged.
-        // iosSimulatorArm64(),
-    ).forEach {
-        it.binaries.framework {
-            baseName = "crypto"
-            xcf.add(this)
-        }
-    }
-
-    // TODO: Add JS support if we can get a working secp256 and bip32 implementation.
-
     jvm {
         // This doesn't work, unfortunately.. https://youtrack.jetbrains.com/issue/KT-30878
         // withJava()
@@ -51,8 +35,6 @@ kotlin {
                 implementation(libs.krypt)
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.acinq.bitcoin)
-                implementation(libs.acinq.secp256k1)
             }
         }
         val commonTest by getting {
@@ -62,27 +44,36 @@ kotlin {
                 implementation(libs.kotest.assertions)
             }
         }
-        val commonJvmAndroidMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinx.coroutines.jdk8)
-            }
-        }
         val jvmMain by getting {
-            dependsOn(commonJvmAndroidMain)
             dependencies {
-                implementation(libs.kotlinx.coroutines.jdk8)
-                implementation(libs.acinq.secp256k1.jni.jvm)
+                implementation(libs.jna)
             }
         }
 
         val androidMain by getting {
-            dependsOn(commonJvmAndroidMain)
             dependencies {
+                implementation("net.java.dev.jna:jna:${libs.jna.get().version}@aar")
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.kotest.assertions)
+            }
+        }
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.kotest.assertions)
+                implementation("androidx.test:runner:1.5.2")
+                implementation("androidx.test.ext:junit:1.1.5")
+                implementation("androidx.test.ext:junit-ktx:1.1.5")
+                implementation(libs.acinq.secp256k1)
                 implementation(libs.acinq.secp256k1.jni.android)
             }
         }
-        val androidUnitTest by getting
     }
 }
 
@@ -116,6 +107,13 @@ android {
     compileSdk = 33
     defaultConfig {
         minSdk = 24
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    sourceSets {
+        getByName("main") {
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+            jniLibs.srcDir("src/androidMain/jniLibs")
+        }
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
