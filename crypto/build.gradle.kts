@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import de.undercouch.gradle.tasks.download.Download
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -7,6 +8,7 @@ plugins {
     id(libs.plugins.dokka.get().pluginId)
     alias(libs.plugins.buildKonfig)
     id(libs.plugins.mavenPublish.get().pluginId)
+    id(libs.plugins.downloadFile.get().pluginId)
 }
 
 buildscript {
@@ -77,6 +79,14 @@ kotlin {
             }
         }
     }
+}
+
+val CRYPTO_UNIFFI_VERSION = "0.0.1"
+tasks.create<Download>("downloadUniffiBinaries") {
+    // TODO(Jeremy): Replace this with the actual artifact url(s) once it's published.
+    src("https://github.com/lightsparkdev/lightspark-crypto-uniffi/archive/refs/tags/@lightsparkdev/lightspark-crypto-uniffi@$CRYPTO_UNIFFI_VERSION.tar.gz")
+    dest(project.buildDir)
+    onlyIfModified(true)
 }
 
 buildkonfig {

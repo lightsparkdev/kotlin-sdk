@@ -12,6 +12,7 @@ buildscript {
         classpath(libs.gradleClasspath.ktlint)
         classpath(libs.gradleClasspath.kotlin)
         classpath(libs.gradleClasspath.mavenPublish)
+        classpath(libs.gradleClasspath.downloadFile)
         // Needed for https://github.com/google/dagger/issues/3068.
         classpath("com.squareup:javapoet:1.13.0")
     }
