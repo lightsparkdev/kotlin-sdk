@@ -3,11 +3,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
@@ -16,6 +11,7 @@ java {
         testImplementation("com.google.code.gson:gson:2.10.1")
         testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
         implementation(project(":lightspark-sdk"))
+        implementation(project(":wallet-sdk"))
         implementation(project(":core"))
     }
 }

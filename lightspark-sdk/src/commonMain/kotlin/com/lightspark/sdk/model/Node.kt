@@ -133,6 +133,9 @@ fragment NodeFragment on Node {
         lightspark_node_account: account {
             id
         }
+        lightspark_node_owner: owner {
+            id
+        }
         lightspark_node_blockchain_balance: blockchain_balance {
             type: __typename
             blockchain_balance_total_balance: total_balance {

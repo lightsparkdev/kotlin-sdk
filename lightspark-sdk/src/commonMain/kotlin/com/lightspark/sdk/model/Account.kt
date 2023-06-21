@@ -34,7 +34,7 @@ data class Account(
     override val updatedAt: Instant,
     @SerialName("account_name")
     val name: String? = null,
-) : Entity {
+) : LightsparkNodeOwner, Entity {
     @JvmOverloads
     fun getApiTokensQuery(first: Int? = null): Query<AccountToApiTokensConnection> {
         return Query(
@@ -229,6 +229,9 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                     lightspark_node_display_name: display_name
                     lightspark_node_public_key: public_key
                     lightspark_node_account: account {
+                        id
+                    }
+                    lightspark_node_owner: owner {
                         id
                     }
                     lightspark_node_blockchain_balance: blockchain_balance {
@@ -769,6 +772,9 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                         lightspark_node_account: account {
                                             id
                                         }
+                                        lightspark_node_owner: owner {
+                                            id
+                                        }
                                         lightspark_node_blockchain_balance: blockchain_balance {
                                             type: __typename
                                             blockchain_balance_total_balance: total_balance {
@@ -1036,6 +1042,9 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                     lightspark_node_account: account {
                                         id
                                     }
+                                    lightspark_node_owner: owner {
+                                        id
+                                    }
                                     lightspark_node_blockchain_balance: blockchain_balance {
                                         type: __typename
                                         blockchain_balance_total_balance: total_balance {
@@ -1218,6 +1227,7 @@ query FetchAccountToWalletsConnection(${'$'}first: Int) {
                         }
                     }
                     wallet_third_party_identifier: third_party_identifier
+                    wallet_status: status
                 }
             }
         }

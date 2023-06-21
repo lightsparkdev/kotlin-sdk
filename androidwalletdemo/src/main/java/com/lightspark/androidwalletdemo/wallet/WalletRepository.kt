@@ -6,6 +6,7 @@ import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.asLce
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.crypto.androidKeystoreContainsPrivateKeyForAlias
+import com.lightspark.sdk.core.crypto.generateSigningKeyPair
 import com.lightspark.sdk.core.crypto.generateSigningKeyPairInAndroidKeyStore
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.wrapWithLceFlow
@@ -51,8 +52,8 @@ class WalletRepository @Inject constructor(
         // able to export that key for the user, but it does come with increased security. If you'd like to manage your
         // own keys or store them in some other way in your own app code, you can still generate a valid key pair using
         // the [generateSigningKeyPair] function in the SDK.
-        val keyPair = generateSigningKeyPairInAndroidKeyStore(LIGHTSPARK_SIGNING_KEY_ALIAS)
-        walletClient.loadWalletSigningKeyAlias(LIGHTSPARK_SIGNING_KEY_ALIAS)
+        val keyPair = generateSigningKeyPair()
+        walletClient.loadWalletSigningKey(keyPair.private.encoded)
         return walletClient.initializeWalletAndWaitForInitialized(
             keyType = KeyType.RSA_OAEP,
             signingPublicKey = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP),

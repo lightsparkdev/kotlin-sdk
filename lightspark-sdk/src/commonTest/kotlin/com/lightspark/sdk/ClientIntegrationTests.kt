@@ -176,6 +176,15 @@ class ClientIntegrationTests {
     }
 
     @Test
+    fun `create an LNURL invoice`() = runTest {
+        val node = getFirstNode()
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
+
+        println("encoded invoice: ${paymentRequest.encodedPaymentRequest}")
+    }
+
+    @Test
     fun `send a payment for an invoice`() = runTest {
         val node = getFirstNode()
         val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)

@@ -1,6 +1,7 @@
 package com.lightspark.androidwalletdemo.wallet
 
 import com.lightspark.androidwalletdemo.util.CurrencyAmountArg
+import com.lightspark.sdk.core.asLce
 import com.lightspark.sdk.core.wrapWithLceFlow
 import com.lightspark.sdk.wallet.LightsparkCoroutinesWalletClient
 import com.lightspark.sdk.wallet.model.InvoiceType
@@ -16,8 +17,8 @@ class PaymentRepository @Inject constructor(private val lightsparkClient: Lights
             lightsparkClient.createInvoice(amountMillis, memo, type)
         }.flowOn(Dispatchers.IO)
 
-    fun payInvoice(invoice: String) =
-        wrapWithLceFlow { lightsparkClient.payInvoice(invoice, 1000000) }.flowOn(Dispatchers.IO)
+    suspend fun payInvoice(invoice: String) =
+        lightsparkClient.payInvoiceAndAwaitCompletion(invoice, 1000000).asLce().flowOn(Dispatchers.IO)
 
     fun decodeInvoice(encodedInvoice: String) =
         wrapWithLceFlow { lightsparkClient.decodeInvoice(encodedInvoice) }.flowOn(Dispatchers.IO)

@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lightspark.androidwalletdemo.util.CurrencyAmountArg
+import com.lightspark.androidwalletdemo.util.currencyAmountSats
 import com.lightspark.androidwalletdemo.util.zeroCurrencyAmount
 import com.lightspark.androidwalletdemo.util.zeroCurrencyAmountArg
 import com.lightspark.androidwalletdemo.wallet.PaymentRepository
 import com.lightspark.sdk.core.Lce
+import com.lightspark.sdk.wallet.model.TransactionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +44,16 @@ class SendPaymentViewModel @Inject constructor(
             }
         }.filterNotNull().map {
             when (it) {
-                is Lce.Content -> PaymentStatus.SUCCESS
+                is Lce.Content -> {
+                    when (it.data.status) {
+                        TransactionStatus.PENDING -> PaymentStatus.PENDING
+                        TransactionStatus.SUCCESS -> PaymentStatus.SUCCESS
+                        else -> {
+                            Log.e("SendPaymentViewModel", "Error sending payment")
+                            PaymentStatus.FAILURE
+                        }
+                    }
+                }
                 is Lce.Error -> {
                     Log.e("SendPaymentViewModel", "Error sending payment", it.exception)
                     PaymentStatus.FAILURE
@@ -62,7 +73,9 @@ class SendPaymentViewModel @Inject constructor(
         .onEach {
             (it as? Lce.Content)?.let { invoiceData ->
                 invoiceData.data?.amount?.let { decodedInvoiceAmount ->
-                    paymentAmountFlow.tryEmit(decodedInvoiceAmount)
+                    // Default to paying 10 sats for 0 amount invoices.
+                    val amount = if (decodedInvoiceAmount.originalValue > 0) decodedInvoiceAmount else currencyAmountSats(10)
+                    paymentAmountFlow.tryEmit(amount)
                 }
             }
         }
