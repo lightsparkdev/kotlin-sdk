@@ -2,6 +2,11 @@
 
 package com.lightspark.sdk.crypto
 
+import com.lightspark.sdk.crypto.internal.LightsparkSigner
+import com.lightspark.sdk.crypto.internal.Mnemonic
+import com.lightspark.sdk.crypto.internal.Seed
+import com.lightspark.sdk.crypto.internal.use
+
 object Signing {
     fun getMnemonicSeedPhrase(entropy: ByteArray): List<String> =
         Mnemonic.fromEntropy(entropy.map { it.toUByte() }).use {

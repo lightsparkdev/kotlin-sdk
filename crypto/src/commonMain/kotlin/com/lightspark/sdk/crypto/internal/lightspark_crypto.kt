@@ -3,7 +3,7 @@
 
 @file:Suppress("NAME_SHADOWING")
 
-package com.lightspark.sdk.crypto
+package com.lightspark.sdk.crypto.internal
 
 // Common helper code.
 //
@@ -51,7 +51,7 @@ open class RustBuffer : Structure() {
             }
         }
 
-        internal fun free(buf: RustBuffer.ByValue) = rustCall() { status ->
+        internal fun free(buf: ByValue) = rustCall() { status ->
             _UniFFILib.INSTANCE.ffi_lightspark_crypto_83f5_rustbuffer_free(buf, status)
         }
     }
