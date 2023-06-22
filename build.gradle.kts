@@ -5,10 +5,6 @@ import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import java.net.URL
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
-}
-
 buildscript {
     dependencies {
         classpath(libs.gradleClasspath.android)
@@ -16,6 +12,7 @@ buildscript {
         classpath(libs.gradleClasspath.ktlint)
         classpath(libs.gradleClasspath.kotlin)
         classpath(libs.gradleClasspath.mavenPublish)
+        classpath(libs.gradleClasspath.downloadFile)
         // Needed for https://github.com/google/dagger/issues/3068.
         classpath("com.squareup:javapoet:1.13.0")
     }
