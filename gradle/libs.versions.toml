@@ -1,11 +1,14 @@
 [versions]
 # Core SDK deps (or common):
+acinqSecp256k1 = "0.10.0"
 androidGradlePlugin = "8.0.0"
 appAuth = "0.11.1"
 buildKonfig = "0.13.3"
 dataStore = "1.0.0"
 dokka = "1.8.10"
+downloadFile = "5.4.0"
 gradleS3 = "1.2.1"
+jna = "5.13.0"
 kase64 = "1.0.6"
 kotest = "5.5.4"
 kotlin = "1.8.0"
@@ -49,6 +52,7 @@ gradleClasspath-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", ve
 gradleClasspath-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 gradleClasspath-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradleClasspath-mavenPublish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "mavenPublish" }
+gradleClasspath-downloadFile = { module = "de.undercouch.download:de.undercouch.download.gradle.plugin", version.ref = "downloadFile" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-material = { module = "androidx.compose.material3:material3" }
@@ -61,6 +65,10 @@ androidx-compose-ui-util = { module = "androidx.compose.ui:ui-util" }
 
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+
+acinq-secp256k1 = { module = "fr.acinq.secp256k1:secp256k1-kmp", version.ref = "acinqSecp256k1" }
+acinq-secp256k1-jni-jvm = { module = "fr.acinq.secp256k1:secp256k1-kmp-jni-jvm", version.ref = "acinqSecp256k1" }
+acinq-secp256k1-jni-android = { module = "fr.acinq.secp256k1:secp256k1-kmp-jni-android", version.ref = "acinqSecp256k1" }
 
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltComposeNavigation" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -87,6 +95,8 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraX" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraX" }
@@ -121,3 +131,4 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 gradleS3 = { id = "com.mgd.core.gradle.s3", version.ref = "gradleS3" }
+downloadFile = { id = "de.undercouch.download", version.ref = "downloadFile" }
