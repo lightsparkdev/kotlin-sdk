@@ -27,6 +27,8 @@ enum class PaymentFailureReason(val rawValue: String) {
 
     INVOICE_EXPIRED("INVOICE_EXPIRED"),
 
+    RISK_SCREENING_FAILED("RISK_SCREENING_FAILED"),
+
     /**
      * This is an enum value that represents values that could be added in the future.
      * Clients should support unknown values as more of them could be added without notice.
