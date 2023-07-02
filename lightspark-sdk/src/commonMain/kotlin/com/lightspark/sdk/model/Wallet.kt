@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -43,7 +43,10 @@ data class Wallet(
     val balances: Balances? = null,
 ) : LightsparkNodeOwner, Entity {
     @JvmOverloads
-    fun getTotalAmountReceivedQuery(createdAfterDate: Instant? = null, createdBeforeDate: Instant? = null): Query<CurrencyAmount> {
+    fun getTotalAmountReceivedQuery(
+        createdAfterDate: Instant? = null,
+        createdBeforeDate: Instant? = null,
+    ): Query<CurrencyAmount> {
         return Query(
             queryPayload = """
 query FetchWalletTotalAmountReceived(${'$'}created_after_date: DateTime, ${'$'}created_before_date: DateTime) {
@@ -67,13 +70,18 @@ query FetchWalletTotalAmountReceived(${'$'}created_after_date: DateTime, ${'$'}c
             }
         ) {
             val connection =
-                requireNotNull(it["current_wallet"]?.jsonObject?.get("total_amount_received")) { "total_amount_received not found" }
+                requireNotNull(
+                    it["current_wallet"]?.jsonObject?.get("total_amount_received")
+                ) { "total_amount_received not found" }
             return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
         }
     }
 
     @JvmOverloads
-    fun getTotalAmountSentQuery(createdAfterDate: Instant? = null, createdBeforeDate: Instant? = null): Query<CurrencyAmount> {
+    fun getTotalAmountSentQuery(
+        createdAfterDate: Instant? = null,
+        createdBeforeDate: Instant? = null,
+    ): Query<CurrencyAmount> {
         return Query(
             queryPayload = """
 query FetchWalletTotalAmountSent(${'$'}created_after_date: DateTime, ${'$'}created_before_date: DateTime) {
@@ -97,7 +105,9 @@ query FetchWalletTotalAmountSent(${'$'}created_after_date: DateTime, ${'$'}creat
             }
         ) {
             val connection =
-                requireNotNull(it["current_wallet"]?.jsonObject?.get("total_amount_sent")) { "total_amount_sent not found" }
+                requireNotNull(
+                    it["current_wallet"]?.jsonObject?.get("total_amount_sent")
+                ) { "total_amount_sent not found" }
             return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
         }
     }

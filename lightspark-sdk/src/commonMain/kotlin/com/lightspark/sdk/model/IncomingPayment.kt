@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -52,7 +52,10 @@ data class IncomingPayment(
     val paymentRequestId: EntityId? = null,
 ) : LightningTransaction, Transaction, Entity {
     @JvmOverloads
-    fun getAttemptsQuery(first: Int? = null, statuses: List<IncomingPaymentAttemptStatus>? = null): Query<IncomingPaymentToAttemptsConnection> {
+    fun getAttemptsQuery(
+        first: Int? = null,
+        statuses: List<IncomingPaymentAttemptStatus>? = null,
+    ): Query<IncomingPaymentToAttemptsConnection> {
         return Query(
             queryPayload = """
 query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [IncomingPaymentAttemptStatus!]) {

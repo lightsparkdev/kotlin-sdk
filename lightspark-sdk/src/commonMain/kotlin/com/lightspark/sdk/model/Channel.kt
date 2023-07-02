@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -101,7 +101,11 @@ query FetchChannelUptimePercentage(${'$'}entity_id: ID!, ${'$'}after_date: DateT
     }
 
     @JvmOverloads
-    fun getTransactionsQuery(types: List<TransactionType>? = null, afterDate: Instant? = null, beforeDate: Instant? = null): Query<ChannelToTransactionsConnection> {
+    fun getTransactionsQuery(
+        types: List<TransactionType>? = null,
+        afterDate: Instant? = null,
+        beforeDate: Instant? = null,
+    ): Query<ChannelToTransactionsConnection> {
         return Query(
             queryPayload = """
 query FetchChannelToTransactionsConnection(${'$'}entity_id: ID!, ${'$'}types: [TransactionType!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {

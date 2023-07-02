@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.wallet.model
 
@@ -363,7 +363,9 @@ query FetchWalletToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: ID, 
             }
         ) {
             val connection =
-                requireNotNull(it["current_wallet"]?.jsonObject?.get("payment_requests")) { "payment_requests not found" }
+                requireNotNull(
+                    it["current_wallet"]?.jsonObject?.get("payment_requests")
+                ) { "payment_requests not found" }
             return@Query serializerFormat.decodeFromJsonElement<WalletToPaymentRequestsConnection>(connection)
         }
     }

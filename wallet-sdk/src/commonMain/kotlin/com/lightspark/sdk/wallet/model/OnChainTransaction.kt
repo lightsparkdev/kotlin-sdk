@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.wallet.model
 

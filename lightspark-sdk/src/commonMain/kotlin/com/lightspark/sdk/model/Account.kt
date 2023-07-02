@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -77,7 +77,10 @@ query FetchAccountToApiTokensConnection(${'$'}first: Int) {
     }
 
     @JvmOverloads
-    fun getBlockchainBalanceQuery(bitcoinNetworks: List<BitcoinNetwork>? = null, nodeIds: List<String>? = null): Query<BlockchainBalance?> {
+    fun getBlockchainBalanceQuery(
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        nodeIds: List<String>? = null,
+    ): Query<BlockchainBalance?> {
         return Query(
             queryPayload = """
 query FetchAccountBlockchainBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
@@ -149,7 +152,10 @@ query FetchAccountBlockchainBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], $
     }
 
     @JvmOverloads
-    fun getConductivityQuery(bitcoinNetworks: List<BitcoinNetwork>? = null, nodeIds: List<String>? = null): Query<Int?> {
+    fun getConductivityQuery(
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        nodeIds: List<String>? = null,
+    ): Query<Int?> {
         return Query(
             queryPayload = """
 query FetchAccountConductivity(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
@@ -171,7 +177,10 @@ query FetchAccountConductivity(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
     }
 
     @JvmOverloads
-    fun getLocalBalanceQuery(bitcoinNetworks: List<BitcoinNetwork>? = null, nodeIds: List<String>? = null): Query<CurrencyAmount?> {
+    fun getLocalBalanceQuery(
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        nodeIds: List<String>? = null,
+    ): Query<CurrencyAmount?> {
         return Query(
             queryPayload = """
 query FetchAccountLocalBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
@@ -200,7 +209,11 @@ query FetchAccountLocalBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
     }
 
     @JvmOverloads
-    fun getNodesQuery(first: Int? = null, bitcoinNetworks: List<BitcoinNetwork>? = null, nodeIds: List<String>? = null): Query<AccountToNodesConnection> {
+    fun getNodesQuery(
+        first: Int? = null,
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        nodeIds: List<String>? = null,
+    ): Query<AccountToNodesConnection> {
         return Query(
             queryPayload = """
 query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
@@ -342,7 +355,10 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
     }
 
     @JvmOverloads
-    fun getRemoteBalanceQuery(bitcoinNetworks: List<BitcoinNetwork>? = null, nodeIds: List<String>? = null): Query<CurrencyAmount?> {
+    fun getRemoteBalanceQuery(
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        nodeIds: List<String>? = null,
+    ): Query<CurrencyAmount?> {
         return Query(
             queryPayload = """
 query FetchAccountRemoteBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
@@ -1171,7 +1187,9 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
             }
         ) {
             val connection =
-                requireNotNull(it["current_account"]?.jsonObject?.get("payment_requests")) { "payment_requests not found" }
+                requireNotNull(
+                    it["current_account"]?.jsonObject?.get("payment_requests")
+                ) { "payment_requests not found" }
             return@Query serializerFormat.decodeFromJsonElement<AccountToPaymentRequestsConnection>(connection)
         }
     }
