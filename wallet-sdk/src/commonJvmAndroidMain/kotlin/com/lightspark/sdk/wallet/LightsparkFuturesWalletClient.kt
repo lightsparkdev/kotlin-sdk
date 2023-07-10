@@ -285,7 +285,7 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      * Creates an L1 Bitcoin wallet address which can be used to deposit or withdraw funds from the Lightning wallet.
      *
      * @return The newly created L1 wallet address.
-     * @throws LightsparkException if the wallet is locked or if there's no valid auth.
+     * @throws LightsparkException if there's no valid auth.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun createBitcoinFundingAddress(): CompletableFuture<String> =

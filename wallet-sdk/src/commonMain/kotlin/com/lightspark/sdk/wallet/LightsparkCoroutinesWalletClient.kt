@@ -553,14 +553,13 @@ class LightsparkCoroutinesWalletClient private constructor(
      * Creates an L1 Bitcoin wallet address which can be used to deposit or withdraw funds from the Lightning wallet.
      *
      * @return The newly created L1 wallet address.
-     * @throws LightsparkException if the wallet is locked or if there's no valid auth.
+     * @throws LightsparkException if there's no valid auth.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     suspend fun createBitcoinFundingAddress(): String {
         requireValidAuth()
-        requireWalletUnlocked()
         return executeQuery(
-            Query(CreateBitcoinFundingAddress, {}, signingNodeId = WALLET_NODE_ID_KEY) {
+            Query(CreateBitcoinFundingAddress, {}) {
                 val addressString =
                     requireNotNull(it["create_bitcoin_funding_address"]?.jsonObject?.get("bitcoin_address")) {
                         "No address found in response"
