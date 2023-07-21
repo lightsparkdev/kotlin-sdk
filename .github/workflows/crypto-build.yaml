@@ -5,7 +5,7 @@ on:
     paths:
       - 'crypto/**'
       - 'build.gradle.kts'
-      - '.github/workflows/crypto-sdk-build.yaml'
+      - '.github/workflows/crypto-build.yaml'
     branches:
       - 'main'
       - 'develop'
