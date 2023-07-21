@@ -1,0 +1,31 @@
+name: Crypto SDK Build
+
+on:
+  push:
+    paths:
+      - 'crypto/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/crypto-sdk-build.yaml'
+    branches:
+      - 'main'
+      - 'develop'
+
+jobs:
+  build:
+    # No point in running this build on a core cut because it will fail until the deploy is done.
+    if: github.event.base_ref == null || !startsWith(github.event.base_ref, 'release/core-')
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
+      - name: Build and lint
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: crypto:assemble
