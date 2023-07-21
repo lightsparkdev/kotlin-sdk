@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -110,7 +110,10 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
     }
 
     @JvmOverloads
-    fun getChannelsQuery(first: Int? = null, statuses: List<ChannelStatus>? = null): Query<LightsparkNodeToChannelsConnection> {
+    fun getChannelsQuery(
+        first: Int? = null,
+        statuses: List<ChannelStatus>? = null,
+    ): Query<LightsparkNodeToChannelsConnection> {
         return Query(
             queryPayload = """
 query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [ChannelStatus!]) {

@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.model
 
@@ -52,7 +52,9 @@ data class WithdrawalRequest(
     val withdrawalId: EntityId? = null,
 ) : Entity {
     @JvmOverloads
-    fun getChannelClosingTransactionsQuery(first: Int? = null): Query<WithdrawalRequestToChannelClosingTransactionsConnection> {
+    fun getChannelClosingTransactionsQuery(
+        first: Int? = null,
+    ): Query<WithdrawalRequestToChannelClosingTransactionsConnection> {
         return Query(
             queryPayload = """
 query FetchWithdrawalRequestToChannelClosingTransactionsConnection(${'$'}entity_id: ID!, ${'$'}first: Int) {
@@ -121,7 +123,9 @@ query FetchWithdrawalRequestToChannelClosingTransactionsConnection(${'$'}entity_
     }
 
     @JvmOverloads
-    fun getChannelOpeningTransactionsQuery(first: Int? = null): Query<WithdrawalRequestToChannelOpeningTransactionsConnection> {
+    fun getChannelOpeningTransactionsQuery(
+        first: Int? = null,
+    ): Query<WithdrawalRequestToChannelOpeningTransactionsConnection> {
         return Query(
             queryPayload = """
 query FetchWithdrawalRequestToChannelOpeningTransactionsConnection(${'$'}entity_id: ID!, ${'$'}first: Int) {

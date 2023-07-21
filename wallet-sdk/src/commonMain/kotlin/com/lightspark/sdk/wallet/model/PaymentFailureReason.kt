@@ -1,5 +1,5 @@
 // Copyright ©, 2023-present, Lightspark Group, Inc. - All Rights Reserved
-@file:Suppress("ktlint:max-line-length")
+@file:Suppress("ktlint:standard:max-line-length")
 
 package com.lightspark.sdk.wallet.model
 
@@ -26,6 +26,8 @@ enum class PaymentFailureReason(val rawValue: String) {
     SELF_PAYMENT("SELF_PAYMENT"),
 
     INVOICE_EXPIRED("INVOICE_EXPIRED"),
+
+    RISK_SCREENING_FAILED("RISK_SCREENING_FAILED"),
 
     /**
      * This is an enum value that represents values that could be added in the future.
