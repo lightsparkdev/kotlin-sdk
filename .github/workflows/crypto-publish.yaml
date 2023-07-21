@@ -1,12 +1,12 @@
-name: SDK Core Publish
+name: Crypto SDK Publish
 
 on:
   release:
     types: [ published ]
 
 jobs:
-  publish-core-sdk:
-    if: ${{ startsWith(github.event.release.tag_name, 'core-') }}
+  publish-crypto-sdk:
+    if: ${{ startsWith(github.event.release.tag_name, 'crypto-') }}
     runs-on: macos-11
 
     steps:
@@ -21,7 +21,7 @@ jobs:
       - name: Publish package
         uses: gradle/gradle-build-action@v2.4.2
         with:
-          arguments: core:publish
+          arguments: crypto:publish
         env:
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
