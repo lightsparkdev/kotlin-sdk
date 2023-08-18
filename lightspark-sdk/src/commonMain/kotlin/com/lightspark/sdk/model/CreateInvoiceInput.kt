@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param nodeId The node from which to create the invoice.
+ * @param amountMsats The amount for which the invoice should be created, in millisatoshis.
+ * @param expirySecs The expiry of the invoice in seconds. Default value is 86400 (1 day).
  */
 @Serializable
 @SerialName("CreateInvoiceInput")
@@ -20,6 +23,12 @@ data class CreateInvoiceInput(
     val memo: String? = null,
 
     val invoiceType: InvoiceType? = null,
+
+    val expirySecs: Int? = null,
+
+    val paymentHash: String? = null,
+
+    val preimageNonce: String? = null,
 ) {
 
     companion object {

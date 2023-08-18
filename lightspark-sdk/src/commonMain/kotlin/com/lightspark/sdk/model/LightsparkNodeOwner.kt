@@ -11,7 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- *
+ * This is an object representing the owner of a LightsparkNode.
  * @property id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @property createdAt The date and time when the entity was first created.
  * @property updatedAt The date and time when the entity was last updated.

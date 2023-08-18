@@ -7,7 +7,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 
 /**
- * This interface is used by all the entities in the Lightspark systems. It defines a few core fields that are available everywhere. Any object that implements this interface can be queried using the `entity` query and its ID.
+ * This interface is used by all the entities in the Lightspark system. It defines a few core fields that are available everywhere. Any object that implements this interface can be queried using the `entity` query and its ID.
  * @property id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @property createdAt The date and time when the entity was first created.
  * @property updatedAt The date and time when the entity was last updated.

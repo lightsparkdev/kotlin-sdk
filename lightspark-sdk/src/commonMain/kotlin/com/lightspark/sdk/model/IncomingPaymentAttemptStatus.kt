@@ -6,7 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
-/** Enum that enumerates all the possible status of an incoming payment attempt. **/
+/** This is an enum that enumerates all potential statuses for an incoming payment attempt. **/
 @Serializable(with = IncomingPaymentAttemptStatusSerializer::class)
 enum class IncomingPaymentAttemptStatus(val rawValue: String) {
 

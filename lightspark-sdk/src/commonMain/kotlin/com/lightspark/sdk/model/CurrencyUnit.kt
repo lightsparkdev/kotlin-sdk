@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This enum identifies the unit of currency associated with a CurrencyAmount. **/
 @Serializable(with = CurrencyUnitSerializer::class)
 enum class CurrencyUnit(val rawValue: String) {
     /** Bitcoin is the cryptocurrency native to the Bitcoin network. It is used as the native medium for value transfer for the Lightning Network. **/

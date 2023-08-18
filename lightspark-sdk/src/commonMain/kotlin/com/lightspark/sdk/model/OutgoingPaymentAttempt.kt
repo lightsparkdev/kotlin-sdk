@@ -14,7 +14,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 
 /**
- * An attempt for a payment over a route from sender node to recipient node.
+ * This object represents an attempted Lightning Network payment sent from a Lightspark Node. You can retrieve this object to receive payment related information about any payment attempt sent from your Lightspark Node on the Lightning Network, including any potential reasons the payment may have failed.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when the attempt was initiated.
  * @param updatedAt The date and time when the entity was last updated.
@@ -52,15 +52,22 @@ data class OutgoingPaymentAttempt(
     val fees: CurrencyAmount? = null,
 ) : Entity {
     @JvmOverloads
-    fun getHopsQuery(first: Int? = null): Query<OutgoingPaymentAttemptToHopsConnection> {
+    fun getHopsQuery(first: Int? = null, after: String? = null): Query<OutgoingPaymentAttemptToHopsConnection> {
         return Query(
             queryPayload = """
-query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}first: Int) {
+query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}after: String) {
     entity(id: ${'$'}entity_id) {
         ... on OutgoingPaymentAttempt {
-            hops(, first: ${'$'}first) {
+            hops(, first: ${'$'}first, after: ${'$'}after) {
                 type: __typename
                 outgoing_payment_attempt_to_hops_connection_count: count
+                outgoing_payment_attempt_to_hops_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
                 outgoing_payment_attempt_to_hops_connection_entities: entities {
                     type: __typename
                     hop_id: id
@@ -97,6 +104,7 @@ query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}fi
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
+                add("after", after)
             }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("hops")) { "hops not found" }

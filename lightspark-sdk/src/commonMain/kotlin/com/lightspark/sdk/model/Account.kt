@@ -16,7 +16,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 /**
- *
+ * This is an object representing the connected Lightspark account. You can retrieve this object to see your account information and objects tied to your account.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when the entity was first created.
  * @param updatedAt The date and time when the entity was last updated.
@@ -36,14 +36,15 @@ data class Account(
     val name: String? = null,
 ) : LightsparkNodeOwner, Entity {
     @JvmOverloads
-    fun getApiTokensQuery(first: Int? = null): Query<AccountToApiTokensConnection> {
+    fun getApiTokensQuery(first: Int? = null, after: String? = null): Query<AccountToApiTokensConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToApiTokensConnection(${'$'}first: Int) {
+query FetchAccountToApiTokensConnection(${'$'}first: Int, ${'$'}after: String) {
     current_account {
         ... on Account {
-            api_tokens(, first: ${'$'}first) {
+            api_tokens(, first: ${'$'}first, after: ${'$'}after) {
                 type: __typename
+                account_to_api_tokens_connection_count: count
                 account_to_api_tokens_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -51,7 +52,6 @@ query FetchAccountToApiTokensConnection(${'$'}first: Int) {
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                account_to_api_tokens_connection_count: count
                 account_to_api_tokens_connection_entities: entities {
                     type: __typename
                     api_token_id: id
@@ -68,6 +68,7 @@ query FetchAccountToApiTokensConnection(${'$'}first: Int) {
 """,
             variableBuilder = {
                 add("first", first)
+                add("after", after)
             }
         ) {
             val connection =
@@ -213,14 +214,16 @@ query FetchAccountLocalBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
         first: Int? = null,
         bitcoinNetworks: List<BitcoinNetwork>? = null,
         nodeIds: List<String>? = null,
+        after: String? = null,
     ): Query<AccountToNodesConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!]) {
+query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}node_ids: [ID!], ${'$'}after: String) {
     current_account {
         ... on Account {
-            nodes(, first: ${'$'}first, bitcoin_networks: ${'$'}bitcoin_networks, node_ids: ${'$'}node_ids) {
+            nodes(, first: ${'$'}first, bitcoin_networks: ${'$'}bitcoin_networks, node_ids: ${'$'}node_ids, after: ${'$'}after) {
                 type: __typename
+                account_to_nodes_connection_count: count
                 account_to_nodes_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -228,7 +231,6 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                account_to_nodes_connection_count: count
                 account_to_nodes_connection_purpose: purpose
                 account_to_nodes_connection_entities: entities {
                     type: __typename
@@ -347,6 +349,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                 add("first", first)
                 add("bitcoin_networks", bitcoinNetworks)
                 add("node_ids", nodeIds)
+                add("after", after)
             }
         ) {
             val connection = requireNotNull(it["current_account"]?.jsonObject?.get("nodes")) { "nodes not found" }
@@ -563,6 +566,14 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
         ... on Account {
             transactions(, first: ${'$'}first, after: ${'$'}after, types: ${'$'}types, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, statuses: ${'$'}statuses, exclude_failures: ${'$'}exclude_failures) {
                 type: __typename
+                account_to_transactions_connection_count: count
+                account_to_transactions_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
                 account_to_transactions_connection_profit_loss: profit_loss {
                     type: __typename
                     currency_amount_original_value: original_value
@@ -579,7 +590,6 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                     currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                     currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                 }
-                account_to_transactions_connection_count: count
                 account_to_transactions_connection_total_amount_transacted: total_amount_transacted {
                     type: __typename
                     currency_amount_original_value: original_value
@@ -960,13 +970,6 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                         }
                     }
                 }
-                account_to_transactions_connection_page_info: page_info {
-                    type: __typename
-                    page_info_has_next_page: has_next_page
-                    page_info_has_previous_page: has_previous_page
-                    page_info_start_cursor: start_cursor
-                    page_info_end_cursor: end_cursor
-                }
             }
         }
     }
@@ -1007,6 +1010,13 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
             payment_requests(, first: ${'$'}first, after: ${'$'}after, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id) {
                 type: __typename
                 account_to_payment_requests_connection_count: count
+                account_to_payment_requests_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
                 account_to_payment_requests_connection_entities: entities {
                     type: __typename
                     ... on Invoice {
@@ -1165,13 +1175,6 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                         }
                     }
                 }
-                account_to_payment_requests_connection_page_info: page_info {
-                    type: __typename
-                    page_info_has_next_page: has_next_page
-                    page_info_has_previous_page: has_previous_page
-                    page_info_start_cursor: start_cursor
-                    page_info_end_cursor: end_cursor
-                }
             }
         }
     }
@@ -1195,14 +1198,19 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
     }
 
     @JvmOverloads
-    fun getWalletsQuery(first: Int? = null): Query<AccountToWalletsConnection> {
+    fun getWalletsQuery(
+        first: Int? = null,
+        after: String? = null,
+        thirdPartyIds: List<String>? = null,
+    ): Query<AccountToWalletsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToWalletsConnection(${'$'}first: Int) {
+query FetchAccountToWalletsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}third_party_ids: [String!]) {
     current_account {
         ... on Account {
-            wallets(, first: ${'$'}first) {
+            wallets(, first: ${'$'}first, after: ${'$'}after, third_party_ids: ${'$'}third_party_ids) {
                 type: __typename
+                account_to_wallets_connection_count: count
                 account_to_wallets_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -1210,7 +1218,6 @@ query FetchAccountToWalletsConnection(${'$'}first: Int) {
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                account_to_wallets_connection_count: count
                 account_to_wallets_connection_entities: entities {
                     type: __typename
                     wallet_id: id
@@ -1254,6 +1261,8 @@ query FetchAccountToWalletsConnection(${'$'}first: Int) {
 """,
             variableBuilder = {
                 add("first", first)
+                add("after", after)
+                add("third_party_ids", thirdPartyIds)
             }
         ) {
             val connection =

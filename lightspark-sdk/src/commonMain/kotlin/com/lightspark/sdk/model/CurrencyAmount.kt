@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Represents the value and unit for an amount of currency.
+ * This object represents the value and unit for an amount of currency.
  * @param originalValue The original numeric value for this CurrencyAmount.
  * @param originalUnit The original unit of currency for this CurrencyAmount.
  * @param preferredCurrencyUnit The unit of user's preferred currency.

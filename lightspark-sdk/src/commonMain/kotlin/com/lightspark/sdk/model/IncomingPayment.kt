@@ -14,7 +14,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 
 /**
- * A transaction that was sent to a Lightspark node on the Lightning Network.
+ * This object represents any payment sent to a Lightspark node on the Lightning Network. You can retrieve this object to receive payment related information about a specific payment received by a Lightspark node.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when this transaction was initiated.
  * @param updatedAt The date and time when the entity was last updated.
@@ -55,15 +55,23 @@ data class IncomingPayment(
     fun getAttemptsQuery(
         first: Int? = null,
         statuses: List<IncomingPaymentAttemptStatus>? = null,
+        after: String? = null,
     ): Query<IncomingPaymentToAttemptsConnection> {
         return Query(
             queryPayload = """
-query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [IncomingPaymentAttemptStatus!]) {
+query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [IncomingPaymentAttemptStatus!], ${'$'}after: String) {
     entity(id: ${'$'}entity_id) {
         ... on IncomingPayment {
-            attempts(, first: ${'$'}first, statuses: ${'$'}statuses) {
+            attempts(, first: ${'$'}first, statuses: ${'$'}statuses, after: ${'$'}after) {
                 type: __typename
                 incoming_payment_to_attempts_connection_count: count
+                incoming_payment_to_attempts_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
                 incoming_payment_to_attempts_connection_entities: entities {
                     type: __typename
                     incoming_payment_attempt_id: id
@@ -92,6 +100,7 @@ query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
+                add("after", after)
             }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("attempts")) { "attempts not found" }

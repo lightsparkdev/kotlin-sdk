@@ -7,24 +7,22 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * This object represents the address of a node on the Lightning Network.
- * @param address The string representation of the address.
+ *
  */
 @Serializable
-@SerialName("NodeAddress")
-data class NodeAddress(
+@SerialName("ScreenBitcoinAddressesOutput")
+data class ScreenBitcoinAddressesOutput(
 
-    @SerialName("node_address_address")
-    val address: String,
+    @SerialName("screen_bitcoin_addresses_output_ratings")
+    val ratings: List<RiskRating>,
 ) {
 
     companion object {
 
         const val FRAGMENT = """
-fragment NodeAddressFragment on NodeAddress {
+fragment ScreenBitcoinAddressesOutputFragment on ScreenBitcoinAddressesOutput {
     type: __typename
-    node_address_address: address
-    node_address_type: type
+    screen_bitcoin_addresses_output_ratings: ratings
 }"""
     }
 }
