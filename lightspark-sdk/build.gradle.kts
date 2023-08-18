@@ -116,18 +116,18 @@ mavenPublishing {}
 android {
     namespace = "com.lightspark.sdk"
     version = VERSION_NAME
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 24
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
     }
     dependencies {
         dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:${libs.versions.dokka.get()}")
-        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }
 
