@@ -12,7 +12,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 
 /**
- * This interface represents a lightning node that can be connected to the Lightning Network to send and receive transactions.
+ * This object is an interface representing a Lightning Node on the Lightning Network, and could either be a Lightspark node or a node managed by a third party.
  * @property id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @property createdAt The date and time when the entity was first created.
  * @property updatedAt The date and time when the entity was last updated.

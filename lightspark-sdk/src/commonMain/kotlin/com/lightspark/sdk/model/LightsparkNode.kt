@@ -113,14 +113,16 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
     fun getChannelsQuery(
         first: Int? = null,
         statuses: List<ChannelStatus>? = null,
+        after: String? = null,
     ): Query<LightsparkNodeToChannelsConnection> {
         return Query(
             queryPayload = """
-query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [ChannelStatus!]) {
+query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [ChannelStatus!], ${'$'}after: String) {
     entity(id: ${'$'}entity_id) {
         ... on LightsparkNode {
-            channels(, first: ${'$'}first, statuses: ${'$'}statuses) {
+            channels(, first: ${'$'}first, statuses: ${'$'}statuses, after: ${'$'}after) {
                 type: __typename
+                lightspark_node_to_channels_connection_count: count
                 lightspark_node_to_channels_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -128,7 +130,6 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                lightspark_node_to_channels_connection_count: count
                 lightspark_node_to_channels_connection_entities: entities {
                     type: __typename
                     channel_id: id
@@ -232,6 +233,7 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
                 add("entity_id", id)
                 add("first", first)
                 add("statuses", statuses)
+                add("after", after)
             }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("channels")) { "channels not found" }

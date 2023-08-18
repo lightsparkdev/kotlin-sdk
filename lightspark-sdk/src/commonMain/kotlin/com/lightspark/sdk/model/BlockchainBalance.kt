@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * This object provides a detailed breakdown of a `LightsparkNode`'s current balance on the Bitcoin Network.
+ * This is an object representing a detailed breakdown of the balance for a Lightspark Node.
  * @param totalBalance The total wallet balance, including unconfirmed UTXOs.
  * @param confirmedBalance The balance of confirmed UTXOs in the wallet.
  * @param unconfirmedBalance The balance of unconfirmed UTXOs in the wallet.

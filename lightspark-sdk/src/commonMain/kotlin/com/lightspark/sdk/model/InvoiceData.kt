@@ -8,7 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * This object represents the BOLT #11 invoice protocol for Lightning Payments. See https://github.com/lightning/bolts/blob/master/11-payment-encoding.md.
+ * This object represents the data associated with a BOLT #11 invoice. You can retrieve this object to receive the relevant data associated with a specific invoice.
  * @param paymentHash The payment hash of this invoice.
  * @param amount The requested amount in this invoice. If it is equal to 0, the sender should choose the amount to send.
  * @param createdAt The date and time when this invoice was created.

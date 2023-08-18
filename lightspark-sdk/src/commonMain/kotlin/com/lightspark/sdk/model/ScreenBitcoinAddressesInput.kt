@@ -7,15 +7,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * This object represents payment failures associated with your Lightspark Node.
+ *
  */
 @Serializable
-@SerialName("TransactionFailures")
-data class TransactionFailures(
+@SerialName("ScreenBitcoinAddressesInput")
+data class ScreenBitcoinAddressesInput(
 
-    val paymentFailures: List<PaymentFailureReason>? = null,
+    val provider: CryptoSanctionsScreeningProvider,
 
-    val routingTransactionFailures: List<RoutingTransactionFailureReason>? = null,
+    val addresses: List<String>,
 ) {
 
     companion object {
