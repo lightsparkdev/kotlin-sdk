@@ -16,6 +16,7 @@ import com.lightspark.sdk.wallet.auth.jwt.JwtTokenInfo
 import com.lightspark.sdk.wallet.graphql.*
 import com.lightspark.sdk.wallet.model.*
 import com.lightspark.sdk.wallet.util.serializerFormat
+import saschpe.kase64.base64DecodedBytes
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.transformWhile
 import kotlinx.serialization.json.*
-import saschpe.kase64.base64DecodedBytes
 
 private const val WALLET_NODE_ID_KEY = "wallet_node_id"
 private const val SCHEMA_ENDPOINT = "graphql/wallet/2023-05-05"
@@ -293,6 +293,7 @@ class LightsparkCoroutinesWalletClient private constructor(
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      * @return The created invoice.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
@@ -301,7 +302,8 @@ class LightsparkCoroutinesWalletClient private constructor(
         amountMsats: Long,
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
-    ): InvoiceData {
+        expirySecs: Int? = null,
+    ): Invoice {
         requireValidAuth()
         return executeQuery(
             Query(
@@ -310,11 +312,12 @@ class LightsparkCoroutinesWalletClient private constructor(
                     add("amountMsats", amountMsats)
                     memo?.let { add("memo", memo) }
                     add("type", type.rawValue)
+                    expirySecs?.let { add("expirySecs", expirySecs) }
                 },
             ) {
                 val invoiceJson =
                     requireNotNull(
-                        it["create_invoice"]?.jsonObject?.get("invoice")?.jsonObject?.get("data"),
+                        it["create_invoice"]?.jsonObject?.get("invoice"),
                     ) { "No invoice found in response" }
                 serializerFormat.decodeFromJsonElement(invoiceJson)
             },

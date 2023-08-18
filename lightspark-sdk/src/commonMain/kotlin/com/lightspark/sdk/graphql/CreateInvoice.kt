@@ -1,6 +1,6 @@
 package com.lightspark.sdk.graphql
 
-import com.lightspark.sdk.model.InvoiceData
+import com.lightspark.sdk.model.Invoice
 
 const val CreateInvoiceMutation = """
   mutation CreateInvoice(
@@ -8,15 +8,14 @@ const val CreateInvoiceMutation = """
     ${'$'}amountMsats: Long!
     ${'$'}memo: String
     ${'$'}type: InvoiceType = null
+    ${'$'}expirySecs: Int = null
     ) {
-    create_invoice(input: { node_id: ${'$'}nodeId, amount_msats: ${'$'}amountMsats, memo: ${'$'}memo, invoice_type: ${'$'}type }) {
+    create_invoice(input: { node_id: ${'$'}nodeId, amount_msats: ${'$'}amountMsats, memo: ${'$'}memo, invoice_type: ${'$'}type, expiry_secs: ${'$'}expirySecs }) {
       invoice {
-        data {
-          ...InvoiceDataFragment
-        }
+        ...InvoiceFragment
       }
     }
   }
   
-    ${InvoiceData.FRAGMENT}
+    ${Invoice.FRAGMENT}
 """

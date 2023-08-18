@@ -45,8 +45,8 @@ class LightsparkCoroutinesClient private constructor(
     private var serverUrl: String = ServerEnvironment.PROD.graphQLUrl,
     private var defaultBitcoinNetwork: BitcoinNetwork = BitcoinNetwork.REGTEST,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
-    internal val nodeKeyCache: NodeKeyCache = NodeKeyCache(),
 ) {
+    private val nodeKeyCache: NodeKeyCache = NodeKeyCache()
     internal var requester = Requester(nodeKeyCache, authProvider, serializerFormat, SCHEMA_ENDPOINT, serverUrl)
 
     constructor(config: ClientConfig) : this(
@@ -90,7 +90,7 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 AccountDashboardQuery,
                 {
-                    add("network", bitcoinNetwork)
+                    add("network", bitcoinNetwork.rawValue)
                     nodeIds?.let { add("nodeIds", nodeIds) }
                 },
             ) {
@@ -121,7 +121,7 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 SingleNodeDashboardQuery,
                 {
-                    add("network", bitcoinNetwork)
+                    add("network", bitcoinNetwork.rawValue)
                     add("nodeId", nodeId)
                     add("numTransactions", numTransactions)
                 },
@@ -179,13 +179,15 @@ class LightsparkCoroutinesClient private constructor(
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      */
     suspend fun createInvoice(
         nodeId: String,
         amountMsats: Long,
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
-    ): InvoiceData {
+        expirySecs: Int? = null,
+    ): Invoice {
         requireValidAuth()
         return executeQuery(
             Query(
@@ -194,12 +196,13 @@ class LightsparkCoroutinesClient private constructor(
                     add("nodeId", nodeId)
                     add("amountMsats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("type", type)
+                    add("type", type.rawValue)
+                    expirySecs?.let { add("expirySecs", expirySecs) }
                 },
             ) {
                 val invoiceJson =
                     requireNotNull(
-                        it["create_invoice"]?.jsonObject?.get("invoice")?.jsonObject?.get("data"),
+                        it["create_invoice"]?.jsonObject?.get("invoice"),
                     ) { "No invoice found in response" }
                 serializerFormat.decodeFromJsonElement(invoiceJson)
             },
@@ -214,12 +217,14 @@ class LightsparkCoroutinesClient private constructor(
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      */
     suspend fun createLnurlInvoice(
         nodeId: String,
         amountMsats: Long,
         metadata: String,
-    ): InvoiceData {
+        expirySecs: Int? = null,
+    ): Invoice {
         requireValidAuth()
 
         val md = MessageDigest.getInstance("SHA-256")
@@ -233,11 +238,12 @@ class LightsparkCoroutinesClient private constructor(
                     add("nodeId", nodeId)
                     add("amountMsats", amountMsats)
                     add("metadataHash", metadataHash)
+                    expirySecs?.let { add("expirySecs", expirySecs) }
                 },
             ) {
                 val invoiceJson =
                     requireNotNull(
-                        it["create_lnurl_invoice"]?.jsonObject?.get("invoice")?.jsonObject?.get("data"),
+                        it["create_lnurl_invoice"]?.jsonObject?.get("invoice"),
                     ) { "No invoice found in response" }
                 serializerFormat.decodeFromJsonElement(invoiceJson)
             },
@@ -323,7 +329,7 @@ class LightsparkCoroutinesClient private constructor(
         return executeQuery(
             Query(
                 BitcoinFeeEstimateQuery,
-                { add("bitcoin_network", bitcoinNetwork) },
+                { add("bitcoin_network", bitcoinNetwork.rawValue) },
             ) {
                 val feeEstimateJson =
                     requireNotNull(it["bitcoin_fee_estimate"]) { "No fee estimate found in response" }
@@ -475,9 +481,9 @@ class LightsparkCoroutinesClient private constructor(
         requireValidAuth()
         val permissions = if (transact && testMode) {
             listOf(Permission.REGTEST_VIEW, Permission.REGTEST_TRANSACT)
-        } else if (transact && !testMode) {
+        } else if (transact) {
             listOf(Permission.MAINNET_VIEW, Permission.MAINNET_TRANSACT)
-        } else if (!transact && testMode) {
+        } else if (testMode) {
             listOf(Permission.REGTEST_VIEW)
         } else {
             listOf(Permission.MAINNET_VIEW)
@@ -489,7 +495,7 @@ class LightsparkCoroutinesClient private constructor(
                     CreateApiTokenMutation,
                     {
                         add("name", name)
-                        add("permissions", permissions)
+                        add("permissions", permissions.map { it.rawValue })
                     },
                 ) {
                     val tokenJson = requireNotNull(it["create_api_token"]) { "No token found in response" }
@@ -574,7 +580,7 @@ class LightsparkCoroutinesClient private constructor(
                 FundNodeMutation,
                 {
                     add("node_id", nodeId)
-                    add("amount_sats", amountSats)
+                    amountSats?.let { add("amount_sats", it) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -612,7 +618,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("node_id", nodeId)
                     add("amount_sats", amountSats)
                     add("bitcoin_address", bitcoinAddress)
-                    add("withdrawal_mode", mode)
+                    add("withdrawal_mode", mode.rawValue)
                 },
             ) {
                 val withdrawalJson =
@@ -696,7 +702,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("local_node_id", localNodeId)
                     add("amount_msats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("invoice_type", invoiceType)
+                    invoiceType?.let { add("invoice_type", it.rawValue) }
                 },
             ) {
                 val outputJson =
@@ -744,7 +750,7 @@ class LightsparkCoroutinesClient private constructor(
         return requester.executeQuery(query)
     }
 
-    internal fun requireValidAuth() {
+    private fun requireValidAuth() {
         if (!authProvider.isAccountAuthorized()) {
             throw LightsparkAuthenticationException()
         }

@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 
 /**
@@ -131,7 +130,7 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
         keyType: KeyType,
         signingPublicKey: String,
         signingPrivateKey: String,
-        callback: (Wallet) -> Unit
+        callback: (Wallet) -> Unit,
     ): CompletableFuture<Wallet> =
         coroutineScope.future {
             var wallet: Wallet? = null
@@ -178,6 +177,7 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      * @return The invoice data.
      * @throws LightsparkAuthenticationException If the user is not authenticated.
      */
@@ -187,8 +187,9 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
         amountMsats: Long,
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
-    ): CompletableFuture<InvoiceData> =
-        coroutineScope.future { coroutinesClient.createInvoice(amountMsats, memo, type) }
+        expirySecs: Int? = null,
+    ): CompletableFuture<Invoice> =
+        coroutineScope.future { coroutinesClient.createInvoice(amountMsats, memo, type, expirySecs) }
 
     /**
      * Pay a lightning invoice from the current wallet.

@@ -194,9 +194,9 @@ class ClientIntegrationTests {
             "Pizza!",
         )
 
-        println("encoded invoice: ${paymentRequest.encodedPaymentRequest}")
+        println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
 
-        val decoded = client.decodeInvoice(paymentRequest.encodedPaymentRequest)
+        val decoded = client.decodeInvoice(paymentRequest.data.encodedPaymentRequest)
         decoded.shouldNotBeNull()
         println("decoded invoice: $decoded")
     }
@@ -270,7 +270,7 @@ class ClientIntegrationTests {
         ensureWalletDeployedAndInitialized(output.wallet)
         client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
         val invoice = client.createInvoice(100_000, "test invoice")
-        val payment = client.createTestModePayment(invoice.encodedPaymentRequest)
+        val payment = client.createTestModePayment(invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()
         payment.status.shouldBeIn(TransactionStatus.PENDING, TransactionStatus.SUCCESS)
     }
