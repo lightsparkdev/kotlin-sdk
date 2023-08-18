@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- *
+ * This is an object representing a Lightspark API token, that can be used to authenticate this account when making API calls or using our SDKs. See the “Authentication” section of our API docs for more details on its usage.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when the entity was first created.
  * @param updatedAt The date and time when the entity was last updated.

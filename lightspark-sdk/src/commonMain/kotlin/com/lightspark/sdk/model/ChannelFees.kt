@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- *
+ * This represents the fee policies set for a channel on the Lightning Network.
  */
 @Serializable
 @SerialName("ChannelFees")

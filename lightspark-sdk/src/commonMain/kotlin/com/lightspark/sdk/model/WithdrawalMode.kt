@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum of the potential modes that your Bitcoin withdrawal can take. **/
 @Serializable(with = WithdrawalModeSerializer::class)
 enum class WithdrawalMode(val rawValue: String) {
 

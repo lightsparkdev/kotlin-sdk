@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum identifying a particular Bitcoin Network. **/
 @Serializable(with = BitcoinNetworkSerializer::class)
 enum class BitcoinNetwork(val rawValue: String) {
     /** The production version of the Bitcoin Blockchain. **/
@@ -17,7 +18,7 @@ enum class BitcoinNetwork(val rawValue: String) {
     /** A test version of the Bitcoin Blockchain, maintained by a centralized organization. Not in use at Lightspark. **/
     SIGNET("SIGNET"),
 
-    /** A test version of the Bitcoin Blockchain, publically available. **/
+    /** A test version of the Bitcoin Blockchain, publicly available. **/
     TESTNET("TESTNET"),
 
     /**

@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum of the potential reasons that an attempted routed transaction through a Lightspark node may have failed. **/
 @Serializable(with = RoutingTransactionFailureReasonSerializer::class)
 enum class RoutingTransactionFailureReason(val rawValue: String) {
 

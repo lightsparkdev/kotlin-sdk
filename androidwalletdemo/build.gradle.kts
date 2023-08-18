@@ -19,12 +19,12 @@ try {
 
 android {
     namespace = "com.lightspark.androidwalletdemo"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.lightspark.androidwalletdemo"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = versionProperties.getProperty("version_code").toInt()
         versionName = versionProperties.getProperty("version_name")
 
@@ -45,17 +45,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "18"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.0"
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packagingOptions {
         resources {

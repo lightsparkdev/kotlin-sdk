@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum representing a particular reason why an htlc sent over the Lightning Network may have failed. **/
 @Serializable(with = HtlcAttemptFailureCodeSerializer::class)
 enum class HtlcAttemptFailureCode(val rawValue: String) {
 

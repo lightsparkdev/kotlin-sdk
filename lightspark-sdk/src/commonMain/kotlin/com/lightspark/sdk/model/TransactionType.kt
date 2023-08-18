@@ -6,6 +6,7 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum of the potential types of transactions that can be associated with your Lightspark Node. **/
 @Serializable(with = TransactionTypeSerializer::class)
 enum class TransactionType(val rawValue: String) {
     /** Transactions initiated from a Lightspark node on Lightning Network. **/

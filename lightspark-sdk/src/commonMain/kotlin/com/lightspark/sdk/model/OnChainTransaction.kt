@@ -11,7 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- * Transaction happened on Bitcoin blockchain.
+ * This object represents an L1 transaction that occurred on the Bitcoin Network. You can retrieve this object to receive information about a specific on-chain transaction made on the Lightning Network associated with your Lightspark Node.
  * @property id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @property createdAt The date and time when this transaction was initiated.
  * @property updatedAt The date and time when the entity was last updated.

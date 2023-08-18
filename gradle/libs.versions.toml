@@ -1,17 +1,18 @@
 [versions]
 # Core SDK deps (or common):
 acinqSecp256k1 = "0.10.0"
-androidGradlePlugin = "8.0.0"
+androidGradlePlugin = "8.1.0"
 appAuth = "0.11.1"
 buildKonfig = "0.13.3"
 dataStore = "1.0.0"
+desugar_jdk_libs = "2.0.3"
 dokka = "1.8.10"
 downloadFile = "5.4.0"
 gradleS3 = "1.2.1"
 jna = "5.13.0"
 kase64 = "1.0.6"
 kotest = "5.5.4"
-kotlin = "1.8.0"
+kotlin = "1.9.0"
 kotlinCompilerExtension = "1.4.0"
 kotlinCoroutines = "1.6.4"
 kotlinxDateTime = "0.4.0"
@@ -19,23 +20,23 @@ kotlinSerializationJson = "1.4.1"
 krypt = "0.3.1"
 ktlint = "11.3.1"
 ktor = "2.2.3"
-lightsparkCore = "0.3.1"
+lightsparkCore = "0.3.2"
 mavenPublish = "0.25.2"
 
 # Android Wallet demo deps:
 accompanist = "0.28.0"
-activityCompose = "1.6.1"
-barcodeScanning = "17.0.3"
-cameraX = "1.3.0-alpha02"
-composeBom = "2023.01.00"
-coreKtx = "1.9.0"
+activityCompose = "1.7.2"
+barcodeScanning = "17.2.0"
+cameraX = "1.3.0-beta02"
+composeBom = "2023.08.00"
+coreKtx = "1.10.1"
 espresso = "3.5.1"
-hilt = "2.45"
+hilt = "2.47"
 hiltComposeNavigation = "1.0.0"
 junit = "4.13.2"
 junitExt = "1.1.5"
-lifecycleRuntimeKtx = "2.5.1"
-navigationCompose = "2.5.3"
+lifecycleRuntimeKtx = "2.6.1"
+navigationCompose = "2.7.0"
 retrofit = "2.9.0"
 qrCode = "1.0.1"
 zxing = "3.5.1"
@@ -45,6 +46,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 gradleClasspath-android = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }

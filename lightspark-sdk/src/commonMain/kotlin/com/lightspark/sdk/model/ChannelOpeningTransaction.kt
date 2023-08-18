@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- * The transaction on Bitcoin blockchain to open a channel on Lightning Network funded by the local Lightspark node.
+ * This is an object representing a transaction which opens a channel on the Lightning Network. This object occurs only for channels funded by the local Lightspark node.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when this transaction was initiated.
  * @param updatedAt The date and time when the entity was last updated.

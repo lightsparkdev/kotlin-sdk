@@ -168,9 +168,9 @@ class ClientIntegrationTests {
             "Pizza!",
         )
 
-        println("encoded invoice: ${paymentRequest.encodedPaymentRequest}")
+        println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
 
-        val decoded = client.decodeInvoice(paymentRequest.encodedPaymentRequest)
+        val decoded = client.decodeInvoice(paymentRequest.data.encodedPaymentRequest)
         decoded.shouldNotBeNull()
         println("decoded invoice: $decoded")
     }
@@ -181,7 +181,7 @@ class ClientIntegrationTests {
         val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
         val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
 
-        println("encoded invoice: ${paymentRequest.encodedPaymentRequest}")
+        println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
     }
 
     @Test
@@ -232,7 +232,7 @@ class ClientIntegrationTests {
         val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
         unlocked.shouldBeTrue()
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
-        val payment = client.createTestModePayment(node.id, invoice.encodedPaymentRequest)
+        val payment = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()
         payment.status.shouldBeIn(TransactionStatus.PENDING, TransactionStatus.SUCCESS)
     }
