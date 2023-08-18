@@ -136,7 +136,7 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
         keyType: KeyType,
         signingPublicKey: String,
         signingPrivateKey: String,
-        callback: (Wallet) -> Unit
+        callback: (Wallet) -> Unit,
     ) {
         runBlocking {
             asyncClient.initializeWalletAndWaitForInitialized(keyType, signingPublicKey, signingPrivateKey).collect {
@@ -179,6 +179,7 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      * @return The invoice data.
      * @throws LightsparkAuthenticationException If the user is not authenticated.
      */
@@ -188,7 +189,8 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
         amountMsats: Long,
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
-    ): InvoiceData = runBlocking { asyncClient.createInvoice(amountMsats, memo, type) }
+        expirySecs: Int? = null,
+    ): Invoice = runBlocking { asyncClient.createInvoice(amountMsats, memo, type, expirySecs) }
 
     /**
      * Pay a lightning invoice from the current wallet.
