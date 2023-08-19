@@ -3,7 +3,6 @@ package com.lightspark.sdk.webhooks
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.model.WebhookEventType
 import com.lightspark.sdk.util.serializerFormat
-import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlinx.datetime.Instant
@@ -35,7 +34,6 @@ fun verifyAndParseWebhook(
     hexDigest: String,
     webhookSecret: String,
 ): WebhookEvent {
-    // Verify the signature of the webhook using hmac sha256:
     val hmac = Mac.getInstance("HmacSHA256")
     val secretKey = SecretKeySpec(webhookSecret.encodeToByteArray(), "HmacSHA256")
     hmac.init(secretKey)
