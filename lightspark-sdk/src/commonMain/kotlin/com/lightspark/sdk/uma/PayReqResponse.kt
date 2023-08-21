@@ -16,9 +16,9 @@ import kotlinx.serialization.Serializable
 data class PayReqResponse(
     @SerialName("pr")
     val encodedInvoice: String,
-    val routes: List<Route>,
     val compliance: PayReqResponseCompliance,
     val paymentInfo: PayReqResponsePaymentInfo,
+    val routes: List<Route> = emptyList(),
 )
 
 @Serializable

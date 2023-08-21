@@ -54,4 +54,6 @@ data class CompliancePayerData(
     val signature: String,
     val signatureNonce: String,
     val signatureTimestamp: Long,
-)
+) {
+    fun signedWith(signature: String) = copy(signature = signature)
+}
