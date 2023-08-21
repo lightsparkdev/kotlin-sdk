@@ -291,24 +291,20 @@ class UmaProtocolHelper(
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 10 minutes.
      * @return The [PayReqResponse] that should be returned to the sender for the given [PayRequest].
      */
-    fun getPayReqResponse(
+    suspend fun getPayReqResponse(
         query: PayRequest,
         invoiceCreator: LnurlInvoiceCreator,
-        nodeId: String,
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
         receiverChannelUtxos: List<String>,
         utxoCallback: String,
-        expirySecs: Long = 10 * 60,
     ): PayReqResponse {
         val encodedPayerData = serializerFormat.encodeToString(query.payerData)
         val metadataWithPayerData = "$metadata$encodedPayerData"
         val invoice = invoiceCreator.createLnurlInvoice(
-            nodeId = nodeId,
             amountMsats = query.amount * conversionRate,
             metadata = metadataWithPayerData,
-            expirySecs = expirySecs,
         )
         return PayReqResponse(
             encodedInvoice = invoice.data.encodedPaymentRequest,
@@ -340,10 +336,5 @@ class UmaProtocolHelper(
 
 interface LnurlInvoiceCreator {
     // TODO: Figure out the async story here. Do we need a different implementation for each client type?
-    fun createLnurlInvoice(
-        nodeId: String,
-        amountMsats: Long,
-        metadata: String,
-        expirySecs: Long? = null,
-    ): Invoice
+    suspend fun createLnurlInvoice(amountMsats: Long, metadata: String): Invoice
 }
