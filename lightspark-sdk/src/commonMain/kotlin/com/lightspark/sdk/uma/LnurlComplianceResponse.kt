@@ -3,7 +3,7 @@ package com.lightspark.sdk.uma
 import kotlinx.serialization.Serializable
 
 /**
- * The `compliance` field of the [LnrulpResponse].
+ * The `compliance` field of the [LnurlpResponse].
  *
  * @property isKYCd Indicates whether VASP2 has KYC information about the receiver.
  * @property trStatus Indicates whether VASP2 is a financial institution that requires travel rule information.
@@ -22,4 +22,6 @@ data class LnurlComplianceResponse(
     val signatureTimestamp: Long,
 ) {
     fun signablePayload() = "$receiverIdentifier|$signatureNonce|$signatureTimestamp".encodeToByteArray()
+
+    fun signedWith(signature: String) = copy(signature = signature)
 }

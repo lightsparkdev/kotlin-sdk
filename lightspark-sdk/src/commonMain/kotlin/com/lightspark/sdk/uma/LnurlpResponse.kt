@@ -26,7 +26,7 @@ import kotlinx.serialization.json.jsonPrimitive
  * @property compliance The compliance data from the receiver, including TR status, kyc info, etc.
  */
 @Serializable
-data class LnrulpResponse(
+data class LnurlpResponse(
     val callback: String,
     val minSendable: Long,
     val maxSendable: Long,

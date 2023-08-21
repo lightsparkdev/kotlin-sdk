@@ -44,19 +44,31 @@ data class LnurlpRequest(
         return url.toString()
     }
 
+    fun signedWith(signature: String) = copy(signature = signature)
+
     fun signablePayload() = "$receiverAddress|$nonce|$timestamp".encodeToByteArray()
 
     companion object {
         fun decodeFromUrl(url: String): LnurlpRequest {
             val urlBuilder = URLBuilder(url)
+            if (urlBuilder.protocol != URLProtocol.HTTP && urlBuilder.protocol != URLProtocol.HTTPS) {
+                throw IllegalArgumentException("Invalid URL schema: $url")
+            }
+            if (urlBuilder.pathSegments.size != 3
+                || urlBuilder.pathSegments[0] != ".well-known"
+                || urlBuilder.pathSegments[1] != "lnurlp"
+            ) {
+                throw IllegalArgumentException("Invalid uma request path: $url")
+            }
             val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[2]}"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]
             val trStatus = urlBuilder.parameters["trStatus"]?.toBoolean()
             val timestamp = urlBuilder.parameters["timestamp"]?.toLong()
+
             if (vaspDomain == null || nonce == null || signature == null || trStatus == null || timestamp == null) {
-                throw IllegalArgumentException("Invalid URL: $url")
+                throw IllegalArgumentException("Invalid URL. Missing param: $url")
             }
             return LnurlpRequest(receiverAddress, nonce, signature, trStatus, vaspDomain, timestamp)
         }
