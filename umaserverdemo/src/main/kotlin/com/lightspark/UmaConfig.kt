@@ -46,7 +46,7 @@ data class UmaConfig(
                     ?: error("LIGHTSPARK_UMA_SIGNING_PUBKEY not set"),
                 umaSigningPrivKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PRIVKEY not set"),
-                clientBaseURL = System.getenv("LIGHTSPARK_EXAMPLE_BASE_URL")?.let { "https://$it/graphql/server/rc" },
+                clientBaseURL = System.getenv("LIGHTSPARK_EXAMPLE_BASE_URL"),
             )
         }
     }
