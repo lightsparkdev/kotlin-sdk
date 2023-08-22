@@ -1,13 +1,15 @@
 package com.lightspark.plugins
 
 import com.lightspark.UmaConfig
+import com.lightspark.Vasp1
 import com.lightspark.Vasp2
+import com.lightspark.sdk.ClientConfig
+import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.uma.InMemoryPublicKeyCache
 import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -15,19 +17,24 @@ import io.ktor.server.routing.routing
 fun Application.configureRouting(config: UmaConfig) {
     val pubKeyCache = InMemoryPublicKeyCache()
     val uma = UmaProtocolHelper(pubKeyCache)
+    val client = LightsparkCoroutinesClient(
+        ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+    )
+    val vasp1 = Vasp1(config, uma, client)
     val vasp2 = Vasp2(config, uma)
 
     routing {
+        // VASP1 Routes:
         get("/api/umalookup/:receiver") {
-            call.respondText("Hello World!")
+            call.debugLog(vasp1.handleClientUmaLookup(call))
         }
 
         get("/api/umapayreq/:callbackUuid") {
-            call.respondText("Hello World!")
+            call.debugLog(vasp1.handleClientUmaPayReq(call))
         }
 
         post("/api/sendpayment/:callbackUuid") {
-            call.respondText("Hello World!")
+            call.debugLog(vasp1.handleClientSendPayment(call))
         }
 
         // End VASP1 Routes
