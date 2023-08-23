@@ -2,6 +2,7 @@ package com.lightspark
 
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.uma.Currency
 import com.lightspark.sdk.uma.LnurlInvoiceCreator
@@ -124,7 +125,10 @@ class Vasp2(
         }
 
         val client = LightsparkCoroutinesClient(
-            ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+            ClientConfig(
+                serverUrl = config.clientBaseURL ?: "api.lightspark.com",
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+            ),
         )
         val invoice = try {
             client.createLnurlInvoice(config.nodeID, amountMsats, getEncodedMetadata())
@@ -165,7 +169,10 @@ class Vasp2(
 
         val conversionRate = 34_150L // In real life, this would come from some actual exchange rate API.
         val client = LightsparkCoroutinesClient(
-            ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+            ClientConfig(
+                serverUrl = config.clientBaseURL ?: "api.lightspark.com",
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+            ),
         )
 
         val response = try {
@@ -185,6 +192,7 @@ class Vasp2(
                 utxoCallback = getUtxoCallback(call, "1234"),
             )
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to create payreq response.", e)
             call.respond(HttpStatusCode.InternalServerError, "Failed to create payreq response.")
             return "Failed to create payreq response."
         }
@@ -204,9 +212,11 @@ class Vasp2(
 
     private fun getLnurlpCallback(call: ApplicationCall): String {
         val protocol = call.request.origin.scheme
+        val port = call.request.origin.localPort
+        val portString = if (port == 80 || port == 443) "" else ":$port"
         val host = call.request.host()
         val path = "/api/uma/payreq/${config.userID}"
-        return "$protocol://$host$path"
+        return "$protocol://$host$portString$path"
     }
 
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {

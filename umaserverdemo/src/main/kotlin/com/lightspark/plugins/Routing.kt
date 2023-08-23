@@ -9,6 +9,7 @@ import com.lightspark.registerVasp1Routes
 import com.lightspark.registerVasp2Routes
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.uma.InMemoryPublicKeyCache
 import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.server.application.Application
@@ -20,7 +21,10 @@ fun Application.configureRouting(config: UmaConfig) {
     val pubKeyCache = InMemoryPublicKeyCache()
     val uma = UmaProtocolHelper(pubKeyCache)
     val client = LightsparkCoroutinesClient(
-        ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+        ClientConfig(
+            serverUrl = config.clientBaseURL ?: "api.lightspark.com",
+            authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+        ),
     )
     val vasp1 = Vasp1(config, uma, client)
     val vasp2 = Vasp2(config, uma)

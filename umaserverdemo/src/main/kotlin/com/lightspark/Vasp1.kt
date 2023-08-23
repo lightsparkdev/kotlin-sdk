@@ -27,6 +27,11 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 
 class Vasp1(
     private val config: UmaConfig,
@@ -106,14 +111,16 @@ class Vasp1(
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
 
         call.respond(
-            mapOf(
-                "currencies" to lnurlpResponse.currencies,
-                "minSendSats" to lnurlpResponse.minSendable,
-                "maxSendSats" to lnurlpResponse.maxSendable,
-                "callbackUuid" to callbackUuid,
+            buildJsonObject {
+                putJsonArray("currencies") {
+                    addAll(lnurlpResponse.currencies.map { Json.encodeToJsonElement(it) })
+                }
+                put("minSendSats", lnurlpResponse.minSendable)
+                put("maxSendSats", lnurlpResponse.maxSendable)
+                put("callbackUuid", callbackUuid)
                 // You might not actually send this to a client in practice.
-                "isReceiverKYCd" to lnurlpResponse.compliance.isKYCd,
-            ),
+                put("isReceiverKYCd", lnurlpResponse.compliance.isKYCd)
+            }
         )
 
         return "OK"
@@ -213,13 +220,13 @@ class Vasp1(
         )
 
         call.respond(
-            mapOf(
-                "encodedInvoice" to payReqResponse.encodedInvoice,
-                "callbackUuid" to newCallbackId,
-                "amount" to invoice.amount,
-                "conversionRate" to payReqResponse.paymentInfo.multiplier,
-                "currencyCode" to payReqResponse.paymentInfo.currencyCode,
-            ),
+            buildJsonObject {
+                put("encodedInvoice", payReqResponse.encodedInvoice)
+                put("callbackUuid", newCallbackId)
+                put("amount", Json.encodeToJsonElement(invoice.amount))
+                put("conversionRate", payReqResponse.paymentInfo.multiplier)
+                put("currencyCode", payReqResponse.paymentInfo.currencyCode)
+            },
         )
 
         return "OK"
@@ -269,10 +276,10 @@ class Vasp1(
         }
 
         call.respond(
-            mapOf(
-                "didSucceed" to (payment.status == TransactionStatus.SUCCESS),
-                "paymentId" to payment.id,
-            ),
+            buildJsonObject {
+                put("didSucceed", (payment.status == TransactionStatus.SUCCESS))
+                put("paymentId", payment.id)
+            },
         )
 
         return "OK"
