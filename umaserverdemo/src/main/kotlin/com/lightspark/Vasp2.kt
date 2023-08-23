@@ -7,16 +7,19 @@ import com.lightspark.sdk.uma.Currency
 import com.lightspark.sdk.uma.LnurlInvoiceCreator
 import com.lightspark.sdk.uma.PayRequest
 import com.lightspark.sdk.uma.PayerDataOptions
-import com.lightspark.sdk.uma.PubKeyResponse
 import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.host
 import io.ktor.server.request.receive
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -41,7 +44,8 @@ class Vasp2(
         if (uma.isUmaLnurlpQuery(requestUrl)) {
             return handleUmaLnurlp(call)
         }
-        return "Hello World!"
+
+        return "OK"
     }
 
     private suspend fun handleUmaLnurlp(call: ApplicationCall): String {
@@ -190,20 +194,6 @@ class Vasp2(
         return "OK"
     }
 
-    suspend fun handlePubKeyRequest(call: ApplicationCall): String {
-        val twoWeeksFromNowMs = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 14
-
-        val response = PubKeyResponse(
-            signingPubKey = config.umaSigningPubKey,
-            encryptionPubKey = config.umaEncryptionPubKey,
-            expirationTimestamp = twoWeeksFromNowMs / 1000,
-        )
-
-        call.respond(response)
-
-        return "OK"
-    }
-
     private fun getEncodedMetadata(): String {
         val metadata = mapOf(
             "text/plain" to "Pay to ${config.username}@vasp2.com",
@@ -231,5 +221,19 @@ class Vasp2(
         val protocol = origin.scheme
         val path = uri
         return "$protocol://$host$path"
+    }
+}
+
+fun Routing.registerVasp2Routes(vasp2: Vasp2) {
+    get("/.well-known/lnurlp/{username}") {
+        call.debugLog(vasp2.handleLnurlp(call))
+    }
+
+    get("/api/uma/payreq/{uuid}") {
+        call.debugLog(vasp2.handleLnurlPayreq(call))
+    }
+
+    post("/api/uma/payreq/{uuid}") {
+        call.debugLog(vasp2.handleUmaPayreq(call))
     }
 }

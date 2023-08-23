@@ -1,27 +1,47 @@
 package com.lightspark
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.execute
+import com.lightspark.sdk.model.OutgoingPayment
+import com.lightspark.sdk.model.TransactionStatus
 import com.lightspark.sdk.uma.LnurlpResponse
 import com.lightspark.sdk.uma.PayReqResponse
 import com.lightspark.sdk.uma.PayerDataOptions
 import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
 import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.serialization.json.Json
 
 class Vasp1(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
 ) {
-    private val httpClient = HttpClient()
+    private val httpClient = HttpClient {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    isLenient = true
+                },
+            )
+        }
+    }
     private val requestDataCache = Vasp1RequestCache()
 
     suspend fun handleClientUmaLookup(call: ApplicationCall): String {
@@ -48,20 +68,22 @@ class Vasp1(
             trStatus = true,
         )
 
-        val response = httpClient.get(lnurlpRequest)
-        if (response == null) {
+        val response = try {
+            httpClient.get(lnurlpRequest)
+        } catch (e: Exception) {
             call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response.")
             return "Failed to fetch lnurlp response."
         }
 
         if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response.")
+            call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response. Status: ${response.status}")
             return "Failed to fetch lnurlp response."
         }
 
         val lnurlpResponse = try {
             response.body<LnurlpResponse>()
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to parse lnurlp response", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
             return "Failed to parse lnurlp response."
         }
@@ -69,6 +91,7 @@ class Vasp1(
         val vasp2PubKey = try {
             uma.fetchPublicKeysForVasp(receiverVasp)
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to fetch pubkeys", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
             return "Failed to fetch public keys."
         }
@@ -97,8 +120,7 @@ class Vasp1(
     }
 
     suspend fun handleClientUmaPayReq(call: ApplicationCall): String {
-        val callbackUuid = call.parameters["callbackUuid"]
-        if (callbackUuid == null) {
+        val callbackUuid = call.parameters["callbackUuid"] ?: run {
             call.respond(HttpStatusCode.BadRequest, "Callback UUID not provided.")
             return "Callback UUID not provided."
         }
@@ -107,7 +129,7 @@ class Vasp1(
             return "Callback UUID not found."
         }
 
-        val amount = call.request.queryParameters["amount"]?.let { it.toLongOrNull() }
+        val amount = call.request.queryParameters["amount"]?.toLongOrNull()
         if (amount == null || amount <= 0) {
             call.respond(HttpStatusCode.BadRequest, "Amount invalid or not provided.")
             return "Amount invalid or not provided."
@@ -127,6 +149,7 @@ class Vasp1(
         val vasp2PubKeys = try {
             uma.fetchPublicKeysForVasp(initialRequestData.vasp2Domain)
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to fetch pubkeys", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
             return "Failed to fetch public keys."
         }
@@ -145,11 +168,13 @@ class Vasp1(
                 payerIdentifier = payer.identifier,
                 isPayerKYCd = true,
                 utxoCallback = utxoCallback,
+                trInfo = trInfo,
                 payerUtxos = payerUtxos,
                 payerName = payer.name,
                 payerEmail = payer.email,
             )
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to generate payreq", e)
             call.respond(HttpStatusCode.InternalServerError, "Failed to generate payreq.")
             return "Failed to generate payreq."
         }
@@ -176,6 +201,7 @@ class Vasp1(
         val invoice = try {
             lightsparkClient.decodeInvoice(payReqResponse.encodedInvoice)
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to decode invoice", e)
             call.respond(HttpStatusCode.InternalServerError, "Failed to decode invoice.")
             return "Failed to decode invoice."
         }
@@ -210,7 +236,75 @@ class Vasp1(
     )
 
     suspend fun handleClientSendPayment(call: ApplicationCall): String {
+        val callbackUuid = call.parameters["callbackUuid"] ?: run {
+            call.respond(HttpStatusCode.BadRequest, "Callback UUID not provided.")
+            return "Callback UUID not provided."
+        }
+        val payReqData = requestDataCache.getPayReqData(callbackUuid) ?: run {
+            call.respond(HttpStatusCode.BadRequest, "Callback UUID not found.")
+            return "Callback UUID not found."
+        }
+
+        if (payReqData.invoiceData.expiresAt < Clock.System.now()) {
+            call.respond(HttpStatusCode.BadRequest, "Invoice expired.")
+            return "Invoice expired."
+        }
+
+        if (payReqData.invoiceData.amount.originalValue <= 0) {
+            call.respond(HttpStatusCode.BadRequest, "Invoice amount invalid. Uma requires positive amounts.")
+            return "Invoice amount invalid."
+        }
+
+        val payment = try {
+            val pendingPayment = lightsparkClient.payInvoice(
+                config.nodeID,
+                payReqData.encodedInvoice,
+                maxFeesMsats = 1_000_000L,
+            )
+            waitForPaymentCompletion(pendingPayment)
+        } catch (e: Exception) {
+            call.application.environment.log.error("Failed to pay invoice", e)
+            call.respond(HttpStatusCode.InternalServerError, "Failed to pay invoice.")
+            return "Failed to pay invoice."
+        }
+
+        call.respond(
+            mapOf(
+                "didSucceed" to (payment.status == TransactionStatus.SUCCESS),
+                "paymentId" to payment.id,
+            ),
+        )
+
         return "OK"
+    }
+
+    // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.
+    private suspend fun waitForPaymentCompletion(pendingPayment: OutgoingPayment): OutgoingPayment {
+        var attemptsLeft = 40
+        var payment = pendingPayment
+        while (payment.status == TransactionStatus.PENDING && attemptsLeft-- > 0) {
+            delay(250)
+            payment = OutgoingPayment.getOutgoingPaymentQuery(payment.id).execute(lightsparkClient)
+                ?: throw Exception("Payment not found.")
+        }
+        if (payment.status == TransactionStatus.PENDING) {
+            throw Exception("Payment timed out.")
+        }
+        return payment
+    }
+}
+
+fun Routing.registerVasp1Routes(vasp1: Vasp1) {
+    get("/api/umalookup/{receiver}") {
+        call.debugLog(vasp1.handleClientUmaLookup(call))
+    }
+
+    get("/api/umapayreq/{callbackUuid}") {
+        call.debugLog(vasp1.handleClientUmaPayReq(call))
+    }
+
+    post("/api/sendpayment/{callbackUuid}") {
+        call.debugLog(vasp1.handleClientSendPayment(call))
     }
 }
 
