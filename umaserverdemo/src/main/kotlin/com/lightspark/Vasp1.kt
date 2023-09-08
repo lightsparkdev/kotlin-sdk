@@ -20,6 +20,8 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
+import io.ktor.server.plugins.origin
+import io.ktor.server.request.host
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
@@ -70,7 +72,7 @@ class Vasp1(
             receiverAddress = receiverAddress,
             // TODO: This should be configurable.
             senderVaspDomain = "localhost:8080",
-            trStatus = true,
+            isSubjectToTravelRule = true,
         )
 
         val response = try {
@@ -164,7 +166,6 @@ class Vasp1(
         val payer = getPayerProfile(initialRequestData.lnurlpResponse.requiredPayerData)
         val trInfo = "Here is some fake travel rule info. It's up to you to actually implement this if needed."
         val payerUtxos = emptyList<String>()
-        val utxoCallback = "/api/lnurl/utxocallback?txid=1234"
 
         val payReq = try {
             uma.getPayRequest(
@@ -174,8 +175,8 @@ class Vasp1(
                 amount = amount,
                 payerIdentifier = payer.identifier,
                 isPayerKYCd = true,
-                utxoCallback = utxoCallback,
-                trInfo = trInfo,
+                utxoCallback = getUtxoCallback(call, "1234abc"),
+                travelRuleInfo = trInfo,
                 payerUtxos = payerUtxos,
                 payerName = payer.name,
                 payerEmail = payer.email,
@@ -215,7 +216,7 @@ class Vasp1(
 
         val newCallbackId = requestDataCache.savePayReqData(
             encodedInvoice = payReqResponse.encodedInvoice,
-            utxoCallback = utxoCallback,
+            utxoCallback = getUtxoCallback(call, "1234abc"),
             invoiceData = invoice,
         )
 
@@ -241,6 +242,13 @@ class Vasp1(
         email = if (requiredPayerData.emailRequired) "alice@vasp1.com" else null,
         identifier = "alice",
     )
+
+    private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
+        val protocol = call.request.origin.scheme
+        val host = call.request.host()
+        val path = "/api/uma/utxoCallback?txId=${config.userID}"
+        return "$protocol://$host$path"
+    }
 
     suspend fun handleClientSendPayment(call: ApplicationCall): String {
         val callbackUuid = call.parameters["callbackUuid"] ?: run {
