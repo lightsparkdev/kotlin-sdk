@@ -5,6 +5,7 @@ import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.uma.Currency
+import com.lightspark.sdk.uma.KycStatus
 import com.lightspark.sdk.uma.LnurlInvoiceCreator
 import com.lightspark.sdk.uma.PayRequest
 import com.lightspark.sdk.uma.PayerDataOptions
@@ -92,7 +93,7 @@ class Vasp2(
                         maxSendable = 10_000_000,
                     ),
                 ),
-                isReceiverKYCd = true,
+                receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to generate lnurlp response.")

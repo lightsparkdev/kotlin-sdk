@@ -4,6 +4,7 @@ import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.execute
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
+import com.lightspark.sdk.uma.KycStatus
 import com.lightspark.sdk.uma.LnurlpResponse
 import com.lightspark.sdk.uma.PayReqResponse
 import com.lightspark.sdk.uma.PayerDataOptions
@@ -29,7 +30,6 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
@@ -121,7 +121,7 @@ class Vasp1(
                 put("maxSendSats", lnurlpResponse.maxSendable)
                 put("callbackUuid", callbackUuid)
                 // You might not actually send this to a client in practice.
-                put("isReceiverKYCd", lnurlpResponse.compliance.isKYCd)
+                put("receiverKycStatus", lnurlpResponse.compliance.receiverKycStatus.rawValue)
             }
         )
 
@@ -174,7 +174,7 @@ class Vasp1(
                 currencyCode = currencyCode,
                 amount = amount,
                 payerIdentifier = payer.identifier,
-                isPayerKYCd = true,
+                payerKycStatus = KycStatus.VERIFIED,
                 utxoCallback = getUtxoCallback(call, "1234abc"),
                 travelRuleInfo = trInfo,
                 payerUtxos = payerUtxos,

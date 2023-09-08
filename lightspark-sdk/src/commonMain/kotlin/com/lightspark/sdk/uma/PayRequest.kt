@@ -36,7 +36,9 @@ data class PayerData(
  * The compliance data from the sender, including utxo info.
  *
  * @property utxos The list of UTXOs of the sender's channels that might be used to fund the payment.
- * @property isKYCd Indicates whether VASP1 has KYC information about the sender.
+ * @property nodePubKey If known, the public key of the sender's node. If supported by the receiver VASP's compliance
+ *     provider, this will be used to pre-screen the sender's UTXOs for compliance purposes.
+ * @property senderKycStatus Indicates whether VASP1 has KYC information about the sender.
  * @property travelRuleInfo The travel rule information of the sender. This is encrypted with the receiver's public
  *     encryption key.
  * @property utxoCallback The URL that the receiver will call to send UTXOs of the channel that the receiver used to
@@ -48,7 +50,8 @@ data class PayerData(
 @Serializable
 data class CompliancePayerData(
     val utxos: List<String>,
-    val isKYCd: Boolean,
+    val nodePubKey: String?,
+    val senderKycStatus: KycStatus,
     val travelRuleInfo: String?,
     val utxoCallback: String,
     val signature: String,

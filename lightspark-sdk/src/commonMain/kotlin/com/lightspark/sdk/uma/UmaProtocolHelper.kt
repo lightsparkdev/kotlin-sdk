@@ -108,7 +108,7 @@ class UmaProtocolHelper(
      * @param maxSendableSats The maximum amount of sats that the sender can send.
      * @param payerDataOptions The data that the sender must send to the receiver to identify themselves.
      * @param currencyOptions The list of currencies that the receiver accepts, along with their conversion rates.
-     * @param isReceiverKYCd Indicates whether VASP2 has KYC information about the receiver.
+     * @param receiverKycStatus Indicates whether VASP2 has KYC information about the receiver.
      * @return The [LnurlpResponse] that should be sent to the sender for the given [LnurlpRequest].
      * @throws IllegalArgumentException if the receiverAddress is not in the format of "user@domain".
      */
@@ -122,10 +122,10 @@ class UmaProtocolHelper(
         maxSendableSats: Long,
         payerDataOptions: PayerDataOptions,
         currencyOptions: List<Currency>,
-        isReceiverKYCd: Boolean,
+        receiverKycStatus: KycStatus,
     ): LnurlpResponse {
         val complianceResponse =
-            getSignedLnurlpComplianceResponse(query, privateKeyBytes, requiresTravelRuleInfo, isReceiverKYCd)
+            getSignedLnurlpComplianceResponse(query, privateKeyBytes, requiresTravelRuleInfo, receiverKycStatus)
         return LnurlpResponse(
             callback = callback,
             minSendable = minSendableSats,
@@ -141,12 +141,12 @@ class UmaProtocolHelper(
         query: LnurlpRequest,
         privateKeyBytes: ByteArray,
         requiresTravelRuleInfo: Boolean,
-        isReceiverKYCd: Boolean,
+        receiverKycStatus: KycStatus,
     ): LnurlComplianceResponse {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val complianceResponse = LnurlComplianceResponse(
-            isKYCd = isReceiverKYCd,
+            receiverKycStatus = receiverKycStatus,
             isSubjectToTravelRule = requiresTravelRuleInfo,
             signature = "",
             signatureNonce = nonce,
@@ -183,7 +183,7 @@ class UmaProtocolHelper(
      * @param currencyCode The code of the currency that the receiver will receive for this payment.
      * @param amount The amount of the payment in the smallest unit of the specified currency (i.e. cents for USD).
      * @param payerIdentifier The identifier of the sender. For example, $alice@vasp1.com
-     * @param isPayerKYCd Indicates whether VASP1 has KYC information about the sender.
+     * @param payerKycStatus Indicates whether VASP1 has KYC information about the sender.
      * @param utxoCallback The URL that the receiver will call to send UTXOs of the channel that the receiver used to
      *   receive the payment once it completes.
      * @param travelRuleInfo The travel rule information. This will be encrypted before sending to the receiver.
@@ -200,7 +200,7 @@ class UmaProtocolHelper(
         currencyCode: String,
         amount: Long,
         payerIdentifier: String,
-        isPayerKYCd: Boolean,
+        payerKycStatus: KycStatus,
         utxoCallback: String,
         travelRuleInfo: String? = null,
         payerUtxos: List<String>? = null,
@@ -213,7 +213,7 @@ class UmaProtocolHelper(
             sendingVaspPrivateKey,
             payerIdentifier,
             travelRuleInfo,
-            isPayerKYCd,
+            payerKycStatus,
             payerUtxos,
             payerNodePubKey,
             utxoCallback,
@@ -236,7 +236,7 @@ class UmaProtocolHelper(
         sendingVaspPrivateKey: ByteArray,
         payerIdentifier: String,
         travelRuleInfo: String?,
-        isPayerKYCd: Boolean,
+        payerKycStatus: KycStatus,
         payerUtxos: List<String>?,
         payerNodePubKey: String?,
         utxoCallback: String,
@@ -245,8 +245,9 @@ class UmaProtocolHelper(
         val timestamp = System.currentTimeMillis() / 1000
         val unsignedCompliancePayerData = CompliancePayerData(
             utxos = payerUtxos ?: emptyList(),
+            nodePubKey = payerNodePubKey,
             travelRuleInfo = travelRuleInfo?.let { encryptTravelRuleInfo(receiverEncryptionPubKey, it) },
-            isKYCd = isPayerKYCd,
+            senderKycStatus = payerKycStatus,
             signature = "",
             signatureNonce = nonce,
             signatureTimestamp = timestamp,
