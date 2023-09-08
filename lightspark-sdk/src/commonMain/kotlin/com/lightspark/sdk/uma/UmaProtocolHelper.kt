@@ -342,6 +342,14 @@ class UmaProtocolHelper(
         // TODO: Implement with secp256k1
         return true
     }
+
+    fun getVaspDomainFromUmaAddress(identifier: String): String {
+        val atIndex = identifier.indexOf('@')
+        if (atIndex == -1) {
+            throw IllegalArgumentException("Invalid identifier: $identifier. Must be of format \$user@domain.com")
+        }
+        return identifier.substring(atIndex + 1)
+    }
 }
 
 interface LnurlInvoiceCreator {

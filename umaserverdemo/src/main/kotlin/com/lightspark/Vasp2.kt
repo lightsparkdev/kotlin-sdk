@@ -167,6 +167,20 @@ class Vasp2(
             return "Invalid pay request."
         }
 
+        val pubKeys = try {
+            val sendingVaspDomain = uma.getVaspDomainFromUmaAddress(request.payerData.identifier)
+            uma.fetchPublicKeysForVasp(sendingVaspDomain)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
+            return "Failed to fetch public keys."
+        }
+        try {
+            require(uma.verifyPayReqSignature(request, pubKeys))
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid payreq signature.")
+            return "Invalid payreq signature."
+        }
+
         val conversionRate = 34_150L // In real life, this would come from some actual exchange rate API.
         val client = LightsparkCoroutinesClient(
             ClientConfig(
