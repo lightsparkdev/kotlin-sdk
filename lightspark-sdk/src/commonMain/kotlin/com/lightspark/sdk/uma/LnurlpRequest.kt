@@ -54,13 +54,13 @@ data class LnurlpRequest(
             if (urlBuilder.protocol != URLProtocol.HTTP && urlBuilder.protocol != URLProtocol.HTTPS) {
                 throw IllegalArgumentException("Invalid URL schema: $url")
             }
-            if (urlBuilder.pathSegments.size != 3
-                || urlBuilder.pathSegments[0] != ".well-known"
-                || urlBuilder.pathSegments[1] != "lnurlp"
+            if (urlBuilder.pathSegments.size != 4
+                || urlBuilder.pathSegments[1] != ".well-known"
+                || urlBuilder.pathSegments[2] != "lnurlp"
             ) {
                 throw IllegalArgumentException("Invalid uma request path: $url")
             }
-            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[2]}"
+            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[3]}"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]

@@ -28,7 +28,8 @@ class UmaProtocolHelper(
             return cached
         }
 
-        val response = umaRequester.makeGetRequest("https://$vaspDomain/.well-known/uma-public-key")
+        val scheme = if (vaspDomain.startsWith("localhost:")) "http" else "https"
+        val response = umaRequester.makeGetRequest("$scheme://$vaspDomain/.well-known/lnurlpubkey")
         val pubKeyResponse = serializerFormat.decodeFromString<PubKeyResponse>(response)
         publicKeyCache.addPublicKeysForVasp(vaspDomain, pubKeyResponse)
         return pubKeyResponse

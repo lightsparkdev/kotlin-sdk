@@ -5,7 +5,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
@@ -47,7 +46,7 @@ data class PayerDataOptions(
 
 // Custom serializer for PayerDataOptions
 class PayerDataOptionsSerializer : KSerializer<PayerDataOptions> {
-    override val descriptor = PrimitiveSerialDescriptor("PayerDataOptions", PrimitiveKind.STRING)
+    override val descriptor = PrimitiveSerialDescriptor("payerData", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: PayerDataOptions) {
         val jsonOutput = """{
@@ -60,28 +59,14 @@ class PayerDataOptionsSerializer : KSerializer<PayerDataOptions> {
     }
 
     override fun deserialize(decoder: Decoder): PayerDataOptions {
-        val compositeInput = decoder.beginStructure(descriptor)
-        var nameRequired = false
-        var emailRequired = false
-        var complianceRequired = false
-        loop@ while (true) {
-            when (val index = compositeInput.decodeElementIndex(descriptor)) {
-                CompositeDecoder.Companion.DECODE_DONE -> break@loop
-                0 -> {
-                    val jsonInput = compositeInput.decodeStringElement(descriptor, index)
-                    val json = Json.parseToJsonElement(jsonInput)
-                    val name = json.jsonObject["name"]?.jsonObject
-                    val email = json.jsonObject["email"]?.jsonObject
-                    val compliance = json.jsonObject["compliance"]?.jsonObject
-                    nameRequired = name?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-                    emailRequired = email?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-                    complianceRequired = compliance?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-                }
-
-                else -> throw IllegalArgumentException("Invalid index $index")
-            }
-        }
-        compositeInput.endStructure(descriptor)
+        val jsonInput = decoder.decodeString()
+        val json = Json.parseToJsonElement(jsonInput)
+        val name = json.jsonObject["name"]?.jsonObject
+        val email = json.jsonObject["email"]?.jsonObject
+        val compliance = json.jsonObject["compliance"]?.jsonObject
+        val nameRequired = name?.get("mandatory")?.jsonPrimitive?.boolean ?: false
+        val emailRequired = email?.get("mandatory")?.jsonPrimitive?.boolean ?: false
+        val complianceRequired = compliance?.get("mandatory")?.jsonPrimitive?.boolean ?: false
         return PayerDataOptions(nameRequired, emailRequired, complianceRequired)
     }
 }
