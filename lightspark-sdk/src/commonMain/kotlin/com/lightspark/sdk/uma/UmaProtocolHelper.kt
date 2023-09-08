@@ -47,21 +47,21 @@ class UmaProtocolHelper(
      *     (i.e. $bob@vasp2.com).
      * @param senderVaspDomain The domain of the VASP that is sending the payment. It will be used by the receiving VASP
      *     to fetch the public keys of the sending VASP.
-     * @param trStatus Indicates whether the sending VASP is a financial institution that requires travel rule
+     * @param isSubjectToTravelRule Indicates whether the sending VASP is a financial institution that requires travel rule
      *     information.
      */
     fun getSignedLnurlpRequestUrl(
         signingPrivateKey: ByteArray,
         receiverAddress: String,
         senderVaspDomain: String,
-        trStatus: Boolean,
+        isSubjectToTravelRule: Boolean,
     ): String {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val unsignedRequest = LnurlpRequest(
             receiverAddress = receiverAddress,
             vaspDomain = senderVaspDomain,
-            trStatus = trStatus,
+            isSubjectToTravelRule = isSubjectToTravelRule,
             nonce = nonce,
             timestamp = timestamp,
             signature = "",
@@ -146,7 +146,7 @@ class UmaProtocolHelper(
         val timestamp = System.currentTimeMillis() / 1000
         val complianceResponse = LnurlComplianceResponse(
             isKYCd = isReceiverKYCd,
-            trStatus = requiresTravelRuleInfo,
+            isSubjectToTravelRule = requiresTravelRuleInfo,
             signature = "",
             signatureNonce = nonce,
             signatureTimestamp = timestamp,
@@ -185,8 +185,10 @@ class UmaProtocolHelper(
      * @param isPayerKYCd Indicates whether VASP1 has KYC information about the sender.
      * @param utxoCallback The URL that the receiver will call to send UTXOs of the channel that the receiver used to
      *   receive the payment once it completes.
-     * @param trInfo The travel rule information. This will be encrypted before sending to the receiver.
+     * @param travelRuleInfo The travel rule information. This will be encrypted before sending to the receiver.
      * @param payerUtxos The list of UTXOs of the sender's channels that might be used to fund the payment.
+     * @param payerNodePubKey If known, the public key of the sender's node. If supported by the receiving VASP's
+     *     compliance provider, this will be used to pre-screen the sender's UTXOs for compliance purposes.
      * @param payerName The name of the sender (optional).
      * @param payerEmail The email of the sender (optional).
      * @return The [PayRequest] that should be sent to the receiver.
@@ -199,8 +201,9 @@ class UmaProtocolHelper(
         payerIdentifier: String,
         isPayerKYCd: Boolean,
         utxoCallback: String,
-        trInfo: String? = null,
+        travelRuleInfo: String? = null,
         payerUtxos: List<String>? = null,
+        payerNodePubKey: String? = null,
         payerName: String? = null,
         payerEmail: String? = null,
     ): PayRequest {
@@ -208,9 +211,10 @@ class UmaProtocolHelper(
             receiverEncryptionPubKey,
             sendingVaspPrivateKey,
             payerIdentifier,
-            trInfo,
+            travelRuleInfo,
             isPayerKYCd,
             payerUtxos,
+            payerNodePubKey,
             utxoCallback,
         )
         val payerData = PayerData(
@@ -230,16 +234,17 @@ class UmaProtocolHelper(
         receiverEncryptionPubKey: ByteArray,
         sendingVaspPrivateKey: ByteArray,
         payerIdentifier: String,
-        trInfo: String?,
+        travelRuleInfo: String?,
         isPayerKYCd: Boolean,
         payerUtxos: List<String>?,
+        payerNodePubKey: String?,
         utxoCallback: String,
     ): CompliancePayerData {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val unsignedCompliancePayerData = CompliancePayerData(
             utxos = payerUtxos ?: emptyList(),
-            trInfo = trInfo?.let { encryptTrInfo(receiverEncryptionPubKey, it) },
+            travelRuleInfo = travelRuleInfo?.let { encryptTravelRuleInfo(receiverEncryptionPubKey, it) },
             isKYCd = isPayerKYCd,
             signature = "",
             signatureNonce = nonce,
@@ -252,9 +257,9 @@ class UmaProtocolHelper(
     }
 
 
-    private fun encryptTrInfo(receiverEncryptionPubKey: ByteArray, trInfo: String): String {
+    private fun encryptTravelRuleInfo(receiverEncryptionPubKey: ByteArray, travelRuleInfoJson: String): String {
         // TODO: Implement with secp256k1
-        return trInfo
+        return travelRuleInfoJson
     }
 
     fun parseAsPayRequest(request: String): PayRequest {
@@ -286,6 +291,8 @@ class UmaProtocolHelper(
      *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
      *     invoice expires.
      * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
+     * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
+     *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
      * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
      *     used to receive the payment once it completes.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 10 minutes.
@@ -298,6 +305,7 @@ class UmaProtocolHelper(
         currencyCode: String,
         conversionRate: Long,
         receiverChannelUtxos: List<String>,
+        receiverNodePubKey: String?,
         utxoCallback: String,
     ): PayReqResponse {
         val encodedPayerData = serializerFormat.encodeToString(query.payerData)
@@ -310,6 +318,7 @@ class UmaProtocolHelper(
             encodedInvoice = invoice.data.encodedPaymentRequest,
             compliance = PayReqResponseCompliance(
                 utxos = receiverChannelUtxos,
+                nodePubKey = receiverNodePubKey,
                 utxoCallback = utxoCallback,
             ),
             paymentInfo = PayReqResponsePaymentInfo(

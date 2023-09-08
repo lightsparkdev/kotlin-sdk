@@ -72,7 +72,7 @@ class Vasp2(
                 query = request,
                 privateKeyBytes = config.umaSigningPrivKey,
                 requiresTravelRuleInfo = true,
-                callback = getCallback(call),
+                callback = getLnurlpCallback(call),
                 encodedMetadata = getEncodedMetadata(),
                 minSendableSats = 1,
                 maxSendableSats = 100_000_000,
@@ -177,7 +177,8 @@ class Vasp2(
                 conversionRate = conversionRate,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
-                utxoCallback = "/api/lnurl/utxocallback?txid=1234",
+                receiverNodePubKey = null,
+                utxoCallback = getUtxoCallback(call, "1234"),
             )
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to create payreq response.")
@@ -211,10 +212,17 @@ class Vasp2(
         return Json.encodeToString(metadata)
     }
 
-    private fun getCallback(call: ApplicationCall): String {
+    private fun getLnurlpCallback(call: ApplicationCall): String {
         val protocol = call.request.origin.scheme
         val host = call.request.host()
         val path = "/api/uma/payreq/${config.userID}"
+        return "$protocol://$host$path"
+    }
+
+    private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
+        val protocol = call.request.origin.scheme
+        val host = call.request.host()
+        val path = "/api/uma/utxoCallback?txId=${config.userID}"
         return "$protocol://$host$path"
     }
 
