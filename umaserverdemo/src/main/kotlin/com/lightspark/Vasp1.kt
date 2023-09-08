@@ -122,7 +122,7 @@ class Vasp1(
                 put("callbackUuid", callbackUuid)
                 // You might not actually send this to a client in practice.
                 put("receiverKycStatus", lnurlpResponse.compliance.receiverKycStatus.rawValue)
-            }
+            },
         )
 
         return "OK"

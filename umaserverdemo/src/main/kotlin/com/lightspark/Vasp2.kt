@@ -128,7 +128,7 @@ class Vasp2(
         val client = LightsparkCoroutinesClient(
             ClientConfig(
                 serverUrl = config.clientBaseURL ?: "api.lightspark.com",
-                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
             ),
         )
         val invoice = try {
@@ -186,7 +186,7 @@ class Vasp2(
         val client = LightsparkCoroutinesClient(
             ClientConfig(
                 serverUrl = config.clientBaseURL ?: "api.lightspark.com",
-                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
             ),
         )
 
