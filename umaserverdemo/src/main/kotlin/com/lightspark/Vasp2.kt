@@ -6,7 +6,8 @@ import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.uma.Currency
 import com.lightspark.sdk.uma.KycStatus
-import com.lightspark.sdk.uma.LnurlInvoiceCreator
+import com.lightspark.sdk.uma.LightsparkClientUmaInvoiceCreator
+import com.lightspark.sdk.uma.UmaInvoiceCreator
 import com.lightspark.sdk.uma.PayRequest
 import com.lightspark.sdk.uma.PayerDataOptions
 import com.lightspark.sdk.uma.UmaProtocolHelper
@@ -193,11 +194,7 @@ class Vasp2(
         val response = try {
             uma.getPayReqResponse(
                 query = request,
-                invoiceCreator = object : LnurlInvoiceCreator {
-                    override suspend fun createLnurlInvoice(amountMsats: Long, metadata: String): Invoice {
-                        return client.createLnurlInvoice(config.nodeID, amountMsats, metadata)
-                    }
-                },
+                invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID),
                 metadata = getEncodedMetadata(),
                 currencyCode = "USD",
                 conversionRate = conversionRate,

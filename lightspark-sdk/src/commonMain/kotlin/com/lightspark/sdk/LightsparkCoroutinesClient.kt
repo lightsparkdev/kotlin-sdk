@@ -251,6 +251,47 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Creates a Lightning invoice for the given node. This should only be used for generating invoices for UMA, with
+     * [LightsparkCoroutinesClient.createInvoice] preferred in the general case.
+     *
+     * @param nodeId The ID of the node for which to create the invoice.
+     * @param amountMsats The amount of the invoice in milli-satoshis.
+     * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
+     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     */
+    suspend fun createUmaInvoice(
+        nodeId: String,
+        amountMsats: Long,
+        metadata: String,
+        expirySecs: Int? = null,
+    ): Invoice {
+        requireValidAuth()
+
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(metadata.toByteArray())
+        val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+
+        return executeQuery(
+            Query(
+                CreateUmaInvoiceMutation,
+                {
+                    add("nodeId", nodeId)
+                    add("amountMsats", amountMsats)
+                    add("metadataHash", metadataHash)
+                    expirySecs?.let { add("expirySecs", expirySecs) }
+                },
+            ) {
+                val invoiceJson =
+                    requireNotNull(
+                        it["create_uma_invoice"]?.jsonObject?.get("invoice"),
+                    ) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
@@ -291,6 +332,48 @@ class LightsparkCoroutinesClient private constructor(
             ) {
                 val paymentJson =
                     requireNotNull(it["pay_invoice"]?.jsonObject?.get("payment")) { "No payment found in response" }
+                serializerFormat.decodeFromJsonElement(paymentJson)
+            },
+        )
+    }
+
+    /**
+     * [payUmaInvoice] sends an UMA payment to a node on the Lightning Network, based on the invoice (as defined by the
+     * BOLT11 specification) that you provide. This should only be used for paying UMA invoices, with [payInvoice]
+     * preferred in the general case.
+     *
+     * @param nodeId The ID of the node which will pay the invoice.
+     * @param encodedInvoice An encoded string representation of the invoice to pay.
+     * @param maxFeesMsats The maximum fees to pay in milli-satoshis. You must pass a value.
+     *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
+     *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
+     * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
+     * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @return The payment details.
+     */
+    @JvmOverloads
+    suspend fun payUmaInvoice(
+        nodeId: String,
+        encodedInvoice: String,
+        maxFeesMsats: Long,
+        amountMsats: Long? = null,
+        timeoutSecs: Int = 60,
+    ): OutgoingPayment {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                PayUmaInvoiceMutation,
+                {
+                    add("node_id", nodeId)
+                    add("encoded_invoice", encodedInvoice)
+                    add("timeout_secs", timeoutSecs)
+                    add("maximum_fees_msats", maxFeesMsats)
+                    amountMsats?.let { add("amount_msats", amountMsats) }
+                },
+                signingNodeId = nodeId,
+            ) {
+                val paymentJson =
+                    requireNotNull(it["pay_uma_invoice"]?.jsonObject?.get("payment")) { "No payment found in response" }
                 serializerFormat.decodeFromJsonElement(paymentJson)
             },
         )
