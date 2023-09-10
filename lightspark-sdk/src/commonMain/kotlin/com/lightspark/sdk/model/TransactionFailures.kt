@@ -12,12 +12,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("TransactionFailures")
 data class TransactionFailures(
-
     val paymentFailures: List<PaymentFailureReason>? = null,
-
     val routingTransactionFailures: List<RoutingTransactionFailureReason>? = null,
 ) {
-
     companion object {
     }
 }

@@ -16,7 +16,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("AccountToNodesConnection")
 data class AccountToNodesConnection(
-
     @SerialName("account_to_nodes_connection_count")
     override val count: Int,
     @SerialName("account_to_nodes_connection_page_info")
@@ -26,9 +25,7 @@ data class AccountToNodesConnection(
     @SerialName("account_to_nodes_connection_purpose")
     val purpose: LightsparkNodePurpose? = null,
 ) : Connection {
-
     companion object {
-
         const val FRAGMENT = """
 fragment AccountToNodesConnectionFragment on AccountToNodesConnection {
     type: __typename

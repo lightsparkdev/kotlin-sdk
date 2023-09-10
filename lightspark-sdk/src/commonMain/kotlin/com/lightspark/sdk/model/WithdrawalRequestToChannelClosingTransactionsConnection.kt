@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("WithdrawalRequestToChannelClosingTransactionsConnection")
 data class WithdrawalRequestToChannelClosingTransactionsConnection(
-
     @SerialName("withdrawal_request_to_channel_closing_transactions_connection_page_info")
     val pageInfo: PageInfo,
     @SerialName("withdrawal_request_to_channel_closing_transactions_connection_count")
@@ -23,9 +22,7 @@ data class WithdrawalRequestToChannelClosingTransactionsConnection(
     @SerialName("withdrawal_request_to_channel_closing_transactions_connection_entities")
     val entities: List<ChannelClosingTransaction>,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment WithdrawalRequestToChannelClosingTransactionsConnectionFragment on WithdrawalRequestToChannelClosingTransactionsConnection {
     type: __typename

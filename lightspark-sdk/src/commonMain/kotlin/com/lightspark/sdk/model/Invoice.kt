@@ -23,7 +23,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("Invoice")
 data class Invoice(
-
     @SerialName("invoice_id")
     override val id: String,
     @SerialName("invoice_created_at")
@@ -37,7 +36,6 @@ data class Invoice(
     @SerialName("invoice_amount_paid")
     val amountPaid: CurrencyAmount? = null,
 ) : PaymentRequest, Entity {
-
     companion object {
         @JvmStatic
         fun getInvoiceQuery(id: String): Query<Invoice> {

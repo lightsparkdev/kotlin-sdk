@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 /** This is an enum of the potential types of addresses that a node on the Lightning Network can have. **/
 @Serializable(with = NodeAddressTypeSerializer::class)
 enum class NodeAddressType(val rawValue: String) {
-
     IPV4("IPV4"),
 
     IPV6("IPV6"),

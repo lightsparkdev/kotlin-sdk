@@ -30,7 +30,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("Withdrawal")
 data class Withdrawal(
-
     @SerialName("withdrawal_id")
     override val id: String,
     @SerialName("withdrawal_created_at")
@@ -58,7 +57,6 @@ data class Withdrawal(
     @SerialName("withdrawal_num_confirmations")
     override val numConfirmations: Int? = null,
 ) : OnChainTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getWithdrawalQuery(id: String): Query<Withdrawal> {

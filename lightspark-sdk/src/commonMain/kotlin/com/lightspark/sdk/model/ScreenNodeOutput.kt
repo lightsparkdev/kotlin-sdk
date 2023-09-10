@@ -10,14 +10,16 @@ import kotlinx.serialization.Serializable
  *
  */
 @Serializable
-@SerialName("ScreenBitcoinAddressesInput")
-data class ScreenBitcoinAddressesInput(
-
-    val provider: CryptoSanctionsScreeningProvider,
-
-    val addresses: List<String>,
+@SerialName("ScreenNodeOutput")
+data class ScreenNodeOutput(
+    @SerialName("screen_node_output_rating")
+    val rating: RiskRating,
 ) {
-
     companion object {
+        const val FRAGMENT = """
+fragment ScreenNodeOutputFragment on ScreenNodeOutput {
+    type: __typename
+    screen_node_output_rating: rating
+}"""
     }
 }

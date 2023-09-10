@@ -16,7 +16,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("ChannelToTransactionsConnection")
 data class ChannelToTransactionsConnection(
-
     @SerialName("channel_to_transactions_connection_count")
     val count: Int,
     @SerialName("channel_to_transactions_connection_average_fee")
@@ -26,9 +25,7 @@ data class ChannelToTransactionsConnection(
     @SerialName("channel_to_transactions_connection_total_fees")
     val totalFees: CurrencyAmount? = null,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment ChannelToTransactionsConnectionFragment on ChannelToTransactionsConnection {
     type: __typename

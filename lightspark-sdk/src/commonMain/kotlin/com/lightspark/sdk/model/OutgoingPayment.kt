@@ -32,7 +32,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("OutgoingPayment")
 data class OutgoingPayment(
-
     @SerialName("outgoing_payment_id")
     override val id: String,
     @SerialName("outgoing_payment_created_at")

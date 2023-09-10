@@ -23,7 +23,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("ApiToken")
 data class ApiToken(
-
     @SerialName("api_token_id")
     override val id: String,
     @SerialName("api_token_created_at")
@@ -37,7 +36,6 @@ data class ApiToken(
     @SerialName("api_token_permissions")
     val permissions: List<Permission>,
 ) : Entity {
-
     companion object {
         @JvmStatic
         fun getApiTokenQuery(id: String): Query<ApiToken> {

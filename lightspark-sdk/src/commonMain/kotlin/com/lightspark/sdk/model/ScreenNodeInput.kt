@@ -8,14 +8,12 @@ import kotlinx.serialization.Serializable
 
 /**
  *
- * @param name An arbitrary name that the user can choose to identify the API token in a list.
- * @param permissions List of permissions to grant to the API token
  */
 @Serializable
-@SerialName("CreateApiTokenInput")
-data class CreateApiTokenInput(
-    val name: String,
-    val permissions: List<Permission>,
+@SerialName("ScreenNodeInput")
+data class ScreenNodeInput(
+    val provider: ComplianceProvider,
+    val nodePubkey: String,
 ) {
     companion object {
     }

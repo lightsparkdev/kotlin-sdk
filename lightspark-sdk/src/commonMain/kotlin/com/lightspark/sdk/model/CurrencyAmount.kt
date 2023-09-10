@@ -17,7 +17,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CurrencyAmount")
 data class CurrencyAmount(
-
     @SerialName("currency_amount_original_value")
     val originalValue: Long,
     @SerialName("currency_amount_original_unit")
@@ -29,9 +28,7 @@ data class CurrencyAmount(
     @SerialName("currency_amount_preferred_currency_value_approx")
     val preferredCurrencyValueApprox: Float,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CurrencyAmountFragment on CurrencyAmount {
     type: __typename

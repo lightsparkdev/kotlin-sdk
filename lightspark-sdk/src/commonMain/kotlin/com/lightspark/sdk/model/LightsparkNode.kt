@@ -20,8 +20,8 @@ import kotlinx.serialization.json.jsonObject
  * @param updatedAt The date and time when the entity was last updated.
  * @param bitcoinNetwork The Bitcoin Network this node is deployed in.
  * @param displayName The name of this node in the network. It will be the most human-readable option possible, depending on the data available for this node.
- * @param accountId The account that owns this LightsparkNode.
- * @param ownerId The owner of this LightsparkNode.
+ * @param accountId The account that this node ultimately belongs to, which can be either the direct owner of the node if the node is owned by an account, or the account that owns the wallet if the node is owned by a wallet.
+ * @param ownerId The owner of this node which can be either an Account or a Wallet.
  * @param alias A name that identifies the node. It has no importance in terms of operating the node, it is just a way to identify and search for commercial services or popular nodes. This alias can be changed at any time by the node operator.
  * @param color A hexadecimal string that describes a color. For example "#000000" is black, "#FFFFFF" is white. It has no importance in terms of operating the node, it is just a way to visually differentiate nodes. That color can be changed at any time by the node operator.
  * @param conductivity A summary metric used to capture how well positioned a node is to send, receive, or route transactions efficiently. Maximizing a node's conductivity helps a node’s transactions to be capital efficient. The value is an integer ranging between 0 and 10 (bounds included).
@@ -38,7 +38,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("LightsparkNode")
 data class LightsparkNode(
-
     @SerialName("lightspark_node_id")
     override val id: String,
     @SerialName("lightspark_node_created_at")
@@ -78,7 +77,6 @@ data class LightsparkNode(
     @SerialName("lightspark_node_status")
     val status: LightsparkNodeStatus? = null,
 ) : Node, Entity {
-
     override fun getAddressesQuery(first: Int?, types: List<NodeAddressType>?): Query<NodeToAddressesConnection> {
         return Query(
             queryPayload = """

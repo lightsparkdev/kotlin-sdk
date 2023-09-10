@@ -24,7 +24,6 @@ import kotlinx.serialization.json.jsonObject
  * @property publicKey The public key of this node. It acts as a unique identifier of this node in the Lightning Network.
  */
 interface Node : Entity {
-
     @SerialName("node_id")
     override val id: String
 

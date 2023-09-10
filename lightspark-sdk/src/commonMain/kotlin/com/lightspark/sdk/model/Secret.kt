@@ -12,15 +12,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("Secret")
 data class Secret(
-
     @SerialName("secret_encrypted_value")
     val encryptedValue: String,
     @SerialName("secret_cipher")
     val cipher: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment SecretFragment on Secret {
     type: __typename

@@ -21,7 +21,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  */
 interface Transaction : Entity {
-
     @SerialName("transaction_id")
     override val id: String
 

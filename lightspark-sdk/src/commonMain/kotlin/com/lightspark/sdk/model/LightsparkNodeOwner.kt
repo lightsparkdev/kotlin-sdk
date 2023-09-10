@@ -17,7 +17,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property updatedAt The date and time when the entity was last updated.
  */
 interface LightsparkNodeOwner : Entity {
-
     @SerialName("lightspark_node_owner_id")
     override val id: String
 
@@ -93,6 +92,9 @@ fragment LightsparkNodeOwnerFragment on LightsparkNodeOwner {
             }
         }
         wallet_third_party_identifier: third_party_identifier
+        wallet_account: account {
+            id
+        }
         wallet_status: status
     }
 }"""

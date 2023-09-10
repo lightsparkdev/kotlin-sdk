@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LightsparkNodeToChannelsConnection")
 data class LightsparkNodeToChannelsConnection(
-
     @SerialName("lightspark_node_to_channels_connection_count")
     override val count: Int,
     @SerialName("lightspark_node_to_channels_connection_page_info")
@@ -23,9 +22,7 @@ data class LightsparkNodeToChannelsConnection(
     @SerialName("lightspark_node_to_channels_connection_entities")
     val entities: List<Channel>,
 ) : Connection {
-
     companion object {
-
         const val FRAGMENT = """
 fragment LightsparkNodeToChannelsConnectionFragment on LightsparkNodeToChannelsConnection {
     type: __typename

@@ -30,7 +30,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("Deposit")
 data class Deposit(
-
     @SerialName("deposit_id")
     override val id: String,
     @SerialName("deposit_created_at")
@@ -58,7 +57,6 @@ data class Deposit(
     @SerialName("deposit_num_confirmations")
     override val numConfirmations: Int? = null,
 ) : OnChainTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getDepositQuery(id: String): Query<Deposit> {

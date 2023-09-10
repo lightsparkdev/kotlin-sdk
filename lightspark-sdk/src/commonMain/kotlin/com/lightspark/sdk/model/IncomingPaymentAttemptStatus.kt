@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 /** This is an enum that enumerates all potential statuses for an incoming payment attempt. **/
 @Serializable(with = IncomingPaymentAttemptStatusSerializer::class)
 enum class IncomingPaymentAttemptStatus(val rawValue: String) {
-
     ACCEPTED("ACCEPTED"),
 
     SETTLED("SETTLED"),

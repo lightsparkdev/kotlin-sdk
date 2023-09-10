@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 /** This is an enum of the potential modes that your Bitcoin withdrawal can take. **/
 @Serializable(with = WithdrawalModeSerializer::class)
 enum class WithdrawalMode(val rawValue: String) {
-
     WALLET_ONLY("WALLET_ONLY"),
 
     WALLET_THEN_CHANNELS("WALLET_THEN_CHANNELS"),

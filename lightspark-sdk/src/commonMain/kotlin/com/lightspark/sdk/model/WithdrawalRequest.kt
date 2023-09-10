@@ -29,7 +29,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("WithdrawalRequest")
 data class WithdrawalRequest(
-
     @SerialName("withdrawal_request_id")
     override val id: String,
     @SerialName("withdrawal_request_created_at")

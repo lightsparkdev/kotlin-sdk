@@ -13,7 +13,6 @@ import kotlinx.serialization.SerialName
  * @property updatedAt The date and time when the entity was last updated.
  */
 interface Entity {
-
     @SerialName("entity_id")
     val id: String
 
@@ -24,7 +23,6 @@ interface Entity {
     val updatedAt: Instant
 
     companion object {
-
         const val FRAGMENT = """
 fragment EntityFragment on Entity {
     type: __typename
@@ -860,6 +858,9 @@ fragment EntityFragment on Entity {
             }
         }
         wallet_third_party_identifier: third_party_identifier
+        wallet_account: account {
+            id
+        }
         wallet_status: status
     }
     ... on Withdrawal {

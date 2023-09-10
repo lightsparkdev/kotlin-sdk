@@ -13,13 +13,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LightningFeeEstimateOutput")
 data class LightningFeeEstimateOutput(
-
     @SerialName("lightning_fee_estimate_output_fee_estimate")
     val feeEstimate: CurrencyAmount,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment LightningFeeEstimateOutputFragment on LightningFeeEstimateOutput {
     type: __typename

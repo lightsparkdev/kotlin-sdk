@@ -16,20 +16,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateLnurlInvoiceInput")
 data class CreateLnurlInvoiceInput(
-
     val nodeId: String,
-
     val amountMsats: Long,
-
     val metadataHash: String,
-
     val expirySecs: Int? = null,
-
-    val paymentHash: String? = null,
-
-    val preimageNonce: String? = null,
 ) {
-
     companion object {
     }
 }

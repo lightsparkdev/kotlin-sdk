@@ -12,15 +12,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateNodeWalletAddressOutput")
 data class CreateNodeWalletAddressOutput(
-
     @SerialName("create_node_wallet_address_output_node")
     val nodeId: EntityId,
     @SerialName("create_node_wallet_address_output_wallet_address")
     val walletAddress: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CreateNodeWalletAddressOutputFragment on CreateNodeWalletAddressOutput {
     type: __typename

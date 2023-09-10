@@ -15,15 +15,12 @@ This secret is not stored and will never be available again after this. You must
 @Serializable
 @SerialName("CreateApiTokenOutput")
 data class CreateApiTokenOutput(
-
     @SerialName("create_api_token_output_api_token")
     val apiToken: ApiToken,
     @SerialName("create_api_token_output_client_secret")
     val clientSecret: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CreateApiTokenOutputFragment on CreateApiTokenOutput {
     type: __typename

@@ -12,12 +12,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("FundNodeInput")
 data class FundNodeInput(
-
     val nodeId: String,
-
     val amountSats: Long? = null,
 ) {
-
     companion object {
     }
 }

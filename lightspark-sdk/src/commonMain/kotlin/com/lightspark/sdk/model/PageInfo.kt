@@ -12,7 +12,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("PageInfo")
 data class PageInfo(
-
     @SerialName("page_info_has_next_page")
     val hasNextPage: Boolean? = null,
     @SerialName("page_info_has_previous_page")
@@ -22,9 +21,7 @@ data class PageInfo(
     @SerialName("page_info_end_cursor")
     val endCursor: String? = null,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment PageInfoFragment on PageInfo {
     type: __typename
