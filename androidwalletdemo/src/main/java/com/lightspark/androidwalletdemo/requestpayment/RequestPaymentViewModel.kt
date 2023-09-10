@@ -34,7 +34,7 @@ class RequestPaymentViewModel @Inject constructor(
                 invoice.data.let {
                     Lce.Content(
                         RequestPaymentUiState(
-                            invoice.data.encodedPaymentRequest,
+                            invoice.data.data.encodedPaymentRequest,
                             invoiceAmount.value,
                         ),
                     )
