@@ -1,5 +1,6 @@
 package com.lightspark.sdk.uma
 
+import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
@@ -285,7 +286,7 @@ class UmaProtocolHelper(
      * Creates an uma pay request response with an encoded invoice.
      *
      * @param query The [PayRequest] sent by the sender.
-     * @param invoiceCreator The [LnurlInvoiceCreator] that will be used to create the invoice.
+     * @param invoiceCreator The [UmaInvoiceCreator] that will be used to create the invoice.
      * @param nodeId The node ID of the receiver.
      * @param metadata The metadata that will be added to the invoice's metadata hash field.
      * @param currencyCode The code of the currency that the receiver will receive for this payment.
@@ -302,7 +303,7 @@ class UmaProtocolHelper(
      */
     suspend fun getPayReqResponse(
         query: PayRequest,
-        invoiceCreator: LnurlInvoiceCreator,
+        invoiceCreator: UmaInvoiceCreator,
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
@@ -312,7 +313,7 @@ class UmaProtocolHelper(
     ): PayReqResponse {
         val encodedPayerData = serializerFormat.encodeToString(query.payerData)
         val metadataWithPayerData = "$metadata$encodedPayerData"
-        val invoice = invoiceCreator.createLnurlInvoice(
+        val invoice = invoiceCreator.createUmaInvoice(
             amountMsats = query.amount * conversionRate,
             metadata = metadataWithPayerData,
         )
@@ -353,7 +354,16 @@ class UmaProtocolHelper(
     }
 }
 
-interface LnurlInvoiceCreator {
+interface UmaInvoiceCreator {
     // TODO: Figure out the async story here. Do we need a different implementation for each client type?
-    suspend fun createLnurlInvoice(amountMsats: Long, metadata: String): Invoice
+    suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice
+}
+
+class LightsparkClientUmaInvoiceCreator(
+    private val client: LightsparkCoroutinesClient,
+    private val nodeId: String,
+) : UmaInvoiceCreator {
+    override suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice {
+        return client.createUmaInvoice(nodeId, amountMsats, metadata)
+    }
 }
