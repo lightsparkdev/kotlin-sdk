@@ -23,6 +23,9 @@ import kotlinx.serialization.json.jsonPrimitive
  * @property currencies The list of currencies that the receiver accepts.
  * @property requiredPayerData The data that the sender must send to the receiver to identify themselves.
  * @property compliance The compliance data from the receiver, including TR status, kyc info, etc.
+ * @property umaVersion The version of the UMA protocol that VASP2 has chosen for this transaction based on its own
+ *     support and VASP1's specified preference in the LnurlpRequest. For the version negotiation flow, see
+ * 	   https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
  */
 @Serializable
 data class LnurlpResponse(
@@ -34,6 +37,7 @@ data class LnurlpResponse(
     @SerialName("payerData")
     val requiredPayerData: PayerDataOptions,
     val compliance: LnurlComplianceResponse,
+    val umaVersion: String,
     val tag: String = "payRequest",
 )
 

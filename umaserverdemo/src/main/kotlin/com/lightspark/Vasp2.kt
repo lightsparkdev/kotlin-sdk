@@ -3,14 +3,13 @@ package com.lightspark
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
-import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.uma.Currency
 import com.lightspark.sdk.uma.KycStatus
 import com.lightspark.sdk.uma.LightsparkClientUmaInvoiceCreator
-import com.lightspark.sdk.uma.UmaInvoiceCreator
 import com.lightspark.sdk.uma.PayRequest
 import com.lightspark.sdk.uma.PayerDataOptions
 import com.lightspark.sdk.uma.UmaProtocolHelper
+import com.lightspark.sdk.uma.UnsupportedVersionException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -25,6 +24,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class Vasp2(
     private val config: UmaConfig,
@@ -55,6 +56,16 @@ class Vasp2(
         val requestUrl = call.request.fullUrl()
         val request = try {
             uma.parseLnurlpRequest(requestUrl)
+        } catch (e: UnsupportedVersionException) {
+            call.respond(
+                HttpStatusCode.PreconditionFailed,
+                buildJsonObject {
+                    put("reason", "Unsupported version: ${e.unsupportedVersion}.")
+                    put("supportedMajorVersions", Json.encodeToString(e.supportedMajorVersions))
+                    put("unsupportedVersion", e.unsupportedVersion)
+                },
+            )
+            return "Unsupported version: ${e.unsupportedVersion}."
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
             return "Invalid lnurlp request."
@@ -68,7 +79,7 @@ class Vasp2(
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignture(request, pubKeys))
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature.")
             return "Invalid lnurlp signature."

@@ -51,12 +51,17 @@ class UmaProtocolHelper(
      *     to fetch the public keys of the sending VASP.
      * @param isSubjectToTravelRule Indicates whether the sending VASP is a financial institution that requires travel rule
      *     information.
+     * @param umaVersion The version of the UMA protocol that the sending VASP prefers to use for this transaction. This
+     *     parameter should only be overridden in cases where the receiving VASP does not support the default version
+     *     for this SDK. For the version negotiation flow, see
+     *     https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
      */
     fun getSignedLnurlpRequestUrl(
         signingPrivateKey: ByteArray,
         receiverAddress: String,
         senderVaspDomain: String,
         isSubjectToTravelRule: Boolean,
+        umaVersion: String = UMA_VERSION_STRING,
     ): String {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
@@ -67,6 +72,7 @@ class UmaProtocolHelper(
             nonce = nonce,
             timestamp = timestamp,
             signature = "",
+            umaVersion = umaVersion,
         )
         val signature = signPayload(unsignedRequest.signablePayload(), signingPrivateKey)
         return unsignedRequest.signedWith(signature).encodeToUrl()
@@ -79,6 +85,8 @@ class UmaProtocolHelper(
         return try {
             parseLnurlpRequest(url)
             true
+        } catch (e: UnsupportedVersionException) {
+            true
         } catch (e: Exception) {
             false
         }
@@ -89,7 +97,7 @@ class UmaProtocolHelper(
     /**
      * Verifies the signature on an UMA Lnurlp query based on the public key of the VASP making the request.
      */
-    fun verifyUmaLnurlpQuerySignture(query: LnurlpRequest, pubKeyResponse: PubKeyResponse): Boolean {
+    fun verifyUmaLnurlpQuerySignature(query: LnurlpRequest, pubKeyResponse: PubKeyResponse): Boolean {
         val signablePayload = query.signablePayload()
         val hashedPayload = MessageDigest.getInstance("SHA-256").digest(signablePayload)
         return verifySignature(hashedPayload, query.signature, pubKeyResponse.signingPubKey)
@@ -127,6 +135,7 @@ class UmaProtocolHelper(
     ): LnurlpResponse {
         val complianceResponse =
             getSignedLnurlpComplianceResponse(query, privateKeyBytes, requiresTravelRuleInfo, receiverKycStatus)
+        val umaVersion = minOf(Version.parse(query.umaVersion), Version.parse(UMA_VERSION_STRING)).toString()
         return LnurlpResponse(
             callback = callback,
             minSendable = minSendableSats,
@@ -135,6 +144,7 @@ class UmaProtocolHelper(
             currencies = currencyOptions,
             requiredPayerData = payerDataOptions,
             compliance = complianceResponse,
+            umaVersion = umaVersion,
         )
     }
 

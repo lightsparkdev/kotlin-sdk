@@ -13,6 +13,8 @@ import io.ktor.http.URLProtocol
  * @param isSubjectToTravelRule Indicates whether the VASP1 is a financial institution that requires travel rule information.
  * @param vaspDomain The domain of the VASP that is sending the payment. It will be used by VASP2 to fetch the public keys of VASP1.
  * @param timestamp The unix timestamp in seconds of the moment when the request was sent. Used in the signature.
+ * @param umaVersion  The version of the UMA protocol that VASP1 prefers to use for this transaction. For the version
+ *     negotiation flow, see https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
  * @throws IllegalArgumentException if the receiverAddress is not in the format of "user@domain".
  */
 data class LnurlpRequest(
@@ -22,6 +24,7 @@ data class LnurlpRequest(
     val isSubjectToTravelRule: Boolean,
     val vaspDomain: String,
     val timestamp: Long,
+    val umaVersion: String,
 ) {
     fun encodeToUrl(): String {
         val receiverAddressParts = receiverAddress.split("@")
@@ -66,11 +69,25 @@ data class LnurlpRequest(
             val signature = urlBuilder.parameters["signature"]
             val isSubjectToTravelRule = urlBuilder.parameters["isSubjectToTravelRule"]?.toBoolean()
             val timestamp = urlBuilder.parameters["timestamp"]?.toLong()
+            val umaVersion = urlBuilder.parameters["umaVersion"]
 
-            if (vaspDomain == null || nonce == null || signature == null || isSubjectToTravelRule == null || timestamp == null) {
+            if (vaspDomain == null ||
+                nonce == null ||
+                signature == null ||
+                isSubjectToTravelRule == null ||
+                timestamp == null ||
+                umaVersion == null
+            ) {
                 throw IllegalArgumentException("Invalid URL. Missing param: $url")
             }
-            return LnurlpRequest(receiverAddress, nonce, signature, isSubjectToTravelRule, vaspDomain, timestamp)
+
+            if (!isVersionSupported(umaVersion)) {
+                throw UnsupportedVersionException(umaVersion)
+            }
+
+            return LnurlpRequest(
+                receiverAddress, nonce, signature, isSubjectToTravelRule, vaspDomain, timestamp, umaVersion,
+            )
         }
     }
 }

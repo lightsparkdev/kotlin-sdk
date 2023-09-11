@@ -9,6 +9,7 @@ import com.lightspark.sdk.uma.LnurlpResponse
 import com.lightspark.sdk.uma.PayReqResponse
 import com.lightspark.sdk.uma.PayerDataOptions
 import com.lightspark.sdk.uma.UmaProtocolHelper
+import com.lightspark.sdk.uma.selectHighestSupportedVersion
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -30,8 +31,12 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 
@@ -75,11 +80,41 @@ class Vasp1(
             isSubjectToTravelRule = true,
         )
 
-        val response = try {
+        var response = try {
             httpClient.get(lnurlpRequest)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response.")
             return "Failed to fetch lnurlp response."
+        }
+
+        if (response.status == HttpStatusCode.PreconditionFailed) {
+            val responseBody = response.body<JsonObject>()
+            val supportedMajorVersions = responseBody["supportedMajorVersions"]?.jsonArray?.mapNotNull {
+                it.jsonPrimitive.int
+            } ?: emptyList()
+            if (supportedMajorVersions.isEmpty()) {
+                call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response.")
+                return "Failed to fetch lnurlp response."
+            }
+            val newSupportedVersion = selectHighestSupportedVersion(supportedMajorVersions) ?: run {
+                call.respond(HttpStatusCode.FailedDependency, "No matching UMA version compatible with receiving VASP.")
+                return "No matching UMA version compatible with receiving VASP."
+            }
+
+            val retryLnurlpRequest = uma.getSignedLnurlpRequestUrl(
+                signingPrivateKey = signingKey,
+                receiverAddress = receiverAddress,
+                // TODO: This should be configurable.
+                senderVaspDomain = "localhost:8080",
+                isSubjectToTravelRule = true,
+                umaVersion = newSupportedVersion,
+            )
+            response = try {
+                httpClient.get(retryLnurlpRequest)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.FailedDependency, "Failed to fetch lnurlp response.")
+                return "Failed to fetch lnurlp response."
+            }
         }
 
         if (response.status != HttpStatusCode.OK) {
