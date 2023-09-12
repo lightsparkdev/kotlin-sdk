@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("InvoiceData")
 data class InvoiceData(
-
     @SerialName("invoice_data_encoded_payment_request")
     override val encodedPaymentRequest: String,
     @SerialName("invoice_data_bitcoin_network")
@@ -37,9 +36,7 @@ data class InvoiceData(
     @SerialName("invoice_data_memo")
     val memo: String? = null,
 ) : PaymentRequestData {
-
     companion object {
-
         const val FRAGMENT = """
 fragment InvoiceDataFragment on InvoiceData {
     type: __typename

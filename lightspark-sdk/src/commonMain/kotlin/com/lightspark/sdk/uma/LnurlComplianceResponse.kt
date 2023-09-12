@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 /**
  * The `compliance` field of the [LnurlpResponse].
  *
- * @property isKYCd Indicates whether VASP2 has KYC information about the receiver.
- * @property trStatus Indicates whether VASP2 is a financial institution that requires travel rule information.
+ * @property receiverKycStatus Indicates whether VASP2 has KYC information about the receiver.
+ * @property isSubjectToTravelRule Indicates whether VASP2 is a financial institution that requires travel rule information.
  * @property receiverIdentifier The identifier of the receiver at VASP2.
  * @property signature The signature of the sender on the signable payload.
  * @property signatureNonce The nonce used in the signature.
@@ -14,8 +14,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class LnurlComplianceResponse(
-    val isKYCd: Boolean,
-    val trStatus: Boolean,
+    val receiverKycStatus: KycStatus,
+    val isSubjectToTravelRule: Boolean,
     val receiverIdentifier: String,
     val signature: String,
     val signatureNonce: String,

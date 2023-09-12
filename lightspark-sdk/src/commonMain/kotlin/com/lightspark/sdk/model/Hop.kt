@@ -26,7 +26,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("Hop")
 data class Hop(
-
     @SerialName("hop_id")
     override val id: String,
     @SerialName("hop_created_at")
@@ -46,7 +45,6 @@ data class Hop(
     @SerialName("hop_expiry_block_height")
     val expiryBlockHeight: Int? = null,
 ) : Entity {
-
     companion object {
         @JvmStatic
         fun getHopQuery(id: String): Query<Hop> {

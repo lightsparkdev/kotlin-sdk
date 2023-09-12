@@ -4,6 +4,7 @@ package com.lightspark.sdk.crypto
 
 import com.lightspark.sdk.crypto.internal.LightsparkSigner
 import com.lightspark.sdk.crypto.internal.Mnemonic
+import com.lightspark.sdk.crypto.internal.Network
 import com.lightspark.sdk.crypto.internal.Seed
 import com.lightspark.sdk.crypto.internal.use
 
@@ -20,27 +21,16 @@ object Signing {
             }
         }
 
-    fun ecdh(seedBytes: ByteArray, derivationPath: String, otherPubKey: String): ByteArray {
-        val signer = LightsparkSigner()
-        var seed: Seed? = null
-        try {
-            seed = Seed(seedBytes.toUByteArray().toList())
-            return signer.ecdh(seed, derivationPath, otherPubKey).toUByteArray().toByteArray()
-        } finally {
-            signer.close()
-            seed?.close()
+    fun ecdh(seedBytes: ByteArray, network: Network, otherPubKeyHex: String): ByteArray {
+        return withSeedAndSigner(seedBytes, network) { _, signer ->
+            val otherPubKeyBytes = otherPubKeyHex.hexToByteArray().toUByteArray().toList()
+            signer.ecdh(otherPubKeyBytes).toUByteArray().toByteArray()
         }
     }
 
-    fun derivePublicKey(seedBytes: ByteArray, derivationPath: String): String {
-        val signer = LightsparkSigner()
-        var seed: Seed? = null
-        try {
-            seed = Seed(seedBytes.toUByteArray().toList())
-            return signer.derivePublicKey(seed, derivationPath)
-        } finally {
-            signer.close()
-            seed?.close()
+    fun derivePublicKey(seedBytes: ByteArray, network: Network, derivationPath: String): String {
+        return withSeedAndSigner(seedBytes, network) { _, signer ->
+            signer.derivePublicKey(derivationPath)
         }
     }
 
@@ -48,25 +38,43 @@ object Signing {
     fun signMessage(
         message: ByteArray,
         seedBytes: ByteArray,
+        network: Network,
         derivationPath: String? = null,
+        isRaw: Boolean = false,
         multTweak: ByteArray? = null,
         addTweak: ByteArray? = null,
     ): ByteArray {
-        val signer = LightsparkSigner()
-        var seed: Seed? = null
-        try {
-            seed = Seed(seedBytes.toUByteArray().toList())
-            val signature = signer.deriveKeyAndSign(
-                seed,
+        return withSeedAndSigner(seedBytes, network) { _, signer ->
+            signer.deriveKeyAndSign(
                 message = message.toUByteArray().toList(),
                 derivationPath = derivationPath ?: "",
+                isRaw = isRaw,
                 mulTweak = multTweak?.toUByteArray()?.toList(),
                 addTweak = addTweak?.toUByteArray()?.toList(),
-            )
-            return  signature.toUByteArray().toByteArray()
+            ).toUByteArray().toByteArray()
+        }
+    }
+
+    private fun <T> withSeedAndSigner(seedBytes: ByteArray, network: Network, block: (Seed, LightsparkSigner) -> T): T {
+        var seed: Seed? = null
+        var signer: LightsparkSigner? = null
+        try {
+            seed = Seed(seedBytes.toUByteArray().toList())
+            signer = LightsparkSigner(seed, network)
+            return block(seed, signer)
         } finally {
-            signer.close()
+            signer?.close()
             seed?.close()
         }
     }
+}
+
+private fun String.hexToByteArray(): ByteArray {
+    check(length % 2 == 0) { "Must have an even length" }
+
+    val byteIterator = chunkedSequence(2)
+        .map { it.toInt(16).toByte() }
+        .iterator()
+
+    return ByteArray(length / 2) { byteIterator.next() }
 }

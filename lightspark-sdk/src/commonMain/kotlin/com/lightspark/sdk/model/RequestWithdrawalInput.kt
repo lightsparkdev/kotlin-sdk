@@ -16,16 +16,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("RequestWithdrawalInput")
 data class RequestWithdrawalInput(
-
     val nodeId: String,
-
     val bitcoinAddress: String,
-
     val amountSats: Long,
-
     val withdrawalMode: WithdrawalMode,
 ) {
-
     companion object {
     }
 }

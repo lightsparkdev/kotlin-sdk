@@ -17,18 +17,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("SendPaymentInput")
 data class SendPaymentInput(
-
     val nodeId: String,
-
     val destinationPublicKey: String,
-
     val timeoutSecs: Int,
-
     val amountMsats: Long,
-
     val maximumFeesMsats: Long,
 ) {
-
     companion object {
     }
 }

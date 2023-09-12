@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 /** This is an enum of potential purposes set by a user for a Lightspark node. **/
 @Serializable(with = LightsparkNodePurposeSerializer::class)
 enum class LightsparkNodePurpose(val rawValue: String) {
-
     SEND("SEND"),
 
     RECEIVE("RECEIVE"),

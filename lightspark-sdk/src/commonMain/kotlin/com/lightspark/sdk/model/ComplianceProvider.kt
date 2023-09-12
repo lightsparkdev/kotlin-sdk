@@ -6,10 +6,9 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
-/** This is an enum identifying a type of crypto sanctions screening provider. **/
-@Serializable(with = CryptoSanctionsScreeningProviderSerializer::class)
-enum class CryptoSanctionsScreeningProvider(val rawValue: String) {
-
+/** This is an enum identifying a type of compliance provider. **/
+@Serializable(with = ComplianceProviderSerializer::class)
+enum class ComplianceProvider(val rawValue: String) {
     CHAINALYSIS("CHAINALYSIS"),
 
     /**
@@ -19,12 +18,10 @@ enum class CryptoSanctionsScreeningProvider(val rawValue: String) {
     FUTURE_VALUE("FUTURE_VALUE"),
 }
 
-object CryptoSanctionsScreeningProviderSerializer :
-    EnumSerializer<CryptoSanctionsScreeningProvider>(
-        CryptoSanctionsScreeningProvider::class,
+object ComplianceProviderSerializer :
+    EnumSerializer<ComplianceProvider>(
+        ComplianceProvider::class,
         { rawValue ->
-            CryptoSanctionsScreeningProvider.values().firstOrNull {
-                it.rawValue == rawValue
-            } ?: CryptoSanctionsScreeningProvider.FUTURE_VALUE
+            ComplianceProvider.values().firstOrNull { it.rawValue == rawValue } ?: ComplianceProvider.FUTURE_VALUE
         },
     )

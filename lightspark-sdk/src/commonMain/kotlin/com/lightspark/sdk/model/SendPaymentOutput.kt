@@ -13,13 +13,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("SendPaymentOutput")
 data class SendPaymentOutput(
-
     @SerialName("send_payment_output_payment")
     val paymentId: EntityId,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment SendPaymentOutputFragment on SendPaymentOutput {
     type: __typename

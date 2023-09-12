@@ -10,18 +10,21 @@ import io.ktor.http.URLProtocol
  * @param receiverAddress The address of the user at VASP2 that is receiving the payment.
  * @param nonce A random string that is used to prevent replay attacks.
  * @param signature The base64-encoded signature of sha256(ReceiverAddress|Nonce|Timestamp).
- * @param trStatus Indicates whether the VASP1 is a financial institution that requires travel rule information.
+ * @param isSubjectToTravelRule Indicates whether the VASP1 is a financial institution that requires travel rule information.
  * @param vaspDomain The domain of the VASP that is sending the payment. It will be used by VASP2 to fetch the public keys of VASP1.
  * @param timestamp The unix timestamp in seconds of the moment when the request was sent. Used in the signature.
+ * @param umaVersion  The version of the UMA protocol that VASP1 prefers to use for this transaction. For the version
+ *     negotiation flow, see https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
  * @throws IllegalArgumentException if the receiverAddress is not in the format of "user@domain".
  */
 data class LnurlpRequest(
     val receiverAddress: String,
     val nonce: String,
     val signature: String,
-    val trStatus: Boolean,
+    val isSubjectToTravelRule: Boolean,
     val vaspDomain: String,
     val timestamp: Long,
+    val umaVersion: String,
 ) {
     fun encodeToUrl(): String {
         val receiverAddressParts = receiverAddress.split("@")
@@ -37,7 +40,7 @@ data class LnurlpRequest(
                 append("vaspDomain", vaspDomain)
                 append("nonce", nonce)
                 append("signature", signature)
-                append("trStatus", trStatus.toString())
+                append("isSubjectToTravelRule", isSubjectToTravelRule.toString())
                 append("timestamp", timestamp.toString())
             },
         ).build()
@@ -54,23 +57,37 @@ data class LnurlpRequest(
             if (urlBuilder.protocol != URLProtocol.HTTP && urlBuilder.protocol != URLProtocol.HTTPS) {
                 throw IllegalArgumentException("Invalid URL schema: $url")
             }
-            if (urlBuilder.pathSegments.size != 3
-                || urlBuilder.pathSegments[0] != ".well-known"
-                || urlBuilder.pathSegments[1] != "lnurlp"
+            if (urlBuilder.pathSegments.size != 4
+                || urlBuilder.pathSegments[1] != ".well-known"
+                || urlBuilder.pathSegments[2] != "lnurlp"
             ) {
                 throw IllegalArgumentException("Invalid uma request path: $url")
             }
-            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[2]}"
+            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[3]}"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]
-            val trStatus = urlBuilder.parameters["trStatus"]?.toBoolean()
+            val isSubjectToTravelRule = urlBuilder.parameters["isSubjectToTravelRule"]?.toBoolean()
             val timestamp = urlBuilder.parameters["timestamp"]?.toLong()
+            val umaVersion = urlBuilder.parameters["umaVersion"]
 
-            if (vaspDomain == null || nonce == null || signature == null || trStatus == null || timestamp == null) {
+            if (vaspDomain == null ||
+                nonce == null ||
+                signature == null ||
+                isSubjectToTravelRule == null ||
+                timestamp == null ||
+                umaVersion == null
+            ) {
                 throw IllegalArgumentException("Invalid URL. Missing param: $url")
             }
-            return LnurlpRequest(receiverAddress, nonce, signature, trStatus, vaspDomain, timestamp)
+
+            if (!isVersionSupported(umaVersion)) {
+                throw UnsupportedVersionException(umaVersion)
+            }
+
+            return LnurlpRequest(
+                receiverAddress, nonce, signature, isSubjectToTravelRule, vaspDomain, timestamp, umaVersion,
+            )
         }
     }
 }

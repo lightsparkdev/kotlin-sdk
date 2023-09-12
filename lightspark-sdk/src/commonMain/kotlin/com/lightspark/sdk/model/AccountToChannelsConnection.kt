@@ -13,15 +13,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("AccountToChannelsConnection")
 data class AccountToChannelsConnection(
-
     @SerialName("account_to_channels_connection_count")
     val count: Int,
     @SerialName("account_to_channels_connection_entities")
     val entities: List<Channel>,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment AccountToChannelsConnectionFragment on AccountToChannelsConnection {
     type: __typename

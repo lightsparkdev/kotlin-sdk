@@ -25,7 +25,6 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable
 @SerialName("Account")
 data class Account(
-
     @SerialName("account_id")
     override val id: String,
     @SerialName("account_created_at")
@@ -1252,6 +1251,9 @@ query FetchAccountToWalletsConnection(${'$'}first: Int, ${'$'}after: String, ${'
                         }
                     }
                     wallet_third_party_identifier: third_party_identifier
+                    wallet_account: account {
+                        id
+                    }
                     wallet_status: status
                 }
             }

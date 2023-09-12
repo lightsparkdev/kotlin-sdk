@@ -12,15 +12,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("ChannelFees")
 data class ChannelFees(
-
     @SerialName("channel_fees_base_fee")
     val baseFee: CurrencyAmount? = null,
     @SerialName("channel_fees_fee_rate_per_mil")
     val feeRatePerMil: Int? = null,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment ChannelFeesFragment on ChannelFees {
     type: __typename

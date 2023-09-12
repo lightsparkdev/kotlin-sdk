@@ -22,11 +22,11 @@ import kotlinx.serialization.json.jsonObject
  * @param status The status of this wallet.
  * @param lastLoginAt The date and time when the wallet user last logged in.
  * @param balances The balances that describe the funds in this wallet.
+ * @param accountId The account this wallet belongs to.
  */
 @Serializable
 @SerialName("Wallet")
 data class Wallet(
-
     @SerialName("wallet_id")
     override val id: String,
     @SerialName("wallet_created_at")
@@ -41,6 +41,8 @@ data class Wallet(
     val lastLoginAt: Instant? = null,
     @SerialName("wallet_balances")
     val balances: Balances? = null,
+    @SerialName("wallet_account")
+    val accountId: EntityId? = null,
 ) : LightsparkNodeOwner, Entity {
     @JvmOverloads
     fun getTransactionsQuery(
@@ -785,6 +787,9 @@ fragment WalletFragment on Wallet {
         }
     }
     wallet_third_party_identifier: third_party_identifier
+    wallet_account: account {
+        id
+    }
     wallet_status: status
 }"""
     }

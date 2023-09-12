@@ -30,7 +30,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("ChannelClosingTransaction")
 data class ChannelClosingTransaction(
-
     @SerialName("channel_closing_transaction_id")
     override val id: String,
     @SerialName("channel_closing_transaction_created_at")
@@ -58,7 +57,6 @@ data class ChannelClosingTransaction(
     @SerialName("channel_closing_transaction_channel")
     val channelId: EntityId? = null,
 ) : OnChainTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getChannelClosingTransactionQuery(id: String): Query<ChannelClosingTransaction> {

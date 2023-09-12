@@ -21,7 +21,6 @@ It represents the amount currently available to withdraw and is usually equal to
 @Serializable
 @SerialName("Balances")
 data class Balances(
-
     @SerialName("balances_owned_balance")
     val ownedBalance: CurrencyAmount,
     @SerialName("balances_available_to_send_balance")
@@ -29,9 +28,7 @@ data class Balances(
     @SerialName("balances_available_to_withdraw_balance")
     val availableToWithdrawBalance: CurrencyAmount,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment BalancesFragment on Balances {
     type: __typename

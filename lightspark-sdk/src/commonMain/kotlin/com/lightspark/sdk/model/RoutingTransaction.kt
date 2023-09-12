@@ -29,7 +29,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("RoutingTransaction")
 data class RoutingTransaction(
-
     @SerialName("routing_transaction_id")
     override val id: String,
     @SerialName("routing_transaction_created_at")
@@ -55,7 +54,6 @@ data class RoutingTransaction(
     @SerialName("routing_transaction_failure_reason")
     val failureReason: RoutingTransactionFailureReason? = null,
 ) : LightningTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getRoutingTransactionQuery(id: String): Query<RoutingTransaction> {

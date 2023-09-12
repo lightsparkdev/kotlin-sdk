@@ -18,7 +18,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("BlockchainBalance")
 data class BlockchainBalance(
-
     @SerialName("blockchain_balance_total_balance")
     val totalBalance: CurrencyAmount? = null,
     @SerialName("blockchain_balance_confirmed_balance")
@@ -32,9 +31,7 @@ data class BlockchainBalance(
     @SerialName("blockchain_balance_available_balance")
     val availableBalance: CurrencyAmount? = null,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment BlockchainBalanceFragment on BlockchainBalance {
     type: __typename

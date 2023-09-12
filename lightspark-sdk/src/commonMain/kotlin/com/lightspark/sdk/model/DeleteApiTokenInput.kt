@@ -12,10 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("DeleteApiTokenInput")
 data class DeleteApiTokenInput(
-
     val apiTokenId: String,
 ) {
-
     companion object {
     }
 }

@@ -27,7 +27,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("GraphNode")
 data class GraphNode(
-
     @SerialName("graph_node_id")
     override val id: String,
     @SerialName("graph_node_created_at")
@@ -47,7 +46,6 @@ data class GraphNode(
     @SerialName("graph_node_public_key")
     override val publicKey: String? = null,
 ) : Node, Entity {
-
     override fun getAddressesQuery(first: Int?, types: List<NodeAddressType>?): Query<NodeToAddressesConnection> {
         return Query(
             queryPayload = """

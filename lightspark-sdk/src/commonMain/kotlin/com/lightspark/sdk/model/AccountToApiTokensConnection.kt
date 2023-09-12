@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("AccountToApiTokensConnection")
 data class AccountToApiTokensConnection(
-
     @SerialName("account_to_api_tokens_connection_count")
     override val count: Int,
     @SerialName("account_to_api_tokens_connection_page_info")
@@ -23,9 +22,7 @@ data class AccountToApiTokensConnection(
     @SerialName("account_to_api_tokens_connection_entities")
     val entities: List<ApiToken>,
 ) : Connection {
-
     companion object {
-
         const val FRAGMENT = """
 fragment AccountToApiTokensConnectionFragment on AccountToApiTokensConnection {
     type: __typename

@@ -19,7 +19,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property status The status of the payment request.
  */
 interface PaymentRequest : Entity {
-
     @SerialName("payment_request_id")
     override val id: String
 

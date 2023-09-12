@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 /** This is an enum of the potential risk ratings related to a transaction made over the Lightning Network. These risk ratings are returned from the CryptoSanctionScreeningProvider. **/
 @Serializable(with = RiskRatingSerializer::class)
 enum class RiskRating(val rawValue: String) {
-
     HIGH_RISK("HIGH_RISK"),
 
     LOW_RISK("LOW_RISK"),

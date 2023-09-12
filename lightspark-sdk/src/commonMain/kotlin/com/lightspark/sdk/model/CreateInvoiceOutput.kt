@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateInvoiceOutput")
 data class CreateInvoiceOutput(
-
     @SerialName("create_invoice_output_invoice")
     val invoiceId: EntityId,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CreateInvoiceOutputFragment on CreateInvoiceOutput {
     type: __typename

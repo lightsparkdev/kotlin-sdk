@@ -26,7 +26,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property numConfirmations The number of blockchain confirmations for this transaction in real time.
  */
 interface OnChainTransaction : Transaction, Entity {
-
     @SerialName("on_chain_transaction_id")
     override val id: String
 

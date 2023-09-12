@@ -9,7 +9,6 @@ import kotlinx.serialization.SerialName
  * This object is an interface of a payment request on the Lightning Network (i.e., a Lightning Invoice). It contains data related to parsing the payment details of a Lightning Invoice.
  */
 interface PaymentRequestData {
-
     @SerialName("payment_request_data_encoded_payment_request")
     val encodedPaymentRequest: String
 
@@ -17,7 +16,6 @@ interface PaymentRequestData {
     val bitcoinNetwork: BitcoinNetwork
 
     companion object {
-
         const val FRAGMENT = """
 fragment PaymentRequestDataFragment on PaymentRequestData {
     type: __typename

@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("FundNodeOutput")
 data class FundNodeOutput(
-
     @SerialName("fund_node_output_amount")
     val amount: CurrencyAmount,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment FundNodeOutputFragment on FundNodeOutput {
     type: __typename

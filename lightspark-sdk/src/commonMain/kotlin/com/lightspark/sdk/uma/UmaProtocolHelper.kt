@@ -1,5 +1,6 @@
 package com.lightspark.sdk.uma
 
+import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
@@ -28,7 +29,8 @@ class UmaProtocolHelper(
             return cached
         }
 
-        val response = umaRequester.makeGetRequest("https://$vaspDomain/.well-known/uma-public-key")
+        val scheme = if (vaspDomain.startsWith("localhost:")) "http" else "https"
+        val response = umaRequester.makeGetRequest("$scheme://$vaspDomain/.well-known/lnurlpubkey")
         val pubKeyResponse = serializerFormat.decodeFromString<PubKeyResponse>(response)
         publicKeyCache.addPublicKeysForVasp(vaspDomain, pubKeyResponse)
         return pubKeyResponse
@@ -47,24 +49,30 @@ class UmaProtocolHelper(
      *     (i.e. $bob@vasp2.com).
      * @param senderVaspDomain The domain of the VASP that is sending the payment. It will be used by the receiving VASP
      *     to fetch the public keys of the sending VASP.
-     * @param trStatus Indicates whether the sending VASP is a financial institution that requires travel rule
+     * @param isSubjectToTravelRule Indicates whether the sending VASP is a financial institution that requires travel rule
      *     information.
+     * @param umaVersion The version of the UMA protocol that the sending VASP prefers to use for this transaction. This
+     *     parameter should only be overridden in cases where the receiving VASP does not support the default version
+     *     for this SDK. For the version negotiation flow, see
+     *     https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
      */
     fun getSignedLnurlpRequestUrl(
         signingPrivateKey: ByteArray,
         receiverAddress: String,
         senderVaspDomain: String,
-        trStatus: Boolean,
+        isSubjectToTravelRule: Boolean,
+        umaVersion: String = UMA_VERSION_STRING,
     ): String {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val unsignedRequest = LnurlpRequest(
             receiverAddress = receiverAddress,
             vaspDomain = senderVaspDomain,
-            trStatus = trStatus,
+            isSubjectToTravelRule = isSubjectToTravelRule,
             nonce = nonce,
             timestamp = timestamp,
             signature = "",
+            umaVersion = umaVersion,
         )
         val signature = signPayload(unsignedRequest.signablePayload(), signingPrivateKey)
         return unsignedRequest.signedWith(signature).encodeToUrl()
@@ -77,6 +85,8 @@ class UmaProtocolHelper(
         return try {
             parseLnurlpRequest(url)
             true
+        } catch (e: UnsupportedVersionException) {
+            true
         } catch (e: Exception) {
             false
         }
@@ -87,7 +97,7 @@ class UmaProtocolHelper(
     /**
      * Verifies the signature on an UMA Lnurlp query based on the public key of the VASP making the request.
      */
-    fun verifyUmaLnurlpQuerySignture(query: LnurlpRequest, pubKeyResponse: PubKeyResponse): Boolean {
+    fun verifyUmaLnurlpQuerySignature(query: LnurlpRequest, pubKeyResponse: PubKeyResponse): Boolean {
         val signablePayload = query.signablePayload()
         val hashedPayload = MessageDigest.getInstance("SHA-256").digest(signablePayload)
         return verifySignature(hashedPayload, query.signature, pubKeyResponse.signingPubKey)
@@ -107,7 +117,7 @@ class UmaProtocolHelper(
      * @param maxSendableSats The maximum amount of sats that the sender can send.
      * @param payerDataOptions The data that the sender must send to the receiver to identify themselves.
      * @param currencyOptions The list of currencies that the receiver accepts, along with their conversion rates.
-     * @param isReceiverKYCd Indicates whether VASP2 has KYC information about the receiver.
+     * @param receiverKycStatus Indicates whether VASP2 has KYC information about the receiver.
      * @return The [LnurlpResponse] that should be sent to the sender for the given [LnurlpRequest].
      * @throws IllegalArgumentException if the receiverAddress is not in the format of "user@domain".
      */
@@ -121,10 +131,11 @@ class UmaProtocolHelper(
         maxSendableSats: Long,
         payerDataOptions: PayerDataOptions,
         currencyOptions: List<Currency>,
-        isReceiverKYCd: Boolean,
+        receiverKycStatus: KycStatus,
     ): LnurlpResponse {
         val complianceResponse =
-            getSignedLnurlpComplianceResponse(query, privateKeyBytes, requiresTravelRuleInfo, isReceiverKYCd)
+            getSignedLnurlpComplianceResponse(query, privateKeyBytes, requiresTravelRuleInfo, receiverKycStatus)
+        val umaVersion = minOf(Version.parse(query.umaVersion), Version.parse(UMA_VERSION_STRING)).toString()
         return LnurlpResponse(
             callback = callback,
             minSendable = minSendableSats,
@@ -133,6 +144,7 @@ class UmaProtocolHelper(
             currencies = currencyOptions,
             requiredPayerData = payerDataOptions,
             compliance = complianceResponse,
+            umaVersion = umaVersion,
         )
     }
 
@@ -140,13 +152,13 @@ class UmaProtocolHelper(
         query: LnurlpRequest,
         privateKeyBytes: ByteArray,
         requiresTravelRuleInfo: Boolean,
-        isReceiverKYCd: Boolean,
+        receiverKycStatus: KycStatus,
     ): LnurlComplianceResponse {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val complianceResponse = LnurlComplianceResponse(
-            isKYCd = isReceiverKYCd,
-            trStatus = requiresTravelRuleInfo,
+            receiverKycStatus = receiverKycStatus,
+            isSubjectToTravelRule = requiresTravelRuleInfo,
             signature = "",
             signatureNonce = nonce,
             signatureTimestamp = timestamp,
@@ -182,11 +194,13 @@ class UmaProtocolHelper(
      * @param currencyCode The code of the currency that the receiver will receive for this payment.
      * @param amount The amount of the payment in the smallest unit of the specified currency (i.e. cents for USD).
      * @param payerIdentifier The identifier of the sender. For example, $alice@vasp1.com
-     * @param isPayerKYCd Indicates whether VASP1 has KYC information about the sender.
+     * @param payerKycStatus Indicates whether VASP1 has KYC information about the sender.
      * @param utxoCallback The URL that the receiver will call to send UTXOs of the channel that the receiver used to
      *   receive the payment once it completes.
-     * @param trInfo The travel rule information. This will be encrypted before sending to the receiver.
+     * @param travelRuleInfo The travel rule information. This will be encrypted before sending to the receiver.
      * @param payerUtxos The list of UTXOs of the sender's channels that might be used to fund the payment.
+     * @param payerNodePubKey If known, the public key of the sender's node. If supported by the receiving VASP's
+     *     compliance provider, this will be used to pre-screen the sender's UTXOs for compliance purposes.
      * @param payerName The name of the sender (optional).
      * @param payerEmail The email of the sender (optional).
      * @return The [PayRequest] that should be sent to the receiver.
@@ -197,10 +211,11 @@ class UmaProtocolHelper(
         currencyCode: String,
         amount: Long,
         payerIdentifier: String,
-        isPayerKYCd: Boolean,
+        payerKycStatus: KycStatus,
         utxoCallback: String,
-        trInfo: String? = null,
+        travelRuleInfo: String? = null,
         payerUtxos: List<String>? = null,
+        payerNodePubKey: String? = null,
         payerName: String? = null,
         payerEmail: String? = null,
     ): PayRequest {
@@ -208,9 +223,10 @@ class UmaProtocolHelper(
             receiverEncryptionPubKey,
             sendingVaspPrivateKey,
             payerIdentifier,
-            trInfo,
-            isPayerKYCd,
+            travelRuleInfo,
+            payerKycStatus,
             payerUtxos,
+            payerNodePubKey,
             utxoCallback,
         )
         val payerData = PayerData(
@@ -230,17 +246,19 @@ class UmaProtocolHelper(
         receiverEncryptionPubKey: ByteArray,
         sendingVaspPrivateKey: ByteArray,
         payerIdentifier: String,
-        trInfo: String?,
-        isPayerKYCd: Boolean,
+        travelRuleInfo: String?,
+        payerKycStatus: KycStatus,
         payerUtxos: List<String>?,
+        payerNodePubKey: String?,
         utxoCallback: String,
     ): CompliancePayerData {
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val unsignedCompliancePayerData = CompliancePayerData(
             utxos = payerUtxos ?: emptyList(),
-            trInfo = trInfo?.let { encryptTrInfo(receiverEncryptionPubKey, it) },
-            isKYCd = isPayerKYCd,
+            nodePubKey = payerNodePubKey,
+            travelRuleInfo = travelRuleInfo?.let { encryptTravelRuleInfo(receiverEncryptionPubKey, it) },
+            senderKycStatus = payerKycStatus,
             signature = "",
             signatureNonce = nonce,
             signatureTimestamp = timestamp,
@@ -252,9 +270,9 @@ class UmaProtocolHelper(
     }
 
 
-    private fun encryptTrInfo(receiverEncryptionPubKey: ByteArray, trInfo: String): String {
+    private fun encryptTravelRuleInfo(receiverEncryptionPubKey: ByteArray, travelRuleInfoJson: String): String {
         // TODO: Implement with secp256k1
-        return trInfo
+        return travelRuleInfoJson
     }
 
     fun parseAsPayRequest(request: String): PayRequest {
@@ -278,7 +296,7 @@ class UmaProtocolHelper(
      * Creates an uma pay request response with an encoded invoice.
      *
      * @param query The [PayRequest] sent by the sender.
-     * @param invoiceCreator The [LnurlInvoiceCreator] that will be used to create the invoice.
+     * @param invoiceCreator The [UmaInvoiceCreator] that will be used to create the invoice.
      * @param nodeId The node ID of the receiver.
      * @param metadata The metadata that will be added to the invoice's metadata hash field.
      * @param currencyCode The code of the currency that the receiver will receive for this payment.
@@ -286,6 +304,8 @@ class UmaProtocolHelper(
      *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
      *     invoice expires.
      * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
+     * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
+     *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
      * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
      *     used to receive the payment once it completes.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 10 minutes.
@@ -293,16 +313,17 @@ class UmaProtocolHelper(
      */
     suspend fun getPayReqResponse(
         query: PayRequest,
-        invoiceCreator: LnurlInvoiceCreator,
+        invoiceCreator: UmaInvoiceCreator,
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
         receiverChannelUtxos: List<String>,
+        receiverNodePubKey: String?,
         utxoCallback: String,
     ): PayReqResponse {
         val encodedPayerData = serializerFormat.encodeToString(query.payerData)
         val metadataWithPayerData = "$metadata$encodedPayerData"
-        val invoice = invoiceCreator.createLnurlInvoice(
+        val invoice = invoiceCreator.createUmaInvoice(
             amountMsats = query.amount * conversionRate,
             metadata = metadataWithPayerData,
         )
@@ -310,6 +331,7 @@ class UmaProtocolHelper(
             encodedInvoice = invoice.data.encodedPaymentRequest,
             compliance = PayReqResponseCompliance(
                 utxos = receiverChannelUtxos,
+                nodePubKey = receiverNodePubKey,
                 utxoCallback = utxoCallback,
             ),
             paymentInfo = PayReqResponsePaymentInfo(
@@ -332,9 +354,26 @@ class UmaProtocolHelper(
         // TODO: Implement with secp256k1
         return true
     }
+
+    fun getVaspDomainFromUmaAddress(identifier: String): String {
+        val atIndex = identifier.indexOf('@')
+        if (atIndex == -1) {
+            throw IllegalArgumentException("Invalid identifier: $identifier. Must be of format \$user@domain.com")
+        }
+        return identifier.substring(atIndex + 1)
+    }
 }
 
-interface LnurlInvoiceCreator {
+interface UmaInvoiceCreator {
     // TODO: Figure out the async story here. Do we need a different implementation for each client type?
-    suspend fun createLnurlInvoice(amountMsats: Long, metadata: String): Invoice
+    suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice
+}
+
+class LightsparkClientUmaInvoiceCreator(
+    private val client: LightsparkCoroutinesClient,
+    private val nodeId: String,
+) : UmaInvoiceCreator {
+    override suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice {
+        return client.createUmaInvoice(nodeId, amountMsats, metadata)
+    }
 }

@@ -11,7 +11,6 @@ import kotlinx.serialization.SerialName
  * @property pageInfo An object that holds pagination information about the objects in this connection.
  */
 interface Connection {
-
     @SerialName("connection_count")
     val count: Int
 
@@ -19,7 +18,6 @@ interface Connection {
     val pageInfo: PageInfo
 
     companion object {
-
         const val FRAGMENT = """
 fragment ConnectionFragment on Connection {
     type: __typename

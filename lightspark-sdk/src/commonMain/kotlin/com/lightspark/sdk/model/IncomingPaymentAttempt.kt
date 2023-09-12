@@ -24,7 +24,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("IncomingPaymentAttempt")
 data class IncomingPaymentAttempt(
-
     @SerialName("incoming_payment_attempt_id")
     override val id: String,
     @SerialName("incoming_payment_attempt_created_at")
@@ -40,7 +39,6 @@ data class IncomingPaymentAttempt(
     @SerialName("incoming_payment_attempt_resolved_at")
     val resolvedAt: Instant? = null,
 ) : Entity {
-
     companion object {
         @JvmStatic
         fun getIncomingPaymentAttemptQuery(id: String): Query<IncomingPaymentAttempt> {

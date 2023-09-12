@@ -2,23 +2,30 @@ package com.lightspark
 
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
-import com.lightspark.sdk.model.Invoice
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.uma.Currency
-import com.lightspark.sdk.uma.LnurlInvoiceCreator
+import com.lightspark.sdk.uma.KycStatus
+import com.lightspark.sdk.uma.LightsparkClientUmaInvoiceCreator
 import com.lightspark.sdk.uma.PayRequest
 import com.lightspark.sdk.uma.PayerDataOptions
-import com.lightspark.sdk.uma.PubKeyResponse
 import com.lightspark.sdk.uma.UmaProtocolHelper
+import com.lightspark.sdk.uma.UnsupportedVersionException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.host
 import io.ktor.server.request.receive
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class Vasp2(
     private val config: UmaConfig,
@@ -41,13 +48,24 @@ class Vasp2(
         if (uma.isUmaLnurlpQuery(requestUrl)) {
             return handleUmaLnurlp(call)
         }
-        return "Hello World!"
+
+        return "OK"
     }
 
     private suspend fun handleUmaLnurlp(call: ApplicationCall): String {
         val requestUrl = call.request.fullUrl()
         val request = try {
             uma.parseLnurlpRequest(requestUrl)
+        } catch (e: UnsupportedVersionException) {
+            call.respond(
+                HttpStatusCode.PreconditionFailed,
+                buildJsonObject {
+                    put("reason", "Unsupported version: ${e.unsupportedVersion}.")
+                    put("supportedMajorVersions", Json.encodeToString(e.supportedMajorVersions))
+                    put("unsupportedVersion", e.unsupportedVersion)
+                },
+            )
+            return "Unsupported version: ${e.unsupportedVersion}."
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
             return "Invalid lnurlp request."
@@ -61,7 +79,7 @@ class Vasp2(
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignture(request, pubKeys))
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature.")
             return "Invalid lnurlp signature."
@@ -72,7 +90,7 @@ class Vasp2(
                 query = request,
                 privateKeyBytes = config.umaSigningPrivKey,
                 requiresTravelRuleInfo = true,
-                callback = getCallback(call),
+                callback = getLnurlpCallback(call),
                 encodedMetadata = getEncodedMetadata(),
                 minSendableSats = 1,
                 maxSendableSats = 100_000_000,
@@ -87,7 +105,7 @@ class Vasp2(
                         maxSendable = 10_000_000,
                     ),
                 ),
-                isReceiverKYCd = true,
+                receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to generate lnurlp response.")
@@ -120,7 +138,10 @@ class Vasp2(
         }
 
         val client = LightsparkCoroutinesClient(
-            ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+            ClientConfig(
+                serverUrl = config.clientBaseURL ?: "api.lightspark.com",
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
+            ),
         )
         val invoice = try {
             client.createLnurlInvoice(config.nodeID, amountMsats, getEncodedMetadata())
@@ -159,44 +180,45 @@ class Vasp2(
             return "Invalid pay request."
         }
 
+        val pubKeys = try {
+            val sendingVaspDomain = uma.getVaspDomainFromUmaAddress(request.payerData.identifier)
+            uma.fetchPublicKeysForVasp(sendingVaspDomain)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
+            return "Failed to fetch public keys."
+        }
+        try {
+            require(uma.verifyPayReqSignature(request, pubKeys))
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid payreq signature.")
+            return "Invalid payreq signature."
+        }
+
         val conversionRate = 34_150L // In real life, this would come from some actual exchange rate API.
         val client = LightsparkCoroutinesClient(
-            ClientConfig(serverUrl = config.clientBaseURL ?: "api.lightspark.com"),
+            ClientConfig(
+                serverUrl = config.clientBaseURL ?: "api.lightspark.com",
+                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
+            ),
         )
 
         val response = try {
             uma.getPayReqResponse(
                 query = request,
-                invoiceCreator = object : LnurlInvoiceCreator {
-                    override suspend fun createLnurlInvoice(amountMsats: Long, metadata: String): Invoice {
-                        return client.createLnurlInvoice(config.nodeID, amountMsats, metadata)
-                    }
-                },
+                invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID),
                 metadata = getEncodedMetadata(),
                 currencyCode = "USD",
                 conversionRate = conversionRate,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
-                utxoCallback = "/api/lnurl/utxocallback?txid=1234",
+                receiverNodePubKey = null,
+                utxoCallback = getUtxoCallback(call, "1234"),
             )
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to create payreq response.", e)
             call.respond(HttpStatusCode.InternalServerError, "Failed to create payreq response.")
             return "Failed to create payreq response."
         }
-
-        call.respond(response)
-
-        return "OK"
-    }
-
-    suspend fun handlePubKeyRequest(call: ApplicationCall): String {
-        val twoWeeksFromNowMs = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 14
-
-        val response = PubKeyResponse(
-            signingPubKey = config.umaSigningPubKey,
-            encryptionPubKey = config.umaEncryptionPubKey,
-            expirationTimestamp = twoWeeksFromNowMs / 1000,
-        )
 
         call.respond(response)
 
@@ -211,10 +233,19 @@ class Vasp2(
         return Json.encodeToString(metadata)
     }
 
-    private fun getCallback(call: ApplicationCall): String {
+    private fun getLnurlpCallback(call: ApplicationCall): String {
         val protocol = call.request.origin.scheme
+        val port = call.request.origin.localPort
+        val portString = if (port == 80 || port == 443) "" else ":$port"
         val host = call.request.host()
         val path = "/api/uma/payreq/${config.userID}"
+        return "$protocol://$host$portString$path"
+    }
+
+    private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
+        val protocol = call.request.origin.scheme
+        val host = call.request.host()
+        val path = "/api/uma/utxoCallback?txId=${config.userID}"
         return "$protocol://$host$path"
     }
 
@@ -223,5 +254,19 @@ class Vasp2(
         val protocol = origin.scheme
         val path = uri
         return "$protocol://$host$path"
+    }
+}
+
+fun Routing.registerVasp2Routes(vasp2: Vasp2) {
+    get("/.well-known/lnurlp/{username}") {
+        call.debugLog(vasp2.handleLnurlp(call))
+    }
+
+    get("/api/uma/payreq/{uuid}") {
+        call.debugLog(vasp2.handleLnurlPayreq(call))
+    }
+
+    post("/api/uma/payreq/{uuid}") {
+        call.debugLog(vasp2.handleUmaPayreq(call))
     }
 }

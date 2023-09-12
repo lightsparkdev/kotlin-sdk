@@ -15,22 +15,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateInvoiceInput")
 data class CreateInvoiceInput(
-
     val nodeId: String,
-
     val amountMsats: Long,
-
     val memo: String? = null,
-
     val invoiceType: InvoiceType? = null,
-
     val expirySecs: Int? = null,
-
-    val paymentHash: String? = null,
-
-    val preimageNonce: String? = null,
 ) {
-
     companion object {
     }
 }

@@ -14,12 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateApiTokenInput")
 data class CreateApiTokenInput(
-
     val name: String,
-
     val permissions: List<Permission>,
 ) {
-
     companion object {
     }
 }

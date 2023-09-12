@@ -39,7 +39,6 @@ import kotlinx.serialization.json.jsonPrimitive
 @Serializable
 @SerialName("Channel")
 data class Channel(
-
     @SerialName("channel_id")
     override val id: String,
     @SerialName("channel_created_at")

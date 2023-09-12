@@ -13,13 +13,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("NodeAddress")
 data class NodeAddress(
-
     @SerialName("node_address_address")
     val address: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment NodeAddressFragment on NodeAddress {
     type: __typename

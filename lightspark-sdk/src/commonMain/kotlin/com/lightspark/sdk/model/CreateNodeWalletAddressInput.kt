@@ -12,10 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateNodeWalletAddressInput")
 data class CreateNodeWalletAddressInput(
-
     val nodeId: String,
 ) {
-
     companion object {
     }
 }

@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("OutgoingPaymentToAttemptsConnection")
 data class OutgoingPaymentToAttemptsConnection(
-
     @SerialName("outgoing_payment_to_attempts_connection_count")
     override val count: Int,
     @SerialName("outgoing_payment_to_attempts_connection_page_info")
@@ -23,9 +22,7 @@ data class OutgoingPaymentToAttemptsConnection(
     @SerialName("outgoing_payment_to_attempts_connection_entities")
     val entities: List<OutgoingPaymentAttempt>,
 ) : Connection {
-
     companion object {
-
         const val FRAGMENT = """
 fragment OutgoingPaymentToAttemptsConnectionFragment on OutgoingPaymentToAttemptsConnection {
     type: __typename

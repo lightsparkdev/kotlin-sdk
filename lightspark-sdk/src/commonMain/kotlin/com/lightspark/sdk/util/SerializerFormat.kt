@@ -44,77 +44,79 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-private val serializerModule = SerializersModule {
-    polymorphic(Connection::class) {
-        subclass(AccountToApiTokensConnection::class)
-        subclass(AccountToNodesConnection::class)
-        subclass(AccountToPaymentRequestsConnection::class)
-        subclass(AccountToTransactionsConnection::class)
-        subclass(AccountToWalletsConnection::class)
-        subclass(IncomingPaymentToAttemptsConnection::class)
-        subclass(LightsparkNodeToChannelsConnection::class)
-        subclass(OutgoingPaymentAttemptToHopsConnection::class)
-        subclass(OutgoingPaymentToAttemptsConnection::class)
-        subclass(WalletToPaymentRequestsConnection::class)
-        subclass(WalletToTransactionsConnection::class)
+private val serializerModule =
+    SerializersModule {
+        polymorphic(Connection::class) {
+            subclass(AccountToApiTokensConnection::class)
+            subclass(AccountToNodesConnection::class)
+            subclass(AccountToPaymentRequestsConnection::class)
+            subclass(AccountToTransactionsConnection::class)
+            subclass(AccountToWalletsConnection::class)
+            subclass(IncomingPaymentToAttemptsConnection::class)
+            subclass(LightsparkNodeToChannelsConnection::class)
+            subclass(OutgoingPaymentAttemptToHopsConnection::class)
+            subclass(OutgoingPaymentToAttemptsConnection::class)
+            subclass(WalletToPaymentRequestsConnection::class)
+            subclass(WalletToTransactionsConnection::class)
+        }
+        polymorphic(Entity::class) {
+            subclass(Account::class)
+            subclass(ApiToken::class)
+            subclass(Channel::class)
+            subclass(ChannelClosingTransaction::class)
+            subclass(ChannelOpeningTransaction::class)
+            subclass(Deposit::class)
+            subclass(GraphNode::class)
+            subclass(Hop::class)
+            subclass(IncomingPayment::class)
+            subclass(IncomingPaymentAttempt::class)
+            subclass(Invoice::class)
+            subclass(LightsparkNode::class)
+            subclass(OutgoingPayment::class)
+            subclass(OutgoingPaymentAttempt::class)
+            subclass(RoutingTransaction::class)
+            subclass(Wallet::class)
+            subclass(Withdrawal::class)
+            subclass(WithdrawalRequest::class)
+        }
+        polymorphic(LightningTransaction::class) {
+            subclass(IncomingPayment::class)
+            subclass(OutgoingPayment::class)
+            subclass(RoutingTransaction::class)
+        }
+        polymorphic(LightsparkNodeOwner::class) {
+            subclass(Account::class)
+            subclass(Wallet::class)
+        }
+        polymorphic(Node::class) {
+            subclass(GraphNode::class)
+            subclass(LightsparkNode::class)
+        }
+        polymorphic(OnChainTransaction::class) {
+            subclass(ChannelClosingTransaction::class)
+            subclass(ChannelOpeningTransaction::class)
+            subclass(Deposit::class)
+            subclass(Withdrawal::class)
+        }
+        polymorphic(PaymentRequest::class) {
+            subclass(Invoice::class)
+        }
+        polymorphic(PaymentRequestData::class) {
+            subclass(InvoiceData::class)
+        }
+        polymorphic(Transaction::class) {
+            subclass(ChannelClosingTransaction::class)
+            subclass(ChannelOpeningTransaction::class)
+            subclass(Deposit::class)
+            subclass(IncomingPayment::class)
+            subclass(OutgoingPayment::class)
+            subclass(RoutingTransaction::class)
+            subclass(Withdrawal::class)
+        }
     }
-    polymorphic(Entity::class) {
-        subclass(Account::class)
-        subclass(ApiToken::class)
-        subclass(Channel::class)
-        subclass(ChannelClosingTransaction::class)
-        subclass(ChannelOpeningTransaction::class)
-        subclass(Deposit::class)
-        subclass(GraphNode::class)
-        subclass(Hop::class)
-        subclass(IncomingPayment::class)
-        subclass(IncomingPaymentAttempt::class)
-        subclass(Invoice::class)
-        subclass(LightsparkNode::class)
-        subclass(OutgoingPayment::class)
-        subclass(OutgoingPaymentAttempt::class)
-        subclass(RoutingTransaction::class)
-        subclass(Wallet::class)
-        subclass(Withdrawal::class)
-        subclass(WithdrawalRequest::class)
-    }
-    polymorphic(LightningTransaction::class) {
-        subclass(IncomingPayment::class)
-        subclass(OutgoingPayment::class)
-        subclass(RoutingTransaction::class)
-    }
-    polymorphic(LightsparkNodeOwner::class) {
-        subclass(Account::class)
-        subclass(Wallet::class)
-    }
-    polymorphic(Node::class) {
-        subclass(GraphNode::class)
-        subclass(LightsparkNode::class)
-    }
-    polymorphic(OnChainTransaction::class) {
-        subclass(ChannelClosingTransaction::class)
-        subclass(ChannelOpeningTransaction::class)
-        subclass(Deposit::class)
-        subclass(Withdrawal::class)
-    }
-    polymorphic(PaymentRequest::class) {
-        subclass(Invoice::class)
-    }
-    polymorphic(PaymentRequestData::class) {
-        subclass(InvoiceData::class)
-    }
-    polymorphic(Transaction::class) {
-        subclass(ChannelClosingTransaction::class)
-        subclass(ChannelOpeningTransaction::class)
-        subclass(Deposit::class)
-        subclass(IncomingPayment::class)
-        subclass(OutgoingPayment::class)
-        subclass(RoutingTransaction::class)
-        subclass(Withdrawal::class)
-    }
-}
 
-internal val serializerFormat = Json {
-    serializersModule = serializerModule
-    ignoreUnknownKeys = true
-}
+internal val serializerFormat =
+    Json {
+        serializersModule = serializerModule
+        ignoreUnknownKeys = true
+    }
