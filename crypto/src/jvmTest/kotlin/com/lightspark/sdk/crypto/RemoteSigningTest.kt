@@ -8,11 +8,11 @@ import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SigningTest {
+class RemoteSigningTest {
     @Test
     fun testGetMnemonicSeedPhrase() {
         val entropy = "geVgqn+RALV+fPe1fvra9SNotfA/e2BprRqu2ub/6wg=".base64DecodedBytes
-        val result = Signing.getMnemonicSeedPhrase(entropy)
+        val result = RemoteSigning.getMnemonicSeedPhrase(entropy)
         val expected = listOf(
             "limit",
             "climb",
@@ -49,7 +49,7 @@ class SigningTest {
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
-        val result = Signing.derivePublicKey(privateKeySeed, Network.BITCOIN, derivationPath)
+        val result = RemoteSigning.derivePublicKey(privateKeySeed, Network.BITCOIN, derivationPath)
         assertEquals(
             "xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTf" +
                 "unKau47EL2dhHKon",
@@ -66,7 +66,7 @@ class SigningTest {
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
-        val result = Signing.signMessage(message, privateKeySeed, Network.BITCOIN, derivationPath)
+        val result = RemoteSigning.signMessage(message, privateKeySeed, Network.BITCOIN, derivationPath)
         println(result.map { it.toInt() })
         val expectedSig = "fagpGOb9o/E8g62yL6jV5wtpTVzJ7R4rh0Xt2Uw4fPVd1Q+2ZJbkSrRBRj0bvk1qTSiCvoiCfD5CMEHZL4fAlA=="
         println(expectedSig.base64DecodedBytes.map { it.toInt() })
@@ -85,7 +85,7 @@ class SigningTest {
         val h1 = (basePoint + perCommitmentPoint).sha256()
         val h2 = (perCommitmentPoint + basePoint).sha256()
         val addTweak = Secp256k1.privKeyTweakMul(perCommitmentSecret, h2)
-        val result = Signing.signMessage(
+        val result = RemoteSigning.signMessage(
             message,
             seed,
             Network.BITCOIN,
@@ -109,8 +109,8 @@ class SigningTest {
         val pub1 = "027c4b09ffb985c298afe7e5813266cbfcb7780b480ac294b0b43dc21f2be3d13c"
         val pub2 = "02fc9e5af0ac8d9b3cecfe2a888e2117ba3d089d8585886c9c826b6b22a98d12ea"
 
-        val secret1 = Signing.ecdh(seed1Bytes, Network.BITCOIN, pub2)
-        val secret2 = Signing.ecdh(seed2Bytes, Network.BITCOIN, pub1)
+        val secret1 = RemoteSigning.ecdh(seed1Bytes, Network.BITCOIN, pub2)
+        val secret2 = RemoteSigning.ecdh(seed2Bytes, Network.BITCOIN, pub1)
         assertEquals(secret1.toHex(), secret2.toHex())
     }
 
