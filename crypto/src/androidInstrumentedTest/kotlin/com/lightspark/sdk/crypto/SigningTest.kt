@@ -14,7 +14,7 @@ class SigningTest {
     @Test
     fun testGetMnemonicSeedPhrase() {
         val entropy = "geVgqn+RALV+fPe1fvra9SNotfA/e2BprRqu2ub/6wg=".base64DecodedBytes
-        val result = Signing.getMnemonicSeedPhrase(entropy)
+        val result = RemoteSigning.getMnemonicSeedPhrase(entropy)
         val expected = listOf(
             "limit",
             "climb",
@@ -51,7 +51,7 @@ class SigningTest {
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
-        val result = Signing.derivePublicKey(privateKeySeed, derivationPath)
+        val result = RemoteSigning.derivePublicKey(privateKeySeed, derivationPath)
         assertEquals(
             "xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTf" +
                 "unKau47EL2dhHKon",
@@ -68,7 +68,7 @@ class SigningTest {
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
-        val result = Signing.signMessage(message, privateKeySeed, derivationPath)
+        val result = RemoteSigning.signMessage(message, privateKeySeed, derivationPath)
         println(result.map { it.toInt() })
         val expectedSig = "fagpGOb9o/E8g62yL6jV5wtpTVzJ7R4rh0Xt2Uw4fPVd1Q+2ZJbkSrRBRj0bvk1qTSiCvoiCfD5CMEHZL4fAlA=="
         println(expectedSig.base64DecodedBytes.map { it.toInt() })
@@ -87,7 +87,7 @@ class SigningTest {
         val h1 = (basePoint + perCommitmentPoint).sha256()
         val h2 = (perCommitmentPoint + basePoint).sha256()
         val addTweak = Secp256k1.privKeyTweakMul(perCommitmentSecret, h2)
-        val result = Signing.signMessage(
+        val result = RemoteSigning.signMessage(
             message,
             seed,
             derivationPath = "m",
