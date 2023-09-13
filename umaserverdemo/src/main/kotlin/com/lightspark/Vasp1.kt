@@ -239,7 +239,7 @@ class Vasp1(
             return "Failed to parse payreq response."
         }
 
-        // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.ytxos
+        // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.utxos
 
         val invoice = try {
             lightsparkClient.decodeInvoice(payReqResponse.encodedInvoice)
