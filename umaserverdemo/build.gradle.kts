@@ -29,6 +29,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation(project(":lightspark-sdk"))
     implementation(project(":core"))
+    implementation(project(":crypto"))
     implementation("ch.qos.logback:logback-classic:1.4.11")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation(libs.kotlin.test.junit)
