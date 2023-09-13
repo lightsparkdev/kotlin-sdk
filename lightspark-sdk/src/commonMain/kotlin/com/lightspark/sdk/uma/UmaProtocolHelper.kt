@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package com.lightspark.sdk.uma
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.crypto.Secp256k1
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
@@ -271,8 +274,7 @@ class UmaProtocolHelper(
 
 
     private fun encryptTravelRuleInfo(receiverEncryptionPubKey: ByteArray, travelRuleInfoJson: String): String {
-        // TODO: Implement with secp256k1
-        return travelRuleInfoJson
+        return Secp256k1.encryptEcies(travelRuleInfoJson.encodeToByteArray(), receiverEncryptionPubKey).toHexString()
     }
 
     fun parseAsPayRequest(request: String): PayRequest {
@@ -346,13 +348,11 @@ class UmaProtocolHelper(
     }
 
     private fun signPayload(payload: ByteArray, privateKey: ByteArray): String {
-        // TODO: Implement with secp256k1
-        return "signature"
+        return Secp256k1.signEcdsa(payload, privateKey).toHexString()
     }
 
     private fun verifySignature(payload: ByteArray, signature: String, publicKey: ByteArray): Boolean {
-        // TODO: Implement with secp256k1
-        return true
+        return Secp256k1.verifyEcdsa(payload, signature.hexToByteArray(), publicKey)
     }
 
     fun getVaspDomainFromUmaAddress(identifier: String): String {
