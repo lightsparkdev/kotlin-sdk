@@ -42,6 +42,7 @@ data class LnurlpRequest(
                 append("signature", signature)
                 append("isSubjectToTravelRule", isSubjectToTravelRule.toString())
                 append("timestamp", timestamp.toString())
+                append("umaVersion", umaVersion)
             },
         ).build()
         return url.toString()
@@ -63,7 +64,7 @@ data class LnurlpRequest(
             ) {
                 throw IllegalArgumentException("Invalid uma request path: $url")
             }
-            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[3]}"
+            val receiverAddress = "${urlBuilder.pathSegments[3]}@${urlBuilder.host}"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]

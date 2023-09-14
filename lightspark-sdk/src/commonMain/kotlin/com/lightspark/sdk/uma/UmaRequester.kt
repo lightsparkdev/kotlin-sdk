@@ -9,9 +9,7 @@ interface UmaRequester {
     suspend fun makeGetRequest(url: String): String
 }
 
-class KtorUmaRequester : UmaRequester {
-    private val client = HttpClient()
-
+class KtorUmaRequester(private val client: HttpClient = HttpClient()) : UmaRequester {
     override suspend fun makeGetRequest(url: String): String {
         val response = client.get(url)
 

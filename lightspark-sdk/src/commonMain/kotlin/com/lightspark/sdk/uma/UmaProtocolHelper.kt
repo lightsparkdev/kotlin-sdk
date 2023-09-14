@@ -7,8 +7,15 @@ import com.lightspark.sdk.crypto.Secp256k1
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import kotlin.random.Random
 import kotlin.random.nextULong
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.future.future
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
@@ -20,12 +27,40 @@ class UmaProtocolHelper(
     private val publicKeyCache: PublicKeyCache = InMemoryPublicKeyCache(),
     private val umaRequester: UmaRequester = KtorUmaRequester(),
 ) {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
+    /**
+     * Fetches the public keys of a VASP or returns the cached keys if they are still valid.
+     *
+     * In Kotlin, prefer using [fetchPublicKeysForVasp] instead.
+     *
+     * @param vaspDomain The domain of the VASP whose public keys are being fetched.
+     * @return The [PubKeyResponse] containing the public keys of the VASP.
+     */
+    fun fetchPublicKeysForVaspFuture(vaspDomain: String): Future<PubKeyResponse> = coroutineScope.future {
+        fetchPublicKeysForVasp(vaspDomain)
+    }
+
+    /**
+     * Fetches the public keys of a VASP or returns the cached keys if they are still valid.
+     *
+     * This method is synchronous and should only be used in cases where the caller is already on a background thread.
+     * In Kotlin, prefer using [fetchPublicKeysForVasp] instead.
+     *
+     * @param vaspDomain The domain of the VASP whose public keys are being fetched.
+     * @return The [PubKeyResponse] containing the public keys of the VASP.
+     */
+    fun fetchPublicKeysForVaspSync(vaspDomain: String): PubKeyResponse = runBlocking {
+        fetchPublicKeysForVasp(vaspDomain)
+    }
+
     /**
      * Fetches the public keys of a VASP or returns the cached keys if they are still valid.
      *
      * @param vaspDomain The domain of the VASP whose public keys are being fetched.
      * @return The [PubKeyResponse] containing the public keys of the VASP.
      */
+    @JvmName("KotlinOnly-fetchPublicKeysForVaspSuspended")
     suspend fun fetchPublicKeysForVasp(vaspDomain: String): PubKeyResponse {
         val cached = publicKeyCache.getPublicKeysForVasp(vaspDomain)
         if (cached != null) {
@@ -39,7 +74,7 @@ class UmaProtocolHelper(
         return pubKeyResponse
     }
 
-    fun generateNonce(): String {
+    private fun generateNonce(): String {
         return Random.nextULong().toString()
     }
 
@@ -101,9 +136,7 @@ class UmaProtocolHelper(
      * Verifies the signature on an UMA Lnurlp query based on the public key of the VASP making the request.
      */
     fun verifyUmaLnurlpQuerySignature(query: LnurlpRequest, pubKeyResponse: PubKeyResponse): Boolean {
-        val signablePayload = query.signablePayload()
-        val hashedPayload = MessageDigest.getInstance("SHA-256").digest(signablePayload)
-        return verifySignature(hashedPayload, query.signature, pubKeyResponse.signingPubKey)
+        return verifySignature(query.signablePayload(), query.signature, pubKeyResponse.signingPubKey)
     }
 
     /**
@@ -289,17 +322,16 @@ class UmaProtocolHelper(
      * @return true if the signature is valid, false otherwise.
      */
     fun verifyPayReqSignature(payReq: PayRequest, pubKeyResponse: PubKeyResponse): Boolean {
-        val signablePayload = payReq.signablePayload()
-        val hashedPayload = MessageDigest.getInstance("SHA-256").digest(signablePayload)
-        return verifySignature(hashedPayload, payReq.payerData.compliance!!.signature, pubKeyResponse.signingPubKey)
+        return verifySignature(payReq.signablePayload(), payReq.payerData.compliance!!.signature, pubKeyResponse.signingPubKey)
     }
 
     /**
      * Creates an uma pay request response with an encoded invoice.
      *
+     * In Kotlin, prefer using [getPayReqResponse] instead.
+     *
      * @param query The [PayRequest] sent by the sender.
      * @param invoiceCreator The [UmaInvoiceCreator] that will be used to create the invoice.
-     * @param nodeId The node ID of the receiver.
      * @param metadata The metadata that will be added to the invoice's metadata hash field.
      * @param currencyCode The code of the currency that the receiver will receive for this payment.
      * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
@@ -310,9 +342,90 @@ class UmaProtocolHelper(
      *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
      * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
      *     used to receive the payment once it completes.
-     * @param expirySecs The number of seconds until the invoice expires. Defaults to 10 minutes.
+     * @return A [Future] [PayReqResponse] that should be returned to the sender for the given [PayRequest].
+     */
+    fun getPayReqResponseFuture(
+        query: PayRequest,
+        invoiceCreator: UmaInvoiceCreator,
+        metadata: String,
+        currencyCode: String,
+        conversionRate: Long,
+        receiverChannelUtxos: List<String>,
+        receiverNodePubKey: String?,
+        utxoCallback: String,
+    ): Future<PayReqResponse> = coroutineScope.future {
+        getPayReqResponse(
+            query,
+            invoiceCreator,
+            metadata,
+            currencyCode,
+            conversionRate,
+            receiverChannelUtxos,
+            receiverNodePubKey,
+            utxoCallback,
+        )
+    }
+
+    /**
+     * Creates an uma pay request response with an encoded invoice.
+     *
+     * This method is synchronous and should only be used in cases where the caller is already on a background thread.
+     * In Kotlin, prefer using [getPayReqResponse] instead.
+     *
+     * @param query The [PayRequest] sent by the sender.
+     * @param invoiceCreator The [UmaInvoiceCreator] that will be used to create the invoice.
+     * @param metadata The metadata that will be added to the invoice's metadata hash field.
+     * @param currencyCode The code of the currency that the receiver will receive for this payment.
+     * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
+     *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
+     *     invoice expires.
+     * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
+     * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
+     *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
+     * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
+     *     used to receive the payment once it completes.
+     * @return A [PayReqResponse] that should be returned to the sender for the given [PayRequest].
+     */
+    suspend fun getPayReqResponseSync(
+        query: PayRequest,
+        invoiceCreator: UmaInvoiceCreator,
+        metadata: String,
+        currencyCode: String,
+        conversionRate: Long,
+        receiverChannelUtxos: List<String>,
+        receiverNodePubKey: String?,
+        utxoCallback: String,
+    ): PayReqResponse = runBlocking {
+        getPayReqResponse(
+            query,
+            invoiceCreator,
+            metadata,
+            currencyCode,
+            conversionRate,
+            receiverChannelUtxos,
+            receiverNodePubKey,
+            utxoCallback,
+        )
+    }
+
+    /**
+     * Creates an uma pay request response with an encoded invoice.
+     *
+     * @param query The [PayRequest] sent by the sender.
+     * @param invoiceCreator The [UmaInvoiceCreator] that will be used to create the invoice.
+     * @param metadata The metadata that will be added to the invoice's metadata hash field.
+     * @param currencyCode The code of the currency that the receiver will receive for this payment.
+     * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
+     *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
+     *     invoice expires.
+     * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
+     * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
+     *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
+     * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
+     *     used to receive the payment once it completes.
      * @return The [PayReqResponse] that should be returned to the sender for the given [PayRequest].
      */
+    @JvmName("KotlinOnly-getPayReqResponseSuspended")
     suspend fun getPayReqResponse(
         query: PayRequest,
         invoiceCreator: UmaInvoiceCreator,
@@ -328,7 +441,7 @@ class UmaProtocolHelper(
         val invoice = invoiceCreator.createUmaInvoice(
             amountMsats = query.amount * conversionRate,
             metadata = metadataWithPayerData,
-        )
+        ).await()
         return PayReqResponse(
             encodedInvoice = invoice.data.encodedPaymentRequest,
             compliance = PayReqResponseCompliance(
@@ -366,14 +479,15 @@ class UmaProtocolHelper(
 
 interface UmaInvoiceCreator {
     // TODO: Figure out the async story here. Do we need a different implementation for each client type?
-    suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice
+    fun createUmaInvoice(amountMsats: Long, metadata: String): CompletableFuture<Invoice>
 }
 
 class LightsparkClientUmaInvoiceCreator(
     private val client: LightsparkCoroutinesClient,
     private val nodeId: String,
 ) : UmaInvoiceCreator {
-    override suspend fun createUmaInvoice(amountMsats: Long, metadata: String): Invoice {
-        return client.createUmaInvoice(nodeId, amountMsats, metadata)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    override fun createUmaInvoice(amountMsats: Long, metadata: String) = coroutineScope.future {
+        client.createUmaInvoice(nodeId, amountMsats, metadata)
     }
 }

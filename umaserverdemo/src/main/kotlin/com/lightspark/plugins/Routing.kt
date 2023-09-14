@@ -17,13 +17,14 @@ import io.ktor.server.application.call
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 
-fun Application.configureRouting(config: UmaConfig) {
-    val pubKeyCache = InMemoryPublicKeyCache()
-    val uma = UmaProtocolHelper(pubKeyCache)
+fun Application.configureRouting(
+    config: UmaConfig,
+    uma: UmaProtocolHelper = UmaProtocolHelper(InMemoryPublicKeyCache()),
+) {
     val client = LightsparkCoroutinesClient(
         ClientConfig(
             serverUrl = config.clientBaseURL ?: "api.lightspark.com",
-            authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret)
+            authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
         ),
     )
     val vasp1 = Vasp1(config, uma, client)

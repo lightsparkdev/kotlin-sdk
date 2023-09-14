@@ -47,6 +47,8 @@ class Vasp2(
         val requestUrl = call.request.fullUrl()
         if (uma.isUmaLnurlpQuery(requestUrl)) {
             return handleUmaLnurlp(call)
+        } else {
+            call.respond("Only UMA Supported")
         }
 
         return "OK"
@@ -74,14 +76,14 @@ class Vasp2(
         val pubKeys = try {
             uma.fetchPublicKeysForVasp(request.vaspDomain)
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
+            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys. ${e.message}")
             return "Failed to fetch public keys."
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys))
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys)) { "Invalid lnurlp signature." }
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature. ${e.message}")
             return "Invalid lnurlp signature."
         }
 
