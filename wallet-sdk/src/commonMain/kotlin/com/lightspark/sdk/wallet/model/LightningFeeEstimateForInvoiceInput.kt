@@ -14,12 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LightningFeeEstimateForInvoiceInput")
 data class LightningFeeEstimateForInvoiceInput(
-
     val encodedPaymentRequest: String,
-
     val amountMsats: Long? = null,
 ) {
-
     companion object {
     }
 }

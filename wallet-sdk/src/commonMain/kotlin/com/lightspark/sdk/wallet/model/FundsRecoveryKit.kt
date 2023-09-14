@@ -10,12 +10,10 @@ import kotlinx.serialization.SerialName
  * @property bitcoinWalletAddress The bitcoin address where the funds should be sent if the recovery kit is used.
  */
 interface FundsRecoveryKit {
-
     @SerialName("funds_recovery_kit_bitcoin_wallet_address")
     val bitcoinWalletAddress: String
 
     companion object {
-
         const val FRAGMENT = """
 fragment FundsRecoveryKitFragment on FundsRecoveryKit {
     type: __typename

@@ -14,15 +14,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("NodeToAddressesConnection")
 data class NodeToAddressesConnection(
-
     @SerialName("node_to_addresses_connection_count")
     val count: Int,
     @SerialName("node_to_addresses_connection_entities")
     val entities: List<NodeAddress>,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment NodeToAddressesConnectionFragment on NodeToAddressesConnection {
     type: __typename

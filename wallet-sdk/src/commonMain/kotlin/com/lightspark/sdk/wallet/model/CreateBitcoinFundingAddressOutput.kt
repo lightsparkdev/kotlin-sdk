@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateBitcoinFundingAddressOutput")
 data class CreateBitcoinFundingAddressOutput(
-
     @SerialName("create_bitcoin_funding_address_output_bitcoin_address")
     val bitcoinAddress: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CreateBitcoinFundingAddressOutputFragment on CreateBitcoinFundingAddressOutput {
     type: __typename

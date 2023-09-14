@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("InitializeWalletOutput")
 data class InitializeWalletOutput(
-
     @SerialName("initialize_wallet_output_wallet")
     val wallet: Wallet,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment InitializeWalletOutputFragment on InitializeWalletOutput {
     type: __typename

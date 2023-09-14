@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- * The transaction on Bitcoin blockchain to fund the Lightspark node's wallet.
+ * This object represents a Deposit made to a Lightspark node wallet. This operation occurs for any L1 funding transaction to the wallet. You can retrieve this object to receive detailed information about the deposit.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when this transaction was initiated.
  * @param updatedAt The date and time when the entity was last updated.
@@ -29,7 +29,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("Deposit")
 data class Deposit(
-
     @SerialName("deposit_id")
     override val id: String,
     @SerialName("deposit_created_at")
@@ -55,7 +54,6 @@ data class Deposit(
     @SerialName("deposit_num_confirmations")
     override val numConfirmations: Int? = null,
 ) : OnChainTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getDepositQuery(id: String): Query<Deposit> {

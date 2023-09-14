@@ -15,7 +15,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.ktor.util.decodeBase64Bytes
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -229,8 +228,6 @@ class ClientIntegrationTests {
     @Test
     fun `test creating a test mode payment`() = runTest {
         val node = getFirstNode()
-        val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
-        unlocked.shouldBeTrue()
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
         val payment = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()

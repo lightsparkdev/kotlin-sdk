@@ -147,7 +147,7 @@ query FetchAccountBlockchainBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], $
             }
         ) {
             val connection = it["current_account"]?.jsonObject?.get("blockchain_balance") ?: return@Query null
-            return@Query serializerFormat.decodeFromJsonElement<BlockchainBalance>(connection)
+            return@Query serializerFormat.decodeFromJsonElement<BlockchainBalance?>(connection)
         }
     }
 
@@ -204,7 +204,7 @@ query FetchAccountLocalBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}
             }
         ) {
             val connection = it["current_account"]?.jsonObject?.get("local_balance") ?: return@Query null
-            return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
+            return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount?>(connection)
         }
     }
 
@@ -230,27 +230,24 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                account_to_nodes_connection_purpose: purpose
                 account_to_nodes_connection_entities: entities {
                     type: __typename
-                    lightspark_node_id: id
-                    lightspark_node_created_at: created_at
-                    lightspark_node_updated_at: updated_at
-                    lightspark_node_alias: alias
-                    lightspark_node_bitcoin_network: bitcoin_network
-                    lightspark_node_color: color
-                    lightspark_node_conductivity: conductivity
-                    lightspark_node_display_name: display_name
-                    lightspark_node_public_key: public_key
-                    lightspark_node_account: account {
-                        id
-                    }
-                    lightspark_node_owner: owner {
-                        id
-                    }
-                    lightspark_node_blockchain_balance: blockchain_balance {
+                    ... on LightsparkNodeWithOSK {
                         type: __typename
-                        blockchain_balance_total_balance: total_balance {
+                        lightspark_node_with_o_s_k_id: id
+                        lightspark_node_with_o_s_k_created_at: created_at
+                        lightspark_node_with_o_s_k_updated_at: updated_at
+                        lightspark_node_with_o_s_k_alias: alias
+                        lightspark_node_with_o_s_k_bitcoin_network: bitcoin_network
+                        lightspark_node_with_o_s_k_color: color
+                        lightspark_node_with_o_s_k_conductivity: conductivity
+                        lightspark_node_with_o_s_k_display_name: display_name
+                        lightspark_node_with_o_s_k_public_key: public_key
+                        lightspark_node_with_o_s_k_owner: owner {
+                            id
+                        }
+                        lightspark_node_with_o_s_k_status: status
+                        lightspark_node_with_o_s_k_total_balance: total_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -258,7 +255,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
-                        blockchain_balance_confirmed_balance: confirmed_balance {
+                        lightspark_node_with_o_s_k_total_local_balance: total_local_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -266,7 +263,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
-                        blockchain_balance_unconfirmed_balance: unconfirmed_balance {
+                        lightspark_node_with_o_s_k_local_balance: local_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -274,7 +271,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
-                        blockchain_balance_locked_balance: locked_balance {
+                        lightspark_node_with_o_s_k_remote_balance: remote_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -282,7 +279,80 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
-                        blockchain_balance_required_reserve: required_reserve {
+                        lightspark_node_with_o_s_k_blockchain_balance: blockchain_balance {
+                            type: __typename
+                            blockchain_balance_total_balance: total_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_confirmed_balance: confirmed_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_unconfirmed_balance: unconfirmed_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_locked_balance: locked_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_required_reserve: required_reserve {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_available_balance: available_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                        }
+                        lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                        lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
+                            type: __typename
+                            secret_encrypted_value: encrypted_value
+                            secret_cipher: cipher
+                        }
+                    }
+                    ... on LightsparkNodeWithRemoteSigning {
+                        type: __typename
+                        lightspark_node_with_remote_signing_id: id
+                        lightspark_node_with_remote_signing_created_at: created_at
+                        lightspark_node_with_remote_signing_updated_at: updated_at
+                        lightspark_node_with_remote_signing_alias: alias
+                        lightspark_node_with_remote_signing_bitcoin_network: bitcoin_network
+                        lightspark_node_with_remote_signing_color: color
+                        lightspark_node_with_remote_signing_conductivity: conductivity
+                        lightspark_node_with_remote_signing_display_name: display_name
+                        lightspark_node_with_remote_signing_public_key: public_key
+                        lightspark_node_with_remote_signing_owner: owner {
+                            id
+                        }
+                        lightspark_node_with_remote_signing_status: status
+                        lightspark_node_with_remote_signing_total_balance: total_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -290,7 +360,7 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
-                        blockchain_balance_available_balance: available_balance {
+                        lightspark_node_with_remote_signing_total_local_balance: total_local_balance {
                             type: __typename
                             currency_amount_original_value: original_value
                             currency_amount_original_unit: original_unit
@@ -298,46 +368,75 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
+                        lightspark_node_with_remote_signing_local_balance: local_balance {
+                            type: __typename
+                            currency_amount_original_value: original_value
+                            currency_amount_original_unit: original_unit
+                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                        }
+                        lightspark_node_with_remote_signing_remote_balance: remote_balance {
+                            type: __typename
+                            currency_amount_original_value: original_value
+                            currency_amount_original_unit: original_unit
+                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                        }
+                        lightspark_node_with_remote_signing_blockchain_balance: blockchain_balance {
+                            type: __typename
+                            blockchain_balance_total_balance: total_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_confirmed_balance: confirmed_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_unconfirmed_balance: unconfirmed_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_locked_balance: locked_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_required_reserve: required_reserve {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            blockchain_balance_available_balance: available_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                        }
+                        lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
                     }
-                    lightspark_node_encrypted_signing_private_key: encrypted_signing_private_key {
-                        type: __typename
-                        secret_encrypted_value: encrypted_value
-                        secret_cipher: cipher
-                    }
-                    lightspark_node_total_balance: total_balance {
-                        type: __typename
-                        currency_amount_original_value: original_value
-                        currency_amount_original_unit: original_unit
-                        currency_amount_preferred_currency_unit: preferred_currency_unit
-                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
-                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
-                    }
-                    lightspark_node_total_local_balance: total_local_balance {
-                        type: __typename
-                        currency_amount_original_value: original_value
-                        currency_amount_original_unit: original_unit
-                        currency_amount_preferred_currency_unit: preferred_currency_unit
-                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
-                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
-                    }
-                    lightspark_node_local_balance: local_balance {
-                        type: __typename
-                        currency_amount_original_value: original_value
-                        currency_amount_original_unit: original_unit
-                        currency_amount_preferred_currency_unit: preferred_currency_unit
-                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
-                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
-                    }
-                    lightspark_node_purpose: purpose
-                    lightspark_node_remote_balance: remote_balance {
-                        type: __typename
-                        currency_amount_original_value: original_value
-                        currency_amount_original_unit: original_unit
-                        currency_amount_preferred_currency_unit: preferred_currency_unit
-                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
-                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
-                    }
-                    lightspark_node_status: status
                 }
             }
         }
@@ -384,7 +483,7 @@ query FetchAccountRemoteBalance(${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'
             }
         ) {
             val connection = it["current_account"]?.jsonObject?.get("remote_balance") ?: return@Query null
-            return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount>(connection)
+            return@Query serializerFormat.decodeFromJsonElement<CurrencyAmount?>(connection)
         }
     }
 
@@ -711,14 +810,23 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
                         incoming_payment_transaction_hash: transaction_hash
-                        incoming_payment_origin: origin {
-                            id
-                        }
                         incoming_payment_destination: destination {
                             id
                         }
                         incoming_payment_payment_request: payment_request {
                             id
+                        }
+                        incoming_payment_uma_post_transaction_data: uma_post_transaction_data {
+                            type: __typename
+                            post_transaction_data_utxo: utxo
+                            post_transaction_data_amount: amount {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
                         }
                     }
                     ... on OutgoingPayment {
@@ -783,24 +891,54 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                         graph_node_display_name: display_name
                                         graph_node_public_key: public_key
                                     }
-                                    ... on LightsparkNode {
+                                    ... on LightsparkNodeWithOSK {
                                         type: __typename
-                                        lightspark_node_id: id
-                                        lightspark_node_created_at: created_at
-                                        lightspark_node_updated_at: updated_at
-                                        lightspark_node_alias: alias
-                                        lightspark_node_bitcoin_network: bitcoin_network
-                                        lightspark_node_color: color
-                                        lightspark_node_conductivity: conductivity
-                                        lightspark_node_display_name: display_name
-                                        lightspark_node_public_key: public_key
-                                        lightspark_node_account: account {
+                                        lightspark_node_with_o_s_k_id: id
+                                        lightspark_node_with_o_s_k_created_at: created_at
+                                        lightspark_node_with_o_s_k_updated_at: updated_at
+                                        lightspark_node_with_o_s_k_alias: alias
+                                        lightspark_node_with_o_s_k_bitcoin_network: bitcoin_network
+                                        lightspark_node_with_o_s_k_color: color
+                                        lightspark_node_with_o_s_k_conductivity: conductivity
+                                        lightspark_node_with_o_s_k_display_name: display_name
+                                        lightspark_node_with_o_s_k_public_key: public_key
+                                        lightspark_node_with_o_s_k_owner: owner {
                                             id
                                         }
-                                        lightspark_node_owner: owner {
-                                            id
+                                        lightspark_node_with_o_s_k_status: status
+                                        lightspark_node_with_o_s_k_total_balance: total_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
-                                        lightspark_node_blockchain_balance: blockchain_balance {
+                                        lightspark_node_with_o_s_k_total_local_balance: total_local_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        lightspark_node_with_o_s_k_local_balance: local_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        lightspark_node_with_o_s_k_remote_balance: remote_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        lightspark_node_with_o_s_k_blockchain_balance: blockchain_balance {
                                             type: __typename
                                             blockchain_balance_total_balance: total_balance {
                                                 type: __typename
@@ -851,12 +989,29 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                                 currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                             }
                                         }
-                                        lightspark_node_encrypted_signing_private_key: encrypted_signing_private_key {
+                                        lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                                        lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
                                             type: __typename
                                             secret_encrypted_value: encrypted_value
                                             secret_cipher: cipher
                                         }
-                                        lightspark_node_total_balance: total_balance {
+                                    }
+                                    ... on LightsparkNodeWithRemoteSigning {
+                                        type: __typename
+                                        lightspark_node_with_remote_signing_id: id
+                                        lightspark_node_with_remote_signing_created_at: created_at
+                                        lightspark_node_with_remote_signing_updated_at: updated_at
+                                        lightspark_node_with_remote_signing_alias: alias
+                                        lightspark_node_with_remote_signing_bitcoin_network: bitcoin_network
+                                        lightspark_node_with_remote_signing_color: color
+                                        lightspark_node_with_remote_signing_conductivity: conductivity
+                                        lightspark_node_with_remote_signing_display_name: display_name
+                                        lightspark_node_with_remote_signing_public_key: public_key
+                                        lightspark_node_with_remote_signing_owner: owner {
+                                            id
+                                        }
+                                        lightspark_node_with_remote_signing_status: status
+                                        lightspark_node_with_remote_signing_total_balance: total_balance {
                                             type: __typename
                                             currency_amount_original_value: original_value
                                             currency_amount_original_unit: original_unit
@@ -864,7 +1019,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
-                                        lightspark_node_total_local_balance: total_local_balance {
+                                        lightspark_node_with_remote_signing_total_local_balance: total_local_balance {
                                             type: __typename
                                             currency_amount_original_value: original_value
                                             currency_amount_original_unit: original_unit
@@ -872,7 +1027,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
-                                        lightspark_node_local_balance: local_balance {
+                                        lightspark_node_with_remote_signing_local_balance: local_balance {
                                             type: __typename
                                             currency_amount_original_value: original_value
                                             currency_amount_original_unit: original_unit
@@ -880,8 +1035,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
-                                        lightspark_node_purpose: purpose
-                                        lightspark_node_remote_balance: remote_balance {
+                                        lightspark_node_with_remote_signing_remote_balance: remote_balance {
                                             type: __typename
                                             currency_amount_original_value: original_value
                                             currency_amount_original_unit: original_unit
@@ -889,7 +1043,58 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
-                                        lightspark_node_status: status
+                                        lightspark_node_with_remote_signing_blockchain_balance: blockchain_balance {
+                                            type: __typename
+                                            blockchain_balance_total_balance: total_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            blockchain_balance_confirmed_balance: confirmed_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            blockchain_balance_unconfirmed_balance: unconfirmed_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            blockchain_balance_locked_balance: locked_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            blockchain_balance_required_reserve: required_reserve {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            blockchain_balance_available_balance: available_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                        }
+                                        lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
                                     }
                                 }
                             }
@@ -898,6 +1103,18 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                         outgoing_payment_failure_message: failure_message {
                             type: __typename
                             rich_text_text: text
+                        }
+                        outgoing_payment_uma_post_transaction_data: uma_post_transaction_data {
+                            type: __typename
+                            post_transaction_data_utxo: utxo
+                            post_transaction_data_amount: amount {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
                         }
                     }
                     ... on RoutingTransaction {
@@ -1053,24 +1270,54 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                     graph_node_display_name: display_name
                                     graph_node_public_key: public_key
                                 }
-                                ... on LightsparkNode {
+                                ... on LightsparkNodeWithOSK {
                                     type: __typename
-                                    lightspark_node_id: id
-                                    lightspark_node_created_at: created_at
-                                    lightspark_node_updated_at: updated_at
-                                    lightspark_node_alias: alias
-                                    lightspark_node_bitcoin_network: bitcoin_network
-                                    lightspark_node_color: color
-                                    lightspark_node_conductivity: conductivity
-                                    lightspark_node_display_name: display_name
-                                    lightspark_node_public_key: public_key
-                                    lightspark_node_account: account {
+                                    lightspark_node_with_o_s_k_id: id
+                                    lightspark_node_with_o_s_k_created_at: created_at
+                                    lightspark_node_with_o_s_k_updated_at: updated_at
+                                    lightspark_node_with_o_s_k_alias: alias
+                                    lightspark_node_with_o_s_k_bitcoin_network: bitcoin_network
+                                    lightspark_node_with_o_s_k_color: color
+                                    lightspark_node_with_o_s_k_conductivity: conductivity
+                                    lightspark_node_with_o_s_k_display_name: display_name
+                                    lightspark_node_with_o_s_k_public_key: public_key
+                                    lightspark_node_with_o_s_k_owner: owner {
                                         id
                                     }
-                                    lightspark_node_owner: owner {
-                                        id
+                                    lightspark_node_with_o_s_k_status: status
+                                    lightspark_node_with_o_s_k_total_balance: total_balance {
+                                        type: __typename
+                                        currency_amount_original_value: original_value
+                                        currency_amount_original_unit: original_unit
+                                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                     }
-                                    lightspark_node_blockchain_balance: blockchain_balance {
+                                    lightspark_node_with_o_s_k_total_local_balance: total_local_balance {
+                                        type: __typename
+                                        currency_amount_original_value: original_value
+                                        currency_amount_original_unit: original_unit
+                                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                    }
+                                    lightspark_node_with_o_s_k_local_balance: local_balance {
+                                        type: __typename
+                                        currency_amount_original_value: original_value
+                                        currency_amount_original_unit: original_unit
+                                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                    }
+                                    lightspark_node_with_o_s_k_remote_balance: remote_balance {
+                                        type: __typename
+                                        currency_amount_original_value: original_value
+                                        currency_amount_original_unit: original_unit
+                                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                    }
+                                    lightspark_node_with_o_s_k_blockchain_balance: blockchain_balance {
                                         type: __typename
                                         blockchain_balance_total_balance: total_balance {
                                             type: __typename
@@ -1121,12 +1368,29 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                         }
                                     }
-                                    lightspark_node_encrypted_signing_private_key: encrypted_signing_private_key {
+                                    lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                                    lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
                                         type: __typename
                                         secret_encrypted_value: encrypted_value
                                         secret_cipher: cipher
                                     }
-                                    lightspark_node_total_balance: total_balance {
+                                }
+                                ... on LightsparkNodeWithRemoteSigning {
+                                    type: __typename
+                                    lightspark_node_with_remote_signing_id: id
+                                    lightspark_node_with_remote_signing_created_at: created_at
+                                    lightspark_node_with_remote_signing_updated_at: updated_at
+                                    lightspark_node_with_remote_signing_alias: alias
+                                    lightspark_node_with_remote_signing_bitcoin_network: bitcoin_network
+                                    lightspark_node_with_remote_signing_color: color
+                                    lightspark_node_with_remote_signing_conductivity: conductivity
+                                    lightspark_node_with_remote_signing_display_name: display_name
+                                    lightspark_node_with_remote_signing_public_key: public_key
+                                    lightspark_node_with_remote_signing_owner: owner {
+                                        id
+                                    }
+                                    lightspark_node_with_remote_signing_status: status
+                                    lightspark_node_with_remote_signing_total_balance: total_balance {
                                         type: __typename
                                         currency_amount_original_value: original_value
                                         currency_amount_original_unit: original_unit
@@ -1134,7 +1398,7 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                     }
-                                    lightspark_node_total_local_balance: total_local_balance {
+                                    lightspark_node_with_remote_signing_total_local_balance: total_local_balance {
                                         type: __typename
                                         currency_amount_original_value: original_value
                                         currency_amount_original_unit: original_unit
@@ -1142,7 +1406,7 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                     }
-                                    lightspark_node_local_balance: local_balance {
+                                    lightspark_node_with_remote_signing_local_balance: local_balance {
                                         type: __typename
                                         currency_amount_original_value: original_value
                                         currency_amount_original_unit: original_unit
@@ -1150,8 +1414,7 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                     }
-                                    lightspark_node_purpose: purpose
-                                    lightspark_node_remote_balance: remote_balance {
+                                    lightspark_node_with_remote_signing_remote_balance: remote_balance {
                                         type: __typename
                                         currency_amount_original_value: original_value
                                         currency_amount_original_unit: original_unit
@@ -1159,7 +1422,58 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                                     }
-                                    lightspark_node_status: status
+                                    lightspark_node_with_remote_signing_blockchain_balance: blockchain_balance {
+                                        type: __typename
+                                        blockchain_balance_total_balance: total_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        blockchain_balance_confirmed_balance: confirmed_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        blockchain_balance_unconfirmed_balance: unconfirmed_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        blockchain_balance_locked_balance: locked_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        blockchain_balance_required_reserve: required_reserve {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        blockchain_balance_available_balance: available_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                    }
+                                    lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
                                 }
                             }
                         }

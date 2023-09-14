@@ -23,8 +23,8 @@ import kotlinx.serialization.json.jsonObject
  * @param destinationId The recipient Lightspark node this payment was sent to.
  * @param resolvedAt The date and time when this transaction was completed or failed.
  * @param transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
- * @param originId If known, the Lightspark node this payment originated from.
  * @param paymentRequestId The optional payment request for this incoming payment, which will be null if the payment is sent through keysend.
+ * @param umaPostTransactionData The post transaction data which can be used in KYT payment registration.
  */
 @Serializable
 @SerialName("IncomingPayment")
@@ -45,10 +45,10 @@ data class IncomingPayment(
     override val resolvedAt: Instant? = null,
     @SerialName("incoming_payment_transaction_hash")
     override val transactionHash: String? = null,
-    @SerialName("incoming_payment_origin")
-    val originId: EntityId? = null,
     @SerialName("incoming_payment_payment_request")
     val paymentRequestId: EntityId? = null,
+    @SerialName("incoming_payment_uma_post_transaction_data")
+    val umaPostTransactionData: List<PostTransactionData>? = null,
 ) : LightningTransaction, Transaction, Entity {
     @JvmOverloads
     fun getAttemptsQuery(
@@ -146,14 +146,23 @@ fragment IncomingPaymentFragment on IncomingPayment {
         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
     }
     incoming_payment_transaction_hash: transaction_hash
-    incoming_payment_origin: origin {
-        id
-    }
     incoming_payment_destination: destination {
         id
     }
     incoming_payment_payment_request: payment_request {
         id
+    }
+    incoming_payment_uma_post_transaction_data: uma_post_transaction_data {
+        type: __typename
+        post_transaction_data_utxo: utxo
+        post_transaction_data_amount: amount {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
     }
 }"""
     }

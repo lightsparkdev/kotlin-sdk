@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("RichText")
 data class RichText(
-
     @SerialName("rich_text_text")
     val text: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment RichTextFragment on RichText {
     type: __typename

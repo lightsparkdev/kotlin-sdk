@@ -12,10 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("KeyInput")
 data class KeyInput(
-
     val publicKey: String,
 ) {
-
     companion object {
     }
 }

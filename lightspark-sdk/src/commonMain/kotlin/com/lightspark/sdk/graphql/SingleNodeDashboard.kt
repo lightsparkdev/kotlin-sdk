@@ -9,7 +9,6 @@ data class WalletDashboard(
     val id: String,
     @SerialName("display_name")
     val displayName: String,
-    val purpose: LightsparkNodePurpose?,
     val color: String?,
     @SerialName("public_key")
     val publicKey: String?,
@@ -46,7 +45,6 @@ query SingleNodeDashboard(
             entities {
                 color
                 display_name
-                purpose
                 id
                 addresses(first: 1) {
                     node_to_addresses_connection_entities: entities {
