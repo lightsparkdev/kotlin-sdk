@@ -13,7 +13,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LoginWithJWTOutput")
 data class LoginWithJWTOutput(
-
     @SerialName("login_with_j_w_t_output_access_token")
     val accessToken: String,
     @SerialName("login_with_j_w_t_output_wallet")
@@ -21,9 +20,7 @@ data class LoginWithJWTOutput(
     @SerialName("login_with_j_w_t_output_valid_until")
     val validUntil: Instant,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment LoginWithJWTOutputFragment on LoginWithJWTOutput {
     type: __typename

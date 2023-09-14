@@ -12,15 +12,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("UpdateFundsRecoveryKitOutput")
 data class UpdateFundsRecoveryKitOutput(
-
     @SerialName("update_funds_recovery_kit_output_wallet")
     val walletId: EntityId,
     @SerialName("update_funds_recovery_kit_output_funds_recovery_kit")
     val fundsRecoveryKit: FundsRecoveryKit,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment UpdateFundsRecoveryKitOutputFragment on UpdateFundsRecoveryKitOutput {
     type: __typename

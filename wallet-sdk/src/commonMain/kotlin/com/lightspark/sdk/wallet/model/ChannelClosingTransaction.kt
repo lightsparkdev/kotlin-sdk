@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- * The transaction on Bitcoin blockchain to close a channel on Lightning Network where the balances are allocated back to local and remote nodes.
+ * This is an object representing a transaction which closes a channel on the Lightning Network. This operation allocates balances back to the local and remote nodes.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when this transaction was initiated.
  * @param updatedAt The date and time when the entity was last updated.
@@ -29,7 +29,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("ChannelClosingTransaction")
 data class ChannelClosingTransaction(
-
     @SerialName("channel_closing_transaction_id")
     override val id: String,
     @SerialName("channel_closing_transaction_created_at")
@@ -55,7 +54,6 @@ data class ChannelClosingTransaction(
     @SerialName("channel_closing_transaction_num_confirmations")
     override val numConfirmations: Int? = null,
 ) : OnChainTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getChannelClosingTransactionQuery(id: String): Query<ChannelClosingTransaction> {

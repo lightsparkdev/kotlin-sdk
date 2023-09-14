@@ -6,6 +6,7 @@ package com.lightspark.sdk.wallet.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum for potential invoice types. **/
 @Serializable(with = InvoiceTypeSerializer::class)
 enum class InvoiceType(val rawValue: String) {
     /** A standard Bolt 11 invoice. **/

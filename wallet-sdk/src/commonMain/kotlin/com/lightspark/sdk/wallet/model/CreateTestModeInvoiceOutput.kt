@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateTestModeInvoiceOutput")
 data class CreateTestModeInvoiceOutput(
-
     @SerialName("create_test_mode_invoice_output_encoded_payment_request")
     val encodedPaymentRequest: String,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment CreateTestModeInvoiceOutputFragment on CreateTestModeInvoiceOutput {
     type: __typename

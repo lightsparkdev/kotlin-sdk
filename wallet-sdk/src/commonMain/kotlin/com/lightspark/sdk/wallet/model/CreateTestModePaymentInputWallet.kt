@@ -14,12 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("CreateTestModePaymentInputWallet")
 data class CreateTestModePaymentInputWallet(
-
     val encodedInvoice: String,
-
     val amountMsats: Long? = null,
 ) {
-
     companion object {
     }
 }

@@ -13,7 +13,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 
 /**
- * This is a node on the Lightning Network, managed by a third party. The information about this node is public data that has been obtained by observing the Lightning Network.
+ * This object represents a node that exists on the Lightning Network, including nodes not managed by Lightspark. You can retrieve this object to get publicly available information about any node on the Lightning Network.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when the entity was first created.
  * @param updatedAt The date and time when the entity was last updated.
@@ -27,7 +27,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("GraphNode")
 data class GraphNode(
-
     @SerialName("graph_node_id")
     override val id: String,
     @SerialName("graph_node_created_at")
@@ -47,7 +46,6 @@ data class GraphNode(
     @SerialName("graph_node_public_key")
     override val publicKey: String? = null,
 ) : Node, Entity {
-
     override fun getAddressesQuery(first: Int?, types: List<NodeAddressType>?): Query<NodeToAddressesConnection> {
         return Query(
             queryPayload = """

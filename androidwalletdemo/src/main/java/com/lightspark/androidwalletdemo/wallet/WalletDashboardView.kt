@@ -500,13 +500,13 @@ fun WalletPreview() {
                         availableToWithdrawBalance = currencyAmountSats(600000),
                     ),
                     recentTransactions = WalletToTransactionsConnection(
-                        PageInfo(),
                         20,
+                        PageInfo(),
                         fakeTransactions(),
                     ),
                     paymentRequests = WalletToPaymentRequestsConnection(
-                        PageInfo(),
                         0,
+                        PageInfo(),
                         emptyList(),
                     ),
                 ),

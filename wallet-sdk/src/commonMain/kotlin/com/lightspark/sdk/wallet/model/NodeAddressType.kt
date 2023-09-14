@@ -6,10 +6,9 @@ package com.lightspark.sdk.wallet.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
-/** An enum that enumerates all possible types of addresses of a node on the Lightning Network. **/
+/** This is an enum of the potential types of addresses that a node on the Lightning Network can have. **/
 @Serializable(with = NodeAddressTypeSerializer::class)
 enum class NodeAddressType(val rawValue: String) {
-
     IPV4("IPV4"),
 
     IPV6("IPV6"),

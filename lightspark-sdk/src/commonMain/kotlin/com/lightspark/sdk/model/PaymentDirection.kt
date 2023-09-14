@@ -6,14 +6,12 @@ package com.lightspark.sdk.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
-/** This is an enum of potential purposes set by a user for a Lightspark node. **/
-@Serializable(with = LightsparkNodePurposeSerializer::class)
-enum class LightsparkNodePurpose(val rawValue: String) {
-    SEND("SEND"),
+/** This is an enum indicating the direction of the payment. **/
+@Serializable(with = PaymentDirectionSerializer::class)
+enum class PaymentDirection(val rawValue: String) {
+    SENT("SENT"),
 
-    RECEIVE("RECEIVE"),
-
-    ROUTING("ROUTING"),
+    RECEIVED("RECEIVED"),
 
     /**
      * This is an enum value that represents values that could be added in the future.
@@ -22,10 +20,10 @@ enum class LightsparkNodePurpose(val rawValue: String) {
     FUTURE_VALUE("FUTURE_VALUE"),
 }
 
-object LightsparkNodePurposeSerializer :
-    EnumSerializer<LightsparkNodePurpose>(
-        LightsparkNodePurpose::class,
+object PaymentDirectionSerializer :
+    EnumSerializer<PaymentDirection>(
+        PaymentDirection::class,
         { rawValue ->
-            LightsparkNodePurpose.values().firstOrNull { it.rawValue == rawValue } ?: LightsparkNodePurpose.FUTURE_VALUE
+            PaymentDirection.values().firstOrNull { it.rawValue == rawValue } ?: PaymentDirection.FUTURE_VALUE
         },
     )

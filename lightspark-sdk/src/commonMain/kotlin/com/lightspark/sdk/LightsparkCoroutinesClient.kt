@@ -19,7 +19,7 @@ import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
 
-private const val SCHEMA_ENDPOINT = "graphql/server/2023-04-04"
+private const val SCHEMA_ENDPOINT = "graphql/server/2023-09-13"
 
 /**
  * Main entry point for the Lightspark SDK.
@@ -148,9 +148,6 @@ class LightsparkCoroutinesClient private constructor(
                 return@Query WalletDashboard(
                     accountJson["id"]!!.jsonPrimitive.content,
                     nodeJson["display_name"]!!.jsonPrimitive.content,
-                    nodeJson["purpose"]?.jsonPrimitive?.content?.let {
-                        LightsparkNodePurpose.valueOf(it)
-                    },
                     nodeJson["color"]?.jsonPrimitive?.content,
                     nodeJson["public_key"]?.jsonPrimitive?.content,
                     nodeJson["status"]?.jsonPrimitive?.content?.let {

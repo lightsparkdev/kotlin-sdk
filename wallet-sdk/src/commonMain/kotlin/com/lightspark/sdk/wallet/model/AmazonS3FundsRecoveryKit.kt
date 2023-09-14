@@ -14,15 +14,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("AmazonS3FundsRecoveryKit")
 data class AmazonS3FundsRecoveryKit(
-
     @SerialName("amazon_s3_funds_recovery_kit_bitcoin_wallet_address")
     override val bitcoinWalletAddress: String,
     @SerialName("amazon_s3_funds_recovery_kit_s3_bucket_url")
     val s3BucketUrl: String,
 ) : FundsRecoveryKit {
-
     companion object {
-
         const val FRAGMENT = """
 fragment AmazonS3FundsRecoveryKitFragment on AmazonS3FundsRecoveryKit {
     type: __typename

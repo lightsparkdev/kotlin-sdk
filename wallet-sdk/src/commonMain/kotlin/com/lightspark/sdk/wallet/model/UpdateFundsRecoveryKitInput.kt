@@ -12,12 +12,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("UpdateFundsRecoveryKitInput")
 data class UpdateFundsRecoveryKitInput(
-
     val s3BucketUrl: String,
-
     val bitcoinWalletAddress: String,
 ) {
-
     companion object {
     }
 }
