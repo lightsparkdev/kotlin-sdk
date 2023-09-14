@@ -23,7 +23,7 @@ import kotlinx.serialization.encodeToString
  * A helper class for interacting with the UMA protocol. It provides methods for creating and verifying UMA requests
  * and responses.
  */
-class UmaProtocolHelper(
+class UmaProtocolHelper @JvmOverloads constructor(
     private val publicKeyCache: PublicKeyCache = InMemoryPublicKeyCache(),
     private val umaRequester: UmaRequester = KtorUmaRequester(),
 ) {
@@ -386,7 +386,7 @@ class UmaProtocolHelper(
      *     used to receive the payment once it completes.
      * @return A [PayReqResponse] that should be returned to the sender for the given [PayRequest].
      */
-    suspend fun getPayReqResponseSync(
+    fun getPayReqResponseSync(
         query: PayRequest,
         invoiceCreator: UmaInvoiceCreator,
         metadata: String,

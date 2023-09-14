@@ -25,7 +25,7 @@ data class PayRequest(
 }
 
 @Serializable
-data class PayerData(
+data class PayerData @JvmOverloads constructor(
     val identifier: String,
     val name: String? = null,
     val email: String? = null,

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
  *     They can be safely cached until this expiration (or forever if null).
  */
 @Serializable
-data class PubKeyResponse(
+data class PubKeyResponse @JvmOverloads constructor(
     val signingPubKey: ByteArray,
     val encryptionPubKey: ByteArray,
     val expirationTimestamp: Long? = null,
