@@ -8,7 +8,6 @@ import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 
@@ -392,6 +391,48 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
             encodedInvoice,
             amountMsats,
         )
+    }
+
+    /**
+     * Registers a payment with a compliance provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The compliance provider to register the payment with.
+     * @param paymentId The ID of the payment to register.
+     * @param nodePubKey The public key of the counterparty node which is the recipient node if the payment is an
+     *     outgoing payment and the sender node if the payment is an incoming payment.
+     * @param direction The direction of the payment.
+     * @return The ID of the registered payment.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun registerPayment(
+        complianceProvider: ComplianceProvider,
+        paymentId: String,
+        nodePubKey: String,
+        direction: PaymentDirection,
+    ): String = runBlocking {
+        asyncClient.registerPayment(
+            complianceProvider,
+            paymentId,
+            nodePubKey,
+            direction,
+        )
+    }
+
+    /**
+     * Performs sanction screening on a lightning node against a given provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The provider that you want to use to perform the screening.
+     * @param nodePubKey TThe public key of the node that needs to be screened.
+     * @return The risk rating of the node.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun screenNode(
+        complianceProvider: ComplianceProvider,
+        nodePubKey: String,
+    ): RiskRating = runBlocking {
+        asyncClient.screenNode(complianceProvider, nodePubKey)
     }
 
     fun <T> executeQuery(query: Query<T>): T = runBlocking { asyncClient.executeQuery(query) }

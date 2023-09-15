@@ -9,6 +9,7 @@ import com.lightspark.sdk.graphql.AccountDashboard
 import com.lightspark.sdk.graphql.WalletDashboard
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
+import com.lightspark.sdk.model.ComplianceProvider
 import com.lightspark.sdk.model.CreateApiTokenOutput
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.FeeEstimate
@@ -16,6 +17,8 @@ import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.model.InvoiceData
 import com.lightspark.sdk.model.InvoiceType
 import com.lightspark.sdk.model.OutgoingPayment
+import com.lightspark.sdk.model.PaymentDirection
+import com.lightspark.sdk.model.RiskRating
 import com.lightspark.sdk.model.WithdrawalMode
 import com.lightspark.sdk.model.WithdrawalRequest
 import java.util.concurrent.CompletableFuture
@@ -397,6 +400,48 @@ class LightsparkFuturesClient(config: ClientConfig) {
             encodedInvoice,
             amountMsats,
         )
+    }
+
+    /**
+     * Registers a payment with a compliance provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The compliance provider to register the payment with.
+     * @param paymentId The ID of the payment to register.
+     * @param nodePubKey The public key of the counterparty node which is the recipient node if the payment is an
+     *     outgoing payment and the sender node if the payment is an incoming payment.
+     * @param direction The direction of the payment.
+     * @return The ID of the registered payment.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun registerPayment(
+        complianceProvider: ComplianceProvider,
+        paymentId: String,
+        nodePubKey: String,
+        direction: PaymentDirection,
+    ): CompletableFuture<String> = coroutineScope.future {
+        coroutinesClient.registerPayment(
+            complianceProvider,
+            paymentId,
+            nodePubKey,
+            direction,
+        )
+    }
+
+    /**
+     * Performs sanction screening on a lightning node against a given provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The provider that you want to use to perform the screening.
+     * @param nodePubKey TThe public key of the node that needs to be screened.
+     * @return The risk rating of the node.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun screenNode(
+        complianceProvider: ComplianceProvider,
+        nodePubKey: String,
+    ): CompletableFuture<RiskRating> = coroutineScope.future {
+        coroutinesClient.screenNode(complianceProvider, nodePubKey)
     }
 
     /**
