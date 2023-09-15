@@ -33,14 +33,11 @@ import java.util.concurrent.atomic.AtomicLong
 
 @Structure.FieldOrder("capacity", "len", "data")
 open class RustBuffer : Structure() {
-    @JvmField
-    var capacity: Int = 0
+    @JvmField var capacity: Int = 0
 
-    @JvmField
-    var len: Int = 0
+    @JvmField var len: Int = 0
 
-    @JvmField
-    var data: Pointer? = null
+    @JvmField var data: Pointer? = null
 
     class ByValue : RustBuffer(), Structure.ByValue
 
@@ -49,7 +46,7 @@ open class RustBuffer : Structure() {
     companion object {
         internal fun alloc(size: Int = 0) =
             rustCall { status ->
-                _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_rustbuffer_alloc(size, status).also {
+                _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_rustbuffer_alloc(size, status).also {
                     if (it.data == null) {
                         throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=$size)")
                     }
@@ -58,7 +55,7 @@ open class RustBuffer : Structure() {
 
         internal fun free(buf: RustBuffer.ByValue) =
             rustCall { status ->
-                _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_rustbuffer_free(buf, status)
+                _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_rustbuffer_free(buf, status)
             }
     }
 
@@ -96,11 +93,9 @@ class RustBufferByReference : ByReference(16) {
 
 @Structure.FieldOrder("len", "data")
 open class ForeignBytes : Structure() {
-    @JvmField
-    var len: Int = 0
+    @JvmField var len: Int = 0
 
-    @JvmField
-    var data: Pointer? = null
+    @JvmField var data: Pointer? = null
 
     class ByValue : ForeignBytes(), Structure.ByValue
 }
@@ -187,11 +182,9 @@ public interface FfiConverterRustBuffer<KotlinType> : FfiConverter<KotlinType, R
 // Error runtime.
 @Structure.FieldOrder("code", "error_buf")
 internal open class RustCallStatus : Structure() {
-    @JvmField
-    var code: Int = 0
+    @JvmField var code: Int = 0
 
-    @JvmField
-    var error_buf: RustBuffer.ByValue = RustBuffer.ByValue()
+    @JvmField var error_buf: RustBuffer.ByValue = RustBuffer.ByValue()
 
     fun isSuccess(): Boolean {
         return code == 0
@@ -280,125 +273,131 @@ internal interface _UniFFILib : Library {
         }
     }
 
-    fun ffi_lightspark_crypto_6ac7_KeyPair_object_free(
+    fun ffi_lightspark_crypto_c5d6_KeyPair_object_free(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun lightspark_crypto_6ac7_KeyPair_get_public_key(
+    fun lightspark_crypto_c5d6_KeyPair_get_public_key(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_KeyPair_get_private_key(
+    fun lightspark_crypto_c5d6_KeyPair_get_private_key(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_Mnemonic_object_free(
+    fun ffi_lightspark_crypto_c5d6_Mnemonic_object_free(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun lightspark_crypto_6ac7_Mnemonic_random(_uniffi_out_err: RustCallStatus): Pointer
+    fun lightspark_crypto_c5d6_Mnemonic_random(_uniffi_out_err: RustCallStatus): Pointer
 
-    fun lightspark_crypto_6ac7_Mnemonic_from_entropy(
+    fun lightspark_crypto_c5d6_Mnemonic_from_entropy(
         `entropy`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_Mnemonic_from_phrase(
+    fun lightspark_crypto_c5d6_Mnemonic_from_phrase(
         `phrase`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_Mnemonic_as_string(
+    fun lightspark_crypto_c5d6_Mnemonic_as_string(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_Seed_object_free(
+    fun ffi_lightspark_crypto_c5d6_Seed_object_free(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun lightspark_crypto_6ac7_Seed_new(
+    fun lightspark_crypto_c5d6_Seed_new(
         `seed`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_Seed_from_mnemonic(
+    fun lightspark_crypto_c5d6_Seed_from_mnemonic(
         `mnemonic`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_Seed_as_bytes(
+    fun lightspark_crypto_c5d6_Seed_as_bytes(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_InvoiceSignature_object_free(
+    fun ffi_lightspark_crypto_c5d6_InvoiceSignature_object_free(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun lightspark_crypto_6ac7_InvoiceSignature_get_recovery_id(
+    fun lightspark_crypto_c5d6_InvoiceSignature_get_recovery_id(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Int
 
-    fun lightspark_crypto_6ac7_InvoiceSignature_get_signature(
+    fun lightspark_crypto_c5d6_InvoiceSignature_get_signature(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_LightsparkSigner_object_free(
+    fun ffi_lightspark_crypto_c5d6_LightsparkSigner_object_free(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_new(
+    fun lightspark_crypto_c5d6_LightsparkSigner_new(
         `seed`: Pointer,
         `network`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_from_bytes(
+    fun lightspark_crypto_c5d6_LightsparkSigner_from_bytes(
         `seed`: RustBuffer.ByValue,
         `network`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_get_master_public_key(
+    fun lightspark_crypto_c5d6_LightsparkSigner_get_master_public_key(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_derive_public_key(
+    fun lightspark_crypto_c5d6_LightsparkSigner_derive_public_key(
         `ptr`: Pointer,
         `derivationPath`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_ecdh(
+    fun lightspark_crypto_c5d6_LightsparkSigner_derive_private_key(
+        `ptr`: Pointer,
+        `derivationPath`: RustBuffer.ByValue,
+        _uniffi_out_err: RustCallStatus,
+    ): RustBuffer.ByValue
+
+    fun lightspark_crypto_c5d6_LightsparkSigner_ecdh(
         `ptr`: Pointer,
         `publicKey`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_sign_invoice(
+    fun lightspark_crypto_c5d6_LightsparkSigner_sign_invoice(
         `ptr`: Pointer,
         `unsignedInvoice`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_sign_invoice_hash(
+    fun lightspark_crypto_c5d6_LightsparkSigner_sign_invoice_hash(
         `ptr`: Pointer,
         `unsignedInvoice`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Pointer
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_derive_key_and_sign(
+    fun lightspark_crypto_c5d6_LightsparkSigner_derive_key_and_sign(
         `ptr`: Pointer,
         `message`: RustBuffer.ByValue,
         `derivationPath`: RustBuffer.ByValue,
@@ -408,80 +407,80 @@ internal interface _UniFFILib : Library {
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_get_per_commitment_point(
+    fun lightspark_crypto_c5d6_LightsparkSigner_get_per_commitment_point(
         `ptr`: Pointer,
         `derivationPath`: RustBuffer.ByValue,
         `perCommitmentPointIdx`: Long,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_release_per_commitment_secret(
+    fun lightspark_crypto_c5d6_LightsparkSigner_release_per_commitment_secret(
         `ptr`: Pointer,
         `derivationPath`: RustBuffer.ByValue,
         `perCommitmentPointIdx`: Long,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_generate_preimage_nonce(
+    fun lightspark_crypto_c5d6_LightsparkSigner_generate_preimage_nonce(
         `ptr`: Pointer,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_LightsparkSigner_generate_preimage(
-        `ptr`: Pointer,
-        `nonce`: RustBuffer.ByValue,
-        _uniffi_out_err: RustCallStatus,
-    ): RustBuffer.ByValue
-
-    fun lightspark_crypto_6ac7_LightsparkSigner_generate_preimage_hash(
+    fun lightspark_crypto_c5d6_LightsparkSigner_generate_preimage(
         `ptr`: Pointer,
         `nonce`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_sign_ecdsa(
+    fun lightspark_crypto_c5d6_LightsparkSigner_generate_preimage_hash(
+        `ptr`: Pointer,
+        `nonce`: RustBuffer.ByValue,
+        _uniffi_out_err: RustCallStatus,
+    ): RustBuffer.ByValue
+
+    fun lightspark_crypto_c5d6_sign_ecdsa(
         `msg`: RustBuffer.ByValue,
         `privateKeyBytes`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_verify_ecdsa(
+    fun lightspark_crypto_c5d6_verify_ecdsa(
         `msg`: RustBuffer.ByValue,
         `signatureBytes`: RustBuffer.ByValue,
         `publicKeyBytes`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Byte
 
-    fun lightspark_crypto_6ac7_encrypt_ecies(
+    fun lightspark_crypto_c5d6_encrypt_ecies(
         `msg`: RustBuffer.ByValue,
         `publicKeyBytes`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_decrypt_ecies(
+    fun lightspark_crypto_c5d6_decrypt_ecies(
         `cipherText`: RustBuffer.ByValue,
         `privateKeyBytes`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun lightspark_crypto_6ac7_generate_keypair(_uniffi_out_err: RustCallStatus): Pointer
+    fun lightspark_crypto_c5d6_generate_keypair(_uniffi_out_err: RustCallStatus): Pointer
 
-    fun ffi_lightspark_crypto_6ac7_rustbuffer_alloc(
+    fun ffi_lightspark_crypto_c5d6_rustbuffer_alloc(
         `size`: Int,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_rustbuffer_from_bytes(
+    fun ffi_lightspark_crypto_c5d6_rustbuffer_from_bytes(
         `bytes`: ForeignBytes.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): RustBuffer.ByValue
 
-    fun ffi_lightspark_crypto_6ac7_rustbuffer_free(
+    fun ffi_lightspark_crypto_c5d6_rustbuffer_free(
         `buf`: RustBuffer.ByValue,
         _uniffi_out_err: RustCallStatus,
     ): Unit
 
-    fun ffi_lightspark_crypto_6ac7_rustbuffer_reserve(
+    fun ffi_lightspark_crypto_c5d6_rustbuffer_reserve(
         `buf`: RustBuffer.ByValue,
         `additional`: Int,
         _uniffi_out_err: RustCallStatus,
@@ -641,7 +640,6 @@ public object FfiConverterString : FfiConverter<String, RustBuffer.ByValue> {
 // helper method to execute a block and destroy the object at the end.
 interface Disposable {
     fun destroy()
-
     companion object {
         fun destroy(vararg args: Any?) {
             args.filterIsInstance<Disposable>()
@@ -812,14 +810,14 @@ class InvoiceSignature(
      */
     protected override fun freeRustArcPtr() {
         rustCall { status ->
-            _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_InvoiceSignature_object_free(this.pointer, status)
+            _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_InvoiceSignature_object_free(this.pointer, status)
         }
     }
 
     override fun `getRecoveryId`(): Int =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_InvoiceSignature_get_recovery_id(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_InvoiceSignature_get_recovery_id(it, _status)
             }
         }.let {
             FfiConverterInt.lift(it)
@@ -828,7 +826,7 @@ class InvoiceSignature(
     override fun `getSignature`(): List<UByte> =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_InvoiceSignature_get_signature(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_InvoiceSignature_get_signature(it, _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -879,14 +877,14 @@ class KeyPair(
      */
     protected override fun freeRustArcPtr() {
         rustCall { status ->
-            _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_KeyPair_object_free(this.pointer, status)
+            _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_KeyPair_object_free(this.pointer, status)
         }
     }
 
     override fun `getPublicKey`(): List<UByte> =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_KeyPair_get_public_key(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_KeyPair_get_public_key(it, _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -895,7 +893,7 @@ class KeyPair(
     override fun `getPrivateKey`(): List<UByte> =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_KeyPair_get_private_key(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_KeyPair_get_private_key(it, _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -933,6 +931,9 @@ public interface LightsparkSignerInterface {
 
     @Throws(LightsparkSignerException::class)
     fun `derivePublicKey`(`derivationPath`: String): String
+
+    @Throws(LightsparkSignerException::class)
+    fun `derivePrivateKey`(`derivationPath`: String): String
 
     @Throws(LightsparkSignerException::class)
     fun `ecdh`(`publicKey`: List<UByte>): List<UByte>
@@ -979,7 +980,7 @@ class LightsparkSigner(
     constructor(`seed`: Seed, `network`: Network) :
         this(
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_new(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_new(
                     FfiConverterTypeSeed.lower(`seed`),
                     FfiConverterTypeNetwork.lower(`network`),
                     _status,
@@ -997,17 +998,17 @@ class LightsparkSigner(
      */
     protected override fun freeRustArcPtr() {
         rustCall { status ->
-            _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_LightsparkSigner_object_free(this.pointer, status)
+            _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_LightsparkSigner_object_free(this.pointer, status)
         }
     }
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `getMasterPublicKey`(): String =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_get_master_public_key(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_get_master_public_key(it, _status)
             }
         }.let {
             FfiConverterString.lift(it)
@@ -1015,11 +1016,11 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `derivePublicKey`(`derivationPath`: String): String =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_derive_public_key(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_derive_public_key(
                     it,
                     FfiConverterString.lower(`derivationPath`),
                     _status,
@@ -1031,11 +1032,27 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
+    override fun `derivePrivateKey`(`derivationPath`: String): String =
+        callWithPointer {
+            rustCallWithError(LightsparkSignerException) { _status ->
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_derive_private_key(
+                    it,
+                    FfiConverterString.lower(`derivationPath`),
+                    _status,
+                )
+            }
+        }.let {
+            FfiConverterString.lift(it)
+        }
+
+    @Throws(
+        LightsparkSignerException::class,
+        )
     override fun `ecdh`(`publicKey`: List<UByte>): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_ecdh(it, FfiConverterSequenceUByte.lower(`publicKey`), _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_ecdh(it, FfiConverterSequenceUByte.lower(`publicKey`), _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -1043,11 +1060,11 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `signInvoice`(`unsignedInvoice`: String): InvoiceSignature =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_sign_invoice(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_sign_invoice(
                     it,
                     FfiConverterString.lower(`unsignedInvoice`),
                     _status,
@@ -1059,11 +1076,11 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `signInvoiceHash`(`unsignedInvoice`: List<UByte>): InvoiceSignature =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_sign_invoice_hash(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_sign_invoice_hash(
                     it,
                     FfiConverterSequenceUByte.lower(`unsignedInvoice`),
                     _status,
@@ -1075,7 +1092,7 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `deriveKeyAndSign`(
         `message`: List<UByte>,
         `derivationPath`: String,
@@ -1085,7 +1102,7 @@ class LightsparkSigner(
     ): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_derive_key_and_sign(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_derive_key_and_sign(
                     it,
                     FfiConverterSequenceUByte.lower(`message`),
                     FfiConverterString.lower(`derivationPath`),
@@ -1101,14 +1118,14 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `getPerCommitmentPoint`(
         `derivationPath`: String,
         `perCommitmentPointIdx`: ULong,
     ): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_get_per_commitment_point(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_get_per_commitment_point(
                     it,
                     FfiConverterString.lower(`derivationPath`),
                     FfiConverterULong.lower(`perCommitmentPointIdx`),
@@ -1121,14 +1138,14 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `releasePerCommitmentSecret`(
         `derivationPath`: String,
         `perCommitmentPointIdx`: ULong,
     ): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_release_per_commitment_secret(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_release_per_commitment_secret(
                     it,
                     FfiConverterString.lower(`derivationPath`),
                     FfiConverterULong.lower(`perCommitmentPointIdx`),
@@ -1142,7 +1159,7 @@ class LightsparkSigner(
     override fun `generatePreimageNonce`(): List<UByte> =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_generate_preimage_nonce(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_generate_preimage_nonce(it, _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -1150,11 +1167,11 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `generatePreimage`(`nonce`: List<UByte>): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_generate_preimage(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_generate_preimage(
                     it,
                     FfiConverterSequenceUByte.lower(`nonce`),
                     _status,
@@ -1166,11 +1183,11 @@ class LightsparkSigner(
 
     @Throws(
         LightsparkSignerException::class,
-    )
+        )
     override fun `generatePreimageHash`(`nonce`: List<UByte>): List<UByte> =
         callWithPointer {
             rustCallWithError(LightsparkSignerException) { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_generate_preimage_hash(
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_generate_preimage_hash(
                     it,
                     FfiConverterSequenceUByte.lower(`nonce`),
                     _status,
@@ -1187,7 +1204,7 @@ class LightsparkSigner(
         ): LightsparkSigner =
             LightsparkSigner(
                 rustCallWithError(LightsparkSignerException) { _status ->
-                    _UniFFILib.INSTANCE.lightspark_crypto_6ac7_LightsparkSigner_from_bytes(
+                    _UniFFILib.INSTANCE.lightspark_crypto_c5d6_LightsparkSigner_from_bytes(
                         FfiConverterSequenceUByte.lower(`seed`),
                         FfiConverterTypeNetwork.lower(`network`),
                         _status,
@@ -1239,14 +1256,14 @@ class Mnemonic(
      */
     protected override fun freeRustArcPtr() {
         rustCall { status ->
-            _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_Mnemonic_object_free(this.pointer, status)
+            _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_Mnemonic_object_free(this.pointer, status)
         }
     }
 
     override fun `asString`(): String =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Mnemonic_as_string(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Mnemonic_as_string(it, _status)
             }
         }.let {
             FfiConverterString.lift(it)
@@ -1256,21 +1273,21 @@ class Mnemonic(
         fun `random`(): Mnemonic =
             Mnemonic(
                 rustCallWithError(LightsparkSignerException) { _status ->
-                    _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Mnemonic_random(_status)
+                    _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Mnemonic_random(_status)
                 },
             )
 
         fun `fromEntropy`(`entropy`: List<UByte>): Mnemonic =
             Mnemonic(
                 rustCallWithError(LightsparkSignerException) { _status ->
-                    _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Mnemonic_from_entropy(FfiConverterSequenceUByte.lower(`entropy`), _status)
+                    _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Mnemonic_from_entropy(FfiConverterSequenceUByte.lower(`entropy`), _status)
                 },
             )
 
         fun `fromPhrase`(`phrase`: String): Mnemonic =
             Mnemonic(
                 rustCallWithError(LightsparkSignerException) { _status ->
-                    _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Mnemonic_from_phrase(FfiConverterString.lower(`phrase`), _status)
+                    _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Mnemonic_from_phrase(FfiConverterString.lower(`phrase`), _status)
                 },
             )
     }
@@ -1311,7 +1328,7 @@ class Seed(
     constructor(`seed`: List<UByte>) :
         this(
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Seed_new(FfiConverterSequenceUByte.lower(`seed`), _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Seed_new(FfiConverterSequenceUByte.lower(`seed`), _status)
             },
         )
 
@@ -1325,14 +1342,14 @@ class Seed(
      */
     protected override fun freeRustArcPtr() {
         rustCall { status ->
-            _UniFFILib.INSTANCE.ffi_lightspark_crypto_6ac7_Seed_object_free(this.pointer, status)
+            _UniFFILib.INSTANCE.ffi_lightspark_crypto_c5d6_Seed_object_free(this.pointer, status)
         }
     }
 
     override fun `asBytes`(): List<UByte> =
         callWithPointer {
             rustCall { _status ->
-                _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Seed_as_bytes(it, _status)
+                _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Seed_as_bytes(it, _status)
             }
         }.let {
             FfiConverterSequenceUByte.lift(it)
@@ -1342,7 +1359,7 @@ class Seed(
         fun `fromMnemonic`(`mnemonic`: Mnemonic): Seed =
             Seed(
                 rustCall { _status ->
-                    _UniFFILib.INSTANCE.lightspark_crypto_6ac7_Seed_from_mnemonic(FfiConverterTypeMnemonic.lower(`mnemonic`), _status)
+                    _UniFFILib.INSTANCE.lightspark_crypto_c5d6_Seed_from_mnemonic(FfiConverterTypeMnemonic.lower(`mnemonic`), _status)
                 },
             )
     }
@@ -1431,7 +1448,6 @@ public object FfiConverterTypeCryptoError : FfiConverterRustBuffer<CryptoExcepti
                 buf.putInt(1)
                 Unit
             }
-
             is CryptoException.RustSecp256k1Exception -> {
                 buf.putInt(2)
                 Unit
@@ -1454,8 +1470,7 @@ sealed class LightsparkSignerException(message: String) : Exception(message) {
     class EntropyLengthException(message: String) : LightsparkSignerException(message)
 
     companion object ErrorHandler : CallStatusErrorHandler<LightsparkSignerException> {
-        override fun lift(error_buf: RustBuffer.ByValue): LightsparkSignerException =
-            FfiConverterTypeLightsparkSignerError.lift(error_buf)
+        override fun lift(error_buf: RustBuffer.ByValue): LightsparkSignerException = FfiConverterTypeLightsparkSignerError.lift(error_buf)
     }
 }
 
@@ -1484,22 +1499,18 @@ public object FfiConverterTypeLightsparkSignerError : FfiConverterRustBuffer<Lig
                 buf.putInt(1)
                 Unit
             }
-
             is LightsparkSignerException.Secp256k1Exception -> {
                 buf.putInt(2)
                 Unit
             }
-
             is LightsparkSignerException.KeyDerivationException -> {
                 buf.putInt(3)
                 Unit
             }
-
             is LightsparkSignerException.KeyTweakException -> {
                 buf.putInt(4)
                 Unit
             }
-
             is LightsparkSignerException.EntropyLengthException -> {
                 buf.putInt(5)
                 Unit
@@ -1569,7 +1580,7 @@ fun `signEcdsa`(
 ): List<UByte> {
     return FfiConverterSequenceUByte.lift(
         rustCallWithError(CryptoException) { _status ->
-            _UniFFILib.INSTANCE.lightspark_crypto_6ac7_sign_ecdsa(
+            _UniFFILib.INSTANCE.lightspark_crypto_c5d6_sign_ecdsa(
                 FfiConverterSequenceUByte.lower(`msg`),
                 FfiConverterSequenceUByte.lower(`privateKeyBytes`),
                 _status,
@@ -1586,7 +1597,7 @@ fun `verifyEcdsa`(
 ): Boolean {
     return FfiConverterBoolean.lift(
         rustCallWithError(CryptoException) { _status ->
-            _UniFFILib.INSTANCE.lightspark_crypto_6ac7_verify_ecdsa(
+            _UniFFILib.INSTANCE.lightspark_crypto_c5d6_verify_ecdsa(
                 FfiConverterSequenceUByte.lower(`msg`),
                 FfiConverterSequenceUByte.lower(`signatureBytes`),
                 FfiConverterSequenceUByte.lower(`publicKeyBytes`),
@@ -1603,7 +1614,7 @@ fun `encryptEcies`(
 ): List<UByte> {
     return FfiConverterSequenceUByte.lift(
         rustCallWithError(CryptoException) { _status ->
-            _UniFFILib.INSTANCE.lightspark_crypto_6ac7_encrypt_ecies(
+            _UniFFILib.INSTANCE.lightspark_crypto_c5d6_encrypt_ecies(
                 FfiConverterSequenceUByte.lower(`msg`),
                 FfiConverterSequenceUByte.lower(`publicKeyBytes`),
                 _status,
@@ -1619,7 +1630,7 @@ fun `decryptEcies`(
 ): List<UByte> {
     return FfiConverterSequenceUByte.lift(
         rustCallWithError(CryptoException) { _status ->
-            _UniFFILib.INSTANCE.lightspark_crypto_6ac7_decrypt_ecies(
+            _UniFFILib.INSTANCE.lightspark_crypto_c5d6_decrypt_ecies(
                 FfiConverterSequenceUByte.lower(`cipherText`),
                 FfiConverterSequenceUByte.lower(`privateKeyBytes`),
                 _status,
@@ -1632,7 +1643,7 @@ fun `decryptEcies`(
 fun `generateKeypair`(): KeyPair {
     return FfiConverterTypeKeyPair.lift(
         rustCallWithError(CryptoException) { _status ->
-            _UniFFILib.INSTANCE.lightspark_crypto_6ac7_generate_keypair(_status)
+            _UniFFILib.INSTANCE.lightspark_crypto_c5d6_generate_keypair(_status)
         },
     )
 }

@@ -42,7 +42,8 @@ kotlin {
                 // Can use this while locally developing, but should use the published version when publishing:
                 // implementation(project(":core"))
                 api(libs.lightspark.core)
-                implementation(libs.lightspark.crypto)
+                // api(project(":crypto"))
+                api(libs.lightspark.crypto)
             }
         }
         val commonTest by getting {

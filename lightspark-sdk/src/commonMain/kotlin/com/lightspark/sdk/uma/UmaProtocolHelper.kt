@@ -2,8 +2,11 @@
 
 package com.lightspark.sdk.uma
 
+import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.crypto.Secp256k1
+import com.lightspark.sdk.crypto.internal.CryptoException
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
@@ -11,11 +14,13 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 import kotlin.random.Random
 import kotlin.random.nextULong
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
@@ -37,6 +42,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param vaspDomain The domain of the VASP whose public keys are being fetched.
      * @return The [PubKeyResponse] containing the public keys of the VASP.
      */
+    @Throws(Exception::class)
     fun fetchPublicKeysForVaspFuture(vaspDomain: String): Future<PubKeyResponse> = coroutineScope.future {
         fetchPublicKeysForVasp(vaspDomain)
     }
@@ -50,6 +56,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param vaspDomain The domain of the VASP whose public keys are being fetched.
      * @return The [PubKeyResponse] containing the public keys of the VASP.
      */
+    @Throws(Exception::class)
     fun fetchPublicKeysForVaspSync(vaspDomain: String): PubKeyResponse = runBlocking {
         fetchPublicKeysForVasp(vaspDomain)
     }
@@ -94,6 +101,8 @@ class UmaProtocolHelper @JvmOverloads constructor(
      *     for this SDK. For the version negotiation flow, see
      *     https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
      */
+    @JvmOverloads
+    @Throws(CryptoException::class)
     fun getSignedLnurlpRequestUrl(
         signingPrivateKey: ByteArray,
         receiverAddress: String,
@@ -241,6 +250,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param payerEmail The email of the sender (optional).
      * @return The [PayRequest] that should be sent to the receiver.
      */
+    @JvmOverloads
     fun getPayRequest(
         receiverEncryptionPubKey: ByteArray,
         sendingVaspPrivateKey: ByteArray,
@@ -310,6 +320,15 @@ class UmaProtocolHelper @JvmOverloads constructor(
         return Secp256k1.encryptEcies(travelRuleInfoJson.encodeToByteArray(), receiverEncryptionPubKey).toHexString()
     }
 
+    /**
+     * Parses a json requestBody into a [PayRequest].
+     *
+     * @param request The json requestBody sent by the sender.
+     * @return The [PayRequest] sent by the sender.
+     * @throws IllegalArgumentException if the requestBody is not a valid [PayRequest].
+     * @throws SerializationException if the requestBody is not a valid json.
+     */
+    @Throws(IllegalArgumentException::class, SerializationException::class)
     fun parseAsPayRequest(request: String): PayRequest {
         return serializerFormat.decodeFromString(request)
     }
@@ -337,29 +356,34 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
      *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
      *     invoice expires.
+     * @param receiverFeesMillisats The fees charged (in millisats) by the receiving VASP for this transaction. This
+     *     is separate from the [conversionRate].
      * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
      * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
      *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
      * @param utxoCallback The URL that the receiving VASP will call to send UTXOs of the channel that the receiver
      *     used to receive the payment once it completes.
-     * @return A [Future] [PayReqResponse] that should be returned to the sender for the given [PayRequest].
+     * @return A [CompletableFuture] [PayReqResponse] that should be returned to the sender for the given [PayRequest].
      */
+    @Throws(CryptoException::class, IllegalArgumentException::class, CancellationException::class)
     fun getPayReqResponseFuture(
         query: PayRequest,
         invoiceCreator: UmaInvoiceCreator,
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
+        receiverFeesMillisats: Long,
         receiverChannelUtxos: List<String>,
         receiverNodePubKey: String?,
         utxoCallback: String,
-    ): Future<PayReqResponse> = coroutineScope.future {
+    ): CompletableFuture<PayReqResponse> = coroutineScope.future {
         getPayReqResponse(
             query,
             invoiceCreator,
             metadata,
             currencyCode,
             conversionRate,
+            receiverFeesMillisats,
             receiverChannelUtxos,
             receiverNodePubKey,
             utxoCallback,
@@ -379,6 +403,8 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
      *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
      *     invoice expires.
+     * @param receiverFeesMillisats The fees charged (in millisats) by the receiving VASP for this transaction. This
+     *     is separate from the [conversionRate].
      * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
      * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
      *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
@@ -386,12 +412,14 @@ class UmaProtocolHelper @JvmOverloads constructor(
      *     used to receive the payment once it completes.
      * @return A [PayReqResponse] that should be returned to the sender for the given [PayRequest].
      */
+    @Throws(CryptoException::class, IllegalArgumentException::class, CancellationException::class)
     fun getPayReqResponseSync(
         query: PayRequest,
         invoiceCreator: UmaInvoiceCreator,
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
+        receiverFeesMillisats: Long,
         receiverChannelUtxos: List<String>,
         receiverNodePubKey: String?,
         utxoCallback: String,
@@ -402,6 +430,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
             metadata,
             currencyCode,
             conversionRate,
+            receiverFeesMillisats,
             receiverChannelUtxos,
             receiverNodePubKey,
             utxoCallback,
@@ -418,6 +447,8 @@ class UmaProtocolHelper @JvmOverloads constructor(
      * @param conversionRate The conversion rate. It is the numer of milli-satoshis per the smallest unit of the
      *     specified currency (for example: cents in USD). This rate is committed to by the receiving VASP until the
      *     invoice expires.
+     * @param receiverFeesMillisats The fees charged (in millisats) by the receiving VASP for this transaction. This
+     *     is separate from the [conversionRate].
      * @param receiverChannelUtxos The list of UTXOs of the receiver's channels that might be used to fund the payment.
      * @param receiverNodePubKey If known, the public key of the receiver's node. If supported by the sending VASP's
      *     compliance provider, this will be used to pre-screen the receiver's UTXOs for compliance purposes.
@@ -432,6 +463,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
         metadata: String,
         currencyCode: String,
         conversionRate: Long,
+        receiverFeesMillisats: Long,
         receiverChannelUtxos: List<String>,
         receiverNodePubKey: String?,
         utxoCallback: String,
@@ -452,6 +484,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
             paymentInfo = PayReqResponsePaymentInfo(
                 currencyCode = currencyCode,
                 multiplier = conversionRate,
+                exchangeFeesMillisatoshi = receiverFeesMillisats,
             ),
         )
     }
@@ -460,10 +493,12 @@ class UmaProtocolHelper @JvmOverloads constructor(
         return serializerFormat.decodeFromString(response)
     }
 
+    @Throws(CryptoException::class)
     private fun signPayload(payload: ByteArray, privateKey: ByteArray): String {
         return Secp256k1.signEcdsa(payload, privateKey).toHexString()
     }
 
+    @Throws(CryptoException::class)
     private fun verifySignature(payload: ByteArray, signature: String, publicKey: ByteArray): Boolean {
         return Secp256k1.verifyEcdsa(payload, signature.hexToByteArray(), publicKey)
     }
@@ -478,16 +513,35 @@ class UmaProtocolHelper @JvmOverloads constructor(
 }
 
 interface UmaInvoiceCreator {
-    // TODO: Figure out the async story here. Do we need a different implementation for each client type?
+    /**
+     * Creates an invoice with the given amount and encoded LNURL metadata.
+     *
+     * @param amountMsats The amount of the invoice in millisatoshis.
+     * @param metadata The metadata that will be added to the invoice's metadata hash field.
+     * @return The [Invoice] that should be returned to the sender for the given [PayRequest] wrapped in a
+     *     [CompletableFuture].
+     */
     fun createUmaInvoice(amountMsats: Long, metadata: String): CompletableFuture<Invoice>
 }
 
 class LightsparkClientUmaInvoiceCreator(
     private val client: LightsparkCoroutinesClient,
     private val nodeId: String,
+    private val expirySecs: Int,
 ) : UmaInvoiceCreator {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
+    constructor(apiClientId: String, apiClientSecret: String, nodeId: String, expirySecs: Int) : this(
+        LightsparkCoroutinesClient(
+            ClientConfig(
+                authProvider = AccountApiTokenAuthProvider(apiClientId, apiClientSecret),
+            ),
+        ),
+        nodeId,
+        expirySecs,
+    )
+
     override fun createUmaInvoice(amountMsats: Long, metadata: String) = coroutineScope.future {
-        client.createUmaInvoice(nodeId, amountMsats, metadata)
+        client.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs)
     }
 }

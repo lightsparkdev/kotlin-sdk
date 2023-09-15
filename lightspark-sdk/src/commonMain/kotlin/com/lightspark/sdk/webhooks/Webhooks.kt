@@ -29,6 +29,7 @@ data class WebhookEvent(
 )
 
 @OptIn(ExperimentalStdlibApi::class)
+@Throws(LightsparkException::class)
 fun verifyAndParseWebhook(
     data: ByteArray,
     hexDigest: String,

@@ -133,7 +133,7 @@ class Vasp1(
             return "Failed to parse lnurlp response."
         }
 
-        val vasp2PubKey = try {
+        val vasp2PubKeys = try {
             uma.fetchPublicKeysForVasp(receiverVasp)
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to fetch pubkeys", e)
@@ -142,7 +142,7 @@ class Vasp1(
         }
 
         try {
-            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKey)
+            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
             return "Failed to verify lnurlp response signature."
@@ -339,8 +339,9 @@ class Vasp1(
         payReqData: Vasp1PayReqData,
         call: ApplicationCall,
     ) {
-        val utxos = payment.umaPostTransactionData?.map { UtxoWithAmount(it.utxo, it.amount.toMilliSats()) }
-            ?: emptyList()
+        val utxos = payment.umaPostTransactionData?.map {
+            UtxoWithAmount(it.utxo, it.amount.toMilliSats())
+        } ?: emptyList()
         val postTxHookResponse = try {
             httpClient.post(payReqData.utxoCallback) {
                 contentType(ContentType.Application.Json)
