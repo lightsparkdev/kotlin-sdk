@@ -2,6 +2,8 @@ package com.lightspark.sdk.uma
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * The response sent by the receiver to the sender to provide an invoice.
@@ -19,7 +21,9 @@ data class PayReqResponse(
     val compliance: PayReqResponseCompliance,
     val paymentInfo: PayReqResponsePaymentInfo,
     val routes: List<Route> = emptyList(),
-)
+) {
+    fun toJson() = Json.encodeToString(this)
+}
 
 @Serializable
 data class Route(
@@ -57,9 +61,12 @@ data class PayReqResponseCompliance(
  * @property currencyCode The currency code that the receiver will receive for this payment.
  * @property multiplier The conversion rate. It is the number of millisatoshis that the receiver will receive for 1
  *     unit of the specified currency (eg: cents in USD)
+ * @property exchangeFeesMillisatoshi The fees charged (in millisats) by the receiving VASP for this transaction. This
+ * 	   is separate from the [multiplier].
  */
 @Serializable
 data class PayReqResponsePaymentInfo(
     val currencyCode: String,
     val multiplier: Long,
+    val exchangeFeesMillisatoshi: Long,
 )

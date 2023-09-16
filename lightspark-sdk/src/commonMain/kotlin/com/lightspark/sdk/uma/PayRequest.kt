@@ -2,6 +2,8 @@ package com.lightspark.sdk.uma
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * The request sent by the sender to the receiver to retrieve an invoice.
@@ -22,6 +24,8 @@ data class PayRequest(
         payerData.compliance?.let {
             "${payerData.identifier}|${it.signatureNonce}|${it.signatureTimestamp}".encodeToByteArray()
         } ?: "${payerData.identifier}".encodeToByteArray()
+
+    fun toJson() = Json.encodeToString(this)
 }
 
 @Serializable

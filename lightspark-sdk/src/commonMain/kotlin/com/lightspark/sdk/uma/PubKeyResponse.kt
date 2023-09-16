@@ -1,6 +1,8 @@
 package com.lightspark.sdk.uma
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * Response from another VASP when requesting public keys.
@@ -35,4 +37,6 @@ data class PubKeyResponse @JvmOverloads constructor(
         result = 31 * result + (expirationTimestamp?.hashCode() ?: 0)
         return result
     }
+
+    fun toJson() = Json.encodeToString(this)
 }

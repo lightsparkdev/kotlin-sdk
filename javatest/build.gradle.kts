@@ -13,6 +13,7 @@ java {
         implementation(project(":lightspark-sdk"))
         implementation(project(":wallet-sdk"))
         implementation(project(":core"))
+        implementation(project(":crypto"))
     }
 }
 
