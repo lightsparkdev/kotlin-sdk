@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * @property receiverKycStatus Indicates whether VASP2 has KYC information about the receiver.
  * @property isSubjectToTravelRule Indicates whether VASP2 is a financial institution that requires travel rule information.
  * @property receiverIdentifier The identifier of the receiver at VASP2.
- * @property signature The signature of the sender on the signable payload.
+ * @property signature The signature of the receiving VASP on the [signablePayload].
  * @property signatureNonce The nonce used in the signature.
  * @property signatureTimestamp The timestamp used in the signature.
  */
