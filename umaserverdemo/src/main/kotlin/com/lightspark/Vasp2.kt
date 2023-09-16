@@ -24,8 +24,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 class Vasp2(
     private val config: UmaConfig,
@@ -47,6 +45,8 @@ class Vasp2(
         val requestUrl = call.request.fullUrl()
         if (uma.isUmaLnurlpQuery(requestUrl)) {
             return handleUmaLnurlp(call)
+        } else {
+            call.respond("Only UMA Supported")
         }
 
         return "OK"
@@ -57,14 +57,7 @@ class Vasp2(
         val request = try {
             uma.parseLnurlpRequest(requestUrl)
         } catch (e: UnsupportedVersionException) {
-            call.respond(
-                HttpStatusCode.PreconditionFailed,
-                buildJsonObject {
-                    put("reason", "Unsupported version: ${e.unsupportedVersion}.")
-                    put("supportedMajorVersions", Json.encodeToString(e.supportedMajorVersions))
-                    put("unsupportedVersion", e.unsupportedVersion)
-                },
-            )
+            call.respond(HttpStatusCode.PreconditionFailed, e.toLnurlpResponseJson())
             return "Unsupported version: ${e.unsupportedVersion}."
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
@@ -74,14 +67,14 @@ class Vasp2(
         val pubKeys = try {
             uma.fetchPublicKeysForVasp(request.vaspDomain)
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
+            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys. ${e.message}")
             return "Failed to fetch public keys."
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys))
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys)) { "Invalid lnurlp signature." }
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature. ${e.message}")
             return "Invalid lnurlp signature."
         }
 
@@ -201,14 +194,16 @@ class Vasp2(
                 authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
             ),
         )
+        val expirySecs = 60 * 5
 
         val response = try {
             uma.getPayReqResponse(
                 query = request,
-                invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID),
+                invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID, expirySecs),
                 metadata = getEncodedMetadata(),
                 currencyCode = "USD",
                 conversionRate = conversionRate,
+                receiverFeesMillisats = 0,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
                 receiverNodePubKey = null,

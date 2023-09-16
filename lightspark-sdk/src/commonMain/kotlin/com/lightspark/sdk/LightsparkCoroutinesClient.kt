@@ -19,7 +19,7 @@ import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
 
-private const val SCHEMA_ENDPOINT = "graphql/server/2023-04-04"
+private const val SCHEMA_ENDPOINT = "graphql/server/2023-09-13"
 
 /**
  * Main entry point for the Lightspark SDK.
@@ -148,9 +148,6 @@ class LightsparkCoroutinesClient private constructor(
                 return@Query WalletDashboard(
                     accountJson["id"]!!.jsonPrimitive.content,
                     nodeJson["display_name"]!!.jsonPrimitive.content,
-                    nodeJson["purpose"]?.jsonPrimitive?.content?.let {
-                        LightsparkNodePurpose.valueOf(it)
-                    },
                     nodeJson["color"]?.jsonPrimitive?.content,
                     nodeJson["public_key"]?.jsonPrimitive?.content,
                     nodeJson["status"]?.jsonPrimitive?.content?.let {
@@ -825,6 +822,73 @@ class LightsparkCoroutinesClient private constructor(
                 val paymentJson =
                     requireNotNull(outputJson.jsonObject["payment"]) { "No payment found in response" }
                 serializerFormat.decodeFromJsonElement(paymentJson)
+            },
+        )
+    }
+
+    /**
+     * Registers a payment with a compliance provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The compliance provider to register the payment with.
+     * @param paymentId The ID of the payment to register.
+     * @param nodePubKey The public key of the counterparty node which is the recipient node if the payment is an
+     *     outgoing payment and the sender node if the payment is an incoming payment.
+     * @param direction The direction of the payment.
+     * @return The ID of the registered payment.
+     */
+    suspend fun registerPayment(
+        complianceProvider: ComplianceProvider,
+        paymentId: String,
+        nodePubKey: String,
+        direction: PaymentDirection,
+    ): String {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                RegisterPaymentMutation,
+                {
+                    add("provider", complianceProvider.rawValue)
+                    add("payment_id", paymentId)
+                    add("node_pubkey", nodePubKey)
+                    add("direction", direction.rawValue)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["register_payment"]) { "No payment output found in response" }
+                val paymentIdJson =
+                    requireNotNull(outputJson.jsonObject["payment"]?.jsonObject?.get("id")) { "No payment found in response" }
+                paymentIdJson.jsonPrimitive.content
+            },
+        )
+    }
+
+    /**
+     * Performs sanction screening on a lightning node against a given provider.
+     * This should only be called if you have a Compliance Provider's API Key in settings (like Chainalysis).
+     *
+     * @param complianceProvider The provider that you want to use to perform the screening.
+     * @param nodePubKey TThe public key of the node that needs to be screened.
+     * @return The risk rating of the node.
+     */
+    suspend fun screenNode(
+        complianceProvider: ComplianceProvider,
+        nodePubKey: String,
+    ): RiskRating {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                ScreenNodeMutation,
+                {
+                    add("provider", complianceProvider.rawValue)
+                    add("node_pubkey", nodePubKey)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["screen_node"]) { "No payment output found in response" }
+                val riskRatingJson =
+                    requireNotNull(outputJson.jsonObject["rating"]) { "No risk rating found in response" }
+                serializerFormat.decodeFromJsonElement(riskRatingJson)
             },
         )
     }

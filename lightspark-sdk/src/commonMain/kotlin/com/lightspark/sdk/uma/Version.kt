@@ -1,5 +1,10 @@
 package com.lightspark.sdk.uma
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
 const val MAJOR_VERSION = 0
 const val MINOR_VERSION = 1
 const val UMA_VERSION_STRING = "$MAJOR_VERSION.$MINOR_VERSION"
@@ -41,7 +46,15 @@ data class Version(val major: Int, val minor: Int) : Comparable<Version> {
 class UnsupportedVersionException(
     val unsupportedVersion: String,
     val supportedMajorVersions: Set<Int> = supportedMajorVersions(),
-) : Exception("Unsupported version: $unsupportedVersion. Supported major versions: $supportedMajorVersions")
+) : Exception("Unsupported version: $unsupportedVersion. Supported major versions: $supportedMajorVersions") {
+    fun toLnurlpResponseJson(): String {
+        return buildJsonObject {
+            put("reason", "Unsupported version: ${unsupportedVersion}.")
+            put("supportedMajorVersions", Json.encodeToString(supportedMajorVersions))
+            put("unsupportedVersion", unsupportedVersion)
+        }.toString()
+    }
+}
 
 fun isVersionSupported(versionString: String): Boolean {
     val version = try {

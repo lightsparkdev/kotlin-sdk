@@ -38,13 +38,13 @@ data class UmaConfig(
                     ?: error("LIGHTSPARK_UMA_RECEIVER_USER not set"),
                 // Static UUID so that callback URLs are always the same.
                 userID = "4b41ae03-01b8-4974-8d26-26a35d28851b",
-                umaEncryptionPubKeyHex = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY")
+                umaEncryptionPubKeyHex = "04f76978c7ad636928dcba0202b8d602a7ba12921ccd1ca7f312ceac93cee747c0c5d5dbae9b3f841607ebc18ace0dfaa2cb87a0e976b3ac70f72102a3c0e8aeab"// System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY")
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY not set"),
-                umaEncryptionPrivKeyHex = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY")
+                umaEncryptionPrivKeyHex = "97e004e98c59cc673ac0511cb1f8b249b1e5d1b20d98e6af0591800a6376805f" // System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY not set"),
-                umaSigningPubKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PUBKEY")
+                umaSigningPubKeyHex = "04f76978c7ad636928dcba0202b8d602a7ba12921ccd1ca7f312ceac93cee747c0c5d5dbae9b3f841607ebc18ace0dfaa2cb87a0e976b3ac70f72102a3c0e8aeab" //System.getenv("LIGHTSPARK_UMA_SIGNING_PUBKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PUBKEY not set"),
-                umaSigningPrivKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PRIVKEY")
+                umaSigningPrivKeyHex = "97e004e98c59cc673ac0511cb1f8b249b1e5d1b20d98e6af0591800a6376805f" // System.getenv("LIGHTSPARK_UMA_SIGNING_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PRIVKEY not set"),
                 clientBaseURL = System.getenv("LIGHTSPARK_EXAMPLE_BASE_URL"),
             )

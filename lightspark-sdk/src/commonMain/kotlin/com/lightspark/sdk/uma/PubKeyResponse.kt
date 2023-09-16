@@ -1,6 +1,8 @@
 package com.lightspark.sdk.uma
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * Response from another VASP when requesting public keys.
@@ -11,7 +13,7 @@ import kotlinx.serialization.Serializable
  *     They can be safely cached until this expiration (or forever if null).
  */
 @Serializable
-data class PubKeyResponse(
+data class PubKeyResponse @JvmOverloads constructor(
     val signingPubKey: ByteArray,
     val encryptionPubKey: ByteArray,
     val expirationTimestamp: Long? = null,
@@ -35,4 +37,6 @@ data class PubKeyResponse(
         result = 31 * result + (expirationTimestamp?.hashCode() ?: 0)
         return result
     }
+
+    fun toJson() = Json.encodeToString(this)
 }

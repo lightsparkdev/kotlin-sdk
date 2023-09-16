@@ -11,11 +11,11 @@ data class AccountDashboard(
     @SerialName("dashboard_overview_nodes")
     val nodeConnection: AccountNodesConnection?,
     @SerialName("blockchain_balance")
-    val blockchainBalance: BlockchainBalance,
+    val blockchainBalance: BlockchainBalance?,
     @SerialName("local_balance")
-    val localBalance: CurrencyAmount,
+    val localBalance: CurrencyAmount?,
     @SerialName("remote_balance")
-    val remoteBalance: CurrencyAmount,
+    val remoteBalance: CurrencyAmount?,
 )
 
 @Serializable
@@ -32,7 +32,6 @@ data class AccountNode(
     val color: String?,
     @SerialName("display_name")
     val displayName: String,
-    val purpose: LightsparkNodePurpose?,
     @SerialName("public_key")
     val publicKey: String?,
     val status: LightsparkNodeStatus?,
@@ -69,7 +68,6 @@ const val AccountDashboardQuery = """
         account_to_nodes_connection_entities: entities {
           color
           display_name
-          purpose
           id
           addresses(first: 1) {
             node_to_addresses_connection_entities: entities {

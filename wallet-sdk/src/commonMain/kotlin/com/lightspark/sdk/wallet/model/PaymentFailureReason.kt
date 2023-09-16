@@ -6,9 +6,9 @@ package com.lightspark.sdk.wallet.model
 import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
+/** This is an enum of the potential reasons why an OutgoingPayment sent from a Lightspark Node may have failed. **/
 @Serializable(with = PaymentFailureReasonSerializer::class)
 enum class PaymentFailureReason(val rawValue: String) {
-
     NONE("NONE"),
 
     TIMEOUT("TIMEOUT"),

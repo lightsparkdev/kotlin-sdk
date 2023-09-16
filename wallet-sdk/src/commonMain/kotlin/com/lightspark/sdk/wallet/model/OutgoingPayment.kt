@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- * A transaction that was sent from a Lightspark node on the Lightning Network.
+ * This object represents a Lightning Network payment sent from a Lightspark Node. You can retrieve this object to receive payment related information about any payment sent from your Lightspark Node on the Lightning Network.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @param createdAt The date and time when this transaction was initiated.
  * @param updatedAt The date and time when the entity was last updated.
@@ -28,7 +28,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 @Serializable
 @SerialName("OutgoingPayment")
 data class OutgoingPayment(
-
     @SerialName("outgoing_payment_id")
     override val id: String,
     @SerialName("outgoing_payment_created_at")
@@ -52,7 +51,6 @@ data class OutgoingPayment(
     @SerialName("outgoing_payment_failure_message")
     val failureMessage: RichText? = null,
 ) : LightningTransaction, Transaction, Entity {
-
     companion object {
         @JvmStatic
         fun getOutgoingPaymentQuery(id: String): Query<OutgoingPayment> {

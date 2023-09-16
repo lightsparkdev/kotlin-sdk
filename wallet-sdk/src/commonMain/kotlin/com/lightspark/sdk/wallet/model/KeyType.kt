@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable(with = KeyTypeSerializer::class)
 enum class KeyType(val rawValue: String) {
-
     RSA_OAEP("RSA_OAEP"),
 
     /**

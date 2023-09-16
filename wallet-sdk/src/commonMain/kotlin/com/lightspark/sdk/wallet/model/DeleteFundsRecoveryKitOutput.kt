@@ -12,13 +12,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("DeleteFundsRecoveryKitOutput")
 data class DeleteFundsRecoveryKitOutput(
-
     @SerialName("delete_funds_recovery_kit_output_wallet")
     val walletId: EntityId,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment DeleteFundsRecoveryKitOutputFragment on DeleteFundsRecoveryKitOutput {
     type: __typename

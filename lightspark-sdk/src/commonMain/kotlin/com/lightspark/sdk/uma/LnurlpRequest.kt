@@ -15,7 +15,6 @@ import io.ktor.http.URLProtocol
  * @param timestamp The unix timestamp in seconds of the moment when the request was sent. Used in the signature.
  * @param umaVersion  The version of the UMA protocol that VASP1 prefers to use for this transaction. For the version
  *     negotiation flow, see https://static.swimlanes.io/87f5d188e080cb8e0494e46f80f2ae74.png
- * @throws IllegalArgumentException if the receiverAddress is not in the format of "user@domain".
  */
 data class LnurlpRequest(
     val receiverAddress: String,
@@ -26,6 +25,10 @@ data class LnurlpRequest(
     val timestamp: Long,
     val umaVersion: String,
 ) {
+    /**
+     * Encodes the request to a URL that can be used to send the request to VASP2.
+     * @throws IllegalArgumentException if the receiverAddress is not in the format of "$user@domain.com".
+     */
     fun encodeToUrl(): String {
         val receiverAddressParts = receiverAddress.split("@")
         if (receiverAddressParts.size != 2) {
@@ -42,6 +45,7 @@ data class LnurlpRequest(
                 append("signature", signature)
                 append("isSubjectToTravelRule", isSubjectToTravelRule.toString())
                 append("timestamp", timestamp.toString())
+                append("umaVersion", umaVersion)
             },
         ).build()
         return url.toString()
@@ -63,7 +67,7 @@ data class LnurlpRequest(
             ) {
                 throw IllegalArgumentException("Invalid uma request path: $url")
             }
-            val receiverAddress = "${urlBuilder.host}@${urlBuilder.pathSegments[3]}"
+            val receiverAddress = "${urlBuilder.pathSegments[3]}@${urlBuilder.host}"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]

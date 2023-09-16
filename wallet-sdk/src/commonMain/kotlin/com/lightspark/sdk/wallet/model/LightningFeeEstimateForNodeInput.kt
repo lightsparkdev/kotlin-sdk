@@ -14,12 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LightningFeeEstimateForNodeInput")
 data class LightningFeeEstimateForNodeInput(
-
     val destinationNodePublicKey: String,
-
     val amountMsats: Long,
 ) {
-
     companion object {
     }
 }

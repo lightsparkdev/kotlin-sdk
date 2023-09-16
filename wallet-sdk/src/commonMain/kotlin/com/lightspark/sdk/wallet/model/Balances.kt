@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- *
+ * This is an object representing the balance associated with your Lightspark account. You can retrieve this object to see your balance, which can be broken down into several different categorizations.
  * @param ownedBalance This represents the balance that should be displayed when asked "how much do I own right now?".
 
 It represents the amount currently owned, including things that may not be owned soon (e.g. in-flight outgoing payments, in-flight withdrawals, commit fees, etc.). It really is a snapshot of what is officially owned at this instant.
@@ -21,7 +21,6 @@ It represents the amount currently available to withdraw and is usually equal to
 @Serializable
 @SerialName("Balances")
 data class Balances(
-
     @SerialName("balances_owned_balance")
     val ownedBalance: CurrencyAmount,
     @SerialName("balances_available_to_send_balance")
@@ -29,9 +28,7 @@ data class Balances(
     @SerialName("balances_available_to_withdraw_balance")
     val availableToWithdrawBalance: CurrencyAmount,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment BalancesFragment on Balances {
     type: __typename

@@ -7,20 +7,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- *
+ * This object represents the estimated L1 transaction fees for the Bitcoin network. Fee estimates are separated by potential confirmation speeds for settlement.
  */
 @Serializable
 @SerialName("FeeEstimate")
 data class FeeEstimate(
-
     @SerialName("fee_estimate_fee_fast")
     val feeFast: CurrencyAmount,
     @SerialName("fee_estimate_fee_min")
     val feeMin: CurrencyAmount,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment FeeEstimateFragment on FeeEstimate {
     type: __typename

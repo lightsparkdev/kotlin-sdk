@@ -11,7 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
- *
+ * This is an object representing a transaction made over the Lightning Network. You can retrieve this object to receive information about a specific transaction made over Lightning for a Lightspark node.
  * @property id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
  * @property createdAt The date and time when this transaction was initiated.
  * @property updatedAt The date and time when the entity was last updated.
@@ -21,7 +21,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  */
 interface LightningTransaction : Transaction, Entity {
-
     @SerialName("lightning_transaction_id")
     override val id: String
 

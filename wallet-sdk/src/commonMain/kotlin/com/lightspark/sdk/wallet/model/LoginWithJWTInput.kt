@@ -12,12 +12,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("LoginWithJWTInput")
 data class LoginWithJWTInput(
-
     val accountId: String,
-
     val jwt: String,
 ) {
-
     companion object {
     }
 }

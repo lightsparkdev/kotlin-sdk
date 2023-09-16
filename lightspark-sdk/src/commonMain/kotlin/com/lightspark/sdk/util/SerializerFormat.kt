@@ -24,6 +24,8 @@ import com.lightspark.sdk.model.LightningTransaction
 import com.lightspark.sdk.model.LightsparkNode
 import com.lightspark.sdk.model.LightsparkNodeOwner
 import com.lightspark.sdk.model.LightsparkNodeToChannelsConnection
+import com.lightspark.sdk.model.LightsparkNodeWithOSK
+import com.lightspark.sdk.model.LightsparkNodeWithRemoteSigning
 import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OnChainTransaction
 import com.lightspark.sdk.model.OutgoingPayment
@@ -33,6 +35,8 @@ import com.lightspark.sdk.model.OutgoingPaymentToAttemptsConnection
 import com.lightspark.sdk.model.PaymentRequest
 import com.lightspark.sdk.model.PaymentRequestData
 import com.lightspark.sdk.model.RoutingTransaction
+import com.lightspark.sdk.model.Signable
+import com.lightspark.sdk.model.SignablePayload
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.Wallet
 import com.lightspark.sdk.model.WalletToPaymentRequestsConnection
@@ -71,10 +75,13 @@ private val serializerModule =
             subclass(IncomingPayment::class)
             subclass(IncomingPaymentAttempt::class)
             subclass(Invoice::class)
-            subclass(LightsparkNode::class)
+            subclass(LightsparkNodeWithOSK::class)
+            subclass(LightsparkNodeWithRemoteSigning::class)
             subclass(OutgoingPayment::class)
             subclass(OutgoingPaymentAttempt::class)
             subclass(RoutingTransaction::class)
+            subclass(Signable::class)
+            subclass(SignablePayload::class)
             subclass(Wallet::class)
             subclass(Withdrawal::class)
             subclass(WithdrawalRequest::class)
@@ -84,13 +91,18 @@ private val serializerModule =
             subclass(OutgoingPayment::class)
             subclass(RoutingTransaction::class)
         }
+        polymorphic(LightsparkNode::class) {
+            subclass(LightsparkNodeWithOSK::class)
+            subclass(LightsparkNodeWithRemoteSigning::class)
+        }
         polymorphic(LightsparkNodeOwner::class) {
             subclass(Account::class)
             subclass(Wallet::class)
         }
         polymorphic(Node::class) {
             subclass(GraphNode::class)
-            subclass(LightsparkNode::class)
+            subclass(LightsparkNodeWithOSK::class)
+            subclass(LightsparkNodeWithRemoteSigning::class)
         }
         polymorphic(OnChainTransaction::class) {
             subclass(ChannelClosingTransaction::class)

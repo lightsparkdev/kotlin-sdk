@@ -13,13 +13,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("RequestWithdrawalOutput")
 data class RequestWithdrawalOutput(
-
     @SerialName("request_withdrawal_output_request")
     val requestId: EntityId,
 ) {
-
     companion object {
-
         const val FRAGMENT = """
 fragment RequestWithdrawalOutputFragment on RequestWithdrawalOutput {
     type: __typename

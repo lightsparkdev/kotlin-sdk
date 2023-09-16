@@ -9,7 +9,9 @@ import com.lightspark.sdk.uma.LnurlpResponse
 import com.lightspark.sdk.uma.PayReqResponse
 import com.lightspark.sdk.uma.PayerDataOptions
 import com.lightspark.sdk.uma.UmaProtocolHelper
+import com.lightspark.sdk.uma.UtxoWithAmount
 import com.lightspark.sdk.uma.selectHighestSupportedVersion
+import com.lightspark.sdk.util.toMilliSats
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -30,6 +32,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -130,7 +133,7 @@ class Vasp1(
             return "Failed to parse lnurlp response."
         }
 
-        val vasp2PubKey = try {
+        val vasp2PubKeys = try {
             uma.fetchPublicKeysForVasp(receiverVasp)
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to fetch pubkeys", e)
@@ -139,7 +142,7 @@ class Vasp1(
         }
 
         try {
-            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKey)
+            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
             return "Failed to verify lnurlp response signature."
@@ -239,7 +242,7 @@ class Vasp1(
             return "Failed to parse payreq response."
         }
 
-        // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.ytxos
+        // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.utxos
 
         val invoice = try {
             lightsparkClient.decodeInvoice(payReqResponse.encodedInvoice)
@@ -318,6 +321,8 @@ class Vasp1(
             return "Failed to pay invoice."
         }
 
+        sendPostTransactionCallback(payment, payReqData, call)
+
         call.respond(
             buildJsonObject {
                 put("didSucceed", (payment.status == TransactionStatus.SUCCESS))
@@ -326,6 +331,35 @@ class Vasp1(
         )
 
         return "OK"
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private suspend fun sendPostTransactionCallback(
+        payment: OutgoingPayment,
+        payReqData: Vasp1PayReqData,
+        call: ApplicationCall,
+    ) {
+        val utxos = payment.umaPostTransactionData?.map {
+            UtxoWithAmount(it.utxo, it.amount.toMilliSats())
+        } ?: emptyList()
+        val postTxHookResponse = try {
+            httpClient.post(payReqData.utxoCallback) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    buildJsonObject {
+                        putJsonArray("utxos") {
+                            addAll(utxos.map { Json.encodeToJsonElement(it) })
+                        }
+                    },
+                )
+            }
+        } catch (e: Exception) {
+            call.errorLog("Failed to post tx hook", e)
+            null
+        }
+        if (postTxHookResponse?.status != HttpStatusCode.OK) {
+            call.errorLog("Failed to post tx hook: ${postTxHookResponse?.status}")
+        }
     }
 
     // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.

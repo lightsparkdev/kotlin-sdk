@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
@@ -39,14 +40,18 @@ data class LnurlpResponse(
     val compliance: LnurlComplianceResponse,
     val umaVersion: String,
     val tag: String = "payRequest",
-)
+) {
+    fun toJson() = Json.encodeToString(this)
+}
 
 @Serializable(with = PayerDataOptionsSerializer::class)
 data class PayerDataOptions(
     val nameRequired: Boolean,
     val emailRequired: Boolean,
     val complianceRequired: Boolean,
-)
+) {
+    fun toJson() = Json.encodeToString(this)
+}
 
 // Custom serializer for PayerDataOptions
 class PayerDataOptionsSerializer : KSerializer<PayerDataOptions> {

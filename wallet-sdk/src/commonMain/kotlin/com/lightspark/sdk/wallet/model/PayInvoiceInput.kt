@@ -16,16 +16,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("PayInvoiceInput")
 data class PayInvoiceInput(
-
     val encodedInvoice: String,
-
     val timeoutSecs: Int,
-
     val maximumFeesMsats: Long,
-
     val amountMsats: Long? = null,
 ) {
-
     companion object {
     }
 }

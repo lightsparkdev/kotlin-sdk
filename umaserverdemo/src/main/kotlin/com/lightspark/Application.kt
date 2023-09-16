@@ -15,6 +15,5 @@ fun Application.module() {
     val config = UmaConfig.fromEnv()
     configureHTTP()
     configureMonitoring()
-    configureSecurity()
     configureRouting(config)
 }

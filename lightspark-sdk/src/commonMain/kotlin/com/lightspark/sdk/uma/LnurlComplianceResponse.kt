@@ -3,7 +3,7 @@ package com.lightspark.sdk.uma
 import kotlinx.serialization.Serializable
 
 /**
- * The `compliance` field of the [LnurlpResponse].
+ * The [compliance] field of the [LnurlpResponse].
  *
  * @property receiverKycStatus Indicates whether VASP2 has KYC information about the receiver.
  * @property isSubjectToTravelRule Indicates whether VASP2 is a financial institution that requires travel rule information.

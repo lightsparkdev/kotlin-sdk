@@ -12,10 +12,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("InitializeWalletInput")
 data class InitializeWalletInput(
-
     val signingPublicKey: KeyInput,
 ) {
-
     companion object {
     }
 }

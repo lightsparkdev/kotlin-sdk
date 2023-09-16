@@ -41,7 +41,9 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 // Can use this while locally developing, but should use the published version when publishing:
                 // implementation(project(":core"))
-                implementation(libs.lightspark.core)
+                api(libs.lightspark.core)
+                // api(project(":crypto"))
+                api(libs.lightspark.crypto)
             }
         }
         val commonTest by getting {

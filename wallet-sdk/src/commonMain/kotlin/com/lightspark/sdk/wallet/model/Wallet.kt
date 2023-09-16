@@ -24,7 +24,6 @@ import kotlinx.serialization.json.jsonObject
 @Serializable
 @SerialName("Wallet")
 data class Wallet(
-
     @SerialName("wallet_id")
     override val id: String,
     @SerialName("wallet_created_at")
@@ -52,6 +51,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
         ... on Wallet {
             transactions(, first: ${'$'}first, after: ${'$'}after, created_after_date: ${'$'}created_after_date, created_before_date: ${'$'}created_before_date, statuses: ${'$'}statuses, types: ${'$'}types) {
                 type: __typename
+                wallet_to_transactions_connection_count: count
                 wallet_to_transactions_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -59,7 +59,6 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                wallet_to_transactions_connection_count: count
                 wallet_to_transactions_connection_entities: entities {
                     type: __typename
                     ... on ChannelClosingTransaction {
@@ -295,6 +294,7 @@ query FetchWalletToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: ID, 
         ... on Wallet {
             payment_requests(, first: ${'$'}first, after: ${'$'}after, created_after_date: ${'$'}created_after_date, created_before_date: ${'$'}created_before_date) {
                 type: __typename
+                wallet_to_payment_requests_connection_count: count
                 wallet_to_payment_requests_connection_page_info: page_info {
                     type: __typename
                     page_info_has_next_page: has_next_page
@@ -302,7 +302,6 @@ query FetchWalletToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: ID, 
                     page_info_start_cursor: start_cursor
                     page_info_end_cursor: end_cursor
                 }
-                wallet_to_payment_requests_connection_count: count
                 wallet_to_payment_requests_connection_entities: entities {
                     type: __typename
                     ... on Invoice {
