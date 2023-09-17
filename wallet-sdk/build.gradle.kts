@@ -41,7 +41,7 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.websockets)
                 // Can use this while locally developing, but should use the published version when publishing:
-                //implementation(project(":core"))
+                // implementation(project(":core"))
                 implementation(libs.lightspark.core)
             }
         }
