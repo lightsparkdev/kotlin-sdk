@@ -8,9 +8,8 @@ import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.BETA_HEADER_KEY
 import com.lightspark.sdk.core.auth.BETA_HEADER_VALUE
+import com.lightspark.sdk.core.crypto.MissingKeyException
 import com.lightspark.sdk.core.crypto.NodeKeyCache
-import com.lightspark.sdk.core.crypto.signPayload
-import com.lightspark.sdk.core.crypto.signUsingAlias
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
@@ -19,6 +18,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import saschpe.kase64.base64Encoded
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -36,7 +36,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import saschpe.kase64.base64Encoded
 
 private const val DEFAULT_BASE_URL = "api.lightspark.com"
 
@@ -203,6 +202,9 @@ class Requester constructor(
         if (signingNodeId == null) {
             return bodyData to headers
         }
+        if (!nodeKeyCache.contains(signingNodeId)) {
+            throw MissingKeyException(signingNodeId)
+        }
 
         val newBodyData = bodyData.toMutableMap().apply {
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
@@ -211,11 +213,7 @@ class Requester constructor(
             put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { JsonObject(it) }
         val newBodyString = Json.encodeToString(newBodyData)
-        val signature = if (nodeKeyCache.containsAlias(signingNodeId)) {
-            signUsingAlias(newBodyString.encodeToByteArray(), nodeKeyCache.getAlias(signingNodeId))
-        } else {
-            signPayload(newBodyString.encodeToByteArray(), nodeKeyCache[signingNodeId])
-        }
+        val signature = nodeKeyCache[signingNodeId].sign(newBodyString.encodeToByteArray())
         val newHeaders = headers.toMutableMap().apply {
             this["X-LIGHTSPARK-SIGNING"] =
                 "{\"v\":1,\"signature\":\"${signature.base64Encoded}\"}"

@@ -3,13 +3,13 @@ package com.lightspark.sdk
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
+import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.LightsparkNode
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.TransactionStatus
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -186,8 +186,7 @@ class ClientIntegrationTests {
     @Test
     fun `send a payment for an invoice`() = runTest {
         val node = getFirstNode()
-        val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
-        unlocked.shouldBeTrue()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
 
         // Just paying a pre-existing AMP invoice.
         val ampInvoice =
@@ -212,8 +211,7 @@ class ClientIntegrationTests {
     @Test
     fun `test paying a test mode invoice`() = runTest {
         val node = getFirstNode()
-        val unlocked = client.recoverNodeSigningKey(node.id, NODE_PASSWORD)
-        unlocked.shouldBeTrue()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
         var outgoingPayment: OutgoingPayment? = client.payInvoice(node.id, invoice, maxFeesMsats = 100_000)
         outgoingPayment.shouldNotBeNull()

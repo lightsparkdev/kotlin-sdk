@@ -188,5 +188,5 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun attemptKeyStoreUnlock() = walletRepository.attemptKeyStoreUnlock()
+    suspend fun attemptKeyStoreUnlock() = walletRepository.attemptKeyStoreUnlock()
 }

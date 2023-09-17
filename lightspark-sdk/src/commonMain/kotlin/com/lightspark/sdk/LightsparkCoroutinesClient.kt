@@ -8,13 +8,14 @@ import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.*
 import com.lightspark.sdk.core.crypto.NodeKeyCache
 import com.lightspark.sdk.core.crypto.SigningKeyDecryptor
+import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.core.requester.Requester
 import com.lightspark.sdk.core.requester.ServerEnvironment
+import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
 import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
 import com.lightspark.sdk.util.serializerFormat
-import saschpe.kase64.base64DecodedBytes
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.*
@@ -291,7 +292,7 @@ class LightsparkCoroutinesClient private constructor(
     /**
      * Pay a lightning invoice for the given node.
      *
-     * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
+     * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]
      * function. You must successfully unlock the node with its password before calling this function.
      *
      * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
@@ -490,58 +491,45 @@ class LightsparkCoroutinesClient private constructor(
     fun getUnlockedNodeIds(): Flow<Set<String>> = nodeKeyCache.observeCachedNodeIds()
 
     /**
-     * Unlocks a node for use with the SDK for the current application session. This function must be called before any
-     * other functions that require node signing keys, including [payInvoice].
+     * Unlocks a node for use with the SDK for the current application session. This function or [loadNodeSigningKey]
+     * must be called before any other functions that require node signing keys, including [payInvoice].
      *
      * @param nodeId The ID of the node to unlock.
      * @param nodePassword The password for the node.
      * @return True if the node was successfully unlocked, false otherwise.
+     * @deprecated Use [loadNodeSigningKey] instead.
      */
+    @Deprecated("Use loadNodeSigningKey instead")
     suspend fun recoverNodeSigningKey(
         nodeId: String,
         nodePassword: String,
     ): Boolean {
         requireValidAuth()
-        val response =
-            requester.makeRawRequest(
-                RecoverNodeSigningKeyQuery,
-                buildJsonObject { put("nodeId", nodeId) },
-            )
-        val keyJson =
-            response["entity"]?.jsonObject?.get("encrypted_signing_private_key")?.jsonObject
-                ?: return false
-        try {
-            val unencryptedKey =
-                keyDecryptor.decryptKey(
-                    keyJson["cipher"]!!.jsonPrimitive.content,
-                    nodePassword,
-                    keyJson["encrypted_value"]!!.jsonPrimitive.content,
-                )
-            if (unencryptedKey[0] == 48.toByte()) {
-                nodeKeyCache[nodeId] = unencryptedKey
-            } else {
-                nodeKeyCache[nodeId] = unencryptedKey.decodeToString().base64DecodedBytes
-            }
+        return try {
+            val signingKeyLoader = PasswordRecoverySigningKeyLoader(nodeId, nodePassword, keyDecryptor)
+            loadNodeSigningKey(nodeId, signingKeyLoader)
+            true
         } catch (e: Exception) {
-            return false
+            false
         }
-        return true
     }
 
     /**
-     * Unlocks a node for use with the SDK for the current application session. This function or [recoverNodeSigningKey]
-     * must be called before any other functions that require node signing keys, including [payInvoice].
+     * Unlocks a node for use with the SDK for the current application session. This function must be called before any
+     * other functions that require node signing keys, including [payInvoice].
      *
-     * This function is intended for use in cases where the node's private signing key is already saved by the
-     * application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and
-     * that it is the correct key for the node. Otherwise signed requests will fail.
+     * It is the responsibility of the application to ensure that the key is valid and that it is the correct key for
+     * the node. Otherwise signed requests will fail.
      *
      * @param nodeId The ID of the node to unlock.
-     * @param signingKeyBytesPEM The PEM encoded bytes of the node's private signing key.
+     * @param signingKeyLoader An implementation of [SigningKeyLoader] which will be used to load the signing key for
+     *     the node. For example, [PasswordRecoverySigningKeyLoader] can be used to load RSA signing key for an OSK node
+     *     using the node's password. If the node is using remote signing, you can use [Secp256k1SigningKeyLoader] to
+     *     generate the correct signing key using your node's master seed.
      */
-    fun loadNodeSigningKey(nodeId: String, signingKeyBytesPEM: ByteArray) {
+    suspend fun loadNodeSigningKey(nodeId: String, signingKeyLoader: SigningKeyLoader) {
         requireValidAuth()
-        nodeKeyCache[nodeId] = signingKeyBytesPEM
+        nodeKeyCache[nodeId] = signingKeyLoader.loadSigningKey(requester)
     }
 
     /**

@@ -6,7 +6,10 @@ import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.*
+import com.lightspark.sdk.core.crypto.AliasedRsaSigningKeyLoader
 import com.lightspark.sdk.core.crypto.NodeKeyCache
+import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader
+import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.core.requester.Requester
 import com.lightspark.sdk.core.requester.ServerEnvironment
@@ -166,15 +169,15 @@ class LightsparkCoroutinesWalletClient private constructor(
      *
      * @param keyType The type of key to use for the wallet.
      * @param signingPublicKey The base64-encoded public key to use for signing transactions.
-     * @param signingPrivateKey The base64-encoded private key to use for signing transactions. This will not leave the
-     *     device. It is only used for signing this request.
+     * @param signingPrivateKey The base64-encoded RSA private key to use for signing transactions. This will not leave
+     *     the device. It is only used for signing this request.
      * @return The wallet that was initialized.
      * @throws LightsparkAuthenticationException if there is no valid authentication.
      */
     @Throws(LightsparkAuthenticationException::class, CancellationException::class)
     suspend fun initializeWallet(keyType: KeyType, signingPublicKey: String, signingPrivateKey: String): Wallet {
         requireValidAuth()
-        loadWalletSigningKey(signingPrivateKey.base64DecodedBytes)
+        loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivateKey.base64DecodedBytes))
         return executeQuery(
             Query(
                 InitializeWallet,
@@ -519,17 +522,16 @@ class LightsparkCoroutinesWalletClient private constructor(
      * Unlocks the wallet for use with the SDK for the current application session. This function
      * must be called before any other functions that require wallet signing keys, including [payInvoice].
      *
-     * This function is intended for use in cases where the wallet's private signing key is already saved by the
-     * application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and
-     * that it is the correct key for the wallet. Otherwise signed requests will fail.
+     * It is the responsibility of the application to ensure that the key is valid and that it is the correct key for
+     * the wallet. Otherwise signed requests will fail.
      *
-     * @param signingKeyBytesPEM The PEM encoded bytes of the wallet's private signing key.
+     * @param signingKeyLoader A [SigningKeyLoader] implementation that will load the wallet's private signing key.
      * @throws LightsparkAuthenticationException if the user is not authenticated.
      */
     @Throws(LightsparkAuthenticationException::class)
-    fun loadWalletSigningKey(signingKeyBytesPEM: ByteArray) {
+    suspend fun loadWalletSigningKey(signingKeyLoader: SigningKeyLoader) {
         requireValidAuth()
-        nodeKeyCache[WALLET_NODE_ID_KEY] = signingKeyBytesPEM
+        nodeKeyCache[WALLET_NODE_ID_KEY] = signingKeyLoader.loadSigningKey(requester)
     }
 
     /**
@@ -547,9 +549,8 @@ class LightsparkCoroutinesWalletClient private constructor(
      * @throws LightsparkAuthenticationException if the user is not authenticated.
      */
     @Throws(LightsparkAuthenticationException::class)
-    fun loadWalletSigningKeyAlias(signingKeyAlias: String) {
-        requireValidAuth()
-        nodeKeyCache.setAlias(WALLET_NODE_ID_KEY, signingKeyAlias)
+    suspend fun loadWalletSigningKeyAlias(signingKeyAlias: String) {
+        loadWalletSigningKey(AliasedRsaSigningKeyLoader(signingKeyAlias))
     }
 
     /**

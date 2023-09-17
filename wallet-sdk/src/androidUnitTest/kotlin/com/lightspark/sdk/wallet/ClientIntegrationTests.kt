@@ -1,5 +1,6 @@
 package com.lightspark.sdk.wallet
 
+import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader
 import com.lightspark.sdk.core.crypto.generateSigningKeyPair
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider
@@ -67,7 +68,7 @@ class ClientIntegrationTests {
             println(keypair.private.encoded.encodeBase64())
             signingPubKey = keypair.public.encoded.base64Encoded
             signingPrivKey = keypair.private.encoded.base64Encoded
-            client.loadWalletSigningKey(keypair.private.encoded)
+            client.loadWalletSigningKey(RawRsaSigningKeyLoader(keypair.private.encoded))
             client.initializeWalletAndWaitForInitialized(
                 KeyType.RSA_OAEP,
                 keypair.public.encoded.base64Encoded,
@@ -203,7 +204,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `send a payment for an invoice`() = runAuthedTest {
-        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        client.loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivKey!!.decodeBase64Bytes()))
 
         // Just paying a pre-existing AMP invoice.
         val ampInvoice =
@@ -217,7 +218,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test createBitcoinFundingAddress`() = runAuthedTest {
-        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        client.loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivKey!!.decodeBase64Bytes()))
         val address = client.createBitcoinFundingAddress()
         address.shouldNotBeNull()
         println("Created address: $address")
@@ -249,7 +250,7 @@ class ClientIntegrationTests {
         val signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY$testWalletSuffix")
         val output = client.loginWithJWT(apiAccountId, jwt, jwtStorage)
         ensureWalletDeployedAndInitialized(output.wallet)
-        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        client.loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivKey!!.decodeBase64Bytes()))
         val invoice = client.createTestModeInvoice(100_000, "test invoice")
         var outgoingPayment: OutgoingPayment? = null
         client.payInvoiceAndAwaitCompletion(invoice, maxFeesMsats = 100_000).collect {
@@ -268,7 +269,7 @@ class ClientIntegrationTests {
         val signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY$testWalletSuffix")
         val output = client.loginWithJWT(apiAccountId, jwt, jwtStorage)
         ensureWalletDeployedAndInitialized(output.wallet)
-        client.loadWalletSigningKey(signingPrivKey!!.decodeBase64Bytes())
+        client.loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivKey!!.decodeBase64Bytes()))
         val invoice = client.createInvoice(100_000, "test invoice")
         val payment = client.createTestModePayment(invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()

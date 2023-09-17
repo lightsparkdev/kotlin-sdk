@@ -36,6 +36,12 @@ object RemoteSigning {
         }
     }
 
+    fun derivePrivateKey(seedBytes: ByteArray, network: Network, derivationPath: String): String {
+        return withSigner(seedBytes, network) { signer ->
+            signer.derivePrivateKey(derivationPath)
+        }
+    }
+
     @JvmOverloads
     fun signMessage(
         message: ByteArray,
