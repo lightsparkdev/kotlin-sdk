@@ -36,6 +36,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +80,7 @@ import com.lightspark.sdk.wallet.model.WalletStatus
 import com.lightspark.sdk.wallet.model.WalletToPaymentRequestsConnection
 import com.lightspark.sdk.wallet.model.WalletToTransactionsConnection
 import kotlin.math.max
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -95,7 +97,7 @@ fun WalletDashboardView(
     onInitializeWallet: () -> Unit = {},
     onTransactionTap: ((Transaction) -> Unit)? = null,
     onUnlockRequest: ((password: String) -> Unit)? = null,
-    attemptKeyStoreUnlock: () -> Boolean = { false },
+    attemptKeyStoreUnlock: suspend () -> Boolean = { false },
 ) {
     val itemHeight = with(LocalDensity.current) { 60.dp.toPx() }
     val scrollState = rememberLazyListState()
@@ -203,7 +205,7 @@ fun ColumnScope.ReadyWallet(
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
     onUnlockRequest: ((password: String) -> Unit)? = null,
-    attemptKeyStoreUnlock: () -> Boolean = { false },
+    attemptKeyStoreUnlock: suspend () -> Boolean = { false },
     onTransactionTap: ((Transaction) -> Unit)? = null,
     scrollState: LazyListState = rememberLazyListState(),
 ) {
@@ -279,8 +281,9 @@ fun WalletHeader(
     onSendTap: (() -> Unit)? = null,
     onReceiveTap: (() -> Unit)? = null,
     onUnlockRequest: ((password: String) -> Unit)? = null,
-    attemptKeyStoreUnlock: () -> Boolean = { false },
+    attemptKeyStoreUnlock: suspend () -> Boolean = { false },
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var keyDialogOpen by remember { mutableStateOf(false) }
     val offsetDp = with(LocalDensity.current) { scrollOffset.toDp() }
     val headerHeight by animateDpAsState(targetValue = max(120.dp, 350.dp - offsetDp))
@@ -294,6 +297,7 @@ fun WalletHeader(
                 2f - offsetDp.value / 50f,
             )
         },
+        label = "buttonHeightFactor",
     )
     Column(
         verticalArrangement = Arrangement.Center,
@@ -307,8 +311,10 @@ fun WalletHeader(
     ) {
         Spacer(modifier = Modifier.weight(.2f))
         UnlockButton(walletUnlockStatus, buttonHeightFactor, buttonAlpha) {
-            if (walletUnlockStatus == WalletLockStatus.LOCKED && !attemptKeyStoreUnlock()) {
-                keyDialogOpen = true
+            coroutineScope.launch {
+                if (walletUnlockStatus == WalletLockStatus.LOCKED && !attemptKeyStoreUnlock()) {
+                    keyDialogOpen = true
+                }
             }
         }
         WalletBalances(walletData, scrollOffset, modifier = Modifier.weight(.4f))

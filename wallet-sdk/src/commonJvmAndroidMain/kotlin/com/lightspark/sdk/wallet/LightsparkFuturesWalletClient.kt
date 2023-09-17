@@ -3,6 +3,8 @@ package com.lightspark.sdk.wallet
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.LightsparkAuthenticationException
+import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader
+import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.wallet.auth.*
 import com.lightspark.sdk.wallet.auth.jwt.JwtStorage
@@ -236,11 +238,13 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
      * application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and
      * that it is the correct key for the wallet. Otherwise signed requests will fail.
      *
-     * @param signingKeyBytesPEM The PEM encoded bytes of the wallet's private signing key.
+     * @param signingKeyLoader A [SigningKeyLoader] implementation that will load the wallet's private signing key.
      * @throws LightsparkAuthenticationException if there is no valid auth.
      */
     @Throws(LightsparkAuthenticationException::class)
-    fun loadWalletSigningKey(signingKeyBytesPEM: ByteArray) = coroutinesClient.loadWalletSigningKey(signingKeyBytesPEM)
+    fun loadWalletSigningKey(signingKeyLoader: SigningKeyLoader) = coroutineScope.future {
+        coroutinesClient.loadWalletSigningKey(signingKeyLoader)
+    }
 
     /**
      * Get the L1 fee estimate for a deposit or withdrawal.

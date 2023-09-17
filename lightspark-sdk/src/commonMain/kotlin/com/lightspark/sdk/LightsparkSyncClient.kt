@@ -4,6 +4,7 @@ import com.lightspark.sdk.auth.*
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.LightsparkAuthenticationException
+import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
@@ -138,7 +139,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     /**
      * Pay a lightning invoice for the given node.
      *
-     * Note: This call will fail if the node sending the payment is not unlocked yet via the [recoverNodeSigningKey]
+     * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]
      * function. You must successfully unlock the node with its password before calling this function.
      *
      * Test mode note: For test mode, you can use the [createTestModeInvoice] function to create an invoice you can
@@ -172,31 +173,36 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     fun decodeInvoice(encodedInvoice: String): InvoiceData? = runBlocking { asyncClient.decodeInvoice(encodedInvoice) }
 
     /**
-     * Unlocks a node for use with the SDK for the current application session. This function must be called before any
-     * other functions that require node signing keys, including [payInvoice].
+     * Unlocks a node for use with the SDK for the current application session. This function or [loadNodeSigningKey]
+     * must be called before any other functions that require node signing keys, including [payInvoice].
      *
      * @param nodeId The ID of the node to unlock.
      * @param nodePassword The password for the node.
      * @return True if the node was successfully unlocked, false otherwise.
+     * @deprecated Use [loadNodeSigningKey] instead.
      */
+    @Deprecated("Use loadNodeSigningKey instead")
     fun recoverNodeSigningKey(
         nodeId: String,
         nodePassword: String,
     ): Boolean = runBlocking { asyncClient.recoverNodeSigningKey(nodeId, nodePassword) }
 
     /**
-     * Unlocks a node for use with the SDK for the current application session. This function or [recoverNodeSigningKey]
-     * must be called before any other functions that require node signing keys, including [payInvoice].
+     * Unlocks a node for use with the SDK for the current application session. This function must be called before any
+     * other functions that require node signing keys, including [payInvoice].
      *
-     * This function is intended for use in cases where the node's private signing key is already saved by the
-     * application outside of the SDK. It is the responsibility of the application to ensure that the key is valid and
-     * that it is the correct key for the node. Otherwise signed requests will fail.
+     * It is the responsibility of the application to ensure that the key is valid and that it is the correct key for
+     * the node. Otherwise signed requests will fail.
      *
      * @param nodeId The ID of the node to unlock.
-     * @param signingKeyBytesPEM The PEM encoded bytes of the node's private signing key.
+     * @param signingKeyLoader An implementation of [SigningKeyLoader] which will be used to load the signing key for
+     *     the node. For example, [PasswordRecoverySigningKeyLoader] can be used to load RSA signing key for an OSK node
+     *     using the node's password. If the node is using remote signing, you can use [Secp256k1SigningKeyLoader] to
+     *     generate the correct signing key using your node's master seed.
      */
-    fun loadNodeSigningKey(nodeId: String, signingKeyBytesPEM: ByteArray) =
-        asyncClient.loadNodeSigningKey(nodeId, signingKeyBytesPEM)
+    fun loadNodeSigningKey(nodeId: String, signingKeyLoader: SigningKeyLoader) = runBlocking {
+        asyncClient.loadNodeSigningKey(nodeId, signingKeyLoader)
+    }
 
     /**
      * Get the L1 fee estimate for a deposit or withdrawal.
