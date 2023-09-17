@@ -30,9 +30,15 @@ object RemoteSigning {
         }
     }
 
-    fun derivePublicKey(seedBytes: ByteArray, network: Network, derivationPath: String): String {
+    fun deriveExtendedPublicKey(seedBytes: ByteArray, network: Network, derivationPath: String): String {
         return withSigner(seedBytes, network) { signer ->
             signer.derivePublicKey(derivationPath)
+        }
+    }
+
+    fun derivePublicKeyHex(seedBytes: ByteArray, network: Network, derivationPath: String): String {
+        return withSigner(seedBytes, network) { signer ->
+            signer.derivePublicKeyHex(derivationPath)
         }
     }
 
@@ -87,7 +93,7 @@ object RemoteSigning {
 
     fun generatePreimageNonce(
         seedBytes: ByteArray,
-        network: Network
+        network: Network,
     ): ByteArray {
         return withSigner(seedBytes, network) { signer ->
             signer.generatePreimageNonce().toByteArray()
@@ -151,7 +157,7 @@ object RemoteSigning {
 
 data class InvoiceSignature(
     val recoveryId: Int,
-    val signature: ByteArray
+    val signature: ByteArray,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
