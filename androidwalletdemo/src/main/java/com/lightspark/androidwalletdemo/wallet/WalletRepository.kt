@@ -5,6 +5,7 @@ import com.lightspark.androidwalletdemo.auth.CredentialsStore
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.asLce
 import com.lightspark.sdk.core.auth.AuthProvider
+import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader
 import com.lightspark.sdk.core.crypto.androidKeystoreContainsPrivateKeyForAlias
 import com.lightspark.sdk.core.crypto.generateSigningKeyPair
 import com.lightspark.sdk.core.crypto.generateSigningKeyPairInAndroidKeyStore
@@ -53,7 +54,7 @@ class WalletRepository @Inject constructor(
         // own keys or store them in some other way in your own app code, you can still generate a valid key pair using
         // the [generateSigningKeyPair] function in the SDK.
         val keyPair = generateSigningKeyPair()
-        walletClient.loadWalletSigningKey(keyPair.private.encoded)
+        walletClient.loadWalletSigningKey(RawRsaSigningKeyLoader(keyPair.private.encoded))
         return walletClient.initializeWalletAndWaitForInitialized(
             keyType = KeyType.RSA_OAEP,
             signingPublicKey = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP),
@@ -62,9 +63,9 @@ class WalletRepository @Inject constructor(
     }
 
     fun unlockWallet(signingPrivateKey: ByteArray) =
-        wrapWithLceFlow { walletClient.loadWalletSigningKey(signingPrivateKey) }
+        wrapWithLceFlow { walletClient.loadWalletSigningKey(RawRsaSigningKeyLoader(signingPrivateKey)) }
 
-    fun attemptKeyStoreUnlock(): Boolean {
+    suspend fun attemptKeyStoreUnlock(): Boolean {
         if (androidKeystoreContainsPrivateKeyForAlias(LIGHTSPARK_SIGNING_KEY_ALIAS)) {
             walletClient.loadWalletSigningKeyAlias(LIGHTSPARK_SIGNING_KEY_ALIAS)
             return true

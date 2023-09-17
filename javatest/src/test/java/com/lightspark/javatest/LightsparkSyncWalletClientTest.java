@@ -1,9 +1,10 @@
 package com.lightspark.javatest;
 
-import static com.lightspark.sdk.core.crypto.SigningKt.generateSigningKeyPair;
+import static com.lightspark.sdk.core.crypto.RsaSigningKt.generateSigningKeyPair;
 import static com.lightspark.sdk.core.util.PlatformKt.getPlatform;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader;
 import com.lightspark.sdk.wallet.ClientConfig;
 import com.lightspark.sdk.wallet.LightsparkSyncWalletClient;
 import com.lightspark.sdk.wallet.auth.jwt.CustomJwtAuthProvider;
@@ -66,7 +67,7 @@ public class LightsparkSyncWalletClientTest {
             System.out.println(signingPubKey);
             System.out.println(signingPrivKey);
 
-            client.loadWalletSigningKey(keypair.getPrivate().getEncoded());
+            client.loadWalletSigningKey(new RawRsaSigningKeyLoader(keypair.getPrivate().getEncoded()));
             client.initializeWalletAndWaitForInitialized(KeyType.RSA_OAEP, signingPubKey, signingPrivKey, wallet -> {
                         System.out.println("Wallet update: " + wallet.getStatus());
                         assertNotEquals(wallet.getStatus(), WalletStatus.FAILED);

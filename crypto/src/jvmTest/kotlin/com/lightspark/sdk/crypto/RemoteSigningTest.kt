@@ -49,7 +49,7 @@ class RemoteSigningTest {
                 "7e7b7875726f6c696663605d5a5754514e4b484542"
             ).hexAsByteArray()
         val derivationPath = "m/0/2147483647'/1"
-        val result = RemoteSigning.derivePublicKey(privateKeySeed, Network.BITCOIN, derivationPath)
+        val result = RemoteSigning.deriveExtendedPublicKey(privateKeySeed, Network.BITCOIN, derivationPath)
         assertEquals(
             "xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTf" +
                 "unKau47EL2dhHKon",
