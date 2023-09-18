@@ -7,9 +7,11 @@ import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.crypto.RemoteSigning
 import com.lightspark.sdk.crypto.internal.Network
 import com.lightspark.sdk.graphql.DeclineToSignMessagesMutation
+import com.lightspark.sdk.graphql.ReleaseChannelPerCommitmentSecretMutation
 import com.lightspark.sdk.graphql.UpdateChannelPerCommitmentPointMutation
 import com.lightspark.sdk.graphql.UpdateNodeSharedSecretMutation
 import com.lightspark.sdk.model.DeclineToSignMessagesOutput
+import com.lightspark.sdk.model.ReleaseChannelPerCommitmentSecretOutput
 import com.lightspark.sdk.model.RemoteSigningSubEventType
 import com.lightspark.sdk.model.UpdateChannelPerCommitmentPointOutput
 import com.lightspark.sdk.model.UpdateNodeSharedSecretOutput
@@ -47,7 +49,8 @@ suspend fun handleRemoteSigningEvent(
     return when (subEventType) {
         RemoteSigningSubEventType.ECDH -> handleEcdh(client, event, seedBytes)
         RemoteSigningSubEventType.GET_PER_COMMITMENT_POINT -> handleGetPerCommitmentPoint(client, event, seedBytes)
-        RemoteSigningSubEventType.RELEASE_PER_COMMITMENT_SECRET -> TODO()
+        RemoteSigningSubEventType.RELEASE_PER_COMMITMENT_SECRET ->
+            releaseChannelPerCommitmentSecret(client, event, seedBytes)
         RemoteSigningSubEventType.SIGN_INVOICE -> TODO()
         RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN -> TODO()
         RemoteSigningSubEventType.RELEASE_PAYMENT_PREIMAGE -> TODO()
@@ -161,6 +164,54 @@ private suspend fun handleGetPerCommitmentPoint(
     }
 
     return "updated per-commitment point for ${result.channelId}"
+}
+
+private suspend fun releaseChannelPerCommitmentSecret(
+    client: LightsparkCoroutinesClient,
+    event: WebhookEvent,
+    seedBytes: ByteArray,
+): String {
+    event.assertSubEventType(RemoteSigningSubEventType.RELEASE_PER_COMMITMENT_SECRET)
+    val perCommitmentIdx = event.data?.get("per_commitment_point_idx")?.jsonPrimitive?.longOrNull
+        ?: throw RemoteSigningException("Webhook event is missing per_commitment_secret_idx")
+    val derivationPath = event.data["derivation_path"]?.jsonPrimitive?.content
+        ?: throw RemoteSigningException("Webhook event is missing derivation_path")
+
+    val perCommitmentSecret = try {
+        RemoteSigning.releasePerCommitmentSecret(
+            seedBytes,
+            event.bitcoinNetwork(),
+            derivationPath,
+            perCommitmentIdx,
+        ).toHexString()
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error computing per-commitment secret", cause = e)
+    }
+
+    val result = try {
+        client.executeQuery(
+            Query(
+                ReleaseChannelPerCommitmentSecretMutation,
+                {
+                    add("channel_id", event.entityId)
+                    add("per_commitment_secret", perCommitmentSecret)
+                    add("per_commitment_index", perCommitmentIdx)
+                },
+            ) {
+                val releaseChannelPerCommitmentSecretJson =
+                    requireNotNull(it["release_channel_per_commitment_secret"]) {
+                        "Invalid response for per-commitment secret release"
+                    }
+                serializerFormat.decodeFromJsonElement<ReleaseChannelPerCommitmentSecretOutput>(
+                    releaseChannelPerCommitmentSecretJson,
+                )
+            },
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error releasing per-commitment secret", cause = e)
+    }
+
+    return "released per-commitment secret for ${result.channelId}"
 }
 
 private fun WebhookEvent.assertSubEventType(expectedSubEventType: RemoteSigningSubEventType) {
