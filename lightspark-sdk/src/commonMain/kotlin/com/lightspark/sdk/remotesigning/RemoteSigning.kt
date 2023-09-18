@@ -8,11 +8,13 @@ import com.lightspark.sdk.crypto.RemoteSigning
 import com.lightspark.sdk.crypto.internal.Network
 import com.lightspark.sdk.graphql.DeclineToSignMessagesMutation
 import com.lightspark.sdk.graphql.ReleaseChannelPerCommitmentSecretMutation
+import com.lightspark.sdk.graphql.SignInvoiceMutation
 import com.lightspark.sdk.graphql.UpdateChannelPerCommitmentPointMutation
 import com.lightspark.sdk.graphql.UpdateNodeSharedSecretMutation
 import com.lightspark.sdk.model.DeclineToSignMessagesOutput
 import com.lightspark.sdk.model.ReleaseChannelPerCommitmentSecretOutput
 import com.lightspark.sdk.model.RemoteSigningSubEventType
+import com.lightspark.sdk.model.SignInvoiceOutput
 import com.lightspark.sdk.model.UpdateChannelPerCommitmentPointOutput
 import com.lightspark.sdk.model.UpdateNodeSharedSecretOutput
 import com.lightspark.sdk.model.WebhookEventType
@@ -51,7 +53,8 @@ suspend fun handleRemoteSigningEvent(
         RemoteSigningSubEventType.GET_PER_COMMITMENT_POINT -> handleGetPerCommitmentPoint(client, event, seedBytes)
         RemoteSigningSubEventType.RELEASE_PER_COMMITMENT_SECRET ->
             releaseChannelPerCommitmentSecret(client, event, seedBytes)
-        RemoteSigningSubEventType.SIGN_INVOICE -> TODO()
+
+        RemoteSigningSubEventType.SIGN_INVOICE -> handleSignInvoice(client, event, seedBytes)
         RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN -> TODO()
         RemoteSigningSubEventType.RELEASE_PAYMENT_PREIMAGE -> TODO()
         RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH -> TODO()
@@ -212,6 +215,45 @@ private suspend fun releaseChannelPerCommitmentSecret(
     }
 
     return "released per-commitment secret for ${result.channelId}"
+}
+
+private suspend fun handleSignInvoice(
+    client: LightsparkCoroutinesClient,
+    event: WebhookEvent,
+    seedBytes: ByteArray,
+): String {
+    event.assertSubEventType(RemoteSigningSubEventType.SIGN_INVOICE)
+    val invoiceId = event.data?.get("invoice_id")?.jsonPrimitive?.content
+        ?: throw RemoteSigningException("Webhook event is missing invoice_id")
+    val payreqHash = event.data["payreq_hash"]?.jsonPrimitive?.content?.hexToByteArray()
+        ?: throw RemoteSigningException("Webhook event is missing payreq_hash")
+
+    val invoiceSignature = try {
+        RemoteSigning.signInvoiceHash(seedBytes, event.bitcoinNetwork(), payreqHash)
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error signing invoice", cause = e)
+    }
+
+    val result = try {
+        client.executeQuery(
+            Query(
+                SignInvoiceMutation,
+                {
+                    add("invoice_id", invoiceId)
+                    add("signature", invoiceSignature.signature.toHexString())
+                    add("recovery_id", invoiceSignature.recoveryId)
+                },
+            ) {
+                val signInvoiceOutputJson =
+                    requireNotNull(it["sign_invoice"]) { "Invalid response for invoice signature" }
+                serializerFormat.decodeFromJsonElement<SignInvoiceOutput>(signInvoiceOutputJson)
+            },
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error updating invoice signature", cause = e)
+    }
+
+    return "updated invoice signature for ${result.invoiceId}"
 }
 
 private fun WebhookEvent.assertSubEventType(expectedSubEventType: RemoteSigningSubEventType) {
