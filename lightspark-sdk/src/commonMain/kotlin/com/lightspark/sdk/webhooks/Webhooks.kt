@@ -28,6 +28,8 @@ data class WebhookEvent(
     val data: JsonObject? = null,
 )
 
+const val SIGNATURE_HEADER = "lightspark-signature"
+
 @OptIn(ExperimentalStdlibApi::class)
 @Throws(LightsparkException::class)
 fun verifyAndParseWebhook(
