@@ -9,6 +9,7 @@ import com.lightspark.sdk.crypto.internal.Network
 import com.lightspark.sdk.graphql.DeclineToSignMessagesMutation
 import com.lightspark.sdk.graphql.ReleaseChannelPerCommitmentSecretMutation
 import com.lightspark.sdk.graphql.ReleasePaymentPreimageMutation
+import com.lightspark.sdk.graphql.SetInvoicePaymentHashMutation
 import com.lightspark.sdk.graphql.SignInvoiceMutation
 import com.lightspark.sdk.graphql.SignMessagesMutation
 import com.lightspark.sdk.graphql.UpdateChannelPerCommitmentPointMutation
@@ -17,6 +18,7 @@ import com.lightspark.sdk.model.DeclineToSignMessagesOutput
 import com.lightspark.sdk.model.ReleaseChannelPerCommitmentSecretOutput
 import com.lightspark.sdk.model.ReleasePaymentPreimageOutput
 import com.lightspark.sdk.model.RemoteSigningSubEventType
+import com.lightspark.sdk.model.SetInvoicePaymentHashOutput
 import com.lightspark.sdk.model.SignInvoiceOutput
 import com.lightspark.sdk.model.SignMessagesOutput
 import com.lightspark.sdk.model.UpdateChannelPerCommitmentPointOutput
@@ -61,7 +63,9 @@ suspend fun handleRemoteSigningEvent(
         RemoteSigningSubEventType.SIGN_INVOICE -> handleSignInvoice(client, event, seedBytes)
         RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN -> handleDeriveKeyAndSign(client, event, seedBytes)
         RemoteSigningSubEventType.RELEASE_PAYMENT_PREIMAGE -> handleReleasePaymentPreimage(client, event, seedBytes)
-        RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH -> TODO()
+        RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH ->
+            handleRequestInvoicePaymentHash(client, event, seedBytes)
+
         RemoteSigningSubEventType.FUTURE_VALUE -> return "unsupported sub_event_type: $subEventType"
     }
 }
@@ -349,6 +353,49 @@ private suspend fun handleReleasePaymentPreimage(
     }
 
     return "released payment preimage for ${result.invoiceId}"
+}
+
+private suspend fun handleRequestInvoicePaymentHash(
+    client: LightsparkCoroutinesClient,
+    event: WebhookEvent,
+    seedBytes: ByteArray,
+): String {
+    event.assertSubEventType(RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH)
+    val invoiceId = event.data?.get("invoice_id")?.jsonPrimitive?.content
+        ?: throw RemoteSigningException("Webhook event is missing invoice_id")
+
+    val preimageNonce = try {
+        RemoteSigning.generatePreimageNonce(seedBytes, event.bitcoinNetwork())
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error generating preimage nonce", cause = e)
+    }
+
+    val preimageHash = try {
+        RemoteSigning.generatePreimageHash(seedBytes, event.bitcoinNetwork(), preimageNonce).toHexString()
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error generating preimage hash", cause = e)
+    }
+
+    val result = try {
+        client.executeQuery(
+            Query(
+                SetInvoicePaymentHashMutation,
+                {
+                    add("invoice_id", invoiceId)
+                    add("payment_hash", preimageHash)
+                    add("preimage_nonce", preimageNonce.toHexString())
+                },
+            ) {
+                val setInvoicePaymentHashJson =
+                    requireNotNull(it["set_invoice_payment_hash"]) { "Invalid response for invoice payment hash update" }
+                serializerFormat.decodeFromJsonElement<SetInvoicePaymentHashOutput>(setInvoicePaymentHashJson)
+            },
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error setting invoice payment hash", cause = e)
+    }
+
+    return "updated invoice payment hash for ${result.invoiceId}"
 }
 
 private fun WebhookEvent.assertSubEventType(expectedSubEventType: RemoteSigningSubEventType) {
