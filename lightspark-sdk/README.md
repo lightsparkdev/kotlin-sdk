@@ -2,7 +2,7 @@
 
 ## Lightspark Kotlin SDK 🤖
 
-![Maven Central](https://img.shields.io/maven-central/v/com.lightspark/lightspark-core)
+![Maven Central](https://img.shields.io/maven-central/v/com.lightspark/lightspark-sdk)
 
 This is a Kotlin (multiplatform) SDK which is a simple wrapper around the Lightspark GraphQL server
 API. It's used to manage accounts, nodes, wallets, etc. It can authenticate using an Account API
