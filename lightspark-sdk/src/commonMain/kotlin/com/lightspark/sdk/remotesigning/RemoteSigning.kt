@@ -1,13 +1,17 @@
 package com.lightspark.sdk.remotesigning
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.core.requester.Query
+import com.lightspark.sdk.graphql.DeclineToSignMessagesMutation
+import com.lightspark.sdk.model.DeclineToSignMessagesOutput
 import com.lightspark.sdk.model.RemoteSigningSubEventType
 import com.lightspark.sdk.model.WebhookEventType
 import com.lightspark.sdk.util.serializerFormat
 import com.lightspark.sdk.webhooks.WebhookEvent
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonArray
 
-fun handleRemoteSigningEvent(
+suspend fun handleRemoteSigningEvent(
     client: LightsparkCoroutinesClient,
     event: WebhookEvent,
     seedBytes: ByteArray,
@@ -41,6 +45,33 @@ fun handleRemoteSigningEvent(
     }
 }
 
-private fun declineToSignMessages(client: LightsparkCoroutinesClient, event: WebhookEvent): String {
+private suspend fun declineToSignMessages(client: LightsparkCoroutinesClient, event: WebhookEvent): String {
+    val eventData = event.data ?: throw RemoteSigningException("Webhook event is missing data")
+    val signingJobs: List<SigningJob> = eventData["signing_jobs"]?.jsonArray?.let {
+        serializerFormat.decodeFromJsonElement(it)
+    } ?: throw RemoteSigningException("Webhook event is missing signing_jobs")
+
+    val payloadIds = signingJobs.map { it.id }
+    val result = try {
+        client.executeQuery(
+            Query(
+                DeclineToSignMessagesMutation,
+                {
+                    add("payload_ids", payloadIds)
+                },
+            ) {
+                val declineToSignJson =
+                    requireNotNull(it["decline_to_sign_messages"]) { "Invalid response for signature rejection" }
+                serializerFormat.decodeFromJsonElement<DeclineToSignMessagesOutput>(declineToSignJson)
+            },
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error declining to sign messages", cause = e)
+    }
+
+    if (result.declinedPayloads.size != payloadIds.size) {
+        throw RemoteSigningException("Invalid response for signature rejection")
+    }
+
     return "rejected signing"
 }
