@@ -9,12 +9,14 @@ import com.lightspark.sdk.crypto.internal.Network
 import com.lightspark.sdk.graphql.DeclineToSignMessagesMutation
 import com.lightspark.sdk.graphql.ReleaseChannelPerCommitmentSecretMutation
 import com.lightspark.sdk.graphql.SignInvoiceMutation
+import com.lightspark.sdk.graphql.SignMessagesMutation
 import com.lightspark.sdk.graphql.UpdateChannelPerCommitmentPointMutation
 import com.lightspark.sdk.graphql.UpdateNodeSharedSecretMutation
 import com.lightspark.sdk.model.DeclineToSignMessagesOutput
 import com.lightspark.sdk.model.ReleaseChannelPerCommitmentSecretOutput
 import com.lightspark.sdk.model.RemoteSigningSubEventType
 import com.lightspark.sdk.model.SignInvoiceOutput
+import com.lightspark.sdk.model.SignMessagesOutput
 import com.lightspark.sdk.model.UpdateChannelPerCommitmentPointOutput
 import com.lightspark.sdk.model.UpdateNodeSharedSecretOutput
 import com.lightspark.sdk.model.WebhookEventType
@@ -55,7 +57,7 @@ suspend fun handleRemoteSigningEvent(
             releaseChannelPerCommitmentSecret(client, event, seedBytes)
 
         RemoteSigningSubEventType.SIGN_INVOICE -> handleSignInvoice(client, event, seedBytes)
-        RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN -> TODO()
+        RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN -> handleDeriveKeyAndSign(client, event, seedBytes)
         RemoteSigningSubEventType.RELEASE_PAYMENT_PREIMAGE -> TODO()
         RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH -> TODO()
         RemoteSigningSubEventType.FUTURE_VALUE -> return "unsupported sub_event_type: $subEventType"
@@ -254,6 +256,59 @@ private suspend fun handleSignInvoice(
     }
 
     return "updated invoice signature for ${result.invoiceId}"
+}
+
+private suspend fun handleDeriveKeyAndSign(
+    client: LightsparkCoroutinesClient,
+    event: WebhookEvent,
+    seedBytes: ByteArray,
+): String {
+    event.assertSubEventType(RemoteSigningSubEventType.DERIVE_KEY_AND_SIGN)
+    val signingJobs: List<SigningJob> = event.data?.get("signing_jobs")?.jsonArray?.let {
+        serializerFormat.decodeFromJsonElement(it)
+    } ?: throw RemoteSigningException("Webhook event is missing signing_jobs")
+
+    val signatures = signingJobs.map { signingJob ->
+        val signature = signMessage(signingJob, seedBytes, event.bitcoinNetwork())
+        SignatureResponse(signingJob.id, signature)
+    }
+
+    val result = try {
+        client.executeQuery(
+            Query(
+                SignMessagesMutation,
+                {
+                    add("signatures", serializerFormat.encodeToString(signatures))
+                },
+            ) {
+                val signMessagesOutputJson =
+                    requireNotNull(it["sign_messages"]) { "Invalid response for message signatures" }
+                serializerFormat.decodeFromJsonElement<SignMessagesOutput>(signMessagesOutputJson)
+            },
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error updating message signatures", cause = e)
+    }
+
+    return "signed message: ${result.signedPayloads.map { it.id }}"
+}
+
+private fun signMessage(signingJob: SigningJob, seedBytes: ByteArray, bitcoinNetwork: Network): String {
+    val signature = try {
+        RemoteSigning.signMessage(
+            signingJob.message.hexToByteArray(),
+            seedBytes,
+            bitcoinNetwork,
+            signingJob.derivationPath,
+            signingJob.isRaw,
+            signingJob.mulTweak?.hexToByteArray(),
+            signingJob.addTweak?.hexToByteArray(),
+        )
+    } catch (e: Exception) {
+        throw RemoteSigningException("Error signing message", cause = e)
+    }
+
+    return signature.toHexString()
 }
 
 private fun WebhookEvent.assertSubEventType(expectedSubEventType: RemoteSigningSubEventType) {
