@@ -20,13 +20,6 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
-ktor {
-    docker {
-//        jreVersion.set(JreVersion.JRE_17)
-//        environmentVariables.add(DockerEnvironmentVariable("LIGHTSPARK_API_TOKEN_CLIENT_ID", "lightspark"))
-    }
-}
-
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-default-headers-jvm")
