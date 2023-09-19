@@ -1,0 +1,12 @@
+# exclude hidden dirs .git etc.
+.*
+**/.gradle/*
+*.iml
+src
+**/Dockerfile
+# exclude build binaries
+build/*
+**/build
+# except files for docker
+!build/docker
+!umaserverdemo/build/libs

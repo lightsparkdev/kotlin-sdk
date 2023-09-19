@@ -3,7 +3,6 @@ package com.lightspark.sdk.wallet
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.auth.LightsparkAuthenticationException
-import com.lightspark.sdk.core.crypto.RawRsaSigningKeyLoader
 import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.wallet.auth.*

@@ -278,7 +278,8 @@ class Vasp1(
     private fun getPayerProfile(requiredPayerData: PayerDataOptions) = PayerProfile(
         name = if (requiredPayerData.nameRequired) "Alice FakeName" else null,
         email = if (requiredPayerData.emailRequired) "alice@vasp1.com" else null,
-        identifier = "alice",
+        // Note: This is making an assumption that this is running on localhost. We should make it configurable.
+        identifier = "\$alice@localhost:${System.getenv("PORT")?.toInt() ?: 8080}",
     )
 
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {

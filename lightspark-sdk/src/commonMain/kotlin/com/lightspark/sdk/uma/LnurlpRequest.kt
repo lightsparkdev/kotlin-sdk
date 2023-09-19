@@ -67,7 +67,8 @@ data class LnurlpRequest(
             ) {
                 throw IllegalArgumentException("Invalid uma request path: $url")
             }
-            val receiverAddress = "${urlBuilder.pathSegments[3]}@${urlBuilder.host}"
+            val port = if (urlBuilder.host == "localhost") ":${urlBuilder.port}" else ""
+            val receiverAddress = "${urlBuilder.pathSegments[3]}@${urlBuilder.host}$port"
             val vaspDomain = urlBuilder.parameters["vaspDomain"]
             val nonce = urlBuilder.parameters["nonce"]
             val signature = urlBuilder.parameters["signature"]
