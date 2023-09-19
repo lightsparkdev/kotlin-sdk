@@ -1,3 +1,6 @@
+import io.ktor.plugin.features.DockerEnvironmentVariable
+import io.ktor.plugin.features.JreVersion
+
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin") version "2.3.3"
@@ -15,6 +18,13 @@ application {
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+ktor {
+    docker {
+//        jreVersion.set(JreVersion.JRE_17)
+//        environmentVariables.add(DockerEnvironmentVariable("LIGHTSPARK_API_TOKEN_CLIENT_ID", "lightspark"))
+    }
 }
 
 dependencies {
