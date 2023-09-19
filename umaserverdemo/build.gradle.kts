@@ -1,3 +1,6 @@
+import io.ktor.plugin.features.DockerEnvironmentVariable
+import io.ktor.plugin.features.JreVersion
+
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin") version "2.3.3"
