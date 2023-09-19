@@ -16,6 +16,7 @@ import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.host
+import io.ktor.server.request.port
 import io.ktor.server.request.receive
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
@@ -246,9 +247,10 @@ class Vasp2(
 
     private fun ApplicationRequest.fullUrl(): String {
         val host = host()
+        val port = if (host == "localhost") ":${port()}" else ""
         val protocol = origin.scheme
         val path = uri
-        return "$protocol://$host$path"
+        return "$protocol://$host$port$path"
     }
 }
 

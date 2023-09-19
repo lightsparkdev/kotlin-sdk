@@ -40,8 +40,8 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
-                // implementation(project(":crypto"))
-                implementation(libs.lightspark.crypto)
+                implementation(project(":crypto"))
+                // implementation(libs.lightspark.crypto)
             }
         }
         val commonTest by getting {
