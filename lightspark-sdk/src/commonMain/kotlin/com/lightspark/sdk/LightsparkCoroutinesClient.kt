@@ -18,6 +18,7 @@ import com.lightspark.sdk.model.*
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 
 private const val SCHEMA_ENDPOINT = "graphql/server/2023-09-13"
@@ -92,7 +93,7 @@ class LightsparkCoroutinesClient private constructor(
                 AccountDashboardQuery,
                 {
                     add("network", bitcoinNetwork.rawValue)
-                    nodeIds?.let { add("nodeIds", nodeIds) }
+                    nodeIds?.let { add("nodeIds", serializerFormat.encodeToString(nodeIds)) }
                 },
             ) {
                 val account =
@@ -563,7 +564,7 @@ class LightsparkCoroutinesClient private constructor(
                     CreateApiTokenMutation,
                     {
                         add("name", name)
-                        add("permissions", permissions.map { it.rawValue })
+                        add("permissions", serializerFormat.encodeToString(permissions.map { it.rawValue }))
                     },
                 ) {
                     val tokenJson = requireNotNull(it["create_api_token"]) { "No token found in response" }
