@@ -3,15 +3,16 @@ package com.lightspark.sdk.uma
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.boolean
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Response from VASP2 to the [LnurlpRequest].
@@ -53,29 +54,64 @@ data class PayerDataOptions(
     fun toJson() = Json.encodeToString(this)
 }
 
+@Serializable
+data class PayerDataJsonField(
+    val mandatory: Boolean,
+)
+
 // Custom serializer for PayerDataOptions
 class PayerDataOptionsSerializer : KSerializer<PayerDataOptions> {
-    override val descriptor = PrimitiveSerialDescriptor("payerData", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor
+        get() = buildClassSerialDescriptor("PayerDataOptions") {
+            element<PayerDataJsonField>("identifier", isOptional = true)
+            element<PayerDataJsonField>("name", isOptional = true)
+            element<PayerDataJsonField>("email", isOptional = true)
+            element<PayerDataJsonField>("compliance", isOptional = true)
+        }
 
     override fun serialize(encoder: Encoder, value: PayerDataOptions) {
-        val jsonOutput = """{
-            "identifier": true,
-            "name": { "mandatory": ${value.nameRequired} },
-            "email": { "mandatory": ${value.emailRequired} },
-            "compliance": { "mandatory": ${value.complianceRequired} }
-        }""".trimIndent()
-        encoder.encodeString(jsonOutput)
+        encoder.encodeStructure(descriptor) {
+            encodeSerializableElement(descriptor, 0, PayerDataJsonField.serializer(), PayerDataJsonField(true))
+            encodeSerializableElement(descriptor, 1, PayerDataJsonField.serializer(), PayerDataJsonField(value.nameRequired))
+            encodeSerializableElement(descriptor, 2, PayerDataJsonField.serializer(), PayerDataJsonField(value.emailRequired))
+            encodeSerializableElement(descriptor, 3, PayerDataJsonField.serializer(), PayerDataJsonField(value.complianceRequired))
+        }
     }
 
     override fun deserialize(decoder: Decoder): PayerDataOptions {
-        val jsonInput = decoder.decodeString()
-        val json = Json.parseToJsonElement(jsonInput)
-        val name = json.jsonObject["name"]?.jsonObject
-        val email = json.jsonObject["email"]?.jsonObject
-        val compliance = json.jsonObject["compliance"]?.jsonObject
-        val nameRequired = name?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-        val emailRequired = email?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-        val complianceRequired = compliance?.get("mandatory")?.jsonPrimitive?.boolean ?: false
-        return PayerDataOptions(nameRequired, emailRequired, complianceRequired)
+        return decoder.decodeStructure(descriptor) {
+            var nameRequired = false
+            var emailRequired = false
+            var complianceRequired = false
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> {
+                        val identifier = decodeSerializableElement(descriptor, 0, PayerDataJsonField.serializer())
+                        if (!identifier.mandatory) {
+                            throw IllegalArgumentException("PayerDataOptions.identifier must be mandatory")
+                        }
+                    }
+
+                    1 -> {
+                        val name = decodeSerializableElement(descriptor, 1, PayerDataJsonField.serializer())
+                        nameRequired = name.mandatory
+                    }
+
+                    2 -> {
+                        val email = decodeSerializableElement(descriptor, 2, PayerDataJsonField.serializer())
+                        emailRequired = email.mandatory
+                    }
+
+                    3 -> {
+                        val compliance = decodeSerializableElement(descriptor, 3, PayerDataJsonField.serializer())
+                        complianceRequired = compliance.mandatory
+                    }
+
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("Unexpected index: $index")
+                }
+            }
+            PayerDataOptions(nameRequired, emailRequired, complianceRequired)
+        }
     }
 }

@@ -159,7 +159,7 @@ class Vasp1(
                 put("maxSendSats", lnurlpResponse.maxSendable)
                 put("callbackUuid", callbackUuid)
                 // You might not actually send this to a client in practice.
-                put("receiverKycStatus", lnurlpResponse.compliance.receiverKycStatus.rawValue)
+                put("receiverKycStatus", lnurlpResponse.compliance.kycStatus.rawValue)
             },
         )
 
