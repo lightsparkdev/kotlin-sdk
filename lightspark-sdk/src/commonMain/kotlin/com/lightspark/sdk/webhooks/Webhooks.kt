@@ -1,3 +1,5 @@
+@file:JvmName("Webhooks")
+
 package com.lightspark.sdk.webhooks
 
 import com.lightspark.sdk.core.LightsparkException
@@ -25,8 +27,13 @@ data class WebhookEvent(
     @SerialName("wallet_id")
     val walletId: String? = null,
     @SerialName("data")
+    @get:JvmName("getDataKotlin")
     val data: JsonObject? = null,
-)
+) {
+    fun getDataJsonString(): String? {
+        return data?.toString()
+    }
+}
 
 const val SIGNATURE_HEADER = "lightspark-signature"
 
