@@ -24,6 +24,7 @@ lightsparkCore = "0.4.1"
 lightsparkCrypto = "0.4.0"
 mavenPublish = "0.25.2"
 mockitoCore = "5.5.0"
+taskTree = "2.1.1"
 
 # Android Wallet demo deps:
 accompanist = "0.28.0"
@@ -80,6 +81,7 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "dataStore" }
 
+task-tree = { module = "com.dorongold.plugins:task-tree", version.ref = "taskTree" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 kase64 = { module = "de.peilicke.sascha:kase64", version.ref = "kase64" }
