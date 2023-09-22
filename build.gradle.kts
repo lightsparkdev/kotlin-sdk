@@ -1,8 +1,9 @@
-
+import com.android.build.gradle.internal.dsl.KotlinMultiplatformAndroidExtension
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.net.URL
 
 buildscript {
@@ -13,6 +14,7 @@ buildscript {
         classpath(libs.gradleClasspath.kotlin)
         classpath(libs.gradleClasspath.mavenPublish)
         classpath(libs.gradleClasspath.downloadFile)
+        classpath(libs.task.tree)
         // Needed for https://github.com/google/dagger/issues/3068.
         classpath("com.squareup:javapoet:1.13.0")
     }
@@ -24,6 +26,7 @@ buildscript {
     }
 }
 
+apply(plugin = "com.dorongold.task-tree")
 apply(plugin = "org.jetbrains.dokka")
 apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
@@ -123,6 +126,49 @@ subprojects {
                 enabled = false
             }
         }
+    }
+}
+val DEMO_APPS = setOf(
+    "androidwalletdemo",
+    "javatest",
+    "remotesignerdemo",
+    "umaserverdemo",
+    "oauth",
+)
+// Java + Kotlin and JDK settings
+subprojects {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_11.toString()
+            freeCompilerArgs = listOf(
+                "-Xjvm-default=all",
+            )
+        }
+    }
+
+    if (project.name !in DEMO_APPS) {
+        apply(plugin = "org.jetbrains.kotlin.multiplatform")
+        configure<KotlinMultiplatformExtension> {
+            jvmToolchain(11)
+            androidTarget {
+                compilations.forEach {
+                    it.kotlinOptions {
+                        jvmTarget = JavaVersion.VERSION_11.toString()
+                    }
+                }
+            }
+        }
+    }
+
+    tasks.withType<JavaCompile> {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_11.toString()
+        options.compilerArgs.addAll(
+            listOf(
+                "--release",
+                "11",
+            ),
+        )
     }
 }
 

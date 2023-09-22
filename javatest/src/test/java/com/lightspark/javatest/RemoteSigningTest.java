@@ -49,11 +49,7 @@ public class RemoteSigningTest {
         ArgumentCaptor<Query<SignInvoiceOutput>> queryCaptor = ArgumentCaptor.forClass(Query.class);
         when(syncClient.executeQuery(any())).thenAnswer((Answer<SignInvoiceOutput>) invocation -> {
             SignInvoiceOutput output = new SignInvoiceOutput(new EntityId("Invoice:123456ab"));
-            kotlinx.serialization.json.JsonObject json = JsonObjectBuilderKt.buildJsonObject(Json.Default, jsonObjectBuilder -> {
-                jsonObjectBuilder.add("sign_invoice", output.toJsonElement());
-                return Unit.INSTANCE;
-            });
-            invocation.getArgument(0, Query.class).component4().invoke(json);
+            invocation.getArgument(0, Query.class).component4().invoke(signInvoiceOutputToJson(output));
             return new SignInvoiceOutput(new EntityId("Invoice:123456ab"));
         });
 
@@ -78,11 +74,7 @@ public class RemoteSigningTest {
         ArgumentCaptor<Query<SignInvoiceOutput>> queryCaptor = ArgumentCaptor.forClass(Query.class);
         when(client.executeQuery(any())).thenAnswer((Answer<CompletableFuture<SignInvoiceOutput>>) invocation -> {
             SignInvoiceOutput output = new SignInvoiceOutput(new EntityId("Invoice:123456ab"));
-            kotlinx.serialization.json.JsonObject json = JsonObjectBuilderKt.buildJsonObject(Json.Default, jsonObjectBuilder -> {
-                jsonObjectBuilder.add("sign_invoice", output.toJsonElement());
-                return Unit.INSTANCE;
-            });
-            invocation.getArgument(0, Query.class).component4().invoke(json);
+            invocation.getArgument(0, Query.class).component4().invoke(signInvoiceOutputToJson(output));
             return CompletableFuture.completedFuture(
                     new SignInvoiceOutput(new EntityId("Invoice:123456ab"))
             );
@@ -118,5 +110,20 @@ public class RemoteSigningTest {
         }
 
         return byteArray;
+    }
+
+    private kotlinx.serialization.json.JsonObject signInvoiceOutputToJson(SignInvoiceOutput output) {
+        return JsonObjectBuilderKt.buildJsonObject(Json.Default, jsonObjectBuilder -> {
+            kotlinx.serialization.json.JsonObject entityObj = JsonObjectBuilderKt.buildJsonObject(Json.Default, jsonEntity -> {
+                jsonEntity.add("id", output.getInvoiceId().getId());
+                return Unit.INSTANCE;
+            });
+            kotlinx.serialization.json.JsonObject outputJsonObj = JsonObjectBuilderKt.buildJsonObject(Json.Default, outputJsonObjBuilder -> {
+                outputJsonObjBuilder.add("sign_invoice_output_invoice", entityObj);
+                return Unit.INSTANCE;
+            });
+            jsonObjectBuilder.add("sign_invoice", outputJsonObj);
+            return Unit.INSTANCE;
+        });
     }
 }
