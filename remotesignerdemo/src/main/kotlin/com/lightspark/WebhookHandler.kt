@@ -3,7 +3,6 @@ package com.lightspark
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.model.WebhookEventType
 import com.lightspark.sdk.remotesigning.handleRemoteSigningEvent
-import com.lightspark.sdk.uma.PubKeyResponse
 import com.lightspark.sdk.webhooks.SIGNATURE_HEADER
 import com.lightspark.sdk.webhooks.verifyAndParseWebhook
 import io.ktor.http.HttpStatusCode
@@ -14,7 +13,7 @@ import io.ktor.server.response.respond
 suspend fun handleWebhookRequest(
     call: ApplicationCall,
     config: RemoteSigningConfig,
-    client: LightsparkCoroutinesClient
+    client: LightsparkCoroutinesClient,
 ): String {
     val signature = call.request.headers[SIGNATURE_HEADER] ?: run {
         call.respond(HttpStatusCode.BadRequest, "Missing signature header.")
@@ -35,6 +34,7 @@ suspend fun handleWebhookRequest(
             call.respond(HttpStatusCode.InternalServerError, "Error handling remote signing event.")
             return "Error handling remote signing event."
         }
+
         else -> {
             call.respond(HttpStatusCode.OK)
             return "Unhandled webhook event type ${webhookEvent.eventType}."

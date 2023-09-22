@@ -14,7 +14,9 @@ import kotlinx.serialization.json.Json
  */
 @Serializable
 data class PubKeyResponse @JvmOverloads constructor(
+    @Serializable(with = ByteArrayAsHexSerializer::class)
     val signingPubKey: ByteArray,
+    @Serializable(with = ByteArrayAsHexSerializer::class)
     val encryptionPubKey: ByteArray,
     val expirationTimestamp: Long? = null,
 ) {

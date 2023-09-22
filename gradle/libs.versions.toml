@@ -20,9 +20,11 @@ kotlinSerializationJson = "1.4.1"
 krypt = "0.3.1"
 ktlint = "11.3.1"
 ktor = "2.2.3"
-lightsparkCore = "0.4.1"
+lightsparkCore = "0.5.0"
 lightsparkCrypto = "0.4.0"
 mavenPublish = "0.25.2"
+mockitoCore = "5.5.0"
+taskTree = "2.1.1"
 
 # Android Wallet demo deps:
 accompanist = "0.28.0"
@@ -79,6 +81,7 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "dataStore" }
 
+task-tree = { module = "com.dorongold.plugins:task-tree", version.ref = "taskTree" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 kase64 = { module = "de.peilicke.sascha:kase64", version.ref = "kase64" }
@@ -119,6 +122,7 @@ retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitExt" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 
 [bundles]
 accompanist = ["accompanist-pager", "accompanist-systemuicontroller"]

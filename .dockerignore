@@ -10,3 +10,4 @@ build/*
 # except files for docker
 !build/docker
 !umaserverdemo/build/libs
+!remotesignerdemo/build/libs

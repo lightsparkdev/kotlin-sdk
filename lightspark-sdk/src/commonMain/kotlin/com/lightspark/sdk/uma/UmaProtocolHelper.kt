@@ -202,7 +202,7 @@ class UmaProtocolHelper @JvmOverloads constructor(
         val nonce = generateNonce()
         val timestamp = System.currentTimeMillis() / 1000
         val complianceResponse = LnurlComplianceResponse(
-            receiverKycStatus = receiverKycStatus,
+            kycStatus = receiverKycStatus,
             isSubjectToTravelRule = requiresTravelRuleInfo,
             signature = "",
             signatureNonce = nonce,

@@ -155,7 +155,7 @@ public class UmaTest {
         System.out.println(response);
     }
 
-    private byte[] hexToBytes(String hex) {
+    static byte[] hexToBytes(String hex) {
         byte[] bytes = new byte[hex.length() / 2];
         for (int i = 0; i < hex.length(); i += 2) {
             bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
@@ -179,10 +179,9 @@ class TestUmaRequester implements UmaRequester {
     public Object makeGetRequest(@NotNull String url, @NotNull Continuation<? super String> $completion) {
         if (url.contains("lnurlpubkey")) {
             PubKeyResponse response = new PubKeyResponse(
-                    "02d5".getBytes(StandardCharsets.UTF_8),
-                    "12345".getBytes(StandardCharsets.UTF_8));
-            Gson gson = new Gson();
-            return gson.toJson(response);
+                    UmaTest.hexToBytes("02d5fe"),
+                    UmaTest.hexToBytes("123456"));
+            return response.toJson();
         }
         return null;
     }
