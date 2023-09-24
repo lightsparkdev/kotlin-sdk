@@ -30,14 +30,14 @@ class DefaultPrefsStore(private val context: Context) {
         val preferences = context.dataStore.data.first()
         SavedPrefs(
             preferences[SERVER_ENVIRONMENT]?.let { ServerEnvironment.valueOf(it) }
-                ?: ServerEnvironment.DEV,
+                ?: ServerEnvironment.PROD,
         )
     }
 
     fun getPrefsFlow() = context.dataStore.data.map { preferences ->
         SavedPrefs(
             preferences[SERVER_ENVIRONMENT]?.let { ServerEnvironment.valueOf(it) }
-                ?: ServerEnvironment.DEV,
+                ?: ServerEnvironment.PROD,
         )
     }.distinctUntilChanged()
 
