@@ -1,8 +1,8 @@
 package com.lightspark.sdk.uma
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
 
 const val MAJOR_VERSION = 0
@@ -50,7 +50,7 @@ class UnsupportedVersionException(
     fun toLnurlpResponseJson(): String {
         return buildJsonObject {
             put("reason", "Unsupported version: ${unsupportedVersion}.")
-            put("supportedMajorVersions", Json.encodeToString(supportedMajorVersions))
+            put("supportedMajorVersions", Json.encodeToJsonElement(supportedMajorVersions))
             put("unsupportedVersion", unsupportedVersion)
         }.toString()
     }

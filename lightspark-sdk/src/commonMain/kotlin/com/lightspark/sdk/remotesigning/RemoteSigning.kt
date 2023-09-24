@@ -36,8 +36,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.single
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
@@ -180,7 +180,7 @@ private fun declineToSignMessages(executor: QueryExecutor, event: WebhookEvent):
             Query(
                 DeclineToSignMessagesMutation,
                 {
-                    add("payload_ids", serializerFormat.encodeToString(payloadIds))
+                    add("payload_ids", serializerFormat.encodeToJsonElement(payloadIds))
                 },
             ) {
                 val declineToSignJson =
@@ -391,7 +391,7 @@ private fun handleDeriveKeyAndSign(
             Query(
                 SignMessagesMutation,
                 {
-                    add("signatures", serializerFormat.encodeToString(signatures))
+                    add("signatures", serializerFormat.encodeToJsonElement(signatures))
                 },
             ) {
                 val signMessagesOutputJson =

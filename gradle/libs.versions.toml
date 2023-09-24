@@ -1,7 +1,7 @@
 [versions]
 # Core SDK deps (or common):
 acinqSecp256k1 = "0.10.0"
-androidGradlePlugin = "8.1.0"
+androidGradlePlugin = "8.1.1"
 appAuth = "0.11.1"
 buildKonfig = "0.13.3"
 dataStore = "1.0.0"
