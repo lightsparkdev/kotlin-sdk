@@ -62,10 +62,6 @@ kotlin {
         }
         val jvmMain by getting {
             dependsOn(commonJvmAndroidMain)
-            dependencies {
-                implementation(libs.kotlinx.coroutines.jdk8)
-                implementation(libs.ktor.client.okhttp)
-            }
         }
 
         val androidMain by getting {

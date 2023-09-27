@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.dsl.KotlinMultiplatformAndroidExtension
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
@@ -71,7 +70,7 @@ subprojects {
         dokkaSourceSets.configureEach {
             reportUndocumented.set(false)
             skipDeprecated.set(true)
-            jdkVersion.set(8)
+            jdkVersion.set(11)
             if (project.file("README.md").exists()) {
                 includes.from(project.file("README.md"))
             }
