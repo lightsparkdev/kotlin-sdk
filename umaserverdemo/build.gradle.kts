@@ -30,6 +30,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-compression-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation(libs.uma)
     implementation(project(":lightspark-sdk"))
     implementation(project(":core"))
     implementation(project(":crypto"))

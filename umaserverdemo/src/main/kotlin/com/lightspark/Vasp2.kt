@@ -3,13 +3,6 @@ package com.lightspark
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
-import com.lightspark.sdk.uma.Currency
-import com.lightspark.sdk.uma.KycStatus
-import com.lightspark.sdk.uma.LightsparkClientUmaInvoiceCreator
-import com.lightspark.sdk.uma.PayRequest
-import com.lightspark.sdk.uma.PayerDataOptions
-import com.lightspark.sdk.uma.UmaProtocolHelper
-import com.lightspark.sdk.uma.UnsupportedVersionException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -23,6 +16,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.UmaProtocolHelper
+import me.uma.UnsupportedVersionException
+import me.uma.protocol.Currency
+import me.uma.protocol.KycStatus
+import me.uma.protocol.PayRequest
+import me.uma.protocol.PayerDataOptions
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
