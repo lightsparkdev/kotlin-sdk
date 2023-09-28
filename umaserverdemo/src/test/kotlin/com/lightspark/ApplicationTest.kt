@@ -15,6 +15,7 @@ import me.uma.InMemoryPublicKeyCache
 import me.uma.KtorUmaRequester
 import me.uma.UMA_VERSION_STRING
 import me.uma.UmaProtocolHelper
+import me.uma.crypto.Secp256k1
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
@@ -74,11 +75,10 @@ class ApplicationTest {
             trInfo,
             payerNodePubKey = "abcdef",
         )
-        // TODO(Jeremy): Avoid loading the same lib twice here and in the uma lib. It causes a breakage.
-        // val decryptedTrInfo = Secp256k1.decryptEcies(
-        //     payRequest.payerData.compliance!!.travelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
-        // )
-        // assertEquals(trInfo, decryptedTrInfo.decodeToString())
+        val decryptedTrInfo = Secp256k1.decryptEcies(
+            payRequest.payerData.compliance!!.travelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
+        )
+        assertEquals(trInfo, decryptedTrInfo.decodeToString())
         client.post("http://localhost/api/uma/payreq/${env.userID}") {
             setBody(payRequest)
             contentType(io.ktor.http.ContentType.Application.Json)
