@@ -4,13 +4,6 @@ import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.execute
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
-import com.lightspark.sdk.uma.KycStatus
-import com.lightspark.sdk.uma.LnurlpResponse
-import com.lightspark.sdk.uma.PayReqResponse
-import com.lightspark.sdk.uma.PayerDataOptions
-import com.lightspark.sdk.uma.UmaProtocolHelper
-import com.lightspark.sdk.uma.UtxoWithAmount
-import com.lightspark.sdk.uma.selectHighestSupportedVersion
 import com.lightspark.sdk.util.toMilliSats
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -30,6 +23,13 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.UmaProtocolHelper
+import me.uma.protocol.KycStatus
+import me.uma.protocol.LnurlpResponse
+import me.uma.protocol.PayReqResponse
+import me.uma.protocol.PayerDataOptions
+import me.uma.protocol.UtxoWithAmount
+import me.uma.selectHighestSupportedVersion
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi

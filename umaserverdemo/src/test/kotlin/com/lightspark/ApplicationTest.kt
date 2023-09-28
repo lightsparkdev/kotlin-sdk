@@ -2,14 +2,6 @@ package com.lightspark
 
 import com.lightspark.plugins.configureHTTP
 import com.lightspark.plugins.configureRouting
-import com.lightspark.sdk.crypto.Secp256k1
-import com.lightspark.sdk.uma.InMemoryPublicKeyCache
-import com.lightspark.sdk.uma.KtorUmaRequester
-import com.lightspark.sdk.uma.KycStatus
-import com.lightspark.sdk.uma.LnurlpResponse
-import com.lightspark.sdk.uma.PayReqResponse
-import com.lightspark.sdk.uma.UMA_VERSION_STRING
-import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
@@ -19,6 +11,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
+import me.uma.InMemoryPublicKeyCache
+import me.uma.KtorUmaRequester
+import me.uma.UMA_VERSION_STRING
+import me.uma.UmaProtocolHelper
+import me.uma.crypto.Secp256k1
+import me.uma.protocol.KycStatus
+import me.uma.protocol.LnurlpResponse
+import me.uma.protocol.PayReqResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -41,7 +41,7 @@ class ApplicationTest {
         }
         val uma = UmaProtocolHelper(InMemoryPublicKeyCache(), KtorUmaRequester(client))
         val requestUrlString = uma.getSignedLnurlpRequestUrl(
-            env.umaSigningPrivKey, "\$bob@localhost", "localhost", false,
+            env.umaSigningPrivKey, "\$bob@localhost:443", "localhost", false,
         )
         client.get(requestUrlString).apply {
             assertEquals(HttpStatusCode.OK, status)

@@ -1,7 +1,7 @@
 [versions]
 # Core SDK deps (or common):
 acinqSecp256k1 = "0.10.0"
-androidGradlePlugin = "8.1.0"
+androidGradlePlugin = "8.1.1"
 appAuth = "0.11.1"
 buildKonfig = "0.13.3"
 dataStore = "1.0.0"
@@ -22,6 +22,7 @@ ktlint = "11.3.1"
 ktor = "2.2.3"
 lightsparkCore = "0.5.0"
 lightsparkCrypto = "0.5.0"
+uma = "0.1.1"
 mavenPublish = "0.25.2"
 mockitoCore = "5.5.0"
 taskTree = "2.1.1"
@@ -115,6 +116,7 @@ mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version
 lightspark-composeqrcode = { module = "com.lightspark:compose-qr-code", version.ref = "qrCode" }
 lightspark-core = { module = "com.lightspark:lightspark-core", version.ref = "lightsparkCore" }
 lightspark-crypto = { module = "com.lightspark:lightspark-crypto", version.ref = "lightsparkCrypto" }
+uma = { module = "me.uma:uma-sdk", version.ref = "uma" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }

@@ -182,7 +182,7 @@ class LightsparkCoroutinesWalletClient private constructor(
             Query(
                 InitializeWallet,
                 {
-                    add("key_type", keyType.rawValue)
+                    add("key_type", serializerFormat.encodeToJsonElement(keyType))
                     add("signing_public_key", signingPublicKey)
                 },
                 signingNodeId = WALLET_NODE_ID_KEY,
@@ -314,7 +314,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 {
                     add("amountMsats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("type", type.rawValue)
+                    add("type", serializerFormat.encodeToJsonElement(type))
                     expirySecs?.let { add("expirySecs", expirySecs) }
                 },
             ) {
@@ -720,7 +720,7 @@ class LightsparkCoroutinesWalletClient private constructor(
                 {
                     add("amount_msats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    invoiceType?.let { add("invoice_type", it.rawValue) }
+                    invoiceType?.let { add("invoice_type", serializerFormat.encodeToJsonElement(it)) }
                 },
             ) {
                 val outputJson =

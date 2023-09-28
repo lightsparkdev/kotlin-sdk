@@ -297,7 +297,8 @@ fun QrCodeContainerPreview() {
             Lce.Content(
                 RequestPaymentUiState(
                     encodedQrData = "lightspark://pay?amount=100&currency=USD&message=Hello%20World",
-//                    invoiceAmount = CurrencyAmount(100, CurrencyUnit.SATOSHI)
+                    // Uncomment to show preview state when an amount was entered:
+                    // invoiceAmount = CurrencyAmount(100, CurrencyUnit.SATOSHI)
                 ),
             ),
         )

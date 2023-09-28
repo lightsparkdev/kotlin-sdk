@@ -21,7 +21,7 @@ import net.openid.appauth.ResponseTypeValues
 class OAuthHelper(
     context: Context,
     private val OAuthStateStorage: OAuthStateStorage = SharedPrefsOAuthStateStorage(context),
-    private var serverEnvironment: ServerEnvironment = ServerEnvironment.DEV,
+    private var serverEnvironment: ServerEnvironment = ServerEnvironment.PROD,
 ) {
     private val authService = AuthorizationService(context.applicationContext)
 

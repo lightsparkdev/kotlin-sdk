@@ -10,8 +10,6 @@ import com.lightspark.registerVasp2Routes
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
-import com.lightspark.sdk.uma.InMemoryPublicKeyCache
-import com.lightspark.sdk.uma.UmaProtocolHelper
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -19,6 +17,8 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import me.uma.InMemoryPublicKeyCache
+import me.uma.UmaProtocolHelper
 import kotlinx.serialization.json.JsonObject
 
 fun Application.configureRouting(

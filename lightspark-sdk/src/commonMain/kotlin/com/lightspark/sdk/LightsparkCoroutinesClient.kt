@@ -18,7 +18,6 @@ import com.lightspark.sdk.model.*
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 
 private const val SCHEMA_ENDPOINT = "graphql/server/2023-09-13"
@@ -92,8 +91,8 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 AccountDashboardQuery,
                 {
-                    add("network", bitcoinNetwork.rawValue)
-                    nodeIds?.let { add("nodeIds", serializerFormat.encodeToString(nodeIds)) }
+                    add("network", serializerFormat.encodeToJsonElement(bitcoinNetwork))
+                    nodeIds?.let { add("nodeIds", serializerFormat.encodeToJsonElement(nodeIds)) }
                 },
             ) {
                 val account =
@@ -123,7 +122,7 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 SingleNodeDashboardQuery,
                 {
-                    add("network", bitcoinNetwork.rawValue)
+                    add("network", serializerFormat.encodeToJsonElement(bitcoinNetwork))
                     add("nodeId", nodeId)
                     add("numTransactions", numTransactions)
                 },
@@ -195,7 +194,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("nodeId", nodeId)
                     add("amountMsats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    add("type", type.rawValue)
+                    add("type", serializerFormat.encodeToJsonElement(type))
                     expirySecs?.let { add("expirySecs", expirySecs) }
                 },
             ) {
@@ -411,7 +410,7 @@ class LightsparkCoroutinesClient private constructor(
         return executeQuery(
             Query(
                 BitcoinFeeEstimateQuery,
-                { add("bitcoin_network", bitcoinNetwork.rawValue) },
+                { add("bitcoin_network", serializerFormat.encodeToJsonElement(bitcoinNetwork)) },
             ) {
                 val feeEstimateJson =
                     requireNotNull(it["bitcoin_fee_estimate"]) { "No fee estimate found in response" }
@@ -564,7 +563,7 @@ class LightsparkCoroutinesClient private constructor(
                     CreateApiTokenMutation,
                     {
                         add("name", name)
-                        add("permissions", serializerFormat.encodeToString(permissions.map { it.rawValue }))
+                        add("permissions", serializerFormat.encodeToJsonElement(permissions.map { it }))
                     },
                 ) {
                     val tokenJson = requireNotNull(it["create_api_token"]) { "No token found in response" }
@@ -687,7 +686,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("node_id", nodeId)
                     add("amount_sats", amountSats)
                     add("bitcoin_address", bitcoinAddress)
-                    add("withdrawal_mode", mode.rawValue)
+                    add("withdrawal_mode", serializerFormat.encodeToJsonElement(mode))
                 },
             ) {
                 val withdrawalJson =
@@ -771,7 +770,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("local_node_id", localNodeId)
                     add("amount_msats", amountMsats)
                     memo?.let { add("memo", memo) }
-                    invoiceType?.let { add("invoice_type", it.rawValue) }
+                    invoiceType?.let { add("invoice_type", serializerFormat.encodeToJsonElement(it)) }
                 },
             ) {
                 val outputJson =
@@ -837,10 +836,10 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 RegisterPaymentMutation,
                 {
-                    add("provider", complianceProvider.rawValue)
+                    add("provider", serializerFormat.encodeToJsonElement(complianceProvider))
                     add("payment_id", paymentId)
                     add("node_pubkey", nodePubKey)
-                    add("direction", direction.rawValue)
+                    add("direction", serializerFormat.encodeToJsonElement(direction))
                 },
             ) {
                 val outputJson =
@@ -869,7 +868,7 @@ class LightsparkCoroutinesClient private constructor(
             Query(
                 ScreenNodeMutation,
                 {
-                    add("provider", complianceProvider.rawValue)
+                    add("provider", serializerFormat.encodeToJsonElement(complianceProvider))
                     add("node_pubkey", nodePubKey)
                 },
             ) {
