@@ -378,7 +378,7 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
     fun createTestModePayment(
         encodedInvoice: String,
         amountMsats: Long? = null,
-    ): OutgoingPayment = runBlocking {
+    ): IncomingPayment = runBlocking {
         asyncClient.createTestModePayment(
             encodedInvoice,
             amountMsats,
