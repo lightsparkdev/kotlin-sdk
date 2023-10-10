@@ -794,7 +794,7 @@ class LightsparkCoroutinesClient private constructor(
         localNodeId: String,
         encodedInvoice: String,
         amountMsats: Long? = null,
-    ): OutgoingPayment {
+    ): IncomingPayment {
         requireValidAuth()
         return executeQuery(
             Query(
@@ -808,7 +808,7 @@ class LightsparkCoroutinesClient private constructor(
                 val outputJson =
                     requireNotNull(it["create_test_mode_payment"]) { "No payment output found in response" }
                 val paymentJson =
-                    requireNotNull(outputJson.jsonObject["payment"]) { "No payment found in response" }
+                    requireNotNull(outputJson.jsonObject["incoming_payment"]) { "No payment found in response" }
                 serializerFormat.decodeFromJsonElement(paymentJson)
             },
         )

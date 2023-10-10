@@ -14,6 +14,7 @@ import com.lightspark.sdk.model.ComplianceProvider
 import com.lightspark.sdk.model.CreateApiTokenOutput
 import com.lightspark.sdk.model.CurrencyAmount
 import com.lightspark.sdk.model.FeeEstimate
+import com.lightspark.sdk.model.IncomingPayment
 import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.model.InvoiceData
 import com.lightspark.sdk.model.InvoiceType
@@ -395,7 +396,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
         localNodeId: String,
         encodedInvoice: String,
         amountMsats: Long? = null,
-    ): CompletableFuture<OutgoingPayment> = coroutineScope.future {
+    ): CompletableFuture<IncomingPayment> = coroutineScope.future {
         coroutinesClient.createTestModePayment(
             localNodeId,
             encodedInvoice,

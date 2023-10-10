@@ -391,7 +391,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         localNodeId: String,
         encodedInvoice: String,
         amountMsats: Long? = null,
-    ): OutgoingPayment = runBlocking {
+    ): IncomingPayment = runBlocking {
         asyncClient.createTestModePayment(
             localNodeId,
             encodedInvoice,

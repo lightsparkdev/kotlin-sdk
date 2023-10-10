@@ -6,11 +6,11 @@ import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
+import com.lightspark.sdk.model.IncomingPayment
 import com.lightspark.sdk.model.LightsparkNode
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.TransactionStatus
-import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -227,9 +227,14 @@ class ClientIntegrationTests {
     fun `test creating a test mode payment`() = runTest {
         val node = getFirstNode()
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
-        val payment = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
+        var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()
-        payment.status.shouldBeIn(TransactionStatus.PENDING, TransactionStatus.SUCCESS)
+        while (payment?.status == TransactionStatus.PENDING) {
+            delay(500)
+            payment = IncomingPayment.getIncomingPaymentQuery(payment.id).execute(client)
+            println("Payment status: ${payment?.status}")
+        }
+        payment?.status.shouldBe(TransactionStatus.SUCCESS)
     }
 
     // TODO: Add tests for withdrawals and deposits.
