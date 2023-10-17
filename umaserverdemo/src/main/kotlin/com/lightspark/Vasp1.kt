@@ -285,7 +285,7 @@ class Vasp1(
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
         val protocol = call.request.origin.scheme
         val host = call.request.host()
-        val path = "/api/uma/utxoCallback?txId=${config.userID}"
+        val path = "/api/uma/utxoCallback?txId=${txId}"
         return "$protocol://$host$path"
     }
 
@@ -310,7 +310,7 @@ class Vasp1(
         }
 
         val payment = try {
-            val pendingPayment = lightsparkClient.payInvoice(
+            val pendingPayment = lightsparkClient.payUmaInvoice(
                 config.nodeID,
                 payReqData.encodedInvoice,
                 maxFeesMsats = 1_000_000L,
