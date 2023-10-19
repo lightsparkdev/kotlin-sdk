@@ -4,7 +4,7 @@ An example UMA VASP server implementation using kotlin.
 
 ## Running the server
 
-Configuration parameters (API keys, etc.) and information on how to set them can be found in `RemoteSigningConfig.kt`.
+Configuration parameters (API keys, etc.) and information on how to set them can be found in `UmaConfig.kt`.
 To run locally on your machine, from the kotlin-sdk directory, run:
 
 ```bash
@@ -28,6 +28,10 @@ docker run -p 8080:8080 \
 -e LIGHTSPARK_API_TOKEN_CLIENT_SECRET=$LIGHTSPARK_API_TOKEN_CLIENT_SECRET \
 -e LIGHTSPARK_UMA_NODE_ID=$LIGHTSPARK_UMA_NODE_ID \
 -e LIGHTSPARK_UMA_RECEIVER_USER=$LIGHTSPARK_UMA_RECEIVER_USER \
+-e LIGHTSPARK_UMA_ENCRYPTION_PUBKEY=$LIGHTSPARK_UMA_ENCRYPTION_PUBKEY \
+-e LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY=$LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY \
+-e LIGHTSPARK_UMA_SIGNING_PUBKEY=$LIGHTSPARK_UMA_SIGNING_PUBKEY \
+-e LIGHTSPARK_UMA_SIGNING_PRIVKEY=$LIGHTSPARK_UMA_SIGNING_PRIVKEY \
 uma-linux-amd64
 ```
 
@@ -36,22 +40,24 @@ uma-linux-amd64
 First, we'll start two instances of the server, one on port 8080 and one on port 8081 (in separate terminals):
 
 Terminal 1:
+
 ```bash
 # First set up config variables. You can also save these in a file or export them to your environment.
 $ export LIGHTSPARK_API_TOKEN_CLIENT_ID=<client_id>
 $ export LIGHTSPARK_API_TOKEN_CLIENT_SECRET=<client_secret>
-# etc... See RemoteSigningConfig.kt for the full list of config variables.
+# etc... See UmaConfig.kt for the full list of config variables.
 
 # Now start the server on port 8080
 $ PORT=8080 ./gradlew umaserverdemo:run
 ```
 
 Terminal 2:
+
 ```bash
 # First set up the variables as above. If you want to be able to actually send payments, use a different account.
 $ export LIGHTSPARK_API_TOKEN_CLIENT_ID=<client_id_2>
 $ export LIGHTSPARK_API_TOKEN_CLIENT_SECRET=<client_secret_2>
-# etc... See RemoteSigningConfig.kt for the full list of config variables.
+# etc... See UmaConfig.kt for the full list of config variables.
 
 # Now start the server on port 8081
 $ PORT=8081 ./gradlew umaserverdemo:run

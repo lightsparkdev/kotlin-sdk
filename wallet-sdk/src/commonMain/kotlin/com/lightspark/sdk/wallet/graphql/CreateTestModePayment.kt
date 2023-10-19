@@ -1,6 +1,6 @@
 package com.lightspark.sdk.wallet.graphql
 
-import com.lightspark.sdk.wallet.model.OutgoingPayment
+import com.lightspark.sdk.wallet.model.IncomingPayment
 
 const val CreateTestModePayment = """
 mutation CreateTestModePayment(
@@ -11,11 +11,11 @@ mutation CreateTestModePayment(
         encoded_invoice: ${'$'}encoded_invoice
         amount_msats: ${'$'}amount_msats
     }) {
-        payment {
-            ...OutgoingPaymentFragment
+        incoming_payment {
+            ...IncomingPaymentFragment
         }
     }
 }
 
-${OutgoingPayment.FRAGMENT}
+${IncomingPayment.FRAGMENT}
 """

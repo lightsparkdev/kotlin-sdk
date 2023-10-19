@@ -381,7 +381,7 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
     fun createTestModePayment(
         encodedInvoice: String,
         amountMsats: Long? = null,
-    ): CompletableFuture<OutgoingPayment> = coroutineScope.future {
+    ): CompletableFuture<IncomingPayment> = coroutineScope.future {
         coroutinesClient.createTestModePayment(
             encodedInvoice,
             amountMsats,
