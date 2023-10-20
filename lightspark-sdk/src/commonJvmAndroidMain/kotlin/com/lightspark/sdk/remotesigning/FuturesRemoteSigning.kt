@@ -10,6 +10,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 private class FuturesExecutor(private val client: LightsparkFuturesClient) : QueryExecutor {
     override fun <T> executeQuery(query: Query<T>): QueryResult<T> = FutureResult(client.executeQuery(query))
+    override fun <T> just(value: T): QueryResult<T> = FutureResult(CompletableFuture.completedFuture(value))
 }
 
 /**
