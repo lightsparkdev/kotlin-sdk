@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param id The id of the message.
+ * @param signature The signature of the message.
  */
 @Serializable
 @SerialName("IdAndSignature")

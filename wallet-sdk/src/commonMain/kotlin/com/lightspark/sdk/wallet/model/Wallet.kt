@@ -229,6 +229,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                             type: __typename
                             rich_text_text: text
                         }
+                        outgoing_payment_payment_preimage: payment_preimage
                     }
                     ... on Withdrawal {
                         type: __typename

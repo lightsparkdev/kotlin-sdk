@@ -23,6 +23,8 @@ enum class RemoteSigningSubEventType(val rawValue: String) {
 
     REQUEST_INVOICE_PAYMENT_HASH("REQUEST_INVOICE_PAYMENT_HASH"),
 
+    REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET("REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET"),
+
     /**
      * This is an enum value that represents values that could be added in the future.
      * Clients should support unknown values as more of them could be added without notice.

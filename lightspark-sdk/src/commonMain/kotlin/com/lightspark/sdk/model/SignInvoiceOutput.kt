@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invoiceId  The signed invoice object.
  */
 @Serializable
 @SerialName("SignInvoiceOutput")

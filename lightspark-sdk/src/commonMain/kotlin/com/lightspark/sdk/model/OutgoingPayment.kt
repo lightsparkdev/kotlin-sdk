@@ -29,6 +29,7 @@ import kotlinx.serialization.json.jsonObject
  * @param failureReason If applicable, the reason why the payment failed.
  * @param failureMessage If applicable, user-facing error message describing why the payment failed.
  * @param umaPostTransactionData The post transaction data which can be used in KYT payment registration.
+ * @param paymentPreimage The preimage of the payment.
  */
 @Serializable
 @SerialName("OutgoingPayment")
@@ -61,6 +62,8 @@ data class OutgoingPayment(
     val failureMessage: RichText? = null,
     @SerialName("outgoing_payment_uma_post_transaction_data")
     val umaPostTransactionData: List<PostTransactionData>? = null,
+    @SerialName("outgoing_payment_payment_preimage")
+    val paymentPreimage: String? = null,
 ) : LightningTransaction, Transaction, Entity {
     @JvmOverloads
     fun getAttemptsQuery(first: Int? = null, after: String? = null): Query<OutgoingPaymentToAttemptsConnection> {
@@ -106,6 +109,33 @@ query FetchOutgoingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
                     }
                     outgoing_payment_attempt_outgoing_payment: outgoing_payment {
                         id
+                    }
+                    outgoing_payment_attempt_channel_snapshot: channel_snapshot {
+                        type: __typename
+                        channel_snapshot_local_balance: local_balance {
+                            type: __typename
+                            currency_amount_original_value: original_value
+                            currency_amount_original_unit: original_unit
+                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                        }
+                        channel_snapshot_local_unsettled_balance: local_unsettled_balance {
+                            type: __typename
+                            currency_amount_original_value: original_value
+                            currency_amount_original_unit: original_unit
+                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                        }
+                        channel_snapshot_local_channel_reserve: local_channel_reserve {
+                            type: __typename
+                            currency_amount_original_value: original_value
+                            currency_amount_original_unit: original_unit
+                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                        }
                     }
                 }
             }
@@ -434,6 +464,7 @@ fragment OutgoingPaymentFragment on OutgoingPayment {
             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
         }
     }
+    outgoing_payment_payment_preimage: payment_preimage
 }"""
     }
 }
