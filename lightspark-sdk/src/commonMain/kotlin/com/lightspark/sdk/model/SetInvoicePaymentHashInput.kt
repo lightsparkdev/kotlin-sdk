@@ -10,14 +10,14 @@ import kotlinx.serialization.Serializable
  *
  * @param invoiceId The invoice that needs to be updated.
  * @param paymentHash The 32-byte hash of the payment preimage.
- * @param preimageNonce The 32-byte nonce used to generate the invoice preimage.
+ * @param preimageNonce The 32-byte nonce used to generate the invoice preimage if applicable. It will later be included in RELEASE_PAYMENT_PREIMAGE webhook to help recover the raw preimage.
  */
 @Serializable
 @SerialName("SetInvoicePaymentHashInput")
 data class SetInvoicePaymentHashInput(
     val invoiceId: String,
     val paymentHash: String,
-    val preimageNonce: String,
+    val preimageNonce: String? = null,
 ) {
     companion object {
     }

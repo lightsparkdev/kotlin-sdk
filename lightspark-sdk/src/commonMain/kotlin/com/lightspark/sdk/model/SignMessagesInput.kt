@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param signatures The list of the message ids and signatures.
  */
 @Serializable
 @SerialName("SignMessagesInput")

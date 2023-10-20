@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param channelId The channel object after the per-commitment secret release operation.
  */
 @Serializable
 @SerialName("ReleaseChannelPerCommitmentSecretOutput")

@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param signedPayloads The list of signed payloads.
  */
 @Serializable
 @SerialName("SignMessagesOutput")
