@@ -441,6 +441,22 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         asyncClient.screenNode(complianceProvider, nodePubKey)
     }
 
+    /**
+     * Fetches the outgoing payments (if any) which have been made for a given invoice.
+     *
+     * @param encodedInvoice The encoded invoice to fetch the payments for.
+     * @param transactionStatuses The transaction statuses to filter the payments by. If null, all payments will be
+     *    returned.
+     * @return The list of outgoing payments for the invoice.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getOutgoingPaymentsForInvoice(
+        encodedInvoice: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<OutgoingPayment> = runBlocking {
+        asyncClient.getOutgoingPaymentsForInvoice(encodedInvoice, transactionStatuses)
+    }
+
     fun <T> executeQuery(query: Query<T>): T = runBlocking { asyncClient.executeQuery(query) }
 
     fun setBitcoinNetwork(network: BitcoinNetwork) {
