@@ -24,6 +24,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @param paymentRequestData The data of the payment request that was paid by this transaction, if known.
  * @param failureReason If applicable, the reason why the payment failed.
  * @param failureMessage If applicable, user-facing error message describing why the payment failed.
+ * @param paymentPreimage The preimage of the payment.
  */
 @Serializable
 @SerialName("OutgoingPayment")
@@ -50,6 +51,8 @@ data class OutgoingPayment(
     val failureReason: PaymentFailureReason? = null,
     @SerialName("outgoing_payment_failure_message")
     val failureMessage: RichText? = null,
+    @SerialName("outgoing_payment_payment_preimage")
+    val paymentPreimage: String? = null,
 ) : LightningTransaction, Transaction, Entity {
     companion object {
         @JvmStatic
@@ -135,6 +138,7 @@ fragment OutgoingPaymentFragment on OutgoingPayment {
         type: __typename
         rich_text_text: text
     }
+    outgoing_payment_payment_preimage: payment_preimage
 }"""
     }
 }

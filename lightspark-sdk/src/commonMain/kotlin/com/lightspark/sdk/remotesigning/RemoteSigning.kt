@@ -112,10 +112,12 @@ private fun <T> QueryResult<T>.mapException(transformer: (Throwable) -> Exceptio
 
 internal interface QueryExecutor {
     fun <T> executeQuery(query: Query<T>): QueryResult<T>
+    fun <T> just(value: T): QueryResult<T>
 }
 
 private class SyncExecutor(private val client: LightsparkSyncClient) : QueryExecutor {
     override fun <T> executeQuery(query: Query<T>): QueryResult<T> = SyncResult(client.executeQuery(query))
+    override fun <T> just(value: T): QueryResult<T> = SyncResult(value)
 }
 
 private class CoroutineExecutor(private val client: LightsparkCoroutinesClient) : QueryExecutor {
@@ -124,6 +126,8 @@ private class CoroutineExecutor(private val client: LightsparkCoroutinesClient) 
             emit(client.executeQuery(query))
         },
     )
+
+    override fun <T> just(value: T): QueryResult<T> = FlowResult(flowOf(value))
 }
 
 internal fun handleRemoteSigningEvent(
@@ -160,11 +164,8 @@ internal fun handleRemoteSigningEvent(
         RemoteSigningSubEventType.REQUEST_INVOICE_PAYMENT_HASH ->
             handleRequestInvoicePaymentHash(executor, event, seedBytes)
 
-        RemoteSigningSubEventType.FUTURE_VALUE -> when (executor) {
-            is SyncExecutor -> SyncResult("unsupported sub_event_type: $subEventType")
-            is CoroutineExecutor -> FlowResult(flowOf("unsupported sub_event_type: $subEventType"))
-            else -> throw RemoteSigningException("Unsupported executor type: ${executor::class.simpleName}")
-        }
+        RemoteSigningSubEventType.REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET -> executor.just("no-op for $subEventType")
+        RemoteSigningSubEventType.FUTURE_VALUE -> executor.just("unsupported sub_event_type: $subEventType")
     }
 }
 

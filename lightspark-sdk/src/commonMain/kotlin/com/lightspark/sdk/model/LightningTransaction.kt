@@ -389,6 +389,7 @@ fragment LightningTransactionFragment on LightningTransaction {
                 currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
             }
         }
+        outgoing_payment_payment_preimage: payment_preimage
     }
     ... on RoutingTransaction {
         type: __typename

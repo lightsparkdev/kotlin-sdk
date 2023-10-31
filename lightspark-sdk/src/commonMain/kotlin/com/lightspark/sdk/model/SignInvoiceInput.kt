@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invoiceId The unique identifier of the invoice to be signed.
+ * @param signature The cryptographic signature for the invoice.
+ * @param recoveryId The recovery identifier for the signature.
  */
 @Serializable
 @SerialName("SignInvoiceInput")

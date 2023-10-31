@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invoiceId The invoice of the transaction.
  */
 @Serializable
 @SerialName("ReleasePaymentPreimageOutput")

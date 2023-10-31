@@ -25,6 +25,7 @@ import kotlinx.serialization.json.jsonObject
  * @param resolvedAt The time the outgoing payment attempt failed or succeeded.
  * @param amount The total amount of funds required to complete a payment over this route. This value includes the cumulative fees for each hop. As a result, the attempt extended to the first-hop in the route will need to have at least this much value, otherwise the route will fail at an intermediate node due to an insufficient amount.
  * @param fees The sum of the fees paid at each hop within the route of this attempt. In the case of a one-hop payment, this value will be zero as we don't need to pay a fee to ourselves.
+ * @param channelSnapshot The channel snapshot at the time the outgoing payment attempt was made.
  */
 @Serializable
 @SerialName("OutgoingPaymentAttempt")
@@ -49,6 +50,8 @@ data class OutgoingPaymentAttempt(
     val amount: CurrencyAmount? = null,
     @SerialName("outgoing_payment_attempt_fees")
     val fees: CurrencyAmount? = null,
+    @SerialName("outgoing_payment_attempt_channel_snapshot")
+    val channelSnapshot: ChannelSnapshot? = null,
 ) : Entity {
     @JvmOverloads
     fun getHopsQuery(first: Int? = null, after: String? = null): Query<OutgoingPaymentAttemptToHopsConnection> {
@@ -161,6 +164,33 @@ fragment OutgoingPaymentAttemptFragment on OutgoingPaymentAttempt {
     }
     outgoing_payment_attempt_outgoing_payment: outgoing_payment {
         id
+    }
+    outgoing_payment_attempt_channel_snapshot: channel_snapshot {
+        type: __typename
+        channel_snapshot_local_balance: local_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        channel_snapshot_local_unsettled_balance: local_unsettled_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        channel_snapshot_local_channel_reserve: local_channel_reserve {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
     }
 }"""
     }

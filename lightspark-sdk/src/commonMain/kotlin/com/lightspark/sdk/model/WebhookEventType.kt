@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 enum class WebhookEventType(val rawValue: String) {
     PAYMENT_FINISHED("PAYMENT_FINISHED"),
 
+    WITHDRAWAL_FINISHED("WITHDRAWAL_FINISHED"),
+
+    FUNDS_RECEIVED("FUNDS_RECEIVED"),
+
     NODE_STATUS("NODE_STATUS"),
 
     WALLET_STATUS("WALLET_STATUS"),
@@ -24,6 +28,8 @@ enum class WebhookEventType(val rawValue: String) {
     WALLET_FUNDS_RECEIVED("WALLET_FUNDS_RECEIVED"),
 
     REMOTE_SIGNING("REMOTE_SIGNING"),
+
+    LOW_BALANCE("LOW_BALANCE"),
 
     /**
      * This is an enum value that represents values that could be added in the future.

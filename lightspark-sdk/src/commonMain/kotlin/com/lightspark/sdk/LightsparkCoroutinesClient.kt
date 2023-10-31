@@ -881,6 +881,38 @@ class LightsparkCoroutinesClient private constructor(
         )
     }
 
+    /**
+     * Fetches the outgoing payments (if any) which have been made for a given invoice.
+     *
+     * @param encodedInvoice The encoded invoice to fetch the payments for.
+     * @param transactionStatuses The transaction statuses to filter the payments by. If null, all payments will be
+     *    returned.
+     * @return The list of outgoing payments for the invoice.
+     */
+    suspend fun getOutgoingPaymentsForInvoice(
+        encodedInvoice: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<OutgoingPayment> {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                OutgoingPaymentsForInvoiceQuery,
+                {
+                    add("encodedInvoice", encodedInvoice)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["outgoing_payments_for_invoice"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            },
+        )
+    }
+
     suspend fun <T> executeQuery(query: Query<T>): T {
         return requester.executeQuery(query)
     }
