@@ -331,6 +331,33 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             }
                         }
                         lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                        lightspark_node_with_o_s_k_balances: balances {
+                            type: __typename
+                            balances_owned_balance: owned_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            balances_available_to_send_balance: available_to_send_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                        }
                         lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
                             type: __typename
                             secret_encrypted_value: encrypted_value
@@ -436,6 +463,33 @@ query FetchAccountToNodesConnection(${'$'}first: Int, ${'$'}bitcoin_networks: [B
                             }
                         }
                         lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
+                        lightspark_node_with_remote_signing_balances: balances {
+                            type: __typename
+                            balances_owned_balance: owned_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            balances_available_to_send_balance: available_to_send_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                            balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                type: __typename
+                                currency_amount_original_value: original_value
+                                currency_amount_original_unit: original_unit
+                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                            }
+                        }
                     }
                 }
             }
@@ -990,6 +1044,33 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             }
                                         }
                                         lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                                        lightspark_node_with_o_s_k_balances: balances {
+                                            type: __typename
+                                            balances_owned_balance: owned_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            balances_available_to_send_balance: available_to_send_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                        }
                                         lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
                                             type: __typename
                                             secret_encrypted_value: encrypted_value
@@ -1095,6 +1176,33 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                             }
                                         }
                                         lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
+                                        lightspark_node_with_remote_signing_balances: balances {
+                                            type: __typename
+                                            balances_owned_balance: owned_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            balances_available_to_send_balance: available_to_send_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                            balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                                type: __typename
+                                                currency_amount_original_value: original_value
+                                                currency_amount_original_unit: original_unit
+                                                currency_amount_preferred_currency_unit: preferred_currency_unit
+                                                currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                                currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1370,6 +1478,33 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         }
                                     }
                                     lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+                                    lightspark_node_with_o_s_k_balances: balances {
+                                        type: __typename
+                                        balances_owned_balance: owned_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        balances_available_to_send_balance: available_to_send_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                    }
                                     lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
                                         type: __typename
                                         secret_encrypted_value: encrypted_value
@@ -1475,6 +1610,33 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                                         }
                                     }
                                     lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
+                                    lightspark_node_with_remote_signing_balances: balances {
+                                        type: __typename
+                                        balances_owned_balance: owned_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        balances_available_to_send_balance: available_to_send_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                        balances_available_to_withdraw_balance: available_to_withdraw_balance {
+                                            type: __typename
+                                            currency_amount_original_value: original_value
+                                            currency_amount_original_unit: original_unit
+                                            currency_amount_preferred_currency_unit: preferred_currency_unit
+                                            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                                            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                                        }
+                                    }
                                 }
                             }
                         }
