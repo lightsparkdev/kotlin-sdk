@@ -31,6 +31,7 @@ import kotlinx.serialization.json.jsonObject
  * @param localBalance The sum of the channel balances (online only) that are available to send on this node.
  * @param remoteBalance The sum of the channel balances that are available to receive on this node.
  * @param blockchainBalance The details of the balance of this node on the Bitcoin Network.
+ * @param balances The balances that describe the funds in this node.
  * @param encryptedSigningPrivateKey The private key client is using to sign a GraphQL request which will be verified at server side.
  */
 @Serializable
@@ -70,6 +71,8 @@ data class LightsparkNodeWithOSK(
     override val remoteBalance: CurrencyAmount? = null,
     @SerialName("lightspark_node_with_o_s_k_blockchain_balance")
     override val blockchainBalance: BlockchainBalance? = null,
+    @SerialName("lightspark_node_with_o_s_k_balances")
+    override val balances: Balances? = null,
     @SerialName("lightspark_node_with_o_s_k_encrypted_signing_private_key")
     val encryptedSigningPrivateKey: Secret? = null,
 ) : LightsparkNode, Node, Entity {
@@ -356,6 +359,33 @@ fragment LightsparkNodeWithOSKFragment on LightsparkNodeWithOSK {
         }
     }
     lightspark_node_with_o_s_k_uma_prescreening_utxos: uma_prescreening_utxos
+    lightspark_node_with_o_s_k_balances: balances {
+        type: __typename
+        balances_owned_balance: owned_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        balances_available_to_send_balance: available_to_send_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        balances_available_to_withdraw_balance: available_to_withdraw_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+    }
     lightspark_node_with_o_s_k_encrypted_signing_private_key: encrypted_signing_private_key {
         type: __typename
         secret_encrypted_value: encrypted_value

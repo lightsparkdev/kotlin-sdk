@@ -31,6 +31,7 @@ import kotlinx.serialization.json.jsonObject
  * @param localBalance The sum of the channel balances (online only) that are available to send on this node.
  * @param remoteBalance The sum of the channel balances that are available to receive on this node.
  * @param blockchainBalance The details of the balance of this node on the Bitcoin Network.
+ * @param balances The balances that describe the funds in this node.
  */
 @Serializable
 @SerialName("LightsparkNodeWithRemoteSigning")
@@ -69,6 +70,8 @@ data class LightsparkNodeWithRemoteSigning(
     override val remoteBalance: CurrencyAmount? = null,
     @SerialName("lightspark_node_with_remote_signing_blockchain_balance")
     override val blockchainBalance: BlockchainBalance? = null,
+    @SerialName("lightspark_node_with_remote_signing_balances")
+    override val balances: Balances? = null,
 ) : LightsparkNode, Node, Entity {
     override fun getAddressesQuery(first: Int?, types: List<NodeAddressType>?): Query<NodeToAddressesConnection> {
         return Query(
@@ -353,6 +356,33 @@ fragment LightsparkNodeWithRemoteSigningFragment on LightsparkNodeWithRemoteSign
         }
     }
     lightspark_node_with_remote_signing_uma_prescreening_utxos: uma_prescreening_utxos
+    lightspark_node_with_remote_signing_balances: balances {
+        type: __typename
+        balances_owned_balance: owned_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        balances_available_to_send_balance: available_to_send_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+        balances_available_to_withdraw_balance: available_to_withdraw_balance {
+            type: __typename
+            currency_amount_original_value: original_value
+            currency_amount_original_unit: original_unit
+            currency_amount_preferred_currency_unit: preferred_currency_unit
+            currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+            currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+        }
+    }
 }"""
     }
 }
