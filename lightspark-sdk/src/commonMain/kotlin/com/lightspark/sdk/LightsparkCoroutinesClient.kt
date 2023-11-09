@@ -688,6 +688,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("bitcoin_address", bitcoinAddress)
                     add("withdrawal_mode", serializerFormat.encodeToJsonElement(mode))
                 },
+                signingNodeId = nodeId,
             ) {
                 val withdrawalJson =
                     requireNotNull(it["request_withdrawal"]?.jsonObject?.get("request")) {
@@ -804,6 +805,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("encoded_invoice", encodedInvoice)
                     amountMsats?.let { add("amount_msats", amountMsats) }
                 },
+                signingNodeId = localNodeId
             ) {
                 val outputJson =
                     requireNotNull(it["create_test_mode_payment"]) { "No payment output found in response" }
