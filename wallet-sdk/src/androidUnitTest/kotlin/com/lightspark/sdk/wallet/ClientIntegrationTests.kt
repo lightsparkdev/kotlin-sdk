@@ -31,7 +31,7 @@ import saschpe.kase64.base64Encoded
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
     // Read the token ID and secrets from the environment. See wallet-cli docs to get your environment set up to run
-    // these tests. https://app.lightspark.com/docs/wallet-sdk/wallet-cli
+    // these tests. https://docs.lightspark.com/wallet-sdk/wallet-cli?language=Kotlin
     private val apiAccountId = getPlatform().getEnv("LIGHTSPARK_ACCOUNT_ID")!!
     private val apiJwt = getPlatform().getEnv("LIGHTSPARK_JWT")!!
     private var signingPubKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PUB_KEY")
@@ -263,7 +263,7 @@ class ClientIntegrationTests {
     @Test
     fun `test creating a test mode payment`() = runTest {
         // NOTE: This test assumes you have a wallet saved with the name "testregtest". See the wallet-cli docs for
-        // instructions on how to create these test wallets: https://app.lightspark.com/docs/wallet-sdk/wallet-cli
+        // instructions on how to create these test wallets: https://docs.lightspark.com/wallet-sdk/wallet-cli?language=Kotlin
         val testWalletSuffix = "_testregtest"
         val jwt = getPlatform().getEnv("LIGHTSPARK_JWT$testWalletSuffix")!!
         val signingPrivKey = getPlatform().getEnv("LIGHTSPARK_WALLET_PRIV_KEY$testWalletSuffix")
