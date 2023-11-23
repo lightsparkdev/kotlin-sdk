@@ -5,6 +5,7 @@ package com.lightspark.sdk.core.crypto
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
+import java.security.GeneralSecurityException
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
@@ -47,7 +48,7 @@ fun androidKeystoreContainsPrivateKeyForAlias(keyAlias: String): Boolean {
 fun generateSigningKeyPairInAndroidKeyStore(keyAlias: String): KeyPair {
     val keyGen = try {
         KeyPairGenerator.getInstance("RSA", "AndroidKeyStore")
-    } catch (e: Exception) {
+    } catch (e: GeneralSecurityException) {
         Log.w("Lightspark", "Failed to use AndroidKeyStore. Falling back to general key store.", e)
         return generateSigningKeyPair()
     }
