@@ -290,6 +290,30 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice.
+     */
+    suspend fun cancelInvoice(invoiceId: String): Invoice {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CancelInvoiceMutation,
+                {
+                    add("invoiceId", invoiceId)
+                },
+            ) {
+                val invoiceJson =
+                    requireNotNull(
+                        it["cancel_invoice"]?.jsonObject?.get("invoice"),
+                    ) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]
@@ -805,7 +829,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("encoded_invoice", encodedInvoice)
                     amountMsats?.let { add("amount_msats", amountMsats) }
                 },
-                signingNodeId = localNodeId
+                signingNodeId = localNodeId,
             ) {
                 val outputJson =
                     requireNotNull(it["create_test_mode_payment"]) { "No payment output found in response" }
@@ -915,6 +939,151 @@ class LightsparkCoroutinesClient private constructor(
         )
     }
 
+    /**
+     * Creates an UMA invitation. If you are part of the incentive program you should use
+     * [createUmaInvitationWithIncentives].
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @return The invitation that was created.
+     */
+    suspend fun createUmaInvitation(inviterUma: String): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CreateUmaInvitation,
+                {
+                    add("inviter_uma", inviterUma)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["create_uma_invitation"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
+    /**
+     * Creates an UMA invitation as part of the incentive program. If you are not part of the incentive program you
+     * should use [createUmaInvitation].
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @param inviterPhoneNumberE164 The phone number of the inviter in E164 format.
+     * @param inviterRegionCode The region of the inviter.
+     * @return The invitation that was created.
+     */
+    @Throws(IllegalArgumentException::class)
+    suspend fun createUmaInvitationWithIncentives(
+        inviterUma: String,
+        inviterPhoneNumberE164: String,
+        inviterRegionCode: RegionCode,
+    ): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CreateUmaInvitationWithIncentives,
+                {
+                    add("inviter_uma", inviterUma)
+                    add("inviter_phone_hash", hashE164PhoneNumber(inviterPhoneNumberE164))
+                    add("inviter_region", inviterRegionCode.rawValue)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["create_uma_invitation"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
+    /**
+     * Claims an UMA invitation. If you are part of the incentive program, you should use
+     * [claimUmaInvitationWithIncentives].
+     *
+     * @param invitationCode The invitation code to claim.
+     * @param inviteeUma The UMA of the invitee.
+     * @returns The invitation that was claimed.
+     */
+    suspend fun claimUmaInvitation(invitationCode: String, inviteeUma: String): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                ClaimUmaInvitation,
+                {
+                    add("invitation_code", invitationCode)
+                    add("invitee_uma", inviteeUma)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["claim_uma_invitation"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
+    /**
+     * Claims an UMA invitation as part of the incentive program. If you are not part of the incentive program, you
+     * should use [claimUmaInvitation].
+     *
+     * @param invitationCode The invitation code to claim.
+     * @param inviteeUma The UMA of the invitee.
+     * @param inviteePhoneNumberE164 The phone number of the invitee in E164 format.
+     * @param inviteeRegionCode The region of the invitee.
+     * @returns The invitation that was claimed.
+     */
+    @Throws(IllegalArgumentException::class)
+    suspend fun claimUmaInvitationWithIncentives(
+        invitationCode: String,
+        inviteeUma: String,
+        inviteePhoneNumberE164: String,
+        inviteeRegionCode: RegionCode,
+    ): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                ClaimUmaInvitationWithIncentives,
+                {
+                    add("invitation_code", invitationCode)
+                    add("invitee_uma", inviteeUma)
+                    add("invitee_phone_hash", hashE164PhoneNumber(inviteePhoneNumberE164))
+                    add("invitee_region", inviteeRegionCode.rawValue)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["claim_uma_invitation"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
+    /**
+     * Fetches an UMA invitation by its invitation code.
+     *
+     * @param invitationCode The code of the invitation to fetch.
+     * @returns The invitation with the given code, or null if no invitation exists with that code.
+     */
+    suspend fun fetchUmaInvitation(invitationCode: String): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                FetchUmaInvitation,
+                {
+                    add("invitation_code", invitationCode)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["uma_invitation_by_code"]) { "No invitation output found in response" }
+                serializerFormat.decodeFromJsonElement(outputJson)
+            },
+        )
+    }
+
     suspend fun <T> executeQuery(query: Query<T>): T {
         return requester.executeQuery(query)
     }
@@ -923,6 +1092,17 @@ class LightsparkCoroutinesClient private constructor(
         if (!authProvider.isAccountAuthorized()) {
             throw LightsparkAuthenticationException()
         }
+    }
+
+    @Throws(IllegalArgumentException::class)
+    private fun hashE164PhoneNumber(phoneNumber: String): String {
+        val e164Regex = Regex("^\\+[1-9]\\d{1,14}\$")
+        if (!e164Regex.matches(phoneNumber)) {
+            throw IllegalArgumentException("Phone number must be in E164 format")
+        }
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(phoneNumber.toByteArray())
+        return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
     }
 
     fun setServerEnvironment(environment: ServerEnvironment, invalidateAuth: Boolean) {

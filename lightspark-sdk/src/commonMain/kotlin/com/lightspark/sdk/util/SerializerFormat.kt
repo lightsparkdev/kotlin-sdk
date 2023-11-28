@@ -38,6 +38,7 @@ import com.lightspark.sdk.model.RoutingTransaction
 import com.lightspark.sdk.model.Signable
 import com.lightspark.sdk.model.SignablePayload
 import com.lightspark.sdk.model.Transaction
+import com.lightspark.sdk.model.UmaInvitation
 import com.lightspark.sdk.model.Wallet
 import com.lightspark.sdk.model.WalletToPaymentRequestsConnection
 import com.lightspark.sdk.model.WalletToTransactionsConnection
@@ -82,6 +83,7 @@ private val serializerModule =
             subclass(RoutingTransaction::class)
             subclass(Signable::class)
             subclass(SignablePayload::class)
+            subclass(UmaInvitation::class)
             subclass(Wallet::class)
             subclass(Withdrawal::class)
             subclass(WithdrawalRequest::class)

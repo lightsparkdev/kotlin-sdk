@@ -137,6 +137,14 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     ): Invoice = runBlocking { asyncClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs) }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice.
+     */
+    fun cancelInvoice(invoiceId: String): Invoice = runBlocking { asyncClient.cancelInvoice(invoiceId) }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]
@@ -455,6 +463,85 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         transactionStatuses: List<TransactionStatus>? = null,
     ): List<OutgoingPayment> = runBlocking {
         asyncClient.getOutgoingPaymentsForInvoice(encodedInvoice, transactionStatuses)
+    }
+
+    /**
+     * Creates an UMA invitation. If you are part of the incentive program you should use
+     * [createUmaInvitationWithIncentives].
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @return The invitation that was created.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun createUmaInvitation(inviterUma: String): UmaInvitation = runBlocking {
+        asyncClient.createUmaInvitation(inviterUma)
+    }
+
+    /**
+     * Creates an UMA invitation as part of the incentive program. If you are not part of the incentive program you
+     * should use [createUmaInvitation].
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @param inviterPhoneNumberE164 The phone number of the inviter in E164 format.
+     * @param inviterRegionCode The region of the inviter.
+     * @return The invitation that was created.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class, IllegalArgumentException::class)
+    fun createUmaInvitationWithIncentives(
+        inviterUma: String,
+        inviterPhoneNumberE164: String,
+        inviterRegionCode: RegionCode,
+    ): UmaInvitation = runBlocking {
+        asyncClient.createUmaInvitationWithIncentives(inviterUma, inviterPhoneNumberE164, inviterRegionCode)
+    }
+
+    /**
+     * Claims an UMA invitation. If you are part of the incentive program, you should use
+     * [claimUmaInvitationWithIncentives].
+     *
+     * @param invitationCode The invitation code to claim.
+     * @param inviteeUma The UMA of the invitee.
+     * @returns The invitation that was claimed.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun claimUmaInvitation(invitationCode: String, inviteeUma: String): UmaInvitation = runBlocking {
+        asyncClient.claimUmaInvitation(invitationCode, inviteeUma)
+    }
+
+    /**
+     * Claims an UMA invitation as part of the incentive program. If you are not part of the incentive program, you
+     * should use [claimUmaInvitation].
+     *
+     * @param invitationCode The invitation code to claim.
+     * @param inviteeUma The UMA of the invitee.
+     * @param inviteePhoneNumberE164 The phone number of the invitee in E164 format.
+     * @param inviteeRegionCode The region of the invitee.
+     * @returns The invitation that was claimed.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class, IllegalArgumentException::class)
+    fun claimUmaInvitationWithIncentives(
+        invitationCode: String,
+        inviteeUma: String,
+        inviteePhoneNumberE164: String,
+        inviteeRegionCode: RegionCode,
+    ): UmaInvitation = runBlocking {
+        asyncClient.claimUmaInvitationWithIncentives(
+            invitationCode,
+            inviteeUma,
+            inviteePhoneNumberE164,
+            inviteeRegionCode,
+        )
+    }
+
+    /**
+     * Fetches an UMA invitation by its invitation code.
+     *
+     * @param invitationCode The code of the invitation to fetch.
+     * @returns The invitation with the given code, or null if no invitation exists with that code.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun fetchUmaInvitation(invitationCode: String): UmaInvitation = runBlocking {
+        asyncClient.fetchUmaInvitation(invitationCode)
     }
 
     fun <T> executeQuery(query: Query<T>): T = runBlocking { asyncClient.executeQuery(query) }

@@ -16,9 +16,10 @@ import kotlinx.serialization.json.jsonObject
 /**
  * This object represents an attempted Lightning Network payment sent from a Lightspark Node. You can retrieve this object to receive payment related information about any payment attempt sent from your Lightspark Node on the Lightning Network, including any potential reasons the payment may have failed.
  * @param id The unique identifier of this entity across all Lightspark systems. Should be treated as an opaque string.
- * @param createdAt The date and time when the attempt was initiated.
+ * @param createdAt The date and time when the entity was first created.
  * @param updatedAt The date and time when the entity was last updated.
  * @param status The status of an outgoing payment attempt.
+ * @param attemptedAt The date and time when the attempt was initiated.
  * @param outgoingPaymentId The outgoing payment for this attempt.
  * @param failureCode If the payment attempt failed, then this contains the Bolt #4 failure code.
  * @param failureSourceIndex If the payment attempt failed, then this contains the index of the hop at which the problem occurred.
@@ -38,6 +39,8 @@ data class OutgoingPaymentAttempt(
     override val updatedAt: Instant,
     @SerialName("outgoing_payment_attempt_status")
     val status: OutgoingPaymentAttemptStatus,
+    @SerialName("outgoing_payment_attempt_attempted_at")
+    val attemptedAt: Instant,
     @SerialName("outgoing_payment_attempt_outgoing_payment")
     val outgoingPaymentId: EntityId,
     @SerialName("outgoing_payment_attempt_failure_code")
@@ -145,6 +148,7 @@ fragment OutgoingPaymentAttemptFragment on OutgoingPaymentAttempt {
     outgoing_payment_attempt_status: status
     outgoing_payment_attempt_failure_code: failure_code
     outgoing_payment_attempt_failure_source_index: failure_source_index
+    outgoing_payment_attempt_attempted_at: attempted_at
     outgoing_payment_attempt_resolved_at: resolved_at
     outgoing_payment_attempt_amount: amount {
         type: __typename

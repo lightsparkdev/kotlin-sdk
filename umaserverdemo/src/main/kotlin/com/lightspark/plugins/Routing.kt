@@ -13,6 +13,7 @@ import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
+import io.ktor.server.request.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
@@ -45,7 +46,7 @@ fun Application.configureRouting(
         get("/api/uma/utxoCallback") {
             val request = try {
                 call.receive<JsonObject>()
-            } catch (e: Exception) {
+            } catch (e: ContentTransformationException) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid utxo callback.")
                 return@get
             }
