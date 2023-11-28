@@ -184,6 +184,18 @@ class ClientIntegrationTests {
     }
 
     @Test
+    fun `create and cancel an invoice`() = runTest {
+        val node = getFirstNode()
+        val invoice = client.createInvoice(node.id, 1000)
+
+        println("encoded invoice: $invoice.data.encodedPaymentRequest}")
+
+        val cancelledInvoice = client.cancelInvoice(invoice.id)
+        cancelledInvoice.shouldNotBeNull()
+        println("cancelled invoice: $cancelledInvoice")
+    }
+
+    @Test
     fun `send a payment for an invoice`() = runTest {
         val node = getFirstNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))

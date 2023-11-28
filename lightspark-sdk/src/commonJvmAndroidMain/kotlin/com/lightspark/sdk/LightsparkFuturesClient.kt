@@ -157,6 +157,15 @@ class LightsparkFuturesClient(config: ClientConfig) {
         coroutineScope.future { coroutinesClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs) }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice as a [CompletableFuture].
+     */
+    fun cancelInvoice(invoiceId: String): CompletableFuture<Invoice> =
+        coroutineScope.future { coroutinesClient.cancelInvoice(invoiceId) }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]
