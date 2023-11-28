@@ -290,6 +290,30 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice.
+     */
+    suspend fun cancelInvoice(invoiceId: String): Invoice {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CancelInvoiceMutation,
+                {
+                    add("invoiceId", invoiceId)
+                },
+            ) {
+                val invoiceJson =
+                    requireNotNull(
+                        it["cancel_invoice"]?.jsonObject?.get("invoice"),
+                    ) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
      * Pay a lightning invoice for the given node.
      *
      * Note: This call will fail if the node sending the payment is not unlocked yet via the [loadNodeSigningKey]

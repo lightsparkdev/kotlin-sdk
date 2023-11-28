@@ -8,7 +8,6 @@ import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.graphql.*
 import com.lightspark.sdk.model.*
-import com.lightspark.sdk.util.serializerFormat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
@@ -136,6 +135,14 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         metadata: String,
         expirySecs: Int? = null,
     ): Invoice = runBlocking { asyncClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs) }
+
+    /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice.
+     */
+    fun cancelInvoice(invoiceId: String): Invoice = runBlocking { asyncClient.cancelInvoice(invoiceId) }
 
     /**
      * Pay a lightning invoice for the given node.

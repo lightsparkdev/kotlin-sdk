@@ -193,6 +193,16 @@ class LightsparkFuturesWalletClient constructor(config: ClientConfig) {
         coroutineScope.future { coroutinesClient.createInvoice(amountMsats, memo, type, expirySecs) }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice as a [CompletableFuture].
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun cancelInvoice(invoiceId: String): CompletableFuture<Invoice> =
+        coroutineScope.future { coroutinesClient.cancelInvoice(invoiceId) }
+
+    /**
      * Pay a lightning invoice from the current wallet.
      *
      * Note: This call will fail if the wallet is not unlocked yet via [loadWalletSigningKey]. You must successfully

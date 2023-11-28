@@ -194,6 +194,15 @@ class LightsparkSyncWalletClient constructor(config: ClientConfig) {
     ): Invoice = runBlocking { asyncClient.createInvoice(amountMsats, memo, type, expirySecs) }
 
     /**
+     * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
+     *
+     * @param invoiceId The ID of the invoice to cancel.
+     * @return The cancelled invoice.
+     */
+    @Throws(LightsparkAuthenticationException::class, CancellationException::class)
+    fun cancelInvoice(invoiceId: String): Invoice = runBlocking { asyncClient.cancelInvoice(invoiceId) }
+
+    /**
      * Pay a lightning invoice from the current wallet.
      *
      * Note: This call will fail if the wallet is not unlocked yet via [loadWalletSigningKey]. You must successfully
