@@ -1674,6 +1674,99 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
     }
 
     @JvmOverloads
+    fun getWithdrawalRequestsQuery(
+        first: Int? = null,
+        after: String? = null,
+        bitcoinNetworks: List<BitcoinNetwork>? = null,
+        statuses: List<WithdrawalRequestStatus>? = null,
+        nodeIds: List<String>? = null,
+        afterDate: Instant? = null,
+        beforeDate: Instant? = null,
+    ): Query<AccountToWithdrawalRequestsConnection> {
+        return Query(
+            queryPayload = """
+query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}node_ids: [ID!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {
+    current_account {
+        ... on Account {
+            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, bitcoin_networks: ${'$'}bitcoin_networks, statuses: ${'$'}statuses, node_ids: ${'$'}node_ids, after_date: ${'$'}after_date, before_date: ${'$'}before_date) {
+                type: __typename
+                account_to_withdrawal_requests_connection_count: count
+                account_to_withdrawal_requests_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
+                account_to_withdrawal_requests_connection_entities: entities {
+                    type: __typename
+                    withdrawal_request_id: id
+                    withdrawal_request_created_at: created_at
+                    withdrawal_request_updated_at: updated_at
+                    withdrawal_request_requested_amount: requested_amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_amount: amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_estimated_amount: estimated_amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_amount_withdrawn: amount_withdrawn {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_bitcoin_address: bitcoin_address
+                    withdrawal_request_withdrawal_mode: withdrawal_mode
+                    withdrawal_request_status: status
+                    withdrawal_request_completed_at: completed_at
+                    withdrawal_request_withdrawal: withdrawal {
+                        id
+                    }
+                }
+            }
+        }
+    }
+}
+""",
+            variableBuilder = {
+                add("first", first)
+                add("after", after)
+                add("bitcoin_networks", bitcoinNetworks)
+                add("statuses", statuses)
+                add("node_ids", nodeIds)
+                add("after_date", afterDate)
+                add("before_date", beforeDate)
+            }
+        ) {
+            val connection =
+                requireNotNull(
+                    it["current_account"]?.jsonObject?.get("withdrawal_requests")
+                ) { "withdrawal_requests not found" }
+            return@Query serializerFormat.decodeFromJsonElement<AccountToWithdrawalRequestsConnection>(connection)
+        }
+    }
+
+    @JvmOverloads
     fun getWalletsQuery(
         first: Int? = null,
         after: String? = null,
