@@ -1020,6 +1020,95 @@ query FetchWalletTotalAmountReceived(${'$'}created_after_date: DateTime, ${'$'}c
     }
 
     @JvmOverloads
+    fun getWithdrawalRequestsQuery(
+        first: Int? = null,
+        after: String? = null,
+        statuses: List<WithdrawalRequestStatus>? = null,
+        createdAfterDate: Instant? = null,
+        createdBeforeDate: Instant? = null,
+    ): Query<WalletToWithdrawalRequestsConnection> {
+        return Query(
+            queryPayload = """
+query FetchWalletToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: ID, ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}created_after_date: DateTime, ${'$'}created_before_date: DateTime) {
+    current_wallet {
+        ... on Wallet {
+            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, statuses: ${'$'}statuses, created_after_date: ${'$'}created_after_date, created_before_date: ${'$'}created_before_date) {
+                type: __typename
+                wallet_to_withdrawal_requests_connection_count: count
+                wallet_to_withdrawal_requests_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
+                wallet_to_withdrawal_requests_connection_entities: entities {
+                    type: __typename
+                    withdrawal_request_id: id
+                    withdrawal_request_created_at: created_at
+                    withdrawal_request_updated_at: updated_at
+                    withdrawal_request_requested_amount: requested_amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_amount: amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_estimated_amount: estimated_amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_amount_withdrawn: amount_withdrawn {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                    withdrawal_request_bitcoin_address: bitcoin_address
+                    withdrawal_request_withdrawal_mode: withdrawal_mode
+                    withdrawal_request_status: status
+                    withdrawal_request_completed_at: completed_at
+                    withdrawal_request_withdrawal: withdrawal {
+                        id
+                    }
+                }
+            }
+        }
+    }
+}
+""",
+            variableBuilder = {
+                add("first", first)
+                add("after", after)
+                add("statuses", statuses)
+                add("created_after_date", createdAfterDate)
+                add("created_before_date", createdBeforeDate)
+            }
+        ) {
+            val connection =
+                requireNotNull(
+                    it["current_wallet"]?.jsonObject?.get("withdrawal_requests")
+                ) { "withdrawal_requests not found" }
+            return@Query serializerFormat.decodeFromJsonElement<WalletToWithdrawalRequestsConnection>(connection)
+        }
+    }
+
+    @JvmOverloads
     fun getTotalAmountSentQuery(
         createdAfterDate: Instant? = null,
         createdBeforeDate: Instant? = null,

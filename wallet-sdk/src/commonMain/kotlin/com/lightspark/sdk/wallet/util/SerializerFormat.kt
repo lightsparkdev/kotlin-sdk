@@ -21,6 +21,7 @@ import com.lightspark.sdk.wallet.model.Transaction
 import com.lightspark.sdk.wallet.model.Wallet
 import com.lightspark.sdk.wallet.model.WalletToPaymentRequestsConnection
 import com.lightspark.sdk.wallet.model.WalletToTransactionsConnection
+import com.lightspark.sdk.wallet.model.WalletToWithdrawalRequestsConnection
 import com.lightspark.sdk.wallet.model.Withdrawal
 import com.lightspark.sdk.wallet.model.WithdrawalRequest
 import kotlinx.serialization.json.Json
@@ -33,6 +34,7 @@ private val serializerModule =
         polymorphic(Connection::class) {
             subclass(WalletToPaymentRequestsConnection::class)
             subclass(WalletToTransactionsConnection::class)
+            subclass(WalletToWithdrawalRequestsConnection::class)
         }
         polymorphic(Entity::class) {
             subclass(ChannelClosingTransaction::class)
