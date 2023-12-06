@@ -1,5 +1,6 @@
 package com.lightspark.androidwalletdemo.di
 
+import com.lightspark.androidwalletdemo.BuildConfig
 import com.lightspark.androidwalletdemo.auth.DemoAuthService
 import dagger.Module
 import dagger.Provides
@@ -15,7 +16,7 @@ class AuthModule {
     @Provides
     @Singleton
     fun provideDemoAuthRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://us-central1-jwt-minter.cloudfunctions.net/")
+        .baseUrl(BuildConfig.JWT_SERVER_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

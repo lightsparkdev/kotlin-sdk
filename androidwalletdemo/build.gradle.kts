@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.util.*
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -17,6 +18,8 @@ try {
     throw RuntimeException("Unable to load version.properties", e)
 }
 
+val jwtServerUrl: String = gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
+
 android {
     namespace = "com.lightspark.androidwalletdemo"
     compileSdk = 34
@@ -33,6 +36,7 @@ android {
             useSupportLibrary = true
         }
         manifestPlaceholders["appAuthRedirectScheme"] = "com.lightspark.androidwalletdemo"
+        buildConfigField("String", "JWT_SERVER_URL", "\"${jwtServerUrl}\"")
     }
 
     buildTypes {
