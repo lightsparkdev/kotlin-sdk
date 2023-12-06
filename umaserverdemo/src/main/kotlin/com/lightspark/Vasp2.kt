@@ -96,7 +96,7 @@ class Vasp2(
                         millisatoshiPerUnit = 34_150,
                         minSendable = 1,
                         maxSendable = 10_000_000,
-                        displayDecimals = 2,
+                        decimals = 2,
                     ),
                 ),
                 receiverKycStatus = KycStatus.VERIFIED,
