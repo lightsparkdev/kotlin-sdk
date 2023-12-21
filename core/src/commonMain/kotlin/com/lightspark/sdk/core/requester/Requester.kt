@@ -6,8 +6,6 @@ import com.lightspark.sdk.core.LightsparkCoreConfig
 import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
-import com.lightspark.sdk.core.auth.BETA_HEADER_KEY
-import com.lightspark.sdk.core.auth.BETA_HEADER_VALUE
 import com.lightspark.sdk.core.crypto.MissingKeyException
 import com.lightspark.sdk.core.crypto.NodeKeyCache
 import com.lightspark.sdk.core.util.getPlatform
@@ -53,7 +51,6 @@ class Requester constructor(
         "lightspark-kotlin-sdk/${LightsparkCoreConfig.VERSION} ${getPlatform().platformName}/${getPlatform().version}"
     private val defaultHeaders = mapOf(
         "Content-Type" to "application/json",
-        BETA_HEADER_KEY to BETA_HEADER_VALUE,
         "User-Agent" to userAgent,
         "X-Lightspark-SDK" to userAgent,
     )
