@@ -10,6 +10,14 @@ on:
     branches:
       - 'main'
       - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'lightspark-sdk/**'
+      - 'core/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/lightspark-sdk-build.yaml'
 
 jobs:
   build:

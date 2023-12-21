@@ -9,6 +9,13 @@ on:
     branches:
       - 'main'
       - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'crypto/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/crypto-build.yaml'
 
 jobs:
   build:

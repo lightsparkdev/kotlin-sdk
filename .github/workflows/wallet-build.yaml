@@ -10,6 +10,14 @@ on:
     branches:
       - 'main'
       - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'wallet-sdk/**'
+      - 'core/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/wallet-build.yaml'
 
 jobs:
   build:

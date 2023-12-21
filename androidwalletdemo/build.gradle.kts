@@ -1,6 +1,6 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.FileInputStream
 import java.util.*
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -18,7 +18,10 @@ try {
     throw RuntimeException("Unable to load version.properties", e)
 }
 
-val jwtServerUrl: String = gradleLocalProperties(rootDir).getProperty("jwtServerUrl") ?: ""
+val jwtServerUrl: String by lazy {
+    gradleLocalProperties(projectDir).getProperty("jwtServerUrl")
+        ?: throw Error("You must set the jwtServerUrl property in a local.properties file")
+}
 
 android {
     namespace = "com.lightspark.androidwalletdemo"

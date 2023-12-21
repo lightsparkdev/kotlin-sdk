@@ -9,6 +9,13 @@ on:
     branches:
       - 'main'
       - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'core/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/core-build.yaml'
 
 jobs:
   build:
