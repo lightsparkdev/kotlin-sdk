@@ -18,7 +18,7 @@ try {
     throw RuntimeException("Unable to load version.properties", e)
 }
 
-val jwtServerUrl: String = gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
+val jwtServerUrl: String = gradleLocalProperties(rootDir).getProperty("jwtServerUrl") ?: ""
 
 android {
     namespace = "com.lightspark.androidwalletdemo"
