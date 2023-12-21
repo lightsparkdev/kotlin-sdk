@@ -18,10 +18,10 @@ try {
     throw RuntimeException("Unable to load version.properties", e)
 }
 
-val jwtServerUrl: String by lazy {
-    gradleLocalProperties(projectDir).getProperty("jwtServerUrl")
+val isCI: Boolean = System.getenv("CI") == "true"
+val jwtServerUrl: String = if (isCI) "" else
+    gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
         ?: throw Error("You must set the jwtServerUrl property in a local.properties file")
-}
 
 android {
     namespace = "com.lightspark.androidwalletdemo"
