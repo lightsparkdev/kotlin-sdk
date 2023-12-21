@@ -36,10 +36,14 @@ jobs:
           fi
       - name: Bump Version
         uses: gradle/gradle-build-action@v2.4.2
+        env:
+          CI: true
         with:
           arguments: "${{ env.sdk_name }}:bumpVersion -PnewVersion=${{ env.rel_version }}"
       - name: Build
         uses: gradle/gradle-build-action@v2.4.2
+        env:
+          CI: true
         with:
           arguments: "${{ env.sdk_name }}:assemble"
       - name: Merge version updates
