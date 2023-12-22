@@ -22,11 +22,7 @@ ktlint = "11.3.1"
 ktor = "2.2.3"
 lightsparkCore = "0.5.0"
 lightsparkCrypto = "0.5.0"
-<<<<<<< Updated upstream
-uma = "0.4.0"
-=======
 uma = "0.6.0"
->>>>>>> Stashed changes
 mavenPublish = "0.25.2"
 mockitoCore = "5.5.0"
 taskTree = "2.1.1"
