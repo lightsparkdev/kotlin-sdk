@@ -25,6 +25,9 @@ import me.uma.protocol.PayerDataOptions
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+// In real life, this would come from some actual exchange rate API.
+private const val MSATS_PER_USD_CENT = 22883.56
+
 class Vasp2(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
@@ -93,7 +96,7 @@ class Vasp2(
                         code = "USD",
                         name = "US Dollar",
                         symbol = "$",
-                        millisatoshiPerUnit = 23_150.0,
+                        millisatoshiPerUnit = MSATS_PER_USD_CENT,
                         minSendable = 1,
                         maxSendable = 10_000_000,
                         decimals = 2,
@@ -188,7 +191,6 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
-        val conversionRate = 23_150.0 // In real life, this would come from some actual exchange rate API.
         val client = LightsparkCoroutinesClient(
             ClientConfig(
                 serverUrl = config.clientBaseURL ?: "api.lightspark.com",
@@ -204,7 +206,7 @@ class Vasp2(
                 metadata = getEncodedMetadata(),
                 currencyCode = "USD",
                 currencyDecimals = 2,
-                conversionRate = conversionRate,
+                conversionRate = MSATS_PER_USD_CENT,
                 receiverFeesMillisats = 0,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
