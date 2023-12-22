@@ -93,7 +93,7 @@ class Vasp2(
                         code = "USD",
                         name = "US Dollar",
                         symbol = "$",
-                        millisatoshiPerUnit = 34_150,
+                        millisatoshiPerUnit = 23_150.0,
                         minSendable = 1,
                         maxSendable = 10_000_000,
                         decimals = 2,
@@ -188,7 +188,7 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
-        val conversionRate = 34_150L // In real life, this would come from some actual exchange rate API.
+        val conversionRate = 23_150.0 // In real life, this would come from some actual exchange rate API.
         val client = LightsparkCoroutinesClient(
             ClientConfig(
                 serverUrl = config.clientBaseURL ?: "api.lightspark.com",
@@ -203,6 +203,7 @@ class Vasp2(
                 invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID, expirySecs),
                 metadata = getEncodedMetadata(),
                 currencyCode = "USD",
+                currencyDecimals = 2,
                 conversionRate = conversionRate,
                 receiverFeesMillisats = 0,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
@@ -241,7 +242,7 @@ class Vasp2(
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
         val protocol = call.request.origin.scheme
         val host = call.request.host()
-        val path = "/api/uma/utxoCallback?txId=${config.userID}"
+        val path = "/api/uma/utxoCallback?txId=${txId}"
         return "$protocol://$host$path"
     }
 
