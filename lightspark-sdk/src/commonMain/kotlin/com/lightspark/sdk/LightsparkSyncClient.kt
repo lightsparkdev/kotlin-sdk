@@ -137,6 +137,24 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     ): Invoice = runBlocking { asyncClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs) }
 
     /**
+     * Creates a Lightning invoice for the given node. This should only be used for generating invoices for UMA, with
+     * [LightsparkCoroutinesClient.createInvoice] preferred in the general case.
+     *
+     * @param nodeId The ID of the node for which to create the invoice.
+     * @param amountMsats The amount of the invoice in milli-satoshis.
+     * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
+     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     */
+    @JvmOverloads
+    fun createUmaInvoice(
+        nodeId: String,
+        amountMsats: Long,
+        metadata: String,
+        expirySecs: Int? = null,
+    ): Invoice = runBlocking { asyncClient.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs) }
+
+    /**
      * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
      *
      * @param invoiceId The ID of the invoice to cancel.
@@ -171,6 +189,30 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         timeoutSecs: Int = 60,
     ): OutgoingPayment =
         runBlocking { asyncClient.payInvoice(nodeId, encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs) }
+
+    /**
+     * [payUmaInvoice] sends an UMA payment to a node on the Lightning Network, based on the invoice (as defined by the
+     * BOLT11 specification) that you provide. This should only be used for paying UMA invoices, with [payInvoice]
+     * preferred in the general case.
+     *
+     * @param nodeId The ID of the node which will pay the invoice.
+     * @param encodedInvoice An encoded string representation of the invoice to pay.
+     * @param maxFeesMsats The maximum fees to pay in milli-satoshis. You must pass a value.
+     *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
+     *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
+     * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
+     * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @return The payment details.
+     */
+    @JvmOverloads
+    fun payUmaInvoice(
+        nodeId: String,
+        encodedInvoice: String,
+        maxFeesMsats: Long,
+        amountMsats: Long? = null,
+        timeoutSecs: Int = 60,
+    ): OutgoingPayment =
+        runBlocking { asyncClient.payUmaInvoice(nodeId, encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs) }
 
     /**
      * Decode a lightning invoice to get its details included payment amount, destination, etc.
