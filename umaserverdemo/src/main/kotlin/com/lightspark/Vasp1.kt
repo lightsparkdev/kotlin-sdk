@@ -2,6 +2,7 @@ package com.lightspark
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.execute
+import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
 import com.lightspark.sdk.util.toMilliSats
@@ -11,6 +12,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -19,6 +21,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
 import io.ktor.server.request.host
+import io.ktor.server.request.port
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
@@ -78,8 +81,7 @@ class Vasp1(
         val lnurlpRequest = uma.getSignedLnurlpRequestUrl(
             signingPrivateKey = signingKey,
             receiverAddress = receiverAddress,
-            // TODO: This should be configurable.
-            senderVaspDomain = "localhost:8080",
+            senderVaspDomain = call.originWithPort(),
             isSubjectToTravelRule = true,
         )
 
@@ -107,8 +109,7 @@ class Vasp1(
             val retryLnurlpRequest = uma.getSignedLnurlpRequestUrl(
                 signingPrivateKey = signingKey,
                 receiverAddress = receiverAddress,
-                // TODO: This should be configurable.
-                senderVaspDomain = "localhost:8080",
+                senderVaspDomain = call.originWithPort(),
                 isSubjectToTravelRule = true,
                 umaVersion = newSupportedVersion,
             )
@@ -128,7 +129,7 @@ class Vasp1(
         val lnurlpResponse = try {
             response.body<LnurlpResponse>()
         } catch (e: Exception) {
-            call.application.environment.log.error("Failed to parse lnurlp response", e)
+            call.application.environment.log.error("Failed to parse lnurlp response\n${response.bodyAsText()}", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
             return "Failed to parse lnurlp response."
         }
@@ -201,7 +202,7 @@ class Vasp1(
             return "Failed to fetch public keys."
         }
 
-        val payer = getPayerProfile(initialRequestData.lnurlpResponse.requiredPayerData)
+        val payer = getPayerProfile(initialRequestData.lnurlpResponse.requiredPayerData, call)
         val trInfo = "Here is some fake travel rule info. It's up to you to actually implement this if needed."
         val payerUtxos = emptyList<String>()
 
@@ -213,6 +214,7 @@ class Vasp1(
                 amount = amount,
                 payerIdentifier = payer.identifier,
                 payerKycStatus = KycStatus.VERIFIED,
+                payerNodePubKey = getNodePubKey(),
                 utxoCallback = getUtxoCallback(call, "1234abc"),
                 travelRuleInfo = trInfo,
                 payerUtxos = payerUtxos,
@@ -275,11 +277,10 @@ class Vasp1(
      * NOTE: In a real application, you'd want to use the authentication context to pull out this information. It's not
      * actually always Alice sending the money ;-).
      */
-    private fun getPayerProfile(requiredPayerData: PayerDataOptions) = PayerProfile(
+    private fun getPayerProfile(requiredPayerData: PayerDataOptions, applicationCall: ApplicationCall) = PayerProfile(
         name = if (requiredPayerData.nameRequired) "Alice FakeName" else null,
         email = if (requiredPayerData.emailRequired) "alice@vasp1.com" else null,
-        // Note: This is making an assumption that this is running on localhost. We should make it configurable.
-        identifier = "\$alice@localhost:${System.getenv("PORT")?.toInt() ?: 8080}",
+        identifier = "\$alice@${applicationCall.originWithPort()}",
     )
 
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
@@ -287,6 +288,10 @@ class Vasp1(
         val host = call.request.host()
         val path = "/api/uma/utxoCallback?txId=${txId}"
         return "$protocol://$host$path"
+    }
+
+    private suspend fun getNodePubKey(): String? {
+        return lightsparkClient.executeQuery(Node.getNodeQuery(config.nodeID)).publicKey
     }
 
     suspend fun handleClientSendPayment(call: ApplicationCall): String {
@@ -390,6 +395,15 @@ fun Routing.registerVasp1Routes(vasp1: Vasp1) {
 
     post("/api/sendpayment/{callbackUuid}") {
         call.debugLog(vasp1.handleClientSendPayment(call))
+    }
+}
+
+fun ApplicationCall.originWithPort(): String {
+    val port = request.port()
+    return if (port == 80 || port == 443 || request.host() != "localhost") {
+        request.host()
+    } else {
+        "${request.host()}:$port"
     }
 }
 

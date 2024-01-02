@@ -35,6 +35,12 @@ docker run -p 8080:8080 \
 uma-linux-amd64
 ```
 
+You can also save your environment variables in an env.local file and run with:
+
+```bash
+docker run -p 8080:8080 --env-file env.local uma-linux-amd64
+```
+
 ## Running Test Queries
 
 First, we'll start two instances of the server, one on port 8080 and one on port 8081 (in separate terminals):
