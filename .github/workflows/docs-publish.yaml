@@ -36,6 +36,8 @@ jobs:
         uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
       - name: Build dokka
         uses: gradle/gradle-build-action@v2.4.2
+        env:
+          CI: true
         with:
           arguments: dokkaHtmlMultiModule
       - name: "Upload to S3"

@@ -49,6 +49,20 @@ fragment ConnectionFragment on Connection {
             id
         }
     }
+    ... on WalletToWithdrawalRequestsConnection {
+        type: __typename
+        wallet_to_withdrawal_requests_connection_count: count
+        wallet_to_withdrawal_requests_connection_page_info: page_info {
+            type: __typename
+            page_info_has_next_page: has_next_page
+            page_info_has_previous_page: has_previous_page
+            page_info_start_cursor: start_cursor
+            page_info_end_cursor: end_cursor
+        }
+        wallet_to_withdrawal_requests_connection_entities: entities {
+            id
+        }
+    }
 }"""
     }
 }

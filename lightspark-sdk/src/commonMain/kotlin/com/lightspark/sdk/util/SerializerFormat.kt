@@ -6,6 +6,7 @@ import com.lightspark.sdk.model.AccountToNodesConnection
 import com.lightspark.sdk.model.AccountToPaymentRequestsConnection
 import com.lightspark.sdk.model.AccountToTransactionsConnection
 import com.lightspark.sdk.model.AccountToWalletsConnection
+import com.lightspark.sdk.model.AccountToWithdrawalRequestsConnection
 import com.lightspark.sdk.model.ApiToken
 import com.lightspark.sdk.model.Channel
 import com.lightspark.sdk.model.ChannelClosingTransaction
@@ -42,6 +43,7 @@ import com.lightspark.sdk.model.UmaInvitation
 import com.lightspark.sdk.model.Wallet
 import com.lightspark.sdk.model.WalletToPaymentRequestsConnection
 import com.lightspark.sdk.model.WalletToTransactionsConnection
+import com.lightspark.sdk.model.WalletToWithdrawalRequestsConnection
 import com.lightspark.sdk.model.Withdrawal
 import com.lightspark.sdk.model.WithdrawalRequest
 import kotlinx.serialization.json.Json
@@ -57,12 +59,14 @@ private val serializerModule =
             subclass(AccountToPaymentRequestsConnection::class)
             subclass(AccountToTransactionsConnection::class)
             subclass(AccountToWalletsConnection::class)
+            subclass(AccountToWithdrawalRequestsConnection::class)
             subclass(IncomingPaymentToAttemptsConnection::class)
             subclass(LightsparkNodeToChannelsConnection::class)
             subclass(OutgoingPaymentAttemptToHopsConnection::class)
             subclass(OutgoingPaymentToAttemptsConnection::class)
             subclass(WalletToPaymentRequestsConnection::class)
             subclass(WalletToTransactionsConnection::class)
+            subclass(WalletToWithdrawalRequestsConnection::class)
         }
         polymorphic(Entity::class) {
             subclass(Account::class)

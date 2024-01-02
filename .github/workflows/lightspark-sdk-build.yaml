@@ -10,6 +10,14 @@ on:
     branches:
       - 'main'
       - 'develop'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'lightspark-sdk/**'
+      - 'core/**'
+      - 'build.gradle.kts'
+      - '.github/workflows/lightspark-sdk-build.yaml'
 
 jobs:
   build:
@@ -28,5 +36,7 @@ jobs:
         uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
       - name: Build and lint
         uses: gradle/gradle-build-action@v2.4.2
+        env:
+          CI: true
         with:
           arguments: lightspark-sdk:assemble

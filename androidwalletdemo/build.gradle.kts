@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.FileInputStream
 import java.util.*
 
@@ -17,6 +18,11 @@ try {
     throw RuntimeException("Unable to load version.properties", e)
 }
 
+val isCI: Boolean = System.getenv("CI") == "true"
+val jwtServerUrl: String = if (isCI) "" else
+    gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
+        ?: throw Error("You must set the jwtServerUrl property in a local.properties file")
+
 android {
     namespace = "com.lightspark.androidwalletdemo"
     compileSdk = 34
@@ -33,6 +39,7 @@ android {
             useSupportLibrary = true
         }
         manifestPlaceholders["appAuthRedirectScheme"] = "com.lightspark.androidwalletdemo"
+        buildConfigField("String", "JWT_SERVER_URL", "\"${jwtServerUrl}\"")
     }
 
     buildTypes {

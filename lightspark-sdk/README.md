@@ -17,14 +17,14 @@ Start by installing the SDK from maven:
 **build.gradle:**
 ```groovy
   dependencies {
-    implementation "com.lightspark:lightspark-sdk:0.11.0"
+    implementation "com.lightspark:lightspark-sdk:0.12.0"
   }
 ```
 
 or with **build.gradle.kts:**
 ```kotlin
   dependencies {
-    implementation("com.lightspark:lightspark-sdk:0.11.0")
+    implementation("com.lightspark:lightspark-sdk:0.12.0")
   }
 ```
 
