@@ -7,6 +7,7 @@ import com.lightspark.sdk.core.requester.Query
 import com.lightspark.sdk.util.serializerFormat
 import kotlin.jvm.JvmStatic
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -231,6 +232,56 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("channels")) { "channels not found" }
             return@Query serializerFormat.decodeFromJsonElement<LightsparkNodeToChannelsConnection>(connection)
+        }
+    }
+
+    override fun getDailyLiquidityForecastsQuery(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        direction: LightningPaymentDirection,
+    ): Query<LightsparkNodeToDailyLiquidityForecastsConnection> {
+        return Query(
+            queryPayload = """
+query FetchLightsparkNodeToDailyLiquidityForecastsConnection(${'$'}entity_id: ID!, ${'$'}from_date: Date!, ${'$'}to_date: Date!, ${'$'}direction: LightningPaymentDirection!) {
+    entity(id: ${'$'}entity_id) {
+        ... on LightsparkNodeWithRemoteSigning {
+            daily_liquidity_forecasts(, from_date: ${'$'}from_date, to_date: ${'$'}to_date, direction: ${'$'}direction) {
+                type: __typename
+                lightspark_node_to_daily_liquidity_forecasts_connection_from_date: from_date
+                lightspark_node_to_daily_liquidity_forecasts_connection_to_date: to_date
+                lightspark_node_to_daily_liquidity_forecasts_connection_direction: direction
+                lightspark_node_to_daily_liquidity_forecasts_connection_entities: entities {
+                    type: __typename
+                    daily_liquidity_forecast_date: date
+                    daily_liquidity_forecast_direction: direction
+                    daily_liquidity_forecast_amount: amount {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
+                }
+            }
+        }
+    }
+}
+""",
+            variableBuilder = {
+                add("entity_id", id)
+                add("from_date", fromDate)
+                add("to_date", toDate)
+                add("direction", direction)
+            }
+        ) {
+            val connection =
+                requireNotNull(
+                    it["entity"]?.jsonObject?.get("daily_liquidity_forecasts")
+                ) { "daily_liquidity_forecasts not found" }
+            return@Query serializerFormat.decodeFromJsonElement<LightsparkNodeToDailyLiquidityForecastsConnection>(
+                connection
+            )
         }
     }
 

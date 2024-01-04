@@ -577,15 +577,23 @@ query FetchAccountUptimePercentage(${'$'}after_date: DateTime, ${'$'}before_date
         afterDate: Instant? = null,
         beforeDate: Instant? = null,
         first: Int? = null,
+        after: String? = null,
     ): Query<AccountToChannelsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToChannelsConnection(${'$'}bitcoin_network: BitcoinNetwork!, ${'$'}lightning_node_id: ID, ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}first: Int) {
+query FetchAccountToChannelsConnection(${'$'}bitcoin_network: BitcoinNetwork!, ${'$'}lightning_node_id: ID, ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}first: Int, ${'$'}after: String) {
     current_account {
         ... on Account {
-            channels(, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, after_date: ${'$'}after_date, before_date: ${'$'}before_date, first: ${'$'}first) {
+            channels(, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, after_date: ${'$'}after_date, before_date: ${'$'}before_date, first: ${'$'}first, after: ${'$'}after) {
                 type: __typename
                 account_to_channels_connection_count: count
+                account_to_channels_connection_page_info: page_info {
+                    type: __typename
+                    page_info_has_next_page: has_next_page
+                    page_info_has_previous_page: has_previous_page
+                    page_info_start_cursor: start_cursor
+                    page_info_end_cursor: end_cursor
+                }
                 account_to_channels_connection_entities: entities {
                     type: __typename
                     channel_id: id
@@ -691,6 +699,7 @@ query FetchAccountToChannelsConnection(${'$'}bitcoin_network: BitcoinNetwork!, $
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
                 add("first", first)
+                add("after", after)
             }
         ) {
             val connection =
