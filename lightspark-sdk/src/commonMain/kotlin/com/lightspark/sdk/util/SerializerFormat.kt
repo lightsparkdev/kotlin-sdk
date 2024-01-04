@@ -2,6 +2,7 @@ package com.lightspark.sdk.util
 
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.AccountToApiTokensConnection
+import com.lightspark.sdk.model.AccountToChannelsConnection
 import com.lightspark.sdk.model.AccountToNodesConnection
 import com.lightspark.sdk.model.AccountToPaymentRequestsConnection
 import com.lightspark.sdk.model.AccountToTransactionsConnection
@@ -55,6 +56,7 @@ private val serializerModule =
     SerializersModule {
         polymorphic(Connection::class) {
             subclass(AccountToApiTokensConnection::class)
+            subclass(AccountToChannelsConnection::class)
             subclass(AccountToNodesConnection::class)
             subclass(AccountToPaymentRequestsConnection::class)
             subclass(AccountToTransactionsConnection::class)
