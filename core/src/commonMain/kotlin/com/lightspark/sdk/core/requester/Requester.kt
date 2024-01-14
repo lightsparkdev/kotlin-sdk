@@ -126,21 +126,20 @@ class Requester constructor(
         }
         val responseJson =
             response.bodyAsText().let { Json.decodeFromString(JsonObject.serializer(), it) }
-        val responseData = responseJson["data"]
-        if (responseData == null || responseData is JsonNull) {
-            val errorArray = responseJson["errors"]?.jsonArray
-
-            if (errorArray == null || errorArray.size == 0) {
-                throw LightsparkException(
-                    "Request $operation failed. Empty response and error array.",
-                    LightsparkErrorCode.REQUEST_FAILED,
-                )
-            }
-            val firstError = errorArray[0].jsonObject
+        val errors = responseJson["errors"]?.jsonArray
+        if (errors != null && errors.size > 0) {
+            val firstError = errors[0].jsonObject
             throw LightsparkException(
                 "Request $operation failed. ${Json.encodeToString(responseJson["errors"])}",
                 firstError["extensions"]?.jsonObject?.get("error_name")?.jsonPrimitive?.content
                     ?: LightsparkErrorCode.REQUEST_FAILED.name,
+            )
+        }
+        val responseData = responseJson["data"]
+        if (responseData == null || responseData is JsonNull) {
+            throw LightsparkException(
+                "Request $operation failed. Empty response and error array.",
+                LightsparkErrorCode.REQUEST_FAILED,
             )
         }
         return responseData.jsonObject
