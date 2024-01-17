@@ -33,7 +33,7 @@ fun Application.configureRouting(
         ),
     )
     val vasp1 = Vasp1(config, uma, client)
-    val vasp2 = Vasp2(config, uma)
+    val vasp2 = Vasp2(config, uma, client)
 
     routing {
         registerVasp1Routes(vasp1)
