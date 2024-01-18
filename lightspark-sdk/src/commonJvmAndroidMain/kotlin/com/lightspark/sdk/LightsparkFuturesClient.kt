@@ -324,7 +324,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
      * @returns An estimate of the fees that will be paid to withdraw funds for the node, amount, and strategy.
      */
-    suspend fun getWithdrawalFeeEstimate(
+    fun getWithdrawalFeeEstimate(
         nodeId: String,
         amountSats: Long,
         mode: WithdrawalMode,
