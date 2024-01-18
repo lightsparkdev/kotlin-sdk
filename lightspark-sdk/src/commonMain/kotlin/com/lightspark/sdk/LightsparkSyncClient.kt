@@ -298,6 +298,21 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         runBlocking { asyncClient.getLightningFeeEstimateForInvoice(nodeId, encodedPaymentRequest, amountMsats) }
 
     /**
+     * Gets an estimated amount for the L1 withdrawal fees for the specified node, amount, and strategy.
+     *
+     * @param nodeId The node from where you want to send the payment.
+     * @param amountSats The amount of funds to withdraw in SATOSHI. Use -1 to withdrawal all funds from this node.
+     * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
+     * @returns An estimate of the fees that will be paid to withdraw funds for the node, amount, and strategy.
+     */
+    suspend fun getWithdrawalFeeEstimate(
+        nodeId: String,
+        amountSats: Long,
+        mode: WithdrawalMode,
+    ): CurrencyAmount =
+        runBlocking { asyncClient.getWithdrawalFeeEstimate(nodeId, amountSats, mode) }
+
+    /**
      * Create a new API token for the current account.
      *
      * @param name Creates a new API token that can be used to authenticate requests for this account when using the

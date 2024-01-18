@@ -510,6 +510,38 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Returns an estimated amount for the L1 withdrawal fees for the specified node, amount, and strategy.
+     *
+     * @param nodeId The node from where you want to send the payment.
+     * @param amountSats The amount of funds to withdraw in SATOSHI. Use -1 to withdrawal all funds from this node.
+     * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
+     * @returns An estimate of the fees that will be paid to withdraw funds for the node, amount, and strategy.
+     */
+    suspend fun getWithdrawalFeeEstimate(
+        nodeId: String,
+        amountSats: Long,
+        mode: WithdrawalMode,
+    ): CurrencyAmount {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                WithdrawalFeeEstimateQuery,
+                {
+                    add("node_id", nodeId)
+                    add("amount_sats", amountSats)
+                    add("withdrawal_mode", serializerFormat.encodeToJsonElement(mode))
+                },
+            ) {
+                val feeEstimateJson =
+                    requireNotNull(it["withdrawal_fee_estimate"]) { "No fee estimate found in response" }
+                val withdrawalFeeEstimateOutput =
+                    serializerFormat.decodeFromJsonElement<WithdrawalFeeEstimateOutput>(feeEstimateJson)
+                withdrawalFeeEstimateOutput.feeEstimate
+            },
+        )
+    }
+
+    /**
      * @return A [Flow] that emits the set of node IDs that have been unlocked via the [recoverNodeSigningKey] function.
      */
     fun getUnlockedNodeIds(): Flow<Set<String>> = nodeKeyCache.observeCachedNodeIds()
