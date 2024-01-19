@@ -169,7 +169,7 @@ class Vasp2(
         val request = try {
             call.receive<PayRequest>()
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request."
         }
 
@@ -250,7 +250,7 @@ class Vasp2(
 
     private fun ApplicationRequest.fullUrl(): String {
         val host = host()
-        val port = if (host == "localhost") ":${port()}" else ""
+        val port = if (isDomainLocalhost(host)) ":${port()}" else ""
         val protocol = origin.scheme
         val path = uri
         return "$protocol://$host$port$path"

@@ -13,6 +13,7 @@ data class UmaConfig(
     val umaSigningPubKeyHex: String,
     val umaSigningPrivKeyHex: String,
     val clientBaseURL: String?,
+    val vaspDomain: String?,
 ) {
     val umaEncryptionPubKey: ByteArray
         get() = umaEncryptionPubKeyHex.hexToByteArray()
@@ -47,6 +48,7 @@ data class UmaConfig(
                 umaSigningPrivKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PRIVKEY not set"),
                 clientBaseURL = System.getenv("LIGHTSPARK_EXAMPLE_BASE_URL"),
+                vaspDomain = System.getenv("LIGHTSPARK_UMA_VASP_DOMAIN"),
             )
         }
     }

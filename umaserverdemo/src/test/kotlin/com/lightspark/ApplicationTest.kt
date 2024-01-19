@@ -76,7 +76,7 @@ class ApplicationTest {
             payerNodePubKey = "abcdef",
         )
         val decryptedTrInfo = Secp256k1.decryptEcies(
-            payRequest.payerData.compliance!!.travelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
+            payRequest.payerData.compliance!!.encryptedTravelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
         )
         assertEquals(trInfo, decryptedTrInfo.decodeToString())
         client.post("http://localhost/api/uma/payreq/${env.userID}") {
