@@ -250,7 +250,7 @@ class Vasp2(
 
     private fun ApplicationRequest.fullUrl(): String {
         val host = host()
-        val port = if (host == "localhost") ":${port()}" else ""
+        val port = if (isDomainLocalhost(host)) ":${port()}" else ""
         val protocol = origin.scheme
         val path = uri
         return "$protocol://$host$port$path"

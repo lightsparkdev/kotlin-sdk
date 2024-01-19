@@ -81,7 +81,7 @@ class Vasp1(
         val lnurlpRequest = uma.getSignedLnurlpRequestUrl(
             signingPrivateKey = signingKey,
             receiverAddress = receiverAddress,
-            senderVaspDomain = call.originWithPort(),
+            senderVaspDomain = getSendingVaspDomain(call),
             isSubjectToTravelRule = true,
         )
 
@@ -109,7 +109,7 @@ class Vasp1(
             val retryLnurlpRequest = uma.getSignedLnurlpRequestUrl(
                 signingPrivateKey = signingKey,
                 receiverAddress = receiverAddress,
-                senderVaspDomain = call.originWithPort(),
+                senderVaspDomain = getSendingVaspDomain(call),
                 isSubjectToTravelRule = true,
                 umaVersion = newSupportedVersion,
             )
@@ -280,7 +280,7 @@ class Vasp1(
     private fun getPayerProfile(requiredPayerData: PayerDataOptions, applicationCall: ApplicationCall) = PayerProfile(
         name = if (requiredPayerData.nameRequired) "Alice FakeName" else null,
         email = if (requiredPayerData.emailRequired) "alice@vasp1.com" else null,
-        identifier = "\$alice@${applicationCall.originWithPort()}",
+        identifier = "\$alice@${getSendingVaspDomain(applicationCall)}",
     )
 
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
@@ -368,6 +368,8 @@ class Vasp1(
         }
     }
 
+    private fun getSendingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
+
     // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.
     private suspend fun waitForPaymentCompletion(pendingPayment: OutgoingPayment): OutgoingPayment {
         var attemptsLeft = 40
@@ -400,7 +402,7 @@ fun Routing.registerVasp1Routes(vasp1: Vasp1) {
 
 fun ApplicationCall.originWithPort(): String {
     val port = request.port()
-    return if (port == 80 || port == 443 || request.host() != "localhost") {
+    return if (port == 80 || port == 443 || !isDomainLocalhost(request.host())) {
         request.host()
     } else {
         "${request.host()}:$port"
