@@ -169,7 +169,7 @@ class Vasp2(
         val request = try {
             call.receive<PayRequest>()
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request."
         }
 
