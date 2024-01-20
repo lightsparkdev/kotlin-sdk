@@ -153,7 +153,7 @@ class Vasp1(
 
         call.respond(
             buildJsonObject {
-                putJsonArray("currencies") {
+                putJsonArray("receiverCurrencies") {
                     addAll(lnurlpResponse.currencies.map { Json.encodeToJsonElement(it) })
                 }
                 put("minSendSats", lnurlpResponse.minSendable)

@@ -42,7 +42,7 @@ class Vasp2(
             return "Username not provided."
         }
 
-        if (username != config.username) {
+        if (username != config.username && username != "$${config.username}") {
             call.respond(HttpStatusCode.NotFound, "Username not found.")
             return "Username not found."
         }

@@ -35,10 +35,10 @@ docker run -p 8080:8080 \
 uma-linux-amd64
 ```
 
-You can also save your environment variables in an env.local file and run with:
+You can also save your environment variables in an local.env file and run with:
 
 ```bash
-docker run -p 8080:8080 --env-file env.local uma-linux-amd64
+docker run -p 8080:8080 --env-file local.env uma-linux-amd64
 ```
 
 ## Running Test Queries
