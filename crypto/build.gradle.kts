@@ -34,7 +34,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.kase64)
-                implementation(libs.krypt)
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
             }

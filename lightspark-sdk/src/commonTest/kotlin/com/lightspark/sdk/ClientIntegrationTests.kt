@@ -246,6 +246,7 @@ class ClientIntegrationTests {
     @Test
     fun `test creating a test mode payment`() = runTest {
         val node = getFirstNode()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
         var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()
