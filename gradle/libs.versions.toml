@@ -17,12 +17,11 @@ kotlinCompilerExtension = "1.4.0"
 kotlinCoroutines = "1.7.2"
 kotlinxDateTime = "0.4.0"
 kotlinSerializationJson = "1.4.1"
-krypt = "0.3.1"
 ktlint = "11.3.1"
-ktor = "2.2.3"
+ktor = "2.3.7"
 lightsparkCore = "0.5.0"
-lightsparkCrypto = "0.5.0"
-uma = "0.6.0"
+lightsparkCrypto = "0.6.0"
+uma = "0.7.5"
 mavenPublish = "0.25.2"
 mockitoCore = "5.5.0"
 taskTree = "2.1.1"
@@ -86,7 +85,6 @@ task-tree = { module = "com.dorongold.plugins:task-tree", version.ref = "taskTre
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 kase64 = { module = "de.peilicke.sascha:kase64", version.ref = "kase64" }
-krypt = { module = "com.chrynan.krypt:krypt-csprng", version.ref = "krypt" }
 appauth = { module = "net.openid:appauth", version.ref = "appAuth" }
 
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }

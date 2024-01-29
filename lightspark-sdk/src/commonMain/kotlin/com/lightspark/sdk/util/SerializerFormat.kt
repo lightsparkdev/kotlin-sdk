@@ -2,6 +2,7 @@ package com.lightspark.sdk.util
 
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.AccountToApiTokensConnection
+import com.lightspark.sdk.model.AccountToChannelsConnection
 import com.lightspark.sdk.model.AccountToNodesConnection
 import com.lightspark.sdk.model.AccountToPaymentRequestsConnection
 import com.lightspark.sdk.model.AccountToTransactionsConnection
@@ -11,6 +12,7 @@ import com.lightspark.sdk.model.ApiToken
 import com.lightspark.sdk.model.Channel
 import com.lightspark.sdk.model.ChannelClosingTransaction
 import com.lightspark.sdk.model.ChannelOpeningTransaction
+import com.lightspark.sdk.model.ChannelSnapshot
 import com.lightspark.sdk.model.Connection
 import com.lightspark.sdk.model.Deposit
 import com.lightspark.sdk.model.Entity
@@ -55,6 +57,7 @@ private val serializerModule =
     SerializersModule {
         polymorphic(Connection::class) {
             subclass(AccountToApiTokensConnection::class)
+            subclass(AccountToChannelsConnection::class)
             subclass(AccountToNodesConnection::class)
             subclass(AccountToPaymentRequestsConnection::class)
             subclass(AccountToTransactionsConnection::class)
@@ -74,6 +77,7 @@ private val serializerModule =
             subclass(Channel::class)
             subclass(ChannelClosingTransaction::class)
             subclass(ChannelOpeningTransaction::class)
+            subclass(ChannelSnapshot::class)
             subclass(Deposit::class)
             subclass(GraphNode::class)
             subclass(Hop::class)

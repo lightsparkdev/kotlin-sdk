@@ -3,6 +3,7 @@ package com.lightspark
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
+import com.lightspark.sdk.model.Node
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -31,6 +32,7 @@ private const val MSATS_PER_USD_CENT = 22883.56
 class Vasp2(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
+    private val lightsparkClient: LightsparkCoroutinesClient,
 ) {
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
@@ -40,7 +42,7 @@ class Vasp2(
             return "Username not provided."
         }
 
-        if (username != config.username) {
+        if (username != config.username && username != "$${config.username}") {
             call.respond(HttpStatusCode.NotFound, "Username not found.")
             return "Username not found."
         }
@@ -134,14 +136,8 @@ class Vasp2(
             return "Invalid or missing amount."
         }
 
-        val client = LightsparkCoroutinesClient(
-            ClientConfig(
-                serverUrl = config.clientBaseURL ?: "api.lightspark.com",
-                authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
-            ),
-        )
         val invoice = try {
-            client.createLnurlInvoice(config.nodeID, amountMsats, getEncodedMetadata())
+            lightsparkClient.createLnurlInvoice(config.nodeID, amountMsats, getEncodedMetadata())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to create invoice.")
             return "Failed to create invoice."
@@ -173,7 +169,7 @@ class Vasp2(
         val request = try {
             call.receive<PayRequest>()
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request."
         }
 
@@ -210,7 +206,7 @@ class Vasp2(
                 receiverFeesMillisats = 0,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
-                receiverNodePubKey = null,
+                receiverNodePubKey = getNodePubKey(),
                 utxoCallback = getUtxoCallback(call, "1234"),
             )
         } catch (e: Exception) {
@@ -248,9 +244,13 @@ class Vasp2(
         return "$protocol://$host$path"
     }
 
+    private suspend fun getNodePubKey(): String? {
+        return lightsparkClient.executeQuery(Node.getNodeQuery(config.nodeID)).publicKey
+    }
+
     private fun ApplicationRequest.fullUrl(): String {
         val host = host()
-        val port = if (host == "localhost") ":${port()}" else ""
+        val port = if (isDomainLocalhost(host)) ":${port()}" else ""
         val protocol = origin.scheme
         val path = uri
         return "$protocol://$host$port$path"

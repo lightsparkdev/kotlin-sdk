@@ -15,8 +15,10 @@ import com.lightspark.sdk.model.Account;
 import com.lightspark.sdk.model.AccountToNodesConnection;
 import com.lightspark.sdk.model.AccountToTransactionsConnection;
 import com.lightspark.sdk.model.BitcoinNetwork;
+import com.lightspark.sdk.model.CurrencyAmount;
 import com.lightspark.sdk.model.LightsparkNode;
 import com.lightspark.sdk.model.Transaction;
+import com.lightspark.sdk.model.WithdrawalMode;
 
 import org.junit.jupiter.api.Test;
 
@@ -124,6 +126,14 @@ public class LightsparkSyncClientTest {
         LightsparkNode node = client.executeQuery(LightsparkNode.getLightsparkNodeQuery(nodeId));
         assertNotNull(node);
         System.out.println("Node ID = " + node.getId());
+    }
+
+    @Test
+    public void testGetWithdrawalFeeEstimate() throws Exception {
+        String nodeId = getNodeId();
+        CurrencyAmount estimate = client.getWithdrawalFeeEstimate(nodeId, 1000, WithdrawalMode.WALLET_ONLY);
+        assertNotNull(estimate);
+        System.out.println("Withdrawal fee estimate: " + estimate);
     }
 
     private String getNodeId() throws Exception {

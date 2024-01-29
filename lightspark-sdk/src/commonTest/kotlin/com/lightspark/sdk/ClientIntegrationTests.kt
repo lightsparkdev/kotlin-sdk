@@ -11,6 +11,7 @@ import com.lightspark.sdk.model.LightsparkNode
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.TransactionStatus
+import com.lightspark.sdk.model.WithdrawalMode
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -58,6 +59,13 @@ class ClientIntegrationTests {
         estimates.feeFast.shouldNotBeNull()
         estimates.feeMin.shouldNotBeNull()
         println("L1 fee estimate: $estimates")
+    }
+
+    @Test
+    fun `get withdrawal fee estimate`() = runTest {
+        val estimate = client.getWithdrawalFeeEstimate(getNodeId(), amountSats = 1000, WithdrawalMode.WALLET_ONLY)
+        estimate.shouldNotBeNull()
+        println("Withdrawal fee estimate: $estimate")
     }
 
     @Test
@@ -238,6 +246,7 @@ class ClientIntegrationTests {
     @Test
     fun `test creating a test mode payment`() = runTest {
         val node = getFirstNode()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
         var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
         payment.shouldNotBeNull()

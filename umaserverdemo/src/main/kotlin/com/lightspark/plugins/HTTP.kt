@@ -9,8 +9,10 @@ import io.ktor.server.plugins.compression.gzip
 import io.ktor.server.plugins.compression.minimumSize
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
+@OptIn(ExperimentalSerializationApi::class)
 fun Application.configureHTTP() {
     install(DefaultHeaders) {
         header("X-Engine", "Ktor") // will send this header with each response
@@ -20,16 +22,14 @@ fun Application.configureHTTP() {
             Json {
                 prettyPrint = true
                 isLenient = true
+                ignoreUnknownKeys = true
+                explicitNulls = false
             },
         )
     }
     install(Compression) {
         gzip {
             priority = 1.0
-        }
-        deflate {
-            priority = 10.0
-            minimumSize(1024) // condition
         }
     }
 }

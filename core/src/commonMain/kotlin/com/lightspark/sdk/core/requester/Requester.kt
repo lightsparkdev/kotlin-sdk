@@ -1,6 +1,5 @@
 package com.lightspark.sdk.core.requester
 
-import com.chrynan.krypt.csprng.SecureRandom
 import com.lightspark.sdk.core.Lce
 import com.lightspark.sdk.core.LightsparkCoreConfig
 import com.lightspark.sdk.core.LightsparkErrorCode
@@ -8,6 +7,7 @@ import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.crypto.MissingKeyException
 import com.lightspark.sdk.core.crypto.NodeKeyCache
+import com.lightspark.sdk.core.crypto.nextInt
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
@@ -54,7 +54,6 @@ class Requester constructor(
         "User-Agent" to userAgent,
         "X-Lightspark-SDK" to userAgent,
     )
-    private val secureRandom = SecureRandom()
     private var websocketConnectionHandler: WebsocketConnectionHandler? = null
 
     @Throws(LightsparkException::class, CancellationException::class)
@@ -126,21 +125,20 @@ class Requester constructor(
         }
         val responseJson =
             response.bodyAsText().let { Json.decodeFromString(JsonObject.serializer(), it) }
-        val responseData = responseJson["data"]
-        if (responseData == null || responseData is JsonNull) {
-            val errorArray = responseJson["errors"]?.jsonArray
-
-            if (errorArray == null || errorArray.size == 0) {
-                throw LightsparkException(
-                    "Request $operation failed. Empty response and error array.",
-                    LightsparkErrorCode.REQUEST_FAILED,
-                )
-            }
-            val firstError = errorArray[0].jsonObject
+        val errors = responseJson["errors"]?.jsonArray
+        if (errors != null && errors.size > 0) {
+            val firstError = errors[0].jsonObject
             throw LightsparkException(
                 "Request $operation failed. ${Json.encodeToString(responseJson["errors"])}",
                 firstError["extensions"]?.jsonObject?.get("error_name")?.jsonPrimitive?.content
                     ?: LightsparkErrorCode.REQUEST_FAILED.name,
+            )
+        }
+        val responseData = responseJson["data"]
+        if (responseData == null || responseData is JsonNull) {
+            throw LightsparkException(
+                "Request $operation failed. Empty response and error array.",
+                LightsparkErrorCode.REQUEST_FAILED,
             )
         }
         return responseData.jsonObject
@@ -206,7 +204,7 @@ class Requester constructor(
         val newBodyData = bodyData.toMutableMap().apply {
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
             // spit out a signed int, which the backend can't decode.
-            put("nonce", JsonPrimitive(secureRandom.nextBits(32).toUInt().toLong()))
+            put("nonce", JsonPrimitive(nextInt().toUInt().toLong()))
             put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { JsonObject(it) }
         val newBodyString = Json.encodeToString(newBodyData)
