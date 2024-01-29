@@ -36,7 +36,6 @@ kotlin {
             dependencies {
                 implementation(libs.kase64)
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.krypt)
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
