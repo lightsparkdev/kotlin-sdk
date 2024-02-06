@@ -12,9 +12,11 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLBuilder
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
@@ -27,6 +29,7 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import me.uma.UmaProtocolHelper
+import me.uma.protocol.Currency
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
@@ -129,9 +132,7 @@ class Vasp1(
         val lnurlpResponse = try {
             response.body<LnurlpResponse>()
         } catch (e: Exception) {
-            call.application.environment.log.error("Failed to parse lnurlp response\n${response.bodyAsText()}", e)
-            call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
-            return "Failed to parse lnurlp response."
+            return handleAsNonUmaLnurlpResponse(call, response, receiverId, receiverVasp)
         }
 
         val vasp2PubKeys = try {
@@ -167,6 +168,46 @@ class Vasp1(
         return "OK"
     }
 
+    private suspend fun handleAsNonUmaLnurlpResponse(
+        call: ApplicationCall,
+        response: HttpResponse,
+        receiverId: String,
+        receiverVasp: String
+    ): String {
+        val lnurlpResponse = try {
+            response.body<NonUmaLnurlpResponse>()
+        } catch (e: Exception) {
+            call.application.environment.log.error("Failed to parse as non UMA lnurlp response\n${response.bodyAsText()}", e)
+            call.respond(HttpStatusCode.FailedDependency, "Failed to parse as non UMA lnurlp response.")
+            return "Failed to parse as non UMA lnurlp response."
+        }
+
+        val callbackUuid = requestDataCache.saveNonUmaLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
+
+        call.respond(
+            buildJsonObject {
+                putJsonArray("receiverCurrencies") {
+                    add(Json.encodeToJsonElement(Currency(
+                        code = "SAT",
+                        name = "Satoshis",
+                        symbol = "sat",
+                        millisatoshiPerUnit = 1000.0,
+                        minSendable = 1,
+                        maxSendable = 10_000_000_000,
+                        decimals = 0
+                    )))
+                }
+                put("maxSendable", lnurlpResponse.maxSendable)
+                put("minSendable", lnurlpResponse.minSendable)
+                put("callbackUuid", callbackUuid)
+                // You might not actually send this to a client in practice.
+                put("receiverKycStatus", KycStatus.NOT_VERIFIED.rawValue)
+            }
+        )
+
+        return "OK"
+    }
+
     suspend fun handleClientUmaPayReq(call: ApplicationCall): String {
         val callbackUuid = call.parameters["callbackUuid"] ?: run {
             call.respond(HttpStatusCode.BadRequest, "Callback UUID not provided.")
@@ -181,6 +222,15 @@ class Vasp1(
         if (amount == null || amount <= 0) {
             call.respond(HttpStatusCode.BadRequest, "Amount invalid or not provided.")
             return "Amount invalid or not provided."
+        }
+
+        if (initialRequestData.lnurlpResponse == null) {
+            return if (initialRequestData.nonUmaLnurlpResponse == null) {
+                call.respond(HttpStatusCode.BadRequest, "Callback UUID not found.")
+                "Callback UUID not found."
+            } else {
+                handleNonUmaPayReq(call, initialRequestData.nonUmaLnurlpResponse, amount)
+            }
         }
 
         val currencyCode = call.request.queryParameters["currencyCode"]
@@ -267,6 +317,51 @@ class Vasp1(
                 put("amount", Json.encodeToJsonElement(invoice.amount))
                 put("conversionRate", payReqResponse.paymentInfo.multiplier)
                 put("currencyCode", payReqResponse.paymentInfo.currencyCode)
+            },
+        )
+
+        return "OK"
+    }
+
+    private suspend fun handleNonUmaPayReq(call: ApplicationCall, nonUmaLnurlpResponse: NonUmaLnurlpResponse, amount: Long): String {
+        val url = URLBuilder(nonUmaLnurlpResponse.callback)
+        url.parameters.append("amount", amount.toString())
+        val urlWithAmount = url.buildString()
+
+        val response = httpClient.get(urlWithAmount)
+
+        if (response.status != HttpStatusCode.OK) {
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to vasp2 failed: ${response.status}")
+            return "Payreq to vasp2 failed: ${response.status}"
+        }
+
+        val payReqResponse = try {
+            Json.decodeFromString<NonUmaPayReqResponse>(response.body())
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
+            return "Failed to parse payreq response."
+        }
+
+        val invoice = try {
+            lightsparkClient.decodeInvoice(payReqResponse.pr)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Error decoding invoice.")
+            return "Error decoding invoice."
+        }
+
+        val newCallbackId = requestDataCache.savePayReqData(
+            encodedInvoice = payReqResponse.pr,
+            utxoCallback = getUtxoCallback(call, "1234abc"),
+            invoiceData = invoice,
+        )
+
+        call.respond(
+            buildJsonObject {
+                put("encodedInvoice", payReqResponse.pr)
+                put("callbackUuid", newCallbackId)
+                put("amount", Json.encodeToJsonElement(invoice.amount))
+                put("conversionRate", 1)
+                put("currencyCode", "mSAT")
             },
         )
 
@@ -409,8 +504,21 @@ fun ApplicationCall.originWithPort(): String {
     }
 }
 
+data class NonUmaLnurlpResponse(
+    val callback: String,
+    val minSendable: Long,
+    val maxSendable: Long,
+    val metadata: String,
+    val tag: String
+)
+
 private data class PayerProfile(
     val name: String?,
     val email: String?,
     val identifier: String,
+)
+
+data class NonUmaPayReqResponse(
+    val pr: String,
+    val routes: List<String>
 )
