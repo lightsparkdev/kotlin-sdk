@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-class PasswordRecoverySigningKeyLoader(
+class PasswordRecoverySigningKeyLoader @JvmOverloads constructor(
     private val nodeId: String,
     private val nodePassword: String,
     private val keyDecryptor: SigningKeyDecryptor = SigningKeyDecryptor(),
