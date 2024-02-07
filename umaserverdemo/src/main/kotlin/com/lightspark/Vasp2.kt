@@ -25,6 +25,8 @@ import me.uma.protocol.PayRequest
 import me.uma.protocol.PayerDataOptions
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 // In real life, this would come from some actual exchange rate API.
 private const val MSATS_PER_USD_CENT = 22883.56
@@ -48,11 +50,29 @@ class Vasp2(
         }
 
         val requestUrl = call.request.fullUrl()
-        if (uma.isUmaLnurlpQuery(requestUrl)) {
-            return handleUmaLnurlp(call)
+
+        return if (uma.isUmaLnurlpQuery(requestUrl)) {
+            handleUmaLnurlp(call)
         } else {
-            call.respond("Only UMA Supported")
+            handleNonUmaLnurlp(call)
         }
+    }
+
+    private suspend fun handleNonUmaLnurlp(call: ApplicationCall): String {
+        val response = try {
+            buildJsonObject {
+                put("callback", getLnurlpCallback(call))
+                put("maxSendable", 10_000_000)
+                put("minSendable", 1_000)
+                put("metadata", getEncodedMetadata())
+                put("tag", "payRequest")
+            }
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Failed to generate normal lnurlp response.")
+            return "Failed to generate normal lnurlp response."
+        }
+
+        call.respond(response)
 
         return "OK"
     }
@@ -107,8 +127,8 @@ class Vasp2(
                 receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to generate lnurlp response.")
-            return "Failed to generate lnurlp response."
+            call.respond(HttpStatusCode.InternalServerError, "Failed to generate UMA lnurlp response.")
+            return "Failed to generate UMA lnurlp response."
         }
 
         call.respond(response)
