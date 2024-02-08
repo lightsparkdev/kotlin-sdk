@@ -27,9 +27,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
 
 // In real life, this would come from some actual exchange rate API.
 private const val MSATS_PER_USD_CENT = 22883.56
