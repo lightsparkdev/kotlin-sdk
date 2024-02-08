@@ -25,6 +25,7 @@ import me.uma.protocol.PayRequest
 import me.uma.protocol.PayerDataOptions
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -164,10 +165,10 @@ class Vasp2(
         }
 
         call.respond(
-            mapOf(
-                "pr" to invoice.data.encodedPaymentRequest,
-                "routes" to emptyList<String>(),
-            ),
+            buildJsonObject {
+                put("pr", invoice.data.encodedPaymentRequest)
+                put("routes", JsonArray(emptyList()))
+            }
         )
 
         return "OK"
