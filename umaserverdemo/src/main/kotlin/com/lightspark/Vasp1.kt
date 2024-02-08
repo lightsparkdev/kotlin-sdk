@@ -39,6 +39,7 @@ import me.uma.selectHighestSupportedVersion
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -504,6 +505,7 @@ fun ApplicationCall.originWithPort(): String {
     }
 }
 
+@Serializable
 data class NonUmaLnurlpResponse(
     val callback: String,
     val minSendable: Long,
@@ -518,7 +520,8 @@ private data class PayerProfile(
     val identifier: String,
 )
 
-data class NonUmaPayReqResponse(
+@Serializable
+private data class NonUmaPayReqResponse(
     val pr: String,
     val routes: List<String>
 )
