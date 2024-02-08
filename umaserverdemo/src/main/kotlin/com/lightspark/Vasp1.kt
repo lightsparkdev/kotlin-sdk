@@ -133,6 +133,8 @@ class Vasp1(
         val lnurlpResponse = try {
             response.body<LnurlpResponse>()
         } catch (e: Exception) {
+            call.application.environment.log.error("Failed to parse as UMA lnurlp response, attempting to parse as " +
+                "non-UMA lnurlp response \n${response.bodyAsText()}", e)
             return handleAsNonUmaLnurlpResponse(call, response, receiverId, receiverVasp)
         }
 
@@ -179,8 +181,8 @@ class Vasp1(
             response.body<NonUmaLnurlpResponse>()
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to parse as non UMA lnurlp response\n${response.bodyAsText()}", e)
-            call.respond(HttpStatusCode.FailedDependency, "Failed to parse as non UMA lnurlp response.")
-            return "Failed to parse as non UMA lnurlp response."
+            call.respond(HttpStatusCode.FailedDependency, "Failed to parse as UMA & non UMA lnurlp response.")
+            return "Failed to parse as UMA & non UMA lnurlp response."
         }
 
         val callbackUuid = requestDataCache.saveNonUmaLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
@@ -307,7 +309,7 @@ class Vasp1(
 
         val newCallbackId = requestDataCache.savePayReqData(
             encodedInvoice = payReqResponse.encodedInvoice,
-            utxoCallback = getUtxoCallback(call, "1234abc"),
+            utxoCallback = "", // No utxo callback for non-UMA lnurl.
             invoiceData = invoice,
         )
 
