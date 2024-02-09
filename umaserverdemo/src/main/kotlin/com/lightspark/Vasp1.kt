@@ -1,7 +1,12 @@
 package com.lightspark
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
+import com.lightspark.sdk.crypto.Secp256k1SigningKeyLoader
 import com.lightspark.sdk.execute
+import com.lightspark.sdk.model.LightsparkNode.Companion.getLightsparkNodeQuery
+import com.lightspark.sdk.model.LightsparkNodeWithOSK
+import com.lightspark.sdk.model.LightsparkNodeWithRemoteSigning
 import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
@@ -17,6 +22,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
@@ -82,12 +88,16 @@ class Vasp1(
         val receiverVasp = addressParts[1]
         val signingKey = config.umaSigningPrivKey
 
-        val lnurlpRequest = uma.getSignedLnurlpRequestUrl(
-            signingPrivateKey = signingKey,
-            receiverAddress = receiverAddress,
-            senderVaspDomain = getSendingVaspDomain(call),
-            isSubjectToTravelRule = true,
-        )
+        val lnurlpRequest = if (receiverAddress.startsWith('$')) {
+            uma.getSignedLnurlpRequestUrl(
+                signingPrivateKey = signingKey,
+                receiverAddress = receiverAddress,
+                senderVaspDomain = getSendingVaspDomain(call),
+                isSubjectToTravelRule = true,
+            )
+        } else {
+            getNonUmaLnurlRequestUrl(receiverAddress)
+        }
 
         var response = try {
             httpClient.get(lnurlpRequest)
@@ -175,7 +185,7 @@ class Vasp1(
         call: ApplicationCall,
         response: HttpResponse,
         receiverId: String,
-        receiverVasp: String
+        receiverVasp: String,
     ): String {
         val lnurlpResponse = try {
             response.body<NonUmaLnurlpResponse>()
@@ -354,7 +364,7 @@ class Vasp1(
 
         val newCallbackId = requestDataCache.savePayReqData(
             encodedInvoice = payReqResponse.pr,
-            utxoCallback = getUtxoCallback(call, "1234abc"),
+            utxoCallback = "", // No utxo callback for non-UMA lnurl.
             invoiceData = invoice,
         )
 
@@ -413,6 +423,7 @@ class Vasp1(
         }
 
         val payment = try {
+            loadSigningKey()
             val pendingPayment = lightsparkClient.payUmaInvoice(
                 config.nodeID,
                 payReqData.encodedInvoice,
@@ -443,6 +454,7 @@ class Vasp1(
         payReqData: Vasp1PayReqData,
         call: ApplicationCall,
     ) {
+        if (payReqData.utxoCallback.isEmpty()) return
         val utxos = payment.umaPostTransactionData?.map {
             UtxoWithAmount(it.utxo, it.amount.toMilliSats())
         } ?: emptyList()
@@ -467,6 +479,42 @@ class Vasp1(
     }
 
     private fun getSendingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
+
+    private fun getNonUmaLnurlRequestUrl(receiverAddress: String): String {
+        val receiverAddressParts = receiverAddress.split("@")
+        if (receiverAddressParts.size != 2) {
+            throw IllegalArgumentException("Invalid receiverAddress: $receiverAddress")
+        }
+        val scheme = if (isDomainLocalhost(receiverAddressParts[1])) URLProtocol.HTTP else URLProtocol.HTTPS
+        val url = URLBuilder(
+            protocol = scheme,
+            host = receiverAddressParts[1],
+            pathSegments = "/.well-known/lnurlp/${receiverAddressParts[0]}".split("/"),
+        ).build()
+        return url.toString()
+    }
+
+    private suspend fun loadSigningKey() {
+        val nodeId = config.nodeID
+        when (val node = lightsparkClient.executeQuery(getLightsparkNodeQuery(nodeId))) {
+            is LightsparkNodeWithOSK -> {
+                if (config.oskNodePassword.isNullOrEmpty()) {
+                    throw IllegalArgumentException("Node is an OSK, but no signing key password was provided in the " +
+                        "config. Set the LIGHTSPARK_UMA_OSK_NODE_SIGNING_KEY_PASSWORD environment variable")
+                }
+                lightsparkClient.loadNodeSigningKey(nodeId, PasswordRecoverySigningKeyLoader(nodeId, config.oskNodePassword))
+            }
+            is LightsparkNodeWithRemoteSigning -> {
+                val remoteSigningKey = config.remoteSigningNodeKey
+                    ?: throw IllegalArgumentException("Node is a remote signing node, but no master seed was provided in " +
+                        "the config. Set the LIGHTSPARK_UMA_REMOTE_SIGNING_NODE_MASTER_SEED environment variable")
+                lightsparkClient.loadNodeSigningKey(nodeId, Secp256k1SigningKeyLoader(remoteSigningKey, node.bitcoinNetwork))
+            }
+            else -> {
+                throw IllegalArgumentException("Invalid node type.")
+            }
+        }
+    }
 
     // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.
     private suspend fun waitForPaymentCompletion(pendingPayment: OutgoingPayment): OutgoingPayment {
