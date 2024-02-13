@@ -17,6 +17,7 @@ jobs:
   publish-docs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-11
+    environment: "docs"
     permissions:
       id-token: write
       contents: read
