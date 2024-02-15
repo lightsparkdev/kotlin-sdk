@@ -319,7 +319,7 @@ class Vasp1(
 
         val newCallbackId = requestDataCache.savePayReqData(
             encodedInvoice = payReqResponse.encodedInvoice,
-            utxoCallback = "", // No utxo callback for non-UMA lnurl.
+            utxoCallback = getUtxoCallback(call, "1234abc"),
             invoiceData = invoice,
         )
 
