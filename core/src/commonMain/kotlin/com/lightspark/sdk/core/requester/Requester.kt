@@ -7,7 +7,7 @@ import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.crypto.MissingKeyException
 import com.lightspark.sdk.core.crypto.NodeKeyCache
-import com.lightspark.sdk.core.crypto.nextInt
+import com.lightspark.sdk.core.crypto.nextLong
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
@@ -21,6 +21,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -203,8 +204,8 @@ class Requester constructor(
 
         val newBodyData = bodyData.toMutableMap().apply {
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
-            // spit out a signed int, which the backend can't decode.
-            put("nonce", JsonPrimitive(nextInt().toUInt().toLong()))
+            // spit out a signed int, which the backend can't decode, so we take the absolute value.
+            put("nonce", JsonPrimitive(nextLong().absoluteValue))
             put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { JsonObject(it) }
         val newBodyString = Json.encodeToString(newBodyData)
