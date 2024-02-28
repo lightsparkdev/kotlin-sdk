@@ -19,6 +19,7 @@ import me.uma.crypto.Secp256k1
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
+import me.uma.protocol.compliance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -47,7 +48,8 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, status)
             val response = body<LnurlpResponse>()
             assertEquals(response.umaVersion, UMA_VERSION_STRING)
-            assertTrue(response.requiredPayerData.complianceRequired)
+            assertNotNull(response.requiredPayerData["compliance"])
+            assertTrue(response.requiredPayerData["compliance"]!!.mandatory)
         }
     }
 
@@ -76,7 +78,7 @@ class ApplicationTest {
             payerNodePubKey = "abcdef",
         )
         val decryptedTrInfo = Secp256k1.decryptEcies(
-            payRequest.payerData.compliance!!.encryptedTravelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
+            payRequest.payerData.compliance()!!.encryptedTravelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
         )
         assertEquals(trInfo, decryptedTrInfo.decodeToString())
         client.post("http://localhost/api/uma/payreq/${env.userID}") {

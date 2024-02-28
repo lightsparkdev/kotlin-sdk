@@ -26,11 +26,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
+import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
-import me.uma.protocol.PayerDataOptions
 import me.uma.protocol.UtxoWithAmount
 import me.uma.selectHighestSupportedVersion
 import kotlinx.coroutines.delay
@@ -61,6 +62,7 @@ class Vasp1(
         }
     }
     private val requestDataCache = Vasp1RequestCache()
+    private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
 
     suspend fun handleClientUmaLookup(call: ApplicationCall): String {
         val receiverAddress = call.parameters["receiver"]
@@ -143,7 +145,7 @@ class Vasp1(
         }
 
         try {
-            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys)
+            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys, nonceCache)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
             return "Failed to verify lnurlp response signature."
@@ -244,6 +246,13 @@ class Vasp1(
             return "Failed to parse payreq response."
         }
 
+        try {
+            uma.verifyPayReqResponseSignature(payReqResponse, vasp2PubKeys, payer.identifier, nonceCache)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
+            return "Failed to verify lnurlp response signature."
+        }
+
         // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.utxos
 
         val invoice = try {
@@ -277,10 +286,10 @@ class Vasp1(
      * NOTE: In a real application, you'd want to use the authentication context to pull out this information. It's not
      * actually always Alice sending the money ;-).
      */
-    private fun getPayerProfile(requiredPayerData: PayerDataOptions, applicationCall: ApplicationCall) = PayerProfile(
-        name = if (requiredPayerData.nameRequired) "Alice FakeName" else null,
-        email = if (requiredPayerData.emailRequired) "alice@vasp1.com" else null,
-        identifier = "\$alice@${getSendingVaspDomain(applicationCall)}",
+    private fun getPayerProfile(payerData: CounterPartyDataOptions, call: ApplicationCall) = PayerProfile(
+        name = if (payerData["name"]?.mandatory == true) config.username else null,
+        email = if (payerData["email"]?.mandatory == true) "${config.username}@${getSendingVaspDomain(call)}" else null,
+        identifier = "\$${config.username}@${getSendingVaspDomain(call)}",
     )
 
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {

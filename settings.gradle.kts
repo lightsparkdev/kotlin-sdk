@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         google()
         gradlePluginPortal()
         mavenCentral()
@@ -9,6 +10,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
         maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }

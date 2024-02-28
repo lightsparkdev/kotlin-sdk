@@ -17,12 +17,17 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.UnsupportedVersionException
+import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.Currency
 import me.uma.protocol.KycStatus
 import me.uma.protocol.PayRequest
-import me.uma.protocol.PayerDataOptions
+import me.uma.protocol.createPayeeData
+import me.uma.protocol.createCounterPartyDataOptions
+import me.uma.protocol.identifier
+import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -34,6 +39,8 @@ class Vasp2(
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
 ) {
+    private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
+
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
 
@@ -77,7 +84,7 @@ class Vasp2(
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys)) { "Invalid lnurlp signature." }
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys, nonceCache)) { "Invalid lnurlp signature." }
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature. ${e.message}")
             return "Invalid lnurlp signature."
@@ -92,7 +99,12 @@ class Vasp2(
                 encodedMetadata = getEncodedMetadata(),
                 minSendableSats = 1,
                 maxSendableSats = 100_000_000,
-                payerDataOptions = PayerDataOptions(nameRequired = false, emailRequired = false, complianceRequired = true),
+                payerDataOptions = createCounterPartyDataOptions(
+                    "name" to false,
+                    "email" to false,
+                    "compliance" to true,
+                    "identifier" to true,
+                ),
                 currencyOptions = listOf(
                     Currency(
                         code = "USD",
@@ -174,14 +186,14 @@ class Vasp2(
         }
 
         val pubKeys = try {
-            val sendingVaspDomain = uma.getVaspDomainFromUmaAddress(request.payerData.identifier)
+            val sendingVaspDomain = uma.getVaspDomainFromUmaAddress(request.payerData.identifier())
             uma.fetchPublicKeysForVasp(sendingVaspDomain)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
             return "Failed to fetch public keys."
         }
         try {
-            require(uma.verifyPayReqSignature(request, pubKeys))
+            require(uma.verifyPayReqSignature(request, pubKeys, nonceCache))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid payreq signature.")
             return "Invalid payreq signature."
@@ -194,6 +206,7 @@ class Vasp2(
             ),
         )
         val expirySecs = 60 * 5
+        val payeeProfile = getPayeeProfile(request.requestedPayeeData, call)
 
         val response = try {
             uma.getPayReqResponse(
@@ -208,6 +221,9 @@ class Vasp2(
                 receiverChannelUtxos = emptyList(),
                 receiverNodePubKey = getNodePubKey(),
                 utxoCallback = getUtxoCallback(call, "1234"),
+                receivingVaspPrivateKey = config.umaSigningPrivKey,
+                payeeData = createPayeeData(identifier = payeeProfile.identifier, name = payeeProfile.name,
+                    email = payeeProfile.email)
             )
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to create payreq response.", e)
@@ -219,6 +235,16 @@ class Vasp2(
 
         return "OK"
     }
+
+    /**
+     * NOTE: In a real application, you'd want to use the authentication context to pull out this information. It's not
+     * actually always Bob receiving the money ;-).
+     */
+    private fun getPayeeProfile(payeeData: CounterPartyDataOptions?, call: ApplicationCall) = PayeeProfile(
+        name = if (payeeData?.get("name")?.mandatory == true) config.username else null,
+        email = if (payeeData?.get("email")?.mandatory == true) "${config.username}@${getReceivingVaspDomain(call)}" else null,
+        identifier = "\$${config.username}@${getReceivingVaspDomain(call)}",
+    )
 
     private fun getEncodedMetadata(): String {
         val metadata = mapOf(
@@ -255,6 +281,8 @@ class Vasp2(
         val path = uri
         return "$protocol://$host$port$path"
     }
+
+    private fun getReceivingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
 }
 
 fun Routing.registerVasp2Routes(vasp2: Vasp2) {
@@ -270,3 +298,9 @@ fun Routing.registerVasp2Routes(vasp2: Vasp2) {
         call.debugLog(vasp2.handleUmaPayreq(call))
     }
 }
+
+private data class PayeeProfile(
+    val name: String?,
+    val email: String?,
+    val identifier: String,
+)
