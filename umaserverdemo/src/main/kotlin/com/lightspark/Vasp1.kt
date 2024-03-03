@@ -185,7 +185,7 @@ class Vasp1(
             return "Amount invalid or not provided."
         }
 
-        val currencyCode = call.request.queryParameters["currencyCode"]
+        val currencyCode = call.request.queryParameters["receivingCurrencyCode"]
         if (currencyCode == null) {
             call.respond(HttpStatusCode.BadRequest, "Currency code not provided.")
             return "Currency code not provided."
@@ -195,6 +195,7 @@ class Vasp1(
             call.respond(HttpStatusCode.BadRequest, "Currency code not supported.")
             return "Currency code not supported."
         }
+        val isAmountInMsats = call.request.queryParameters["isAmountInMsats"]?.toBoolean() ?: false
 
         val vasp2PubKeys = try {
             uma.fetchPublicKeysForVasp(initialRequestData.vasp2Domain)
@@ -212,7 +213,8 @@ class Vasp1(
             uma.getPayRequest(
                 receiverEncryptionPubKey = vasp2PubKeys.encryptionPubKey,
                 sendingVaspPrivateKey = config.umaSigningPrivKey,
-                currencyCode = currencyCode,
+                receivingCurrencyCode = currencyCode,
+                isAmountInReceivingCurrency = !isAmountInMsats,
                 amount = amount,
                 payerIdentifier = payer.identifier,
                 payerKycStatus = KycStatus.VERIFIED,
@@ -274,6 +276,8 @@ class Vasp1(
                 put("encodedInvoice", payReqResponse.encodedInvoice)
                 put("callbackUuid", newCallbackId)
                 put("amount", Json.encodeToJsonElement(invoice.amount))
+                put("amountInReceivingCurrency", payReqResponse.paymentInfo.amount)
+                put("receivingCurrencyDecimals", payReqResponse.paymentInfo.decimals)
                 put("conversionRate", payReqResponse.paymentInfo.multiplier)
                 put("currencyCode", payReqResponse.paymentInfo.currencyCode)
             },

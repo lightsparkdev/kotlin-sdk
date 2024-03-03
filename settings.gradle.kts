@@ -10,7 +10,15 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
-        mavenLocal()
+        mavenLocal {
+            content {
+                includeGroup("me.uma")
+            }
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
         google()
         mavenCentral()
         maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }
