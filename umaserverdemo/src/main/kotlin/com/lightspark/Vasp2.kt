@@ -21,18 +21,14 @@ import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.UnsupportedVersionException
 import me.uma.protocol.CounterPartyDataOptions
-import me.uma.protocol.Currency
 import me.uma.protocol.KycStatus
 import me.uma.protocol.PayRequest
-import me.uma.protocol.createPayeeData
 import me.uma.protocol.createCounterPartyDataOptions
+import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-
-// In real life, this would come from some actual exchange rate API.
-private const val MSATS_PER_USD_CENT = 22883.56
 
 class Vasp2(
     private val config: UmaConfig,
@@ -105,17 +101,7 @@ class Vasp2(
                     "compliance" to true,
                     "identifier" to true,
                 ),
-                currencyOptions = listOf(
-                    Currency(
-                        code = "USD",
-                        name = "US Dollar",
-                        symbol = "$",
-                        millisatoshiPerUnit = MSATS_PER_USD_CENT,
-                        minSendable = 1,
-                        maxSendable = 10_000_000,
-                        decimals = 2,
-                    ),
-                ),
+                currencyOptions = RECEIVING_CURRENCIES,
                 receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
@@ -199,6 +185,11 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
+        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == request.receivingCurrencyCode } ?: run {
+            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+            return "Unsupported currency."
+        }
+
         val client = LightsparkCoroutinesClient(
             ClientConfig(
                 serverUrl = config.clientBaseURL ?: "api.lightspark.com",
@@ -213,17 +204,19 @@ class Vasp2(
                 query = request,
                 invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID, expirySecs),
                 metadata = getEncodedMetadata(),
-                currencyCode = "USD",
-                currencyDecimals = 2,
-                conversionRate = MSATS_PER_USD_CENT,
+                currencyCode = receivingCurrency.code,
+                currencyDecimals = receivingCurrency.decimals,
+                conversionRate = receivingCurrency.millisatoshiPerUnit,
                 receiverFeesMillisats = 0,
                 // TODO(Jeremy): Actually get the UTXOs from the request.
                 receiverChannelUtxos = emptyList(),
                 receiverNodePubKey = getNodePubKey(),
                 utxoCallback = getUtxoCallback(call, "1234"),
                 receivingVaspPrivateKey = config.umaSigningPrivKey,
-                payeeData = createPayeeData(identifier = payeeProfile.identifier, name = payeeProfile.name,
-                    email = payeeProfile.email)
+                payeeData = createPayeeData(
+                    identifier = payeeProfile.identifier, name = payeeProfile.name,
+                    email = payeeProfile.email,
+                ),
             )
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to create payreq response.", e)

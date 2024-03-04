@@ -19,7 +19,6 @@ buildscript {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
         google()

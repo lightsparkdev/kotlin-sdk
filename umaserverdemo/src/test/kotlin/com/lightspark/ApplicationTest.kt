@@ -42,7 +42,7 @@ class ApplicationTest {
         }
         val uma = UmaProtocolHelper(InMemoryPublicKeyCache(), KtorUmaRequester(client))
         val requestUrlString = uma.getSignedLnurlpRequestUrl(
-            env.umaSigningPrivKey, "\$bob@localhost:443", "localhost", false,
+            env.umaSigningPrivKey, "\$bob@localhost", "localhost", false,
         )
         client.get(requestUrlString).apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -71,6 +71,7 @@ class ApplicationTest {
             env.umaSigningPrivKey,
             "USD",
             100L,
+            true,
             "\$alice@localhost",
             KycStatus.VERIFIED,
             "localhost/utxocallback",
