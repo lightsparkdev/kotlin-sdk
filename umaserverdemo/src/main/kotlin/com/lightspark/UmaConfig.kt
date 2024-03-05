@@ -8,8 +8,10 @@ data class UmaConfig(
     val nodeID: String,
     val username: String,
     val userID: String,
+    val umaEncryptionCertificate: String,
     val umaEncryptionPubKeyHex: String,
     val umaEncryptionPrivKeyHex: String,
+    val umaSigningCertificate: String,
     val umaSigningPubKeyHex: String,
     val umaSigningPrivKeyHex: String,
     val clientBaseURL: String?,
@@ -39,10 +41,15 @@ data class UmaConfig(
                     ?: error("LIGHTSPARK_UMA_RECEIVER_USER not set"),
                 // Static UUID so that callback URLs are always the same.
                 userID = "4b41ae03-01b8-4974-8d26-26a35d28851b",
+                umaEncryptionCertificate = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_CERT")
+                    ?: error("LIGHTSPARK_UMA_ENCRYPTION_CERT not set"),
                 umaEncryptionPubKeyHex = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY")
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY not set"),
                 umaEncryptionPrivKeyHex = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY not set"),
+                umaSigningCertificate =
+                System.getenv("LIGHTSPARK_UMA_SIGNING_CERT")
+                    ?: error("LIGHTSPARK_UMA_SIGNING_CERT not set"),
                 umaSigningPubKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PUBKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PUBKEY not set"),
                 umaSigningPrivKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PRIVKEY")
