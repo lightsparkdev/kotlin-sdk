@@ -211,7 +211,7 @@ class Vasp1(
 
         val payReq = try {
             uma.getPayRequest(
-                receiverEncryptionPubKey = vasp2PubKeys.encryptionPubKey,
+                receiverEncryptionPubKey = vasp2PubKeys.getEncryptionPublicKey(),
                 sendingVaspPrivateKey = config.umaSigningPrivKey,
                 receivingCurrencyCode = currencyCode,
                 isAmountInReceivingCurrency = !isAmountInMsats,
