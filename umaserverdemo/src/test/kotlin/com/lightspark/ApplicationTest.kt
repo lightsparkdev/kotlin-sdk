@@ -48,8 +48,8 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, status)
             val response = body<LnurlpResponse>()
             assertEquals(response.umaVersion, UMA_VERSION_STRING)
-            assertNotNull(response.requiredPayerData["compliance"])
-            assertTrue(response.requiredPayerData["compliance"]!!.mandatory)
+            assertNotNull(response.requiredPayerData?.get("compliance"))
+            assertTrue(response.requiredPayerData?.get("compliance")!!.mandatory)
         }
     }
 
@@ -79,7 +79,7 @@ class ApplicationTest {
             payerNodePubKey = "abcdef",
         )
         val decryptedTrInfo = Secp256k1.decryptEcies(
-            payRequest.payerData.compliance()!!.encryptedTravelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
+            payRequest.payerData!!.compliance()!!.encryptedTravelRuleInfo!!.hexToByteArray(), env.umaEncryptionPrivKey,
         )
         assertEquals(trInfo, decryptedTrInfo.decodeToString())
         client.post("http://localhost/api/uma/payreq/${env.userID}") {
@@ -88,7 +88,7 @@ class ApplicationTest {
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
             val response = body<PayReqResponse>()
-            assertEquals("USD", response.paymentInfo.currencyCode)
+            assertEquals("USD", response.paymentInfo!!.currencyCode)
             assertNotNull(response.encodedInvoice)
         }
     }
@@ -104,6 +104,6 @@ class ApplicationTest {
         }
         val uma = UmaProtocolHelper(InMemoryPublicKeyCache(), KtorUmaRequester(client))
         val pubKeyResponse = uma.fetchPublicKeysForVasp("localhost:80")
-        assertEquals(env.umaSigningPubKeyHex, pubKeyResponse.signingPubKey.toHexString())
+        assertEquals(env.umaSigningPubKeyHex, pubKeyResponse.getSigningPublicKey().toHexString())
     }
 }
