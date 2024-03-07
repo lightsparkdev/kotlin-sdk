@@ -18,9 +18,9 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import kotlinx.serialization.json.JsonObject
 import me.uma.InMemoryPublicKeyCache
 import me.uma.UmaProtocolHelper
-import kotlinx.serialization.json.JsonObject
 
 fun Application.configureRouting(
     config: UmaConfig,

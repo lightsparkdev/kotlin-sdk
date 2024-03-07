@@ -1,8 +1,8 @@
 package com.lightspark
 
 import com.lightspark.sdk.model.InvoiceData
-import me.uma.protocol.LnurlpResponse
 import java.util.UUID
+import me.uma.protocol.LnurlpResponse
 
 /**
  * A simple in-memory cache for data that needs to be remembered between calls to VASP1. In practice, this would be
@@ -64,4 +64,3 @@ data class Vasp1PayReqData(
     val utxoCallback: String,
     val invoiceData: InvoiceData,
 )
-

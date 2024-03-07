@@ -18,6 +18,13 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.toMap
+import java.util.concurrent.CompletableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
+import kotlinx.datetime.Clock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.uma.InMemoryNonceCache
 import me.uma.UmaInvoiceCreator
 import me.uma.UmaProtocolHelper
@@ -29,13 +36,6 @@ import me.uma.protocol.PayRequest
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
-import java.util.concurrent.CompletableFuture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.future
-import kotlinx.datetime.Clock
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class Vasp2(
     private val config: UmaConfig,
@@ -260,7 +260,8 @@ class Vasp2(
                 utxoCallback = getUtxoCallback(call, "1234"),
                 receivingVaspPrivateKey = config.umaSigningPrivKey,
                 payeeData = createPayeeData(
-                    identifier = payeeProfile.identifier, name = payeeProfile.name,
+                    identifier = payeeProfile.identifier,
+                    name = payeeProfile.name,
                     email = payeeProfile.email,
                 ),
             )
@@ -281,7 +282,11 @@ class Vasp2(
      */
     private fun getPayeeProfile(payeeData: CounterPartyDataOptions?, call: ApplicationCall) = PayeeProfile(
         name = if (payeeData?.get("name")?.mandatory == true) config.username else null,
-        email = if (payeeData?.get("email")?.mandatory == true) "${config.username}@${getReceivingVaspDomain(call)}" else null,
+        email = if (payeeData?.get("email")?.mandatory == true) {
+            "${config.username}@${getReceivingVaspDomain(call)}"
+        } else {
+            null
+        },
         identifier = "\$${config.username}@${getReceivingVaspDomain(call)}",
     )
 
@@ -305,7 +310,7 @@ class Vasp2(
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
         val protocol = call.request.origin.scheme
         val host = call.request.host()
-        val path = "/api/uma/utxoCallback?txId=${txId}"
+        val path = "/api/uma/utxoCallback?txId=$txId"
         return "$protocol://$host$path"
     }
 
