@@ -16,6 +16,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.parametersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -26,14 +27,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import me.uma.InMemoryNonceCache
-import me.uma.UmaProtocolHelper
-import me.uma.protocol.CounterPartyDataOptions
-import me.uma.protocol.KycStatus
-import me.uma.protocol.LnurlpResponse
-import me.uma.protocol.PayReqResponse
-import me.uma.protocol.UtxoWithAmount
-import me.uma.selectHighestSupportedVersion
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -46,6 +39,16 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import me.uma.InMemoryNonceCache
+import me.uma.UmaProtocolHelper
+import me.uma.protocol.CounterPartyDataOptions
+import me.uma.protocol.KycStatus
+import me.uma.protocol.LnurlpResponse
+import me.uma.protocol.PayReqResponse
+import me.uma.protocol.PayRequest
+import me.uma.protocol.UtxoWithAmount
+import me.uma.protocol.createPayerData
+import me.uma.selectHighestSupportedVersion
 
 class Vasp1(
     private val config: UmaConfig,
@@ -136,33 +139,38 @@ class Vasp1(
             return "Failed to parse lnurlp response."
         }
 
-        val vasp2PubKeys = try {
-            uma.fetchPublicKeysForVasp(receiverVasp)
-        } catch (e: Exception) {
-            call.application.environment.log.error("Failed to fetch pubkeys", e)
-            call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
-            return "Failed to fetch public keys."
-        }
+        val umaLnurlpResponse = lnurlpResponse.asUmaResponse()
+        if (umaLnurlpResponse != null) {
+            // Only verify UMA responses. Otherwise, it's a regular LNURL response.
+            val vasp2PubKeys = try {
+                uma.fetchPublicKeysForVasp(receiverVasp)
+            } catch (e: Exception) {
+                call.application.environment.log.error("Failed to fetch pubkeys", e)
+                call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
+                return "Failed to fetch public keys."
+            }
 
-        try {
-            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys, nonceCache)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
-            return "Failed to verify lnurlp response signature."
+            try {
+                uma.verifyLnurlpResponseSignature(umaLnurlpResponse, vasp2PubKeys, nonceCache)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
+                return "Failed to verify lnurlp response signature."
+            }
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
+        val receiverCurrencies = lnurlpResponse.currencies?.map { it.code } ?: listOf(SATS_CURRENCY)
 
         call.respond(
             buildJsonObject {
                 putJsonArray("receiverCurrencies") {
-                    addAll(lnurlpResponse.currencies.map { Json.encodeToJsonElement(it) })
+                    addAll(receiverCurrencies.map { Json.encodeToJsonElement(it) })
                 }
                 put("minSendSats", lnurlpResponse.minSendable)
                 put("maxSendSats", lnurlpResponse.maxSendable)
                 put("callbackUuid", callbackUuid)
                 // You might not actually send this to a client in practice.
-                put("receiverKycStatus", lnurlpResponse.compliance.kycStatus.rawValue)
+                put("receiverKycStatus", lnurlpResponse.compliance?.kycStatus?.rawValue ?: KycStatus.UNKNOWN.rawValue)
             },
         )
 
@@ -185,55 +193,79 @@ class Vasp1(
             return "Amount invalid or not provided."
         }
 
-        val currencyCode = call.request.queryParameters["receivingCurrencyCode"]
-        if (currencyCode == null) {
-            call.respond(HttpStatusCode.BadRequest, "Currency code not provided.")
-            return "Currency code not provided."
-        }
-        val currencyValid = initialRequestData.lnurlpResponse.currencies.any { it.code == currencyCode }
+        val currencyCode = call.request.queryParameters["receivingCurrencyCode"] ?: "SAT"
+        val currencyValid = (
+            initialRequestData.lnurlpResponse.currencies
+                ?: listOf(SATS_CURRENCY)
+            ).any { it.code == currencyCode }
         if (!currencyValid) {
-            call.respond(HttpStatusCode.BadRequest, "Currency code not supported.")
-            return "Currency code not supported."
+            call.respond(HttpStatusCode.BadRequest, "Receiving currency code not supported.")
+            return "Receiving currency code not supported."
         }
-        val isAmountInMsats = call.request.queryParameters["isAmountInMsats"]?.toBoolean() ?: false
+        val umaLnurlpResponse = initialRequestData.lnurlpResponse.asUmaResponse()
+        val isUma = umaLnurlpResponse != null
+        // The default for UMA requests should be to assume the receiving currency, but for non-UMA, we default to msats.
+        val isAmountInMsats = call.request.queryParameters["isAmountInMsats"]?.toBoolean() ?: !isUma
 
-        val vasp2PubKeys = try {
-            uma.fetchPublicKeysForVasp(initialRequestData.vasp2Domain)
-        } catch (e: Exception) {
-            call.application.environment.log.error("Failed to fetch pubkeys", e)
-            call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
-            return "Failed to fetch public keys."
+        val vasp2PubKeys = if (isUma) {
+            try {
+                uma.fetchPublicKeysForVasp(initialRequestData.vasp2Domain)
+            } catch (e: Exception) {
+                call.application.environment.log.error("Failed to fetch pubkeys", e)
+                call.respond(HttpStatusCode.FailedDependency, "Failed to fetch public keys.")
+                return "Failed to fetch public keys."
+            }
+        } else {
+            null
         }
 
-        val payer = getPayerProfile(initialRequestData.lnurlpResponse.requiredPayerData, call)
+        val payer = getPayerProfile(initialRequestData.lnurlpResponse.requiredPayerData ?: emptyMap(), call)
         val trInfo = "Here is some fake travel rule info. It's up to you to actually implement this if needed."
         val payerUtxos = emptyList<String>()
 
         val payReq = try {
-            uma.getPayRequest(
-                receiverEncryptionPubKey = vasp2PubKeys.getEncryptionPublicKey(),
-                sendingVaspPrivateKey = config.umaSigningPrivKey,
-                receivingCurrencyCode = currencyCode,
-                isAmountInReceivingCurrency = !isAmountInMsats,
-                amount = amount,
-                payerIdentifier = payer.identifier,
-                payerKycStatus = KycStatus.VERIFIED,
-                payerNodePubKey = getNodePubKey(),
-                utxoCallback = getUtxoCallback(call, "1234abc"),
-                travelRuleInfo = trInfo,
-                payerUtxos = payerUtxos,
-                payerName = payer.name,
-                payerEmail = payer.email,
-            )
+            if (isUma) {
+                uma.getPayRequest(
+                    receiverEncryptionPubKey = vasp2PubKeys!!.getEncryptionPublicKey(),
+                    sendingVaspPrivateKey = config.umaSigningPrivKey,
+                    receivingCurrencyCode = currencyCode,
+                    isAmountInReceivingCurrency = !isAmountInMsats,
+                    amount = amount,
+                    payerIdentifier = payer.identifier,
+                    payerKycStatus = KycStatus.VERIFIED,
+                    payerNodePubKey = getNodePubKey(),
+                    utxoCallback = getUtxoCallback(call, "1234abc"),
+                    travelRuleInfo = trInfo,
+                    payerUtxos = payerUtxos,
+                    payerName = payer.name,
+                    payerEmail = payer.email,
+                    comment = call.request.queryParameters["comment"],
+                )
+            } else {
+                PayRequest(
+                    sendingCurrencyCode = if (isAmountInMsats) "SAT" else currencyCode,
+                    receivingCurrencyCode = currencyCode.takeIf { it != "SAT" },
+                    amount = amount,
+                    payerData = createPayerData(identifier = payer.identifier, name = payer.name, email = payer.email),
+                    comment = call.request.queryParameters["comment"],
+                )
+            }
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to generate payreq", e)
             call.respond(HttpStatusCode.InternalServerError, "Failed to generate payreq.")
             return "Failed to generate payreq."
         }
 
-        val response = httpClient.post(initialRequestData.lnurlpResponse.callback) {
-            contentType(ContentType.Application.Json)
-            setBody(payReq)
+        val response = if (isUma) {
+            httpClient.post(initialRequestData.lnurlpResponse.callback) {
+                contentType(ContentType.Application.Json)
+                setBody(payReq)
+            }
+        } else {
+            httpClient.get(initialRequestData.lnurlpResponse.callback) {
+                contentType(ContentType.Application.Json)
+                parametersOf(payReq.toQueryParamMap())
+            }
         }
 
         if (response.status != HttpStatusCode.OK) {
@@ -248,11 +280,18 @@ class Vasp1(
             return "Failed to parse payreq response."
         }
 
-        try {
-            uma.verifyPayReqResponseSignature(payReqResponse, vasp2PubKeys, payer.identifier, nonceCache)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
-            return "Failed to verify lnurlp response signature."
+        if (isUma && !payReqResponse.isUmaResponse()) {
+            call.respond(HttpStatusCode.FailedDependency, "Received non-UMA response from vasp2 for an UMA request")
+            return "Received non-UMA response from vasp2."
+        }
+
+        if (isUma) {
+            try {
+                uma.verifyPayReqResponseSignature(payReqResponse, vasp2PubKeys!!, payer.identifier, nonceCache)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
+                return "Failed to verify lnurlp response signature."
+            }
         }
 
         // TODO(Yun): Pre-screen the UTXOs from payreqResponse.compliance.utxos
@@ -276,10 +315,10 @@ class Vasp1(
                 put("encodedInvoice", payReqResponse.encodedInvoice)
                 put("callbackUuid", newCallbackId)
                 put("amount", Json.encodeToJsonElement(invoice.amount))
-                put("amountInReceivingCurrency", payReqResponse.paymentInfo.amount)
-                put("receivingCurrencyDecimals", payReqResponse.paymentInfo.decimals)
-                put("conversionRate", payReqResponse.paymentInfo.multiplier)
-                put("currencyCode", payReqResponse.paymentInfo.currencyCode)
+                put("amountInReceivingCurrency", payReqResponse.paymentInfo?.amount ?: amount)
+                put("receivingCurrencyDecimals", payReqResponse.paymentInfo?.decimals ?: 0)
+                put("conversionRate", payReqResponse.paymentInfo?.multiplier ?: 1000)
+                put("currencyCode", payReqResponse.paymentInfo?.currencyCode ?: "SAT")
             },
         )
 
@@ -299,7 +338,7 @@ class Vasp1(
     private fun getUtxoCallback(call: ApplicationCall, txId: String): String {
         val protocol = call.request.origin.scheme
         val host = call.request.host()
-        val path = "/api/uma/utxoCallback?txId=${txId}"
+        val path = "/api/uma/utxoCallback?txId=$txId"
         return "$protocol://$host$path"
     }
 
