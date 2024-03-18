@@ -71,11 +71,14 @@ class Vasp2(
     private suspend fun handleUmaLnurlp(call: ApplicationCall): String {
         val requestUrl = call.request.fullUrl()
         val request = try {
+            println("Parsing UMA request.")
             uma.parseLnurlpRequest(requestUrl)
         } catch (e: UnsupportedVersionException) {
+            println("unsupported version: ${e.unsupportedVersion}.")
             call.respond(HttpStatusCode.PreconditionFailed, e.toLnurlpResponseJson())
             return "Unsupported version: ${e.unsupportedVersion}."
         } catch (e: Exception) {
+            println("Failed to parse lnurlp request. ${e.message}")
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
             return "Invalid lnurlp request."
         }.asUmaRequest() ?: run {
@@ -158,7 +161,7 @@ class Vasp2(
             PayRequest.fromQueryParamMap(paramMap)
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
-            return "Invalid pay request."
+            return "Invalid pay request. $e"
         }
 
         val lnurlInvoiceCreator = object : UmaInvoiceCreator {
@@ -209,7 +212,7 @@ class Vasp2(
             call.receive<PayRequest>()
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
-            return "Invalid pay request."
+            return "Invalid pay request. $e"
         }
 
         if (!request.isUmaRequest()) {

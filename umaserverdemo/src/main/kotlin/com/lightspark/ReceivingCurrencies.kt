@@ -6,7 +6,7 @@ import me.uma.protocol.CurrencyConvertible
 // In real life, this would come from some actual exchange rate API.
 private const val MSATS_PER_USD_CENT = 22883.56
 
-val SATS_CURRENCY = Currency(
+val SATS_CURRENCY = Currency.CurrencyV1(
     code = "SAT",
     name = "Satoshis",
     symbol = "SAT",
@@ -19,7 +19,7 @@ val SATS_CURRENCY = Currency(
 )
 
 val RECEIVING_CURRENCIES = listOf(
-    Currency(
+    Currency.CurrencyV1(
         code = "USD",
         name = "US Dollar",
         symbol = "$",

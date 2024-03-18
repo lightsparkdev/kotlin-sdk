@@ -31,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -42,6 +43,8 @@ import kotlinx.serialization.json.putJsonArray
 import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.CounterPartyDataOptions
+import me.uma.protocol.Currency
+import me.uma.protocol.CurrencySerializer
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
@@ -132,7 +135,7 @@ class Vasp1(
         }
 
         val lnurlpResponse = try {
-            response.body<LnurlpResponse>()
+            uma.parseAsLnurlpResponse(response.body())
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to parse lnurlp response\n${response.bodyAsText()}", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
@@ -159,12 +162,12 @@ class Vasp1(
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
-        val receiverCurrencies = lnurlpResponse.currencies?.map { it.code } ?: listOf(SATS_CURRENCY)
+        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(SATS_CURRENCY)
 
         call.respond(
             buildJsonObject {
                 putJsonArray("receiverCurrencies") {
-                    addAll(receiverCurrencies.map { Json.encodeToJsonElement(it) })
+                    addAll(receiverCurrencies.map { Json.encodeToJsonElement(CurrencySerializer, it) })
                 }
                 put("minSendSats", lnurlpResponse.minSendable)
                 put("maxSendSats", lnurlpResponse.maxSendable)
