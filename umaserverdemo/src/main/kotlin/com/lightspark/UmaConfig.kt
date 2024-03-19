@@ -47,8 +47,7 @@ data class UmaConfig(
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PUBKEY not set"),
                 umaEncryptionPrivKeyHex = System.getenv("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY")
                     ?: error("LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY not set"),
-                umaSigningCertChain =
-                System.getenv("LIGHTSPARK_UMA_SIGNING_CERT_CHAIN")
+                umaSigningCertChain = System.getenv("LIGHTSPARK_UMA_SIGNING_CERT_CHAIN")
                     ?: error("LIGHTSPARK_UMA_SIGNING_CERT_CHAIN not set"),
                 umaSigningPubKeyHex = System.getenv("LIGHTSPARK_UMA_SIGNING_PUBKEY")
                     ?: error("LIGHTSPARK_UMA_SIGNING_PUBKEY not set"),
