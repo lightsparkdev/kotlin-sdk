@@ -132,7 +132,7 @@ class Vasp2(
             return "Failed to generate UMA lnurlp response."
         }
 
-        call.respond(response)
+        call.respond(response.toJson())
 
         return "OK"
     }
@@ -188,7 +188,7 @@ class Vasp2(
         }
 
         val request = try {
-            call.receive<PayRequest>()
+            uma.parseAsPayRequest(call.receive<String>())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request."
@@ -236,7 +236,7 @@ class Vasp2(
             return "Failed to create payreq response."
         }
 
-        call.respond(response)
+        call.respond(response.toJson())
 
         return "OK"
     }
