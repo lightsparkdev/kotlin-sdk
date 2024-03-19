@@ -33,6 +33,7 @@ import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayRequest
+import me.uma.protocol.PayRequestV1
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
@@ -44,6 +45,7 @@ class Vasp2(
 ) {
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private lateinit var senderUmaVersion: String
 
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
@@ -100,6 +102,8 @@ class Vasp2(
             call.respond(response)
             return "OK"
         }
+
+        senderUmaVersion = request.umaVersion
 
         val pubKeys = try {
             uma.fetchPublicKeysForVasp(request.vaspDomain)
@@ -158,7 +162,7 @@ class Vasp2(
 
         val paramMap = call.request.queryParameters.toMap()
         val payreq = try {
-            PayRequest.fromQueryParamMap(paramMap)
+            PayRequestV1.fromQueryParamMap(paramMap)
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
             return "Invalid pay request. $e"
@@ -172,7 +176,7 @@ class Vasp2(
             }
         }
 
-        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == payreq.receivingCurrencyCode } ?: run {
+        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
             call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
             return "Unsupported currency."
         }
@@ -181,7 +185,7 @@ class Vasp2(
             query = payreq,
             invoiceCreator = lnurlInvoiceCreator,
             metadata = getEncodedMetadata(),
-            receivingCurrencyCode = payreq.receivingCurrencyCode,
+            receivingCurrencyCode = payreq.receivingCurrencyCode(),
             receivingCurrencyDecimals = receivingCurrency.decimals,
             conversionRate = receivingCurrency.millisatoshiPerUnit,
             receiverFeesMillisats = 0,
@@ -189,10 +193,11 @@ class Vasp2(
             receiverNodePubKey = null,
             utxoCallback = null,
             receivingVaspPrivateKey = null,
+            senderUmaVersion = senderUmaVersion,
         )
 
         call.respond(response)
-        return "OK"
+        return "OK ${response.toJson()}"
     }
 
     suspend fun handleUmaPayreq(call: ApplicationCall): String {
@@ -209,7 +214,7 @@ class Vasp2(
         }
 
         val request = try {
-            call.receive<PayRequest>()
+            uma.parseAsPayRequest(call.receive<String>())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request. $e"
@@ -234,7 +239,7 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
-        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == request.receivingCurrencyCode } ?: run {
+        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
             call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
             return "Unsupported currency."
         }
@@ -246,7 +251,11 @@ class Vasp2(
             ),
         )
         val expirySecs = 60 * 5
-        val payeeProfile = getPayeeProfile(request.requestedPayeeData, call)
+        val payeeProfile = if (request is PayRequestV1) {
+            getPayeeProfile(request.requestedPayeeData, call)
+        } else {
+            getPayeeProfile(null, call)
+        }
 
         val response = try {
             uma.getPayReqResponse(
@@ -267,6 +276,7 @@ class Vasp2(
                     name = payeeProfile.name,
                     email = payeeProfile.email,
                 ),
+                senderUmaVersion = senderUmaVersion,
             )
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to create payreq response.", e)
@@ -274,7 +284,7 @@ class Vasp2(
             return "Failed to create payreq response."
         }
 
-        call.respond(response)
+        call.respond(response.toJson())
 
         return "OK"
     }

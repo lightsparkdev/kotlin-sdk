@@ -1,12 +1,12 @@
 package com.lightspark
 
-import me.uma.protocol.Currency
 import me.uma.protocol.CurrencyConvertible
+import me.uma.protocol.CurrencyV1
 
 // In real life, this would come from some actual exchange rate API.
 private const val MSATS_PER_USD_CENT = 22883.56
 
-val SATS_CURRENCY = Currency.CurrencyV1(
+val SATS_CURRENCY = CurrencyV1(
     code = "SAT",
     name = "Satoshis",
     symbol = "SAT",
@@ -19,7 +19,7 @@ val SATS_CURRENCY = Currency.CurrencyV1(
 )
 
 val RECEIVING_CURRENCIES = listOf(
-    Currency.CurrencyV1(
+    CurrencyV1(
         code = "USD",
         name = "US Dollar",
         symbol = "$",

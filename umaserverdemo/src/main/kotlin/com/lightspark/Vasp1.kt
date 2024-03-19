@@ -49,6 +49,7 @@ import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
 import me.uma.protocol.PayRequest
+import me.uma.protocol.PayRequestV1
 import me.uma.protocol.UtxoWithAmount
 import me.uma.protocol.createPayerData
 import me.uma.selectHighestSupportedVersion
@@ -196,7 +197,10 @@ class Vasp1(
             return "Amount invalid or not provided."
         }
 
-        val currencyCode = call.request.queryParameters["receivingCurrencyCode"] ?: "SAT"
+        val currencyCode = call.request.queryParameters["receivingCurrencyCode"]
+            // fallback to uma v0
+            ?: call.request.queryParameters["currencyCode"]
+            ?: "SAT"
         val currencyValid = (
             initialRequestData.lnurlpResponse.currencies
                 ?: listOf(SATS_CURRENCY)
@@ -245,7 +249,7 @@ class Vasp1(
                     comment = call.request.queryParameters["comment"],
                 )
             } else {
-                PayRequest(
+                PayRequestV1(
                     sendingCurrencyCode = if (isAmountInMsats) "SAT" else currencyCode,
                     receivingCurrencyCode = currencyCode.takeIf { it != "SAT" },
                     amount = amount,
@@ -262,12 +266,12 @@ class Vasp1(
         val response = if (isUma) {
             httpClient.post(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                setBody(payReq)
+                setBody(uma.encodePayReq(payReq))
             }
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                parametersOf(payReq.toQueryParamMap())
+                parametersOf((payReq as? PayRequestV1)?.toQueryParamMap() ?: emptyMap())
             }
         }
 
@@ -277,10 +281,10 @@ class Vasp1(
         }
 
         val payReqResponse = try {
-            response.body<PayReqResponse>()
+            uma.parseAsPayReqResponse(response.body())
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
-            return "Failed to parse payreq response."
+            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.$e")
+            return "Failed to parse payreq response. $e"
         }
 
         if (isUma && !payReqResponse.isUmaResponse()) {
