@@ -43,12 +43,8 @@ import kotlinx.serialization.json.putJsonArray
 import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.CounterPartyDataOptions
-import me.uma.protocol.Currency
 import me.uma.protocol.CurrencySerializer
 import me.uma.protocol.KycStatus
-import me.uma.protocol.LnurlpResponse
-import me.uma.protocol.PayReqResponse
-import me.uma.protocol.PayRequest
 import me.uma.protocol.PayRequestV1
 import me.uma.protocol.UtxoWithAmount
 import me.uma.protocol.createPayerData
@@ -70,6 +66,7 @@ class Vasp1(
     }
     private val requestDataCache = Vasp1RequestCache()
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
+    private lateinit var receiverUmaVersion: String
 
     suspend fun handleClientUmaLookup(call: ApplicationCall): String {
         val receiverAddress = call.parameters["receiver"]
@@ -160,6 +157,8 @@ class Vasp1(
                 call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
                 return "Failed to verify lnurlp response signature."
             }
+
+            receiverUmaVersion = umaLnurlpResponse.umaVersion
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
@@ -247,6 +246,7 @@ class Vasp1(
                     payerName = payer.name,
                     payerEmail = payer.email,
                     comment = call.request.queryParameters["comment"],
+                    receiverUmaVersion = receiverUmaVersion,
                 )
             } else {
                 PayRequestV1(
