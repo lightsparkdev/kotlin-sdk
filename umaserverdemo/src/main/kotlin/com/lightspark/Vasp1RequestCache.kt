@@ -34,7 +34,13 @@ class Vasp1RequestCache {
 
     fun saveLnurlpResponseData(lnurlpResponse: LnurlpResponse, receiverId: String, vasp2Domain: String): String {
         val uuid = UUID.randomUUID().toString()
-        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse, receiverId, vasp2Domain)
+        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse, nonUmaLnurlpResponse = null, receiverId, vasp2Domain)
+        return uuid
+    }
+
+    fun saveNonUmaLnurlpResponseData(nonUmaLnurlpResponse: NonUmaLnurlpResponse, receiverId: String, vasp2Domain: String): String {
+        val uuid = UUID.randomUUID().toString()
+        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse = null, nonUmaLnurlpResponse, receiverId, vasp2Domain)
         return uuid
     }
 
@@ -54,7 +60,8 @@ class Vasp1RequestCache {
 }
 
 data class Vasp1InitialRequestData(
-    val lnurlpResponse: LnurlpResponse,
+    val lnurlpResponse: LnurlpResponse?,
+    val nonUmaLnurlpResponse: NonUmaLnurlpResponse?,
     val receiverId: String,
     val vasp2Domain: String,
 )

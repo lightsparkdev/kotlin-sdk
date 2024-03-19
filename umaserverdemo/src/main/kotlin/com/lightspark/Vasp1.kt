@@ -1,7 +1,12 @@
 package com.lightspark
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
+import com.lightspark.sdk.crypto.Secp256k1SigningKeyLoader
 import com.lightspark.sdk.execute
+import com.lightspark.sdk.model.LightsparkNode.Companion.getLightsparkNodeQuery
+import com.lightspark.sdk.model.LightsparkNodeWithOSK
+import com.lightspark.sdk.model.LightsparkNodeWithRemoteSigning
 import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
@@ -12,9 +17,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.parametersOf
 import io.ktor.serialization.kotlinx.json.json
@@ -30,6 +38,7 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -42,6 +51,8 @@ import kotlinx.serialization.json.putJsonArray
 import me.uma.InMemoryNonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.CounterPartyDataOptions
+import me.uma.protocol.Currency
+import me.uma.protocol.CurrencyConvertible
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayReqResponse
@@ -83,12 +94,16 @@ class Vasp1(
         val receiverVasp = addressParts[1]
         val signingKey = config.umaSigningPrivKey
 
-        val lnurlpRequest = uma.getSignedLnurlpRequestUrl(
-            signingPrivateKey = signingKey,
-            receiverAddress = receiverAddress,
-            senderVaspDomain = getSendingVaspDomain(call),
-            isSubjectToTravelRule = true,
-        )
+        val lnurlpRequest = if (receiverAddress.startsWith('$')) {
+            uma.getSignedLnurlpRequestUrl(
+                signingPrivateKey = signingKey,
+                receiverAddress = receiverAddress,
+                senderVaspDomain = getSendingVaspDomain(call),
+                isSubjectToTravelRule = true,
+            )
+        } else {
+            getNonUmaLnurlRequestUrl(receiverAddress)
+        }
 
         var response = try {
             httpClient.get(lnurlpRequest)
@@ -132,11 +147,11 @@ class Vasp1(
         }
 
         val lnurlpResponse = try {
-            response.body<LnurlpResponse>()
+            uma.parseAsLnurlpResponse(response.body())
         } catch (e: Exception) {
-            call.application.environment.log.error("Failed to parse lnurlp response\n${response.bodyAsText()}", e)
-            call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
-            return "Failed to parse lnurlp response."
+            call.application.environment.log.error("Failed to parse as UMA lnurlp response, attempting to parse as " +
+                "non-UMA lnurlp response \n${response.bodyAsText()}", e)
+            return handleAsNonUmaLnurlpResponse(call, response, receiverId, receiverVasp)
         }
 
         val umaLnurlpResponse = lnurlpResponse.asUmaResponse()
@@ -159,7 +174,7 @@ class Vasp1(
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
-        val receiverCurrencies = lnurlpResponse.currencies?.map { it.code } ?: listOf(SATS_CURRENCY)
+        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(SATS_CURRENCY)
 
         call.respond(
             buildJsonObject {
@@ -172,6 +187,50 @@ class Vasp1(
                 // You might not actually send this to a client in practice.
                 put("receiverKycStatus", lnurlpResponse.compliance?.kycStatus?.rawValue ?: KycStatus.UNKNOWN.rawValue)
             },
+        )
+
+        return "OK"
+    }
+
+    private suspend fun handleAsNonUmaLnurlpResponse(
+        call: ApplicationCall,
+        response: HttpResponse,
+        receiverId: String,
+        receiverVasp: String,
+    ): String {
+        val lnurlpResponse = try {
+            response.body<NonUmaLnurlpResponse>()
+        } catch (e: Exception) {
+            call.application.environment.log.error("Failed to parse as non UMA lnurlp response\n${response.bodyAsText()}", e)
+            call.respond(HttpStatusCode.FailedDependency, "Failed to parse as UMA & non UMA lnurlp response.")
+            return "Failed to parse as UMA & non UMA lnurlp response."
+        }
+
+        val callbackUuid = requestDataCache.saveNonUmaLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
+
+        call.respond(
+            buildJsonObject {
+                putJsonArray("receiverCurrencies") {
+                    add(Json.encodeToJsonElement(
+                        Currency(
+                            code = "SAT",
+                            name = "Satoshis",
+                            symbol = "sat",
+                            millisatoshiPerUnit = 1000.0,
+                            convertible = CurrencyConvertible(
+                                min = 1,
+                                max = 10_000_000_000,
+                            ),
+                            decimals = 0
+                        )
+                    ))
+                }
+                put("maxSendable", lnurlpResponse.maxSendable)
+                put("minSendable", lnurlpResponse.minSendable)
+                put("callbackUuid", callbackUuid)
+                // You might not actually send this to a client in practice.
+                put("receiverKycStatus", KycStatus.NOT_VERIFIED.rawValue)
+            }
         )
 
         return "OK"
@@ -191,6 +250,15 @@ class Vasp1(
         if (amount == null || amount <= 0) {
             call.respond(HttpStatusCode.BadRequest, "Amount invalid or not provided.")
             return "Amount invalid or not provided."
+        }
+
+        if (initialRequestData.lnurlpResponse == null) {
+            return if (initialRequestData.nonUmaLnurlpResponse == null) {
+                call.respond(HttpStatusCode.BadRequest, "Callback UUID not found.")
+                "Callback UUID not found."
+            } else {
+                handleNonUmaPayReq(call, initialRequestData.nonUmaLnurlpResponse, amount)
+            }
         }
 
         val currencyCode = call.request.queryParameters["receivingCurrencyCode"] ?: "SAT"
@@ -259,7 +327,7 @@ class Vasp1(
         val response = if (isUma) {
             httpClient.post(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                setBody(payReq)
+                setBody(payReq.toJson())
             }
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
@@ -274,7 +342,7 @@ class Vasp1(
         }
 
         val payReqResponse = try {
-            response.body<PayReqResponse>()
+            uma.parseAsPayReqResponse(response.body())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
             return "Failed to parse payreq response."
@@ -325,6 +393,51 @@ class Vasp1(
         return "OK"
     }
 
+    private suspend fun handleNonUmaPayReq(call: ApplicationCall, nonUmaLnurlpResponse: NonUmaLnurlpResponse, amount: Long): String {
+        val url = URLBuilder(nonUmaLnurlpResponse.callback)
+        url.parameters.append("amount", amount.toString())
+        val urlWithAmount = url.buildString()
+
+        val response = httpClient.get(urlWithAmount)
+
+        if (response.status != HttpStatusCode.OK) {
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to vasp2 failed: ${response.status}")
+            return "Payreq to vasp2 failed: ${response.status}"
+        }
+
+        val payReqResponse = try {
+            Json.decodeFromString<NonUmaPayReqResponse>(response.body())
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
+            return "Failed to parse payreq response."
+        }
+
+        val invoice = try {
+            lightsparkClient.decodeInvoice(payReqResponse.pr)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Error decoding invoice.")
+            return "Error decoding invoice."
+        }
+
+        val newCallbackId = requestDataCache.savePayReqData(
+            encodedInvoice = payReqResponse.pr,
+            utxoCallback = "", // No utxo callback for non-UMA lnurl.
+            invoiceData = invoice,
+        )
+
+        call.respond(
+            buildJsonObject {
+                put("encodedInvoice", payReqResponse.pr)
+                put("callbackUuid", newCallbackId)
+                put("amount", Json.encodeToJsonElement(invoice.amount))
+                put("conversionRate", 1)
+                put("currencyCode", "mSAT")
+            },
+        )
+
+        return "OK"
+    }
+
     /**
      * NOTE: In a real application, you'd want to use the authentication context to pull out this information. It's not
      * actually always Alice sending the money ;-).
@@ -367,6 +480,7 @@ class Vasp1(
         }
 
         val payment = try {
+            loadSigningKey()
             val pendingPayment = lightsparkClient.payUmaInvoice(
                 config.nodeID,
                 payReqData.encodedInvoice,
@@ -397,6 +511,7 @@ class Vasp1(
         payReqData: Vasp1PayReqData,
         call: ApplicationCall,
     ) {
+        if (payReqData.utxoCallback.isEmpty()) return
         val utxos = payment.umaPostTransactionData?.map {
             UtxoWithAmount(it.utxo, it.amount.toMilliSats())
         } ?: emptyList()
@@ -421,6 +536,42 @@ class Vasp1(
     }
 
     private fun getSendingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
+
+    private fun getNonUmaLnurlRequestUrl(receiverAddress: String): String {
+        val receiverAddressParts = receiverAddress.split("@")
+        if (receiverAddressParts.size != 2) {
+            throw IllegalArgumentException("Invalid receiverAddress: $receiverAddress")
+        }
+        val scheme = if (isDomainLocalhost(receiverAddressParts[1])) URLProtocol.HTTP else URLProtocol.HTTPS
+        val url = URLBuilder(
+            protocol = scheme,
+            host = receiverAddressParts[1],
+            pathSegments = "/.well-known/lnurlp/${receiverAddressParts[0]}".split("/"),
+        ).build()
+        return url.toString()
+    }
+
+    private suspend fun loadSigningKey() {
+        val nodeId = config.nodeID
+        when (val node = lightsparkClient.executeQuery(getLightsparkNodeQuery(nodeId))) {
+            is LightsparkNodeWithOSK -> {
+                if (config.oskNodePassword.isNullOrEmpty()) {
+                    throw IllegalArgumentException("Node is an OSK, but no signing key password was provided in the " +
+                        "config. Set the LIGHTSPARK_UMA_OSK_NODE_SIGNING_KEY_PASSWORD environment variable")
+                }
+                lightsparkClient.loadNodeSigningKey(nodeId, PasswordRecoverySigningKeyLoader(nodeId, config.oskNodePassword))
+            }
+            is LightsparkNodeWithRemoteSigning -> {
+                val remoteSigningKey = config.remoteSigningNodeKey
+                    ?: throw IllegalArgumentException("Node is a remote signing node, but no master seed was provided in " +
+                        "the config. Set the LIGHTSPARK_UMA_REMOTE_SIGNING_NODE_MASTER_SEED environment variable")
+                lightsparkClient.loadNodeSigningKey(nodeId, Secp256k1SigningKeyLoader(remoteSigningKey, node.bitcoinNetwork))
+            }
+            else -> {
+                throw IllegalArgumentException("Invalid node type.")
+            }
+        }
+    }
 
     // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.
     private suspend fun waitForPaymentCompletion(pendingPayment: OutgoingPayment): OutgoingPayment {
@@ -461,8 +612,23 @@ fun ApplicationCall.originWithPort(): String {
     }
 }
 
+@Serializable
+data class NonUmaLnurlpResponse(
+    val callback: String,
+    val minSendable: Long,
+    val maxSendable: Long,
+    val metadata: String,
+    val tag: String
+)
+
 private data class PayerProfile(
     val name: String?,
     val email: String?,
     val identifier: String,
+)
+
+@Serializable
+private data class NonUmaPayReqResponse(
+    val pr: String,
+    val routes: List<String>
 )

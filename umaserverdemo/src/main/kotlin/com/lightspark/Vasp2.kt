@@ -25,6 +25,8 @@ import kotlinx.coroutines.future.future
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import me.uma.InMemoryNonceCache
 import me.uma.UmaInvoiceCreator
 import me.uma.UmaProtocolHelper
@@ -59,11 +61,29 @@ class Vasp2(
         }
 
         val requestUrl = call.request.fullUrl()
-        if (uma.isUmaLnurlpQuery(requestUrl)) {
-            return handleUmaLnurlp(call)
+
+        return if (uma.isUmaLnurlpQuery(requestUrl)) {
+            handleUmaLnurlp(call)
         } else {
-            call.respond("Only UMA Supported")
+            handleNonUmaLnurlp(call)
         }
+    }
+
+    private suspend fun handleNonUmaLnurlp(call: ApplicationCall): String {
+        val response = try {
+            buildJsonObject {
+                put("callback", getLnurlpCallback(call))
+                put("maxSendable", 10_000_000)
+                put("minSendable", 1_000)
+                put("metadata", getEncodedMetadata())
+                put("tag", "payRequest")
+            }
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError, "Failed to generate normal lnurlp response.")
+            return "Failed to generate normal lnurlp response."
+        }
+
+        call.respond(response)
 
         return "OK"
     }
@@ -131,8 +151,8 @@ class Vasp2(
                 receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to generate lnurlp response.")
-            return "Failed to generate lnurlp response."
+            call.respond(HttpStatusCode.InternalServerError, "Failed to generate UMA lnurlp response.")
+            return "Failed to generate UMA lnurlp response."
         }
 
         call.respond(response)
@@ -188,7 +208,7 @@ class Vasp2(
             receivingVaspPrivateKey = null,
         )
 
-        call.respond(response)
+        call.respond(response.toJson())
         return "OK"
     }
 
@@ -206,7 +226,7 @@ class Vasp2(
         }
 
         val request = try {
-            call.receive<PayRequest>()
+            uma.parseAsPayRequest(call.receive<String>())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
             return "Invalid pay request."
@@ -271,7 +291,7 @@ class Vasp2(
             return "Failed to create payreq response."
         }
 
-        call.respond(response)
+        call.respond(response.toJson())
 
         return "OK"
     }
