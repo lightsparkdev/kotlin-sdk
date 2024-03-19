@@ -32,7 +32,6 @@ import me.uma.UnsupportedVersionException
 import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
-import me.uma.protocol.PayRequest
 import me.uma.protocol.PayRequestV1
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
@@ -73,14 +72,11 @@ class Vasp2(
     private suspend fun handleUmaLnurlp(call: ApplicationCall): String {
         val requestUrl = call.request.fullUrl()
         val request = try {
-            println("Parsing UMA request.")
             uma.parseLnurlpRequest(requestUrl)
         } catch (e: UnsupportedVersionException) {
-            println("unsupported version: ${e.unsupportedVersion}.")
             call.respond(HttpStatusCode.PreconditionFailed, e.toLnurlpResponseJson())
             return "Unsupported version: ${e.unsupportedVersion}."
         } catch (e: Exception) {
-            println("Failed to parse lnurlp request. ${e.message}")
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
             return "Invalid lnurlp request."
         }.asUmaRequest() ?: run {
@@ -165,7 +161,7 @@ class Vasp2(
             PayRequestV1.fromQueryParamMap(paramMap)
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
-            return "Invalid pay request. $e"
+            return "Invalid pay request."
         }
 
         val lnurlInvoiceCreator = object : UmaInvoiceCreator {
@@ -197,7 +193,7 @@ class Vasp2(
         )
 
         call.respond(response)
-        return "OK ${response.toJson()}"
+        return "OK"
     }
 
     suspend fun handleUmaPayreq(call: ApplicationCall): String {
@@ -217,7 +213,7 @@ class Vasp2(
             uma.parseAsPayRequest(call.receive<String>())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
-            return "Invalid pay request. $e"
+            return "Invalid pay request."
         }
 
         if (!request.isUmaRequest()) {
@@ -251,11 +247,7 @@ class Vasp2(
             ),
         )
         val expirySecs = 60 * 5
-        val payeeProfile = if (request is PayRequestV1) {
-            getPayeeProfile(request.requestedPayeeData, call)
-        } else {
-            getPayeeProfile(null, call)
-        }
+        val payeeProfile = getPayeeProfile((request as? PayRequestV1)?.requestedPayeeData, call)
 
         val response = try {
             uma.getPayReqResponse(

@@ -266,7 +266,7 @@ class Vasp1(
         val response = if (isUma) {
             httpClient.post(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                setBody(uma.encodePayReq(payReq))
+                setBody(payReq.toJson())
             }
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
@@ -283,8 +283,8 @@ class Vasp1(
         val payReqResponse = try {
             uma.parseAsPayReqResponse(response.body())
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.$e")
-            return "Failed to parse payreq response. $e"
+            call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
+            return "Failed to parse payreq response."
         }
 
         if (isUma && !payReqResponse.isUmaResponse()) {
