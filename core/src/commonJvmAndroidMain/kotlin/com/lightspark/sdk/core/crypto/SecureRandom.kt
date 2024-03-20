@@ -2,6 +2,6 @@ package com.lightspark.sdk.core.crypto
 
 import java.security.SecureRandom
 
-internal actual fun nextInt(): Int {
-    return SecureRandom().nextInt()
+internal actual fun nextLong(): Long {
+    return SecureRandom().nextLong()
 }

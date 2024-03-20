@@ -184,7 +184,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `create an LNURL invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
         val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
 
@@ -193,7 +193,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `create and cancel an invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         val invoice = client.createInvoice(node.id, 1000)
 
         println("encoded invoice: $invoice.data.encodedPaymentRequest}")
@@ -205,7 +205,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `send a payment for an invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
 
         // Just paying a pre-existing AMP invoice.
@@ -220,7 +220,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `get node channels`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         val channels = node.getChannelsQuery().execute(client)
         channels.shouldNotBeNull()
         channels.entities.shouldNotBeEmpty()
@@ -230,7 +230,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test paying a test mode invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
         var outgoingPayment: OutgoingPayment? = client.payInvoice(node.id, invoice, maxFeesMsats = 100_000)
@@ -245,7 +245,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test creating a test mode payment`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
         var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
@@ -260,16 +260,16 @@ class ClientIntegrationTests {
 
     // TODO: Add tests for withdrawals and deposits.
 
-    private suspend fun getFirstNode(): LightsparkNode {
+    private suspend fun getFirstOskNode(): LightsparkNode {
         val account = getCurrentAccount()
         val nodes = account.getNodesQuery().execute(client)
         nodes.shouldNotBeNull()
         nodes.entities.shouldNotBeEmpty()
-        return nodes.entities.first()
+        return nodes.entities.first { it.id.contains("OSK")}
     }
 
     private suspend fun getNodeId(): String {
-        return getFirstNode().id
+        return getFirstOskNode().id
     }
 
     private suspend fun getCurrentAccount(): Account {

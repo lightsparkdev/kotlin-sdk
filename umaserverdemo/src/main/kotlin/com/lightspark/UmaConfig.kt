@@ -6,6 +6,8 @@ data class UmaConfig(
     val apiClientID: String,
     val apiClientSecret: String,
     val nodeID: String,
+    val oskNodePassword: String?,
+    val remoteSigningNodeKeyHex: String?,
     val username: String,
     val userID: String,
     val umaEncryptionCertChain: String,
@@ -29,6 +31,9 @@ data class UmaConfig(
     val umaSigningPrivKey: ByteArray
         get() = umaSigningPrivKeyHex.hexToByteArray()
 
+    val remoteSigningNodeKey: ByteArray?
+        get() = remoteSigningNodeKeyHex?.hexToByteArray()
+
     companion object {
         fun fromEnv(): UmaConfig {
             return UmaConfig(
@@ -37,6 +42,8 @@ data class UmaConfig(
                 apiClientSecret = System.getenv("LIGHTSPARK_API_TOKEN_CLIENT_SECRET")
                     ?: error("LIGHTSPARK_API_TOKEN_CLIENT_SECRET not set"),
                 nodeID = System.getenv("LIGHTSPARK_UMA_NODE_ID") ?: error("LIGHTSPARK_UMA_NODE_ID not set"),
+                oskNodePassword = System.getenv("LIGHTSPARK_UMA_OSK_NODE_SIGNING_KEY_PASSWORD"),
+                remoteSigningNodeKeyHex = System.getenv("LIGHTSPARK_UMA_REMOTE_SIGNING_NODE_MASTER_SEED"),
                 username = System.getenv("LIGHTSPARK_UMA_RECEIVER_USER")
                     ?: error("LIGHTSPARK_UMA_RECEIVER_USER not set"),
                 // Static UUID so that callback URLs are always the same.
