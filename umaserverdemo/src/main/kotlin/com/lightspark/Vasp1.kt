@@ -30,8 +30,8 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -41,14 +41,16 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import me.uma.InMemoryNonceCache
+import me.uma.UMA_VERSION_STRING
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.CurrencySerializer
 import me.uma.protocol.KycStatus
-import me.uma.protocol.PayRequestV1
+import me.uma.protocol.PayRequest
 import me.uma.protocol.UtxoWithAmount
 import me.uma.protocol.createPayerData
 import me.uma.selectHighestSupportedVersion
+import me.uma.utils.serialFormat
 
 class Vasp1(
     private val config: UmaConfig,
@@ -162,7 +164,7 @@ class Vasp1(
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
-        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(SATS_CURRENCY)
+        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(getSatsCurrency(uma, UMA_VERSION_STRING))
 
         call.respond(
             buildJsonObject {
@@ -202,7 +204,7 @@ class Vasp1(
             ?: "SAT"
         val currencyValid = (
             initialRequestData.lnurlpResponse.currencies
-                ?: listOf(SATS_CURRENCY)
+                ?: listOf(getSatsCurrency(uma, UMA_VERSION_STRING))
             ).any { it.code == currencyCode }
         if (!currencyValid) {
             call.respond(HttpStatusCode.BadRequest, "Receiving currency code not supported.")
@@ -249,13 +251,15 @@ class Vasp1(
                     receiverUmaVersion = receiverUmaVersion,
                 )
             } else {
-                PayRequestV1(
-                    sendingCurrencyCode = if (isAmountInMsats) "SAT" else currencyCode,
-                    receivingCurrencyCode = currencyCode.takeIf { it != "SAT" },
-                    amount = amount,
-                    payerData = createPayerData(identifier = payer.identifier, name = payer.name, email = payer.email),
-                    comment = call.request.queryParameters["comment"],
+                val comment = call.request.queryParameters["comment"]
+                val payerData = createPayerData(identifier = payer.identifier, name = payer.name, email = payer.email)
+                val params = mapOf(
+                    "amount" to if (isAmountInMsats) listOf(amount.toString()) else listOf("$amount.$currencyCode"),
+                    "convert" to listOf(currencyCode),
+                    "payerData" to listOf(serialFormat.encodeToString(payerData)),
+                    "comment" to (comment?.let { listOf(it) } ?: emptyList())
                 )
+                PayRequest.fromQueryParamMap(params)
             }
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to generate payreq", e)
@@ -271,7 +275,7 @@ class Vasp1(
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                parametersOf((payReq as? PayRequestV1)?.toQueryParamMap() ?: emptyMap())
+                parametersOf(payReq.toQueryParamMap() ?: emptyMap())
             }
         }
 

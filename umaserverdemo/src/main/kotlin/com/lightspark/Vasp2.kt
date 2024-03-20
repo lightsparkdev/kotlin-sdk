@@ -32,7 +32,7 @@ import me.uma.UnsupportedVersionException
 import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
-import me.uma.protocol.PayRequestV1
+import me.uma.protocol.PayRequest
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
@@ -86,7 +86,7 @@ class Vasp2(
                 minSendable = 1,
                 maxSendable = 100_000_000,
                 metadata = getEncodedMetadata(),
-                currencies = RECEIVING_CURRENCIES,
+                currencies = getReceivingCurrencies(uma, senderUmaVersion),
                 requiredPayerData = createCounterPartyDataOptions(
                     "name" to false,
                     "email" to false,
@@ -130,7 +130,7 @@ class Vasp2(
                     "compliance" to true,
                     "identifier" to true,
                 ),
-                currencyOptions = RECEIVING_CURRENCIES,
+                currencyOptions = getReceivingCurrencies(uma, senderUmaVersion),
                 receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
@@ -158,7 +158,7 @@ class Vasp2(
 
         val paramMap = call.request.queryParameters.toMap()
         val payreq = try {
-            PayRequestV1.fromQueryParamMap(paramMap)
+            PayRequest.fromQueryParamMap(paramMap)
         } catch (e: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
             return "Invalid pay request."
@@ -172,10 +172,11 @@ class Vasp2(
             }
         }
 
-        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-            return "Unsupported currency."
-        }
+        val receivingCurrency = getReceivingCurrencies(uma, senderUmaVersion)
+            .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+                return "Unsupported currency."
+            }
 
         val response = uma.getPayReqResponse(
             query = payreq,
@@ -235,10 +236,11 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
-        val receivingCurrency = RECEIVING_CURRENCIES.firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-            return "Unsupported currency."
-        }
+        val receivingCurrency = getReceivingCurrencies(uma, senderUmaVersion)
+            .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+                return "Unsupported currency."
+            }
 
         val client = LightsparkCoroutinesClient(
             ClientConfig(
@@ -247,7 +249,7 @@ class Vasp2(
             ),
         )
         val expirySecs = 60 * 5
-        val payeeProfile = getPayeeProfile((request as? PayRequestV1)?.requestedPayeeData, call)
+        val payeeProfile = getPayeeProfile(request.requestedPayeeData(), call)
 
         val response = try {
             uma.getPayReqResponse(
