@@ -1,13 +1,13 @@
 package com.lightspark
 
 import me.uma.protocol.Currency
-import me.uma.protocol.getCurrency
+import me.uma.protocol.createCurrency
 
 // In real life, this would come from some actual exchange rate API.
 private const val MSATS_PER_USD_CENT = 22883.56
 
 fun getSatsCurrency(senderVersion: String): Currency {
-    return getCurrency(
+    return createCurrency(
         code = "SAT",
         name = "Satoshis",
         symbol = "SAT",
@@ -22,7 +22,7 @@ fun getSatsCurrency(senderVersion: String): Currency {
 fun getReceivingCurrencies(senderUmaVersion: String): List<Currency> {
     val satsCurrency = getSatsCurrency(senderUmaVersion)
     return listOf(
-        getCurrency(
+        createCurrency(
             code = "USD",
             name = "US Dollar",
             symbol = "$",
