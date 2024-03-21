@@ -30,6 +30,7 @@ import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -40,15 +41,16 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import me.uma.InMemoryNonceCache
+import me.uma.UMA_VERSION_STRING
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.CounterPartyDataOptions
+import me.uma.protocol.CurrencySerializer
 import me.uma.protocol.KycStatus
-import me.uma.protocol.LnurlpResponse
-import me.uma.protocol.PayReqResponse
 import me.uma.protocol.PayRequest
 import me.uma.protocol.UtxoWithAmount
 import me.uma.protocol.createPayerData
 import me.uma.selectHighestSupportedVersion
+import me.uma.utils.serialFormat
 
 class Vasp1(
     private val config: UmaConfig,
@@ -66,6 +68,7 @@ class Vasp1(
     }
     private val requestDataCache = Vasp1RequestCache()
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
+    private lateinit var receiverUmaVersion: String
 
     suspend fun handleClientUmaLookup(call: ApplicationCall): String {
         val receiverAddress = call.parameters["receiver"]
@@ -132,7 +135,7 @@ class Vasp1(
         }
 
         val lnurlpResponse = try {
-            response.body<LnurlpResponse>()
+            uma.parseAsLnurlpResponse(response.body())
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to parse lnurlp response\n${response.bodyAsText()}", e)
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse lnurlp response.")
@@ -156,15 +159,17 @@ class Vasp1(
                 call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
                 return "Failed to verify lnurlp response signature."
             }
+
+            receiverUmaVersion = umaLnurlpResponse.umaVersion
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
-        val receiverCurrencies = lnurlpResponse.currencies?.map { it.code } ?: listOf(SATS_CURRENCY)
+        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(getSatsCurrency(UMA_VERSION_STRING))
 
         call.respond(
             buildJsonObject {
                 putJsonArray("receiverCurrencies") {
-                    addAll(receiverCurrencies.map { Json.encodeToJsonElement(it) })
+                    addAll(receiverCurrencies.map { Json.encodeToJsonElement(CurrencySerializer, it) })
                 }
                 put("minSendSats", lnurlpResponse.minSendable)
                 put("maxSendSats", lnurlpResponse.maxSendable)
@@ -193,10 +198,13 @@ class Vasp1(
             return "Amount invalid or not provided."
         }
 
-        val currencyCode = call.request.queryParameters["receivingCurrencyCode"] ?: "SAT"
+        val currencyCode = call.request.queryParameters["receivingCurrencyCode"]
+            // fallback to uma v0
+            ?: call.request.queryParameters["currencyCode"]
+            ?: "SAT"
         val currencyValid = (
             initialRequestData.lnurlpResponse.currencies
-                ?: listOf(SATS_CURRENCY)
+                ?: listOf(getSatsCurrency(UMA_VERSION_STRING))
             ).any { it.code == currencyCode }
         if (!currencyValid) {
             call.respond(HttpStatusCode.BadRequest, "Receiving currency code not supported.")
@@ -240,15 +248,18 @@ class Vasp1(
                     payerName = payer.name,
                     payerEmail = payer.email,
                     comment = call.request.queryParameters["comment"],
+                    receiverUmaVersion = receiverUmaVersion,
                 )
             } else {
-                PayRequest(
-                    sendingCurrencyCode = if (isAmountInMsats) "SAT" else currencyCode,
-                    receivingCurrencyCode = currencyCode.takeIf { it != "SAT" },
-                    amount = amount,
-                    payerData = createPayerData(identifier = payer.identifier, name = payer.name, email = payer.email),
-                    comment = call.request.queryParameters["comment"],
+                val comment = call.request.queryParameters["comment"]
+                val payerData = createPayerData(identifier = payer.identifier, name = payer.name, email = payer.email)
+                val params = mapOf(
+                    "amount" to if (isAmountInMsats) listOf(amount.toString()) else listOf("$amount.$currencyCode"),
+                    "convert" to listOf(currencyCode),
+                    "payerData" to listOf(serialFormat.encodeToString(payerData)),
+                    "comment" to (comment?.let { listOf(it) } ?: emptyList())
                 )
+                PayRequest.fromQueryParamMap(params)
             }
         } catch (e: Exception) {
             call.application.environment.log.error("Failed to generate payreq", e)
@@ -259,12 +270,12 @@ class Vasp1(
         val response = if (isUma) {
             httpClient.post(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                setBody(payReq)
+                setBody(payReq.toJson())
             }
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                parametersOf(payReq.toQueryParamMap())
+                parametersOf(payReq.toQueryParamMap() ?: emptyMap())
             }
         }
 
@@ -274,7 +285,7 @@ class Vasp1(
         }
 
         val payReqResponse = try {
-            response.body<PayReqResponse>()
+            uma.parseAsPayReqResponse(response.body())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to parse payreq response.")
             return "Failed to parse payreq response."
