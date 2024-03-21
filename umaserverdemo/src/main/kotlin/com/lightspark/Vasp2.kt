@@ -17,6 +17,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.NonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.UnsupportedVersionException
 import me.uma.protocol.Currency
@@ -36,6 +37,7 @@ class Vasp2(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
+    private val nonceCache: NonceCache,
 ) {
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
@@ -98,7 +100,7 @@ class Vasp2(
         }
 
         try {
-            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys)) { "Invalid lnurlp signature." }
+            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys, nonceCache)) { "Invalid lnurlp signature." }
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature. ${e.message}")
             return "Invalid lnurlp signature."
@@ -202,7 +204,7 @@ class Vasp2(
             return "Failed to fetch public keys."
         }
         try {
-            require(uma.verifyPayReqSignature(request, pubKeys))
+            require(uma.verifyPayReqSignature(request, pubKeys, nonceCache))
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid payreq signature.")
             return "Invalid payreq signature."
