@@ -86,7 +86,7 @@ class Vasp2(
                 minSendable = 1,
                 maxSendable = 100_000_000,
                 metadata = getEncodedMetadata(),
-                currencies = getReceivingCurrencies(uma, senderUmaVersion),
+                currencies = getReceivingCurrencies(senderUmaVersion),
                 requiredPayerData = createCounterPartyDataOptions(
                     "name" to false,
                     "email" to false,
@@ -130,7 +130,7 @@ class Vasp2(
                     "compliance" to true,
                     "identifier" to true,
                 ),
-                currencyOptions = getReceivingCurrencies(uma, senderUmaVersion),
+                currencyOptions = getReceivingCurrencies(senderUmaVersion),
                 receiverKycStatus = KycStatus.VERIFIED,
             )
         } catch (e: Exception) {
@@ -172,7 +172,7 @@ class Vasp2(
             }
         }
 
-        val receivingCurrency = getReceivingCurrencies(uma, senderUmaVersion)
+        val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
                 call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
                 return "Unsupported currency."
@@ -236,7 +236,7 @@ class Vasp2(
             return "Invalid payreq signature."
         }
 
-        val receivingCurrency = getReceivingCurrencies(uma, senderUmaVersion)
+        val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
                 call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
                 return "Unsupported currency."

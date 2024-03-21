@@ -164,7 +164,7 @@ class Vasp1(
         }
 
         val callbackUuid = requestDataCache.saveLnurlpResponseData(lnurlpResponse, receiverId, receiverVasp)
-        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(getSatsCurrency(uma, UMA_VERSION_STRING))
+        val receiverCurrencies = lnurlpResponse.currencies ?: listOf(getSatsCurrency(UMA_VERSION_STRING))
 
         call.respond(
             buildJsonObject {
@@ -204,7 +204,7 @@ class Vasp1(
             ?: "SAT"
         val currencyValid = (
             initialRequestData.lnurlpResponse.currencies
-                ?: listOf(getSatsCurrency(uma, UMA_VERSION_STRING))
+                ?: listOf(getSatsCurrency(UMA_VERSION_STRING))
             ).any { it.code == currencyCode }
         if (!currencyValid) {
             call.respond(HttpStatusCode.BadRequest, "Receiving currency code not supported.")
