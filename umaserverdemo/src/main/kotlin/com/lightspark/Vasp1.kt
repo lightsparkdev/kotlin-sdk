@@ -34,6 +34,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import me.uma.NonceCache
 import me.uma.UmaProtocolHelper
 import me.uma.protocol.Currency
 import me.uma.protocol.KycStatus
@@ -60,6 +61,7 @@ class Vasp1(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
+    private val nonceCache: NonceCache,
 ) {
     private val httpClient = HttpClient {
         install(ContentNegotiation) {
@@ -157,7 +159,7 @@ class Vasp1(
         }
 
         try {
-            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys)
+            uma.verifyLnurlpResponseSignature(lnurlpResponse, vasp2PubKeys, nonceCache)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Failed to verify lnurlp response signature.")
             return "Failed to verify lnurlp response signature."

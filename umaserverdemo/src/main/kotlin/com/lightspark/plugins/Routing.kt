@@ -18,6 +18,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import me.uma.InMemoryNonceCache
 import me.uma.InMemoryPublicKeyCache
 import me.uma.UmaProtocolHelper
 import kotlinx.serialization.json.JsonObject
@@ -32,8 +33,10 @@ fun Application.configureRouting(
             authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
         ),
     )
-    val vasp1 = Vasp1(config, uma, client)
-    val vasp2 = Vasp2(config, uma, client)
+    val twoHoursAgoSec = System.currentTimeMillis() / 1000 - 7200
+    val nonceCache = InMemoryNonceCache(twoHoursAgoSec)
+    val vasp1 = Vasp1(config, uma, client, nonceCache)
+    val vasp2 = Vasp2(config, uma, client, nonceCache)
 
     routing {
         registerVasp1Routes(vasp1)
