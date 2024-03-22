@@ -101,7 +101,8 @@ class Vasp1(
         }
 
         if (response.status == HttpStatusCode.PreconditionFailed) {
-            val responseBody = response.body<JsonObject>()
+            val responseString = response.bodyAsText()
+            val responseBody = Json.decodeFromString<JsonObject>(responseString)
             val supportedMajorVersions = responseBody["supportedMajorVersions"]?.jsonArray?.mapNotNull {
                 it.jsonPrimitive.int
             } ?: emptyList()
@@ -292,6 +293,7 @@ class Vasp1(
         }
 
         if (isUma && !payReqResponse.isUmaResponse()) {
+            call.application.environment.log.error("Got a non-UMA response: ${payReqResponse.toJson()}")
             call.respond(HttpStatusCode.FailedDependency, "Received non-UMA response from vasp2 for an UMA request")
             return "Received non-UMA response from vasp2."
         }

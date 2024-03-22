@@ -36,3 +36,9 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation(libs.kotlin.test.junit)
 }
+
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor(0, "seconds")
+    }
+}
