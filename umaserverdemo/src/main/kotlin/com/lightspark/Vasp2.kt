@@ -11,7 +11,7 @@ import io.ktor.server.plugins.origin
 import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.request.host
 import io.ktor.server.request.port
-import io.ktor.server.request.receive
+import io.ktor.server.request.receiveText
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
@@ -211,10 +211,10 @@ class Vasp2(
         }
 
         val request = try {
-            uma.parseAsPayRequest(call.receive<String>())
+            uma.parseAsPayRequest(call.receiveText())
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
-            return "Invalid pay request."
+            return "Invalid pay request. ${e.message}"
         }
 
         if (!request.isUmaRequest()) {

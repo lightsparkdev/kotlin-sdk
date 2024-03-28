@@ -11,9 +11,9 @@ fun getSatsCurrency(senderVersion: String): Currency {
         code = "SAT",
         name = "Satoshis",
         symbol = "SAT",
-        millisatoshiPerUnit = 1.0,
+        millisatoshiPerUnit = 1000.0,
         minSendable = 1,
-        maxSendable = 100_000_000_000, // 1 BTC
+        maxSendable = 100_000_000, // 1 BTC
         decimals = 0,
         senderUmaVersion = senderVersion,
     )
