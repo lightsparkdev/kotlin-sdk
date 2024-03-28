@@ -18,15 +18,16 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import kotlinx.serialization.json.JsonObject
 import me.uma.InMemoryPublicKeyCache
 import me.uma.UmaProtocolHelper
-import kotlinx.serialization.json.JsonObject
 
 fun Application.configureRouting(
     config: UmaConfig,
     uma: UmaProtocolHelper = UmaProtocolHelper(InMemoryPublicKeyCache()),
+    lightsparkClient: LightsparkCoroutinesClient? = null,
 ) {
-    val client = LightsparkCoroutinesClient(
+    val client = lightsparkClient ?: LightsparkCoroutinesClient(
         ClientConfig(
             serverUrl = config.clientBaseURL ?: "api.lightspark.com",
             authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),

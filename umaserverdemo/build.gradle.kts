@@ -27,11 +27,18 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-compression-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
-    implementation(libs.uma)
+//    implementation(libs.uma)
+    implementation(libs.umav1)
     implementation(project(":lightspark-sdk"))
     implementation(project(":core"))
     implementation(project(":crypto"))
     implementation("ch.qos.logback:logback-classic:1.4.11")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation(libs.kotlin.test.junit)
+}
+
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor(0, "seconds")
+    }
 }

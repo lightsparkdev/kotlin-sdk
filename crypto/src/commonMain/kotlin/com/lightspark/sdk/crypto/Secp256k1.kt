@@ -2,6 +2,7 @@ package com.lightspark.sdk.crypto
 
 import com.lightspark.sdk.crypto.internal.toByteArray
 
+@OptIn(ExperimentalUnsignedTypes::class)
 object Secp256k1 {
     fun signEcdsa(message: ByteArray, privateKey: ByteArray): ByteArray {
         return com.lightspark.sdk.crypto.internal.signEcdsa(

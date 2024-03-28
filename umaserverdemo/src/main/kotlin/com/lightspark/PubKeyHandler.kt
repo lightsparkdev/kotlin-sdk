@@ -8,9 +8,9 @@ suspend fun handlePubKeyRequest(call: ApplicationCall, config: UmaConfig): Strin
     val twoWeeksFromNowMs = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 14
 
     val response = PubKeyResponse(
-        signingPubKey = config.umaSigningPubKey,
-        encryptionPubKey = config.umaEncryptionPubKey,
-        expirationTimestamp = twoWeeksFromNowMs / 1000,
+        signingCertChain = config.umaSigningCertChain,
+        encryptionCertChain = config.umaEncryptionCertChain,
+        expirationTs = twoWeeksFromNowMs / 1000,
     )
 
     call.respond(response)
