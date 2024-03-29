@@ -327,11 +327,12 @@ class Vasp1(
             buildJsonObject {
                 put("encodedInvoice", payReqResponse.encodedInvoice)
                 put("callbackUuid", newCallbackId)
-                put("amount", Json.encodeToJsonElement(invoice.amount))
-                put("amountInReceivingCurrency", payReqResponse.paymentInfo?.amount ?: amount)
+                put("amountMsats", invoice.amount.toMilliSats())
+                put("amountReceivingCurrency", payReqResponse.paymentInfo?.amount ?: amount)
                 put("receivingCurrencyDecimals", payReqResponse.paymentInfo?.decimals ?: 0)
+                put("exchangeFeesMsats", payReqResponse.paymentInfo?.exchangeFeesMillisatoshi ?: 0)
                 put("conversionRate", payReqResponse.paymentInfo?.multiplier ?: 1000)
-                put("currencyCode", payReqResponse.paymentInfo?.currencyCode ?: "SAT")
+                put("receivingCurrencyCode", payReqResponse.paymentInfo?.currencyCode ?: "SAT")
             },
         )
 
