@@ -405,7 +405,6 @@ class Vasp1(
         return "OK"
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun sendPostTransactionCallback(
         payment: OutgoingPayment,
         payReqData: Vasp1PayReqData,
@@ -414,16 +413,15 @@ class Vasp1(
         val utxos = payment.umaPostTransactionData?.map {
             UtxoWithAmount(it.utxo, it.amount.toMilliSats())
         } ?: emptyList()
+        val postTransactionCallback = uma.getPostTransactionCallback(
+            utxos = utxos,
+            vaspDomain = getSendingVaspDomain(call),
+            signingPrivateKey = config.umaSigningPrivKey
+        )
         val postTxHookResponse = try {
             httpClient.post(payReqData.utxoCallback) {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    buildJsonObject {
-                        putJsonArray("utxos") {
-                            addAll(utxos.map { Json.encodeToJsonElement(it) })
-                        }
-                    },
-                )
+                setBody(postTransactionCallback)
             }
         } catch (e: Exception) {
             call.errorLog("Failed to post tx hook", e)
