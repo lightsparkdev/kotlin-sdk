@@ -258,7 +258,7 @@ class Vasp1(
                     "amount" to if (isAmountInMsats) listOf(amount.toString()) else listOf("$amount.$currencyCode"),
                     "convert" to listOf(currencyCode),
                     "payerData" to listOf(serialFormat.encodeToString(payerData)),
-                    "comment" to (comment?.let { listOf(it) } ?: emptyList())
+                    "comment" to (comment?.let { listOf(it) } ?: emptyList()),
                 )
                 PayRequest.fromQueryParamMap(params)
             }

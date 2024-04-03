@@ -174,9 +174,9 @@ class Vasp2(
 
         val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-                return "Unsupported currency."
-            }
+            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+            return "Unsupported currency."
+        }
 
         val response = uma.getPayReqResponse(
             query = payreq,
@@ -238,9 +238,9 @@ class Vasp2(
 
         val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-                return "Unsupported currency."
-            }
+            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+            return "Unsupported currency."
+        }
 
         val client = LightsparkCoroutinesClient(
             ClientConfig(
