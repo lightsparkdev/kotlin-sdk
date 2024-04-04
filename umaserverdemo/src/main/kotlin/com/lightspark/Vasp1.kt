@@ -29,12 +29,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
@@ -276,7 +274,7 @@ class Vasp1(
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                parametersOf(payReq.toQueryParamMap() ?: emptyMap())
+                parametersOf(payReq.toQueryParamMap())
             }
         }
 
@@ -421,7 +419,7 @@ class Vasp1(
         val postTxHookResponse = try {
             httpClient.post(payReqData.utxoCallback) {
                 contentType(ContentType.Application.Json)
-                setBody(postTransactionCallback)
+                setBody(postTransactionCallback.toJson())
             }
         } catch (e: Exception) {
             call.errorLog("Failed to post tx hook", e)

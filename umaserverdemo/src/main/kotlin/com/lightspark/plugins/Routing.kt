@@ -18,6 +18,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.JsonObject
@@ -47,19 +48,19 @@ fun Application.configureRouting(
             call.debugLog(handlePubKeyRequest(call, config))
         }
 
-        get("/api/uma/utxoCallback") {
+        post("/api/uma/utxoCallback") {
             val postTransactionCallback = try {
                 uma.parseAsPostTransactionCallback(call.receiveText())
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid utxo callback.")
-                return@get
+                return@post
             }
 
             val pubKeys = try {
                 uma.fetchPublicKeysForVasp(postTransactionCallback.vaspDomain)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys. ${e.message}")
-                return@get
+                return@post
             }
 
             val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
@@ -67,7 +68,7 @@ fun Application.configureRouting(
                 uma.verifyPostTransactionCallbackSignature(postTransactionCallback, pubKeys, nonceCache)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, "Failed to verify post transaction callback signature.")
-                return@get
+                return@post
             }
 
             call.debugLog("Received UTXO callback: $postTransactionCallback")
