@@ -10,13 +10,15 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
-import io.ktor.http.parametersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -84,12 +86,16 @@ class Vasp1(
         val receiverVasp = addressParts[1]
         val signingKey = config.umaSigningPrivKey
 
-        val lnurlpRequest = uma.getSignedLnurlpRequestUrl(
-            signingPrivateKey = signingKey,
-            receiverAddress = receiverAddress,
-            senderVaspDomain = getSendingVaspDomain(call),
-            isSubjectToTravelRule = true,
-        )
+        val lnurlpRequest = if (receiverAddress.startsWith('$')) {
+            uma.getSignedLnurlpRequestUrl(
+                signingPrivateKey = signingKey,
+                receiverAddress = receiverAddress,
+                senderVaspDomain = getSendingVaspDomain(call),
+                isSubjectToTravelRule = true,
+            )
+        } else {
+            getNonUmaLnurlRequestUrl(receiverAddress)
+        }
 
         var response = try {
             httpClient.get(lnurlpRequest)
@@ -274,7 +280,9 @@ class Vasp1(
         } else {
             httpClient.get(initialRequestData.lnurlpResponse.callback) {
                 contentType(ContentType.Application.Json)
-                parametersOf(payReq.toQueryParamMap())
+                payReq.toQueryParamMap().forEach { (key, values) ->
+                    parameter(key, values)
+                }
             }
         }
 
@@ -431,6 +439,20 @@ class Vasp1(
     }
 
     private fun getSendingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
+
+    private fun getNonUmaLnurlRequestUrl(receiverAddress: String): String {
+        val receiverAddressParts = receiverAddress.split("@")
+        if (receiverAddressParts.size != 2) {
+            throw IllegalArgumentException("Invalid receiverAddress: $receiverAddress")
+        }
+        val scheme = if (isDomainLocalhost(receiverAddressParts[1])) URLProtocol.HTTP else URLProtocol.HTTPS
+        val url = URLBuilder(
+            protocol = scheme,
+            host = receiverAddressParts[1],
+            pathSegments = "/.well-known/lnurlp/${receiverAddressParts[0]}".split("/"),
+        ).build()
+        return url.toString()
+    }
 
     // TODO(Jeremy): Expose payInvoiceAndAwaitCompletion in the lightspark-sdk instead.
     private suspend fun waitForPaymentCompletion(pendingPayment: OutgoingPayment): OutgoingPayment {

@@ -26,6 +26,7 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.uma.InMemoryNonceCache
+import me.uma.UMA_VERSION_STRING
 import me.uma.UmaInvoiceCreator
 import me.uma.UmaProtocolHelper
 import me.uma.UnsupportedVersionException
@@ -58,18 +59,6 @@ class Vasp2(
             call.respond(HttpStatusCode.NotFound, "Username not found.")
             return "Username not found."
         }
-
-        val requestUrl = call.request.fullUrl()
-        if (uma.isUmaLnurlpQuery(requestUrl)) {
-            return handleUmaLnurlp(call)
-        } else {
-            call.respond("Only UMA Supported")
-        }
-
-        return "OK"
-    }
-
-    private suspend fun handleUmaLnurlp(call: ApplicationCall): String {
         val requestUrl = call.request.fullUrl()
         val request = try {
             uma.parseLnurlpRequest(requestUrl)
@@ -80,6 +69,7 @@ class Vasp2(
             call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
             return "Invalid lnurlp request."
         }.asUmaRequest() ?: run {
+            senderUmaVersion = UMA_VERSION_STRING
             // Handle non-UMA LNURL requests.
             val response = LnurlpResponse(
                 callback = getLnurlpCallback(call),
@@ -193,7 +183,7 @@ class Vasp2(
             senderUmaVersion = senderUmaVersion,
         )
 
-        call.respond(response)
+        call.respond(response.toJson())
         return "OK"
     }
 
