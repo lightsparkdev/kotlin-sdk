@@ -162,10 +162,12 @@ class Vasp2(
             }
         }
 
-        val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
-            .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-            return "Unsupported currency."
+        val receivingCurrency = payreq.receivingCurrencyCode()?.let {
+            getReceivingCurrencies(senderUmaVersion)
+                .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
+                    call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
+                    return "Unsupported currency."
+                }
         }
 
         val response = uma.getPayReqResponse(
@@ -173,8 +175,8 @@ class Vasp2(
             invoiceCreator = lnurlInvoiceCreator,
             metadata = getEncodedMetadata(),
             receivingCurrencyCode = payreq.receivingCurrencyCode(),
-            receivingCurrencyDecimals = receivingCurrency.decimals,
-            conversionRate = receivingCurrency.millisatoshiPerUnit,
+            receivingCurrencyDecimals = receivingCurrency?.decimals,
+            conversionRate = receivingCurrency?.millisatoshiPerUnit,
             receiverFeesMillisats = 0,
             receiverChannelUtxos = null,
             receiverNodePubKey = null,
