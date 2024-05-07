@@ -39,6 +39,7 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.encoding)
                 // implementation(project(":crypto"))
                 implementation(libs.lightspark.crypto)
             }
