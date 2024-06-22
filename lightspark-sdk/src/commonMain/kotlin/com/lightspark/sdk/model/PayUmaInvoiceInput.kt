@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param senderHash An optional, monthly-rotated, unique hashed identifier corresponding to the sender of the payment.
  */
 @Serializable
 @SerialName("PayUmaInvoiceInput")
@@ -17,6 +18,8 @@ data class PayUmaInvoiceInput(
     val timeoutSecs: Int,
     val maximumFeesMsats: Long,
     val amountMsats: Long? = null,
+    val idempotencyKey: String? = null,
+    val senderHash: String? = null,
 ) {
     companion object {
     }

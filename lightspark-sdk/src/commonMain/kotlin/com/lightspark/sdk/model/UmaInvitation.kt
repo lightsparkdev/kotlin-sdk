@@ -47,9 +47,8 @@ data class UmaInvitation(
 ) : Entity {
     companion object {
         @JvmStatic
-        fun getUmaInvitationQuery(id: String): Query<UmaInvitation> {
-            return Query(
-                queryPayload = """
+        fun getUmaInvitationQuery(id: String): Query<UmaInvitation> = Query(
+            queryPayload = """
 query GetUmaInvitation(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on UmaInvitation {
@@ -60,11 +59,10 @@ query GetUmaInvitation(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

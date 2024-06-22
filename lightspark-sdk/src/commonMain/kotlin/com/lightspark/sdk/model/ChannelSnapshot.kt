@@ -39,14 +39,15 @@ data class ChannelSnapshot(
     val remoteBalance: CurrencyAmount? = null,
     @SerialName("channel_snapshot_remote_unsettled_balance")
     val remoteUnsettledBalance: CurrencyAmount? = null,
+    @SerialName("channel_snapshot_status")
+    val status: String? = null,
     @SerialName("channel_snapshot_local_channel_reserve")
     val localChannelReserve: CurrencyAmount? = null,
 ) : Entity {
     companion object {
         @JvmStatic
-        fun getChannelSnapshotQuery(id: String): Query<ChannelSnapshot> {
-            return Query(
-                queryPayload = """
+        fun getChannelSnapshotQuery(id: String): Query<ChannelSnapshot> = Query(
+            queryPayload = """
 query GetChannelSnapshot(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on ChannelSnapshot {
@@ -57,11 +58,10 @@ query GetChannelSnapshot(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
@@ -102,6 +102,7 @@ fragment ChannelSnapshotFragment on ChannelSnapshot {
         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
     }
+    channel_snapshot_status: status
     channel_snapshot_channel: channel {
         id
     }

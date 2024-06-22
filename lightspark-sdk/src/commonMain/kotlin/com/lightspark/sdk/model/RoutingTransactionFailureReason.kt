@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential reasons that an attempted routed transaction through a Lightspark node may have failed. **/
 @Serializable(with = RoutingTransactionFailureReasonSerializer::class)
-enum class RoutingTransactionFailureReason(val rawValue: String) {
+enum class RoutingTransactionFailureReason(
+    val rawValue: String,
+) {
     INCOMING_LINK_FAILURE("INCOMING_LINK_FAILURE"),
 
     OUTGOING_LINK_FAILURE("OUTGOING_LINK_FAILURE"),
@@ -26,8 +28,7 @@ object RoutingTransactionFailureReasonSerializer :
     EnumSerializer<RoutingTransactionFailureReason>(
         RoutingTransactionFailureReason::class,
         { rawValue ->
-            RoutingTransactionFailureReason.values().firstOrNull {
-                it.rawValue == rawValue
-            } ?: RoutingTransactionFailureReason.FUTURE_VALUE
+            RoutingTransactionFailureReason.values().firstOrNull { it.rawValue == rawValue }
+                ?: RoutingTransactionFailureReason.FUTURE_VALUE
         },
     )

@@ -28,9 +28,8 @@ interface LightsparkNodeOwner : Entity {
 
     companion object {
         @JvmStatic
-        fun getLightsparkNodeOwnerQuery(id: String): Query<LightsparkNodeOwner> {
-            return Query(
-                queryPayload = """
+        fun getLightsparkNodeOwnerQuery(id: String): Query<LightsparkNodeOwner> = Query(
+            queryPayload = """
 query GetLightsparkNodeOwner(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on LightsparkNodeOwner {
@@ -41,11 +40,10 @@ query GetLightsparkNodeOwner(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

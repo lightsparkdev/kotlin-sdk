@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum indicating the direction of the payment. **/
 @Serializable(with = PaymentDirectionSerializer::class)
-enum class PaymentDirection(val rawValue: String) {
+enum class PaymentDirection(
+    val rawValue: String,
+) {
     SENT("SENT"),
 
     RECEIVED("RECEIVED"),

@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential states that a payment request on the Lightning Network can take. **/
 @Serializable(with = PaymentRequestStatusSerializer::class)
-enum class PaymentRequestStatus(val rawValue: String) {
+enum class PaymentRequestStatus(
+    val rawValue: String,
+) {
     OPEN("OPEN"),
 
     CLOSED("CLOSED"),

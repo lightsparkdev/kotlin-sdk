@@ -8,7 +8,11 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential statuses that a Withdrawal can take. **/
 @Serializable(with = WithdrawalRequestStatusSerializer::class)
-enum class WithdrawalRequestStatus(val rawValue: String) {
+enum class WithdrawalRequestStatus(
+    val rawValue: String,
+) {
+    CREATING("CREATING"),
+
     CREATED("CREATED"),
 
     FAILED("FAILED"),
@@ -16,6 +20,8 @@ enum class WithdrawalRequestStatus(val rawValue: String) {
     IN_PROGRESS("IN_PROGRESS"),
 
     SUCCESSFUL("SUCCESSFUL"),
+
+    PARTIALLY_SUCCESSFUL("PARTIALLY_SUCCESSFUL"),
 
     /**
      * This is an enum value that represents values that could be added in the future.
@@ -28,6 +34,7 @@ object WithdrawalRequestStatusSerializer :
     EnumSerializer<WithdrawalRequestStatus>(
         WithdrawalRequestStatus::class,
         { rawValue ->
-            WithdrawalRequestStatus.values().firstOrNull { it.rawValue == rawValue } ?: WithdrawalRequestStatus.FUTURE_VALUE
+            WithdrawalRequestStatus.values().firstOrNull { it.rawValue == rawValue }
+                ?: WithdrawalRequestStatus.FUTURE_VALUE
         },
     )

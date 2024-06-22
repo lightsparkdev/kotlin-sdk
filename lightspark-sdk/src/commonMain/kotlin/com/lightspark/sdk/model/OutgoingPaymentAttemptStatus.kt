@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of all potential statuses of a payment attempt made from a Lightspark Node. **/
 @Serializable(with = OutgoingPaymentAttemptStatusSerializer::class)
-enum class OutgoingPaymentAttemptStatus(val rawValue: String) {
+enum class OutgoingPaymentAttemptStatus(
+    val rawValue: String,
+) {
     IN_FLIGHT("IN_FLIGHT"),
 
     SUCCEEDED("SUCCEEDED"),
@@ -26,8 +28,7 @@ object OutgoingPaymentAttemptStatusSerializer :
     EnumSerializer<OutgoingPaymentAttemptStatus>(
         OutgoingPaymentAttemptStatus::class,
         { rawValue ->
-            OutgoingPaymentAttemptStatus.values().firstOrNull {
-                it.rawValue == rawValue
-            } ?: OutgoingPaymentAttemptStatus.FUTURE_VALUE
+            OutgoingPaymentAttemptStatus.values().firstOrNull { it.rawValue == rawValue }
+                ?: OutgoingPaymentAttemptStatus.FUTURE_VALUE
         },
     )

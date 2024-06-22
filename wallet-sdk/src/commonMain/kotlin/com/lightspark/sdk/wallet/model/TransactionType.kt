@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential types of transactions that can be associated with your Lightspark Node. **/
 @Serializable(with = TransactionTypeSerializer::class)
-enum class TransactionType(val rawValue: String) {
+enum class TransactionType(
+    val rawValue: String,
+) {
     /** Transactions initiated from a Lightspark node on Lightning Network. **/
     OUTGOING_PAYMENT("OUTGOING_PAYMENT"),
 

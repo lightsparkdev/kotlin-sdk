@@ -7,8 +7,14 @@ import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = KeyTypeSerializer::class)
-enum class KeyType(val rawValue: String) {
+enum class KeyType(
+    val rawValue: String,
+) {
     RSA_OAEP("RSA_OAEP"),
+
+    ELLIPTIC_CURVE("ELLIPTIC_CURVE"),
+
+    ED25519("ED25519"),
 
     /**
      * This is an enum value that represents values that could be added in the future.

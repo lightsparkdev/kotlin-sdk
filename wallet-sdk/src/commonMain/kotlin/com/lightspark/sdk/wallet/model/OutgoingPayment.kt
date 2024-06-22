@@ -53,12 +53,13 @@ data class OutgoingPayment(
     val failureMessage: RichText? = null,
     @SerialName("outgoing_payment_payment_preimage")
     val paymentPreimage: String? = null,
-) : LightningTransaction, Transaction, Entity {
+) : LightningTransaction,
+    Transaction,
+    Entity {
     companion object {
         @JvmStatic
-        fun getOutgoingPaymentQuery(id: String): Query<OutgoingPayment> {
-            return Query(
-                queryPayload = """
+        fun getOutgoingPaymentQuery(id: String): Query<OutgoingPayment> = Query(
+            queryPayload = """
 query GetOutgoingPayment(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on OutgoingPayment {
@@ -69,11 +70,10 @@ query GetOutgoingPayment(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

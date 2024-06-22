@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- *
+ * The Invoice that was cancelled. If the invoice was already cancelled, the same invoice is returned.
  */
 @Serializable
 @SerialName("CancelInvoiceOutput")

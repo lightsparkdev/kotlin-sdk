@@ -166,6 +166,7 @@ internal fun handleRemoteSigningEvent(
 
         RemoteSigningSubEventType.REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET -> executor.just("no-op for $subEventType")
         RemoteSigningSubEventType.FUTURE_VALUE -> executor.just("unsupported sub_event_type: $subEventType")
+        RemoteSigningSubEventType.VLS_MESSAGE -> executor.just("unsupported sub_event_type: $subEventType")
     }
 }
 

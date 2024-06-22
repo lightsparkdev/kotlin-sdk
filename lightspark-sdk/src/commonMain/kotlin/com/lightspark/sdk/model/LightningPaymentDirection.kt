@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum identifying the payment direction. **/
 @Serializable(with = LightningPaymentDirectionSerializer::class)
-enum class LightningPaymentDirection(val rawValue: String) {
+enum class LightningPaymentDirection(
+    val rawValue: String,
+) {
     /** A payment that is received by the node. **/
     INCOMING("INCOMING"),
 
@@ -26,6 +28,7 @@ object LightningPaymentDirectionSerializer :
     EnumSerializer<LightningPaymentDirection>(
         LightningPaymentDirection::class,
         { rawValue ->
-            LightningPaymentDirection.values().firstOrNull { it.rawValue == rawValue } ?: LightningPaymentDirection.FUTURE_VALUE
+            LightningPaymentDirection.values().firstOrNull { it.rawValue == rawValue }
+                ?: LightningPaymentDirection.FUTURE_VALUE
         },
     )

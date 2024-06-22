@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential reasons why an OutgoingPayment sent from a Lightspark Node may have failed. **/
 @Serializable(with = PaymentFailureReasonSerializer::class)
-enum class PaymentFailureReason(val rawValue: String) {
+enum class PaymentFailureReason(
+    val rawValue: String,
+) {
     NONE("NONE"),
 
     TIMEOUT("TIMEOUT"),
@@ -27,7 +29,11 @@ enum class PaymentFailureReason(val rawValue: String) {
 
     INVOICE_EXPIRED("INVOICE_EXPIRED"),
 
+    INVOICE_CANCELLED("INVOICE_CANCELLED"),
+
     RISK_SCREENING_FAILED("RISK_SCREENING_FAILED"),
+
+    INSUFFICIENT_BALANCE_ON_SINGLE_PATH_INVOICE("INSUFFICIENT_BALANCE_ON_SINGLE_PATH_INVOICE"),
 
     /**
      * This is an enum value that represents values that could be added in the future.

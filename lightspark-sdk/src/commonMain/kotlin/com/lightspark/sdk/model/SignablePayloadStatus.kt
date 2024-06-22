@@ -7,7 +7,9 @@ import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = SignablePayloadStatusSerializer::class)
-enum class SignablePayloadStatus(val rawValue: String) {
+enum class SignablePayloadStatus(
+    val rawValue: String,
+) {
     CREATED("CREATED"),
 
     SIGNED("SIGNED"),

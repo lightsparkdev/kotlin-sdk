@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum identifying a particular Bitcoin Network. **/
 @Serializable(with = BitcoinNetworkSerializer::class)
-enum class BitcoinNetwork(val rawValue: String) {
+enum class BitcoinNetwork(
+    val rawValue: String,
+) {
     /** The production version of the Bitcoin Blockchain. **/
     MAINNET("MAINNET"),
 

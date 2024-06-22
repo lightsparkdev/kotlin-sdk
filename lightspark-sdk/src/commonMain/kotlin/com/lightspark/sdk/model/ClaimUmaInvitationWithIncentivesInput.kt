@@ -8,6 +8,10 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invitationCode The unique code that identifies this invitation and was shared by the inviter.
+ * @param inviteeUma The UMA of the user claiming the invitation. It will be sent to the inviter so that they can start transacting with the invitee.
+ * @param inviteePhoneHash The phone hash of the user getting the invitation.
+ * @param inviteeRegion The region of the user getting the invitation.
  */
 @Serializable
 @SerialName("ClaimUmaInvitationWithIncentivesInput")

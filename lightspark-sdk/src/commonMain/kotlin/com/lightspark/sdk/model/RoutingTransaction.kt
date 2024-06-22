@@ -53,12 +53,13 @@ data class RoutingTransaction(
     val failureMessage: RichText? = null,
     @SerialName("routing_transaction_failure_reason")
     val failureReason: RoutingTransactionFailureReason? = null,
-) : LightningTransaction, Transaction, Entity {
+) : LightningTransaction,
+    Transaction,
+    Entity {
     companion object {
         @JvmStatic
-        fun getRoutingTransactionQuery(id: String): Query<RoutingTransaction> {
-            return Query(
-                queryPayload = """
+        fun getRoutingTransactionQuery(id: String): Query<RoutingTransaction> = Query(
+            queryPayload = """
 query GetRoutingTransaction(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on RoutingTransaction {
@@ -69,11 +70,10 @@ query GetRoutingTransaction(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

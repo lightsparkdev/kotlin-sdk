@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
  * @param timeoutSecs The timeout in seconds that we will try to make the payment.
  * @param maximumFeesMsats The maximum amount of fees that you want to pay for this payment to be sent, expressed in msats.
  * @param amountMsats The amount you will pay for this invoice, expressed in msats. It should ONLY be set when the invoice amount is zero.
+ * @param idempotencyKey The idempotency key of the request. The same result will be returned for the same idempotency key.
  */
 @Serializable
 @SerialName("PayInvoiceInput")
@@ -22,6 +23,7 @@ data class PayInvoiceInput(
     val timeoutSecs: Int,
     val maximumFeesMsats: Long,
     val amountMsats: Long? = null,
+    val idempotencyKey: String? = null,
 ) {
     companion object {
     }

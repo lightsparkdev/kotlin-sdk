@@ -43,7 +43,8 @@ data class Wallet(
     val balances: Balances? = null,
     @SerialName("wallet_account")
     val accountId: EntityId? = null,
-) : LightsparkNodeOwner, Entity {
+) : LightsparkNodeOwner,
+    Entity {
     @JvmOverloads
     fun getTransactionsQuery(
         first: Int? = null,
@@ -182,6 +183,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
                         incoming_payment_transaction_hash: transaction_hash
+                        incoming_payment_is_uma: is_uma
                         incoming_payment_destination: destination {
                             id
                         }
@@ -200,6 +202,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                                 currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                             }
                         }
+                        incoming_payment_is_internal_payment: is_internal_payment
                     }
                     ... on OutgoingPayment {
                         type: __typename
@@ -217,6 +220,7 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
                         outgoing_payment_transaction_hash: transaction_hash
+                        outgoing_payment_is_uma: is_uma
                         outgoing_payment_origin: origin {
                             id
                         }
@@ -543,6 +547,8 @@ query FetchWalletToTransactionsConnection(${'$'}first: Int, ${'$'}after: ID, ${'
                             }
                         }
                         outgoing_payment_payment_preimage: payment_preimage
+                        outgoing_payment_is_internal_payment: is_internal_payment
+                        outgoing_payment_idempotency_key: idempotency_key
                     }
                     ... on RoutingTransaction {
                         type: __typename
@@ -1079,6 +1085,14 @@ query FetchWalletToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: I
                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                     }
+                    withdrawal_request_total_fees: total_fees {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
                     withdrawal_request_bitcoin_address: bitcoin_address
                     withdrawal_request_withdrawal_mode: withdrawal_mode
                     withdrawal_request_status: status
@@ -1086,6 +1100,8 @@ query FetchWalletToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: I
                     withdrawal_request_withdrawal: withdrawal {
                         id
                     }
+                    withdrawal_request_idempotency_key: idempotency_key
+                    withdrawal_request_initiator: initiator
                 }
             }
         }
@@ -1145,9 +1161,8 @@ query FetchWalletTotalAmountSent(${'$'}created_after_date: DateTime, ${'$'}creat
 
     companion object {
         @JvmStatic
-        fun getWalletQuery(id: String): Query<Wallet> {
-            return Query(
-                queryPayload = """
+        fun getWalletQuery(id: String): Query<Wallet> = Query(
+            queryPayload = """
 query GetWallet(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Wallet {
@@ -1158,11 +1173,10 @@ query GetWallet(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

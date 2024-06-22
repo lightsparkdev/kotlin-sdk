@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- *
+ * The unique identifier of the Invoice that should be cancelled. The invoice is supposed to be open, not settled and not expired.
  */
 @Serializable
 @SerialName("CancelInvoiceInput")

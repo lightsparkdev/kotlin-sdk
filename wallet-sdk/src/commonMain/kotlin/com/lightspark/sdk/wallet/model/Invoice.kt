@@ -35,12 +35,12 @@ data class Invoice(
     override val status: PaymentRequestStatus,
     @SerialName("invoice_amount_paid")
     val amountPaid: CurrencyAmount? = null,
-) : PaymentRequest, Entity {
+) : PaymentRequest,
+    Entity {
     companion object {
         @JvmStatic
-        fun getInvoiceQuery(id: String): Query<Invoice> {
-            return Query(
-                queryPayload = """
+        fun getInvoiceQuery(id: String): Query<Invoice> = Query(
+            queryPayload = """
 query GetInvoice(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Invoice {
@@ -51,11 +51,10 @@ query GetInvoice(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
