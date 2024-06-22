@@ -19,6 +19,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @param clientId An opaque identifier that should be used as a client_id (or username) in the HTTP Basic Authentication scheme when issuing requests against the Lightspark API.
  * @param name An arbitrary name chosen by the creator of the token to help identify the token in the list of tokens that have been created for the account.
  * @param permissions A list of permissions granted to the token.
+ * @param isDeleted Whether the api token has been deleted.
  */
 @Serializable
 @SerialName("ApiToken")
@@ -35,12 +36,14 @@ data class ApiToken(
     val name: String,
     @SerialName("api_token_permissions")
     val permissions: List<Permission>,
-) : Entity {
+    @SerialName("api_token_is_deleted")
+    val isDeleted: Boolean,
+) : AuditLogActor,
+    Entity {
     companion object {
         @JvmStatic
-        fun getApiTokenQuery(id: String): Query<ApiToken> {
-            return Query(
-                queryPayload = """
+        fun getApiTokenQuery(id: String): Query<ApiToken> = Query(
+            queryPayload = """
 query GetApiToken(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on ApiToken {
@@ -51,11 +54,10 @@ query GetApiToken(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
@@ -67,6 +69,7 @@ fragment ApiTokenFragment on ApiToken {
     api_token_client_id: client_id
     api_token_name: name
     api_token_permissions: permissions
+    api_token_is_deleted: is_deleted
 }"""
     }
 }

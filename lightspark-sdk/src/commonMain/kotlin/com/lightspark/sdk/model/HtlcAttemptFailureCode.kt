@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum representing a particular reason why an htlc sent over the Lightning Network may have failed. **/
 @Serializable(with = HtlcAttemptFailureCodeSerializer::class)
-enum class HtlcAttemptFailureCode(val rawValue: String) {
+enum class HtlcAttemptFailureCode(
+    val rawValue: String,
+) {
     INCORRECT_OR_UNKNOWN_PAYMENT_DETAILS("INCORRECT_OR_UNKNOWN_PAYMENT_DETAILS"),
 
     INCORRECT_PAYMENT_AMOUNT("INCORRECT_PAYMENT_AMOUNT"),
@@ -76,6 +78,7 @@ object HtlcAttemptFailureCodeSerializer :
     EnumSerializer<HtlcAttemptFailureCode>(
         HtlcAttemptFailureCode::class,
         { rawValue ->
-            HtlcAttemptFailureCode.values().firstOrNull { it.rawValue == rawValue } ?: HtlcAttemptFailureCode.FUTURE_VALUE
+            HtlcAttemptFailureCode.values().firstOrNull { it.rawValue == rawValue }
+                ?: HtlcAttemptFailureCode.FUTURE_VALUE
         },
     )

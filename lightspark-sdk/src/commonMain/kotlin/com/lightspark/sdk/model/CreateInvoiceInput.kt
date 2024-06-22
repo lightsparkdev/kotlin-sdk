@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 /**
  *
  * @param nodeId The node from which to create the invoice.
- * @param amountMsats The amount for which the invoice should be created, in millisatoshis.
+ * @param amountMsats The amount for which the invoice should be created, in millisatoshis. Setting the amount to 0 will allow the payer to specify an amount.
  * @param expirySecs The expiry of the invoice in seconds. Default value is 86400 (1 day).
  */
 @Serializable

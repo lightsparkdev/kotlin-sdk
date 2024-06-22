@@ -20,7 +20,9 @@ import kotlinx.serialization.json.jsonObject
  * @param updatedAt The date and time when the entity was last updated.
  * @param status The current status of this transaction.
  * @param amount The amount of money involved in this transaction.
+ * @param isUma Whether this payment is an UMA payment or not. NOTE: this field is only set if the invoice that is being paid has been created using the recommended `create_uma_invoice` function.
  * @param destinationId The recipient Lightspark node this payment was sent to.
+ * @param isInternalPayment Whether the payment is made from the same node.
  * @param resolvedAt The date and time when this transaction was completed or failed.
  * @param transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  * @param paymentRequestId The optional payment request for this incoming payment, which will be null if the payment is sent through keysend.
@@ -39,8 +41,12 @@ data class IncomingPayment(
     override val status: TransactionStatus,
     @SerialName("incoming_payment_amount")
     override val amount: CurrencyAmount,
+    @SerialName("incoming_payment_is_uma")
+    val isUma: Boolean,
     @SerialName("incoming_payment_destination")
     val destinationId: EntityId,
+    @SerialName("incoming_payment_is_internal_payment")
+    val isInternalPayment: Boolean,
     @SerialName("incoming_payment_resolved_at")
     override val resolvedAt: Instant? = null,
     @SerialName("incoming_payment_transaction_hash")
@@ -49,7 +55,9 @@ data class IncomingPayment(
     val paymentRequestId: EntityId? = null,
     @SerialName("incoming_payment_uma_post_transaction_data")
     val umaPostTransactionData: List<PostTransactionData>? = null,
-) : LightningTransaction, Transaction, Entity {
+) : LightningTransaction,
+    Transaction,
+    Entity {
     @JvmOverloads
     fun getAttemptsQuery(
         first: Int? = null,
@@ -109,9 +117,8 @@ query FetchIncomingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
 
     companion object {
         @JvmStatic
-        fun getIncomingPaymentQuery(id: String): Query<IncomingPayment> {
-            return Query(
-                queryPayload = """
+        fun getIncomingPaymentQuery(id: String): Query<IncomingPayment> = Query(
+            queryPayload = """
 query GetIncomingPayment(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on IncomingPayment {
@@ -122,11 +129,10 @@ query GetIncomingPayment(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
@@ -146,6 +152,7 @@ fragment IncomingPaymentFragment on IncomingPayment {
         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
     }
     incoming_payment_transaction_hash: transaction_hash
+    incoming_payment_is_uma: is_uma
     incoming_payment_destination: destination {
         id
     }
@@ -164,6 +171,7 @@ fragment IncomingPaymentFragment on IncomingPayment {
             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
         }
     }
+    incoming_payment_is_internal_payment: is_internal_payment
 }"""
     }
 }

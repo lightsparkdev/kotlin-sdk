@@ -16,6 +16,7 @@ data class CreateUmaInvoiceInput(
     val amountMsats: Long,
     val metadataHash: String,
     val expirySecs: Int? = null,
+    val receiverHash: String? = null,
 ) {
     companion object {
     }

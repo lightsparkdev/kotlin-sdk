@@ -41,9 +41,8 @@ data class IncomingPaymentAttempt(
 ) : Entity {
     companion object {
         @JvmStatic
-        fun getIncomingPaymentAttemptQuery(id: String): Query<IncomingPaymentAttempt> {
-            return Query(
-                queryPayload = """
+        fun getIncomingPaymentAttemptQuery(id: String): Query<IncomingPaymentAttempt> = Query(
+            queryPayload = """
 query GetIncomingPaymentAttempt(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on IncomingPaymentAttempt {
@@ -54,11 +53,10 @@ query GetIncomingPaymentAttempt(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

@@ -21,11 +21,13 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property destinationAddresses The Bitcoin blockchain addresses this transaction was sent to.
  * @property resolvedAt The date and time when this transaction was completed or failed.
  * @property transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
- * @property fees The fees that were paid by the wallet sending the transaction to commit it to the Bitcoin blockchain.
+ * @property fees The fees that were paid by the node for this transaction.
  * @property blockHash The hash of the block that included this transaction. This will be null for unconfirmed transactions.
  * @property numConfirmations The number of blockchain confirmations for this transaction in real time.
  */
-interface OnChainTransaction : Transaction, Entity {
+interface OnChainTransaction :
+    Transaction,
+    Entity {
     @SerialName("on_chain_transaction_id")
     override val id: String
 
@@ -64,9 +66,8 @@ interface OnChainTransaction : Transaction, Entity {
 
     companion object {
         @JvmStatic
-        fun getOnChainTransactionQuery(id: String): Query<OnChainTransaction> {
-            return Query(
-                queryPayload = """
+        fun getOnChainTransactionQuery(id: String): Query<OnChainTransaction> = Query(
+            queryPayload = """
 query GetOnChainTransaction(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on OnChainTransaction {
@@ -77,11 +78,10 @@ query GetOnChainTransaction(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

@@ -23,7 +23,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @param originId The Lightspark node this withdrawal originated from.
  * @param resolvedAt The date and time when this transaction was completed or failed.
  * @param transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
- * @param fees The fees that were paid by the wallet sending the transaction to commit it to the Bitcoin blockchain.
+ * @param fees The fees that were paid by the node for this transaction.
  * @param blockHash The hash of the block that included this transaction. This will be null for unconfirmed transactions.
  * @param numConfirmations The number of blockchain confirmations for this transaction in real time.
  */
@@ -56,12 +56,13 @@ data class Withdrawal(
     override val blockHash: String? = null,
     @SerialName("withdrawal_num_confirmations")
     override val numConfirmations: Int? = null,
-) : OnChainTransaction, Transaction, Entity {
+) : OnChainTransaction,
+    Transaction,
+    Entity {
     companion object {
         @JvmStatic
-        fun getWithdrawalQuery(id: String): Query<Withdrawal> {
-            return Query(
-                queryPayload = """
+        fun getWithdrawalQuery(id: String): Query<Withdrawal> = Query(
+            queryPayload = """
 query GetWithdrawal(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Withdrawal {
@@ -72,11 +73,10 @@ query GetWithdrawal(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

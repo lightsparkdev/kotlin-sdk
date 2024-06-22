@@ -44,9 +44,8 @@ interface Transaction : Entity {
 
     companion object {
         @JvmStatic
-        fun getTransactionQuery(id: String): Query<Transaction> {
-            return Query(
-                queryPayload = """
+        fun getTransactionQuery(id: String): Query<Transaction> = Query(
+            queryPayload = """
 query GetTransaction(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Transaction {
@@ -57,11 +56,10 @@ query GetTransaction(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

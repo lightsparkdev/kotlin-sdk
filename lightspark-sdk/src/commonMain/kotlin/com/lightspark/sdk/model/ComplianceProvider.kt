@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum identifying a type of compliance provider. **/
 @Serializable(with = ComplianceProviderSerializer::class)
-enum class ComplianceProvider(val rawValue: String) {
+enum class ComplianceProvider(
+    val rawValue: String,
+) {
     CHAINALYSIS("CHAINALYSIS"),
 
     /**

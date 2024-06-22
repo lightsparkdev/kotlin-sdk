@@ -33,7 +33,9 @@ import kotlinx.serialization.json.jsonObject
  * @property blockchainBalance The details of the balance of this node on the Bitcoin Network.
  * @property balances The balances that describe the funds in this node.
  */
-interface LightsparkNode : Node, Entity {
+interface LightsparkNode :
+    Node,
+    Entity {
     @SerialName("lightspark_node_id")
     override val id: String
 
@@ -120,15 +122,17 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
 
     fun getChannelsQuery(
         first: Int? = null,
-        statuses: List<ChannelStatus>? = null,
         after: String? = null,
+        beforeDate: Instant? = null,
+        afterDate: Instant? = null,
+        statuses: List<ChannelStatus>? = null,
     ): Query<LightsparkNodeToChannelsConnection> {
         return Query(
             queryPayload = """
-query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}statuses: [ChannelStatus!], ${'$'}after: String) {
+query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'$'}after: String, ${'$'}before_date: DateTime, ${'$'}after_date: DateTime, ${'$'}statuses: [ChannelStatus!]) {
     entity(id: ${'$'}entity_id) {
         ... on LightsparkNode {
-            channels(, first: ${'$'}first, statuses: ${'$'}statuses, after: ${'$'}after) {
+            channels(, first: ${'$'}first, after: ${'$'}after, before_date: ${'$'}before_date, after_date: ${'$'}after_date, statuses: ${'$'}statuses) {
                 type: __typename
                 lightspark_node_to_channels_connection_count: count
                 lightspark_node_to_channels_connection_page_info: page_info {
@@ -240,8 +244,10 @@ query FetchLightsparkNodeToChannelsConnection(${'$'}entity_id: ID!, ${'$'}first:
             variableBuilder = {
                 add("entity_id", id)
                 add("first", first)
-                add("statuses", statuses)
                 add("after", after)
+                add("before_date", beforeDate)
+                add("after_date", afterDate)
+                add("statuses", statuses)
             }
         ) {
             val connection = requireNotNull(it["entity"]?.jsonObject?.get("channels")) { "channels not found" }
@@ -301,9 +307,8 @@ query FetchLightsparkNodeToDailyLiquidityForecastsConnection(${'$'}entity_id: ID
 
     companion object {
         @JvmStatic
-        fun getLightsparkNodeQuery(id: String): Query<LightsparkNode> {
-            return Query(
-                queryPayload = """
+        fun getLightsparkNodeQuery(id: String): Query<LightsparkNode> = Query(
+            queryPayload = """
 query GetLightsparkNode(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on LightsparkNode {
@@ -314,11 +319,10 @@ query GetLightsparkNode(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

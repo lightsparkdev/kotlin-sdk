@@ -20,7 +20,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property resolvedAt The date and time when this transaction was completed or failed.
  * @property transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  */
-interface LightningTransaction : Transaction, Entity {
+interface LightningTransaction :
+    Transaction,
+    Entity {
     @SerialName("lightning_transaction_id")
     override val id: String
 
@@ -44,9 +46,8 @@ interface LightningTransaction : Transaction, Entity {
 
     companion object {
         @JvmStatic
-        fun getLightningTransactionQuery(id: String): Query<LightningTransaction> {
-            return Query(
-                queryPayload = """
+        fun getLightningTransactionQuery(id: String): Query<LightningTransaction> = Query(
+            queryPayload = """
 query GetLightningTransaction(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on LightningTransaction {
@@ -57,11 +58,10 @@ query GetLightningTransaction(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
@@ -83,6 +83,7 @@ fragment LightningTransactionFragment on LightningTransaction {
             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
         }
         incoming_payment_transaction_hash: transaction_hash
+        incoming_payment_is_uma: is_uma
         incoming_payment_destination: destination {
             id
         }
@@ -101,6 +102,7 @@ fragment LightningTransactionFragment on LightningTransaction {
                 currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
             }
         }
+        incoming_payment_is_internal_payment: is_internal_payment
     }
     ... on OutgoingPayment {
         type: __typename
@@ -118,6 +120,7 @@ fragment LightningTransactionFragment on LightningTransaction {
             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
         }
         outgoing_payment_transaction_hash: transaction_hash
+        outgoing_payment_is_uma: is_uma
         outgoing_payment_origin: origin {
             id
         }
@@ -444,6 +447,8 @@ fragment LightningTransactionFragment on LightningTransaction {
             }
         }
         outgoing_payment_payment_preimage: payment_preimage
+        outgoing_payment_is_internal_payment: is_internal_payment
+        outgoing_payment_idempotency_key: idempotency_key
     }
     ... on RoutingTransaction {
         type: __typename

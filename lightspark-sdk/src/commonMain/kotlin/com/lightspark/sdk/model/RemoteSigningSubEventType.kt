@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential sub-event types for Remote Signing webook events. **/
 @Serializable(with = RemoteSigningSubEventTypeSerializer::class)
-enum class RemoteSigningSubEventType(val rawValue: String) {
+enum class RemoteSigningSubEventType(
+    val rawValue: String,
+) {
     ECDH("ECDH"),
 
     GET_PER_COMMITMENT_POINT("GET_PER_COMMITMENT_POINT"),
@@ -25,6 +27,8 @@ enum class RemoteSigningSubEventType(val rawValue: String) {
 
     REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET("REVEAL_COUNTERPARTY_PER_COMMITMENT_SECRET"),
 
+    VLS_MESSAGE("VLS_MESSAGE"),
+
     /**
      * This is an enum value that represents values that could be added in the future.
      * Clients should support unknown values as more of them could be added without notice.
@@ -36,6 +40,7 @@ object RemoteSigningSubEventTypeSerializer :
     EnumSerializer<RemoteSigningSubEventType>(
         RemoteSigningSubEventType::class,
         { rawValue ->
-            RemoteSigningSubEventType.values().firstOrNull { it.rawValue == rawValue } ?: RemoteSigningSubEventType.FUTURE_VALUE
+            RemoteSigningSubEventType.values().firstOrNull { it.rawValue == rawValue }
+                ?: RemoteSigningSubEventType.FUTURE_VALUE
         },
     )

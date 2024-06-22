@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential statuses that your Lightspark wallet can take.  **/
 @Serializable(with = WalletStatusSerializer::class)
-enum class WalletStatus(val rawValue: String) {
+enum class WalletStatus(
+    val rawValue: String,
+) {
     /** The wallet has not been set up yet and is ready to be deployed. This is the default status after the first login. **/
     NOT_SETUP("NOT_SETUP"),
 

@@ -7,7 +7,9 @@ import com.lightspark.sdk.core.util.EnumSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = LightsparkNodeStatusSerializer::class)
-enum class LightsparkNodeStatus(val rawValue: String) {
+enum class LightsparkNodeStatus(
+    val rawValue: String,
+) {
     CREATED("CREATED"),
 
     DEPLOYED("DEPLOYED"),

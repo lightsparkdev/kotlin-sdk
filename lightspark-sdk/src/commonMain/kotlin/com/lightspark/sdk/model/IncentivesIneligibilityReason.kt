@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** Describes the reason for an invitation to not be eligible for incentives. **/
 @Serializable(with = IncentivesIneligibilityReasonSerializer::class)
-enum class IncentivesIneligibilityReason(val rawValue: String) {
+enum class IncentivesIneligibilityReason(
+    val rawValue: String,
+) {
     /** This invitation is not eligible for incentives because it has been created outside of the incentives flow. **/
     DISABLED("DISABLED"),
 
@@ -38,8 +40,7 @@ object IncentivesIneligibilityReasonSerializer :
     EnumSerializer<IncentivesIneligibilityReason>(
         IncentivesIneligibilityReason::class,
         { rawValue ->
-            IncentivesIneligibilityReason.values().firstOrNull {
-                it.rawValue == rawValue
-            } ?: IncentivesIneligibilityReason.FUTURE_VALUE
+            IncentivesIneligibilityReason.values().firstOrNull { it.rawValue == rawValue }
+                ?: IncentivesIneligibilityReason.FUTURE_VALUE
         },
     )

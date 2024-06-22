@@ -47,9 +47,8 @@ data class Hop(
 ) : Entity {
     companion object {
         @JvmStatic
-        fun getHopQuery(id: String): Query<Hop> {
-            return Query(
-                queryPayload = """
+        fun getHopQuery(id: String): Query<Hop> = Query(
+            queryPayload = """
 query GetHop(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Hop {
@@ -60,11 +59,10 @@ query GetHop(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

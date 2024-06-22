@@ -83,9 +83,8 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
 
     companion object {
         @JvmStatic
-        fun getNodeQuery(id: String): Query<Node> {
-            return Query(
-                queryPayload = """
+        fun getNodeQuery(id: String): Query<Node> = Query(
+            queryPayload = """
 query GetNode(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Node {
@@ -96,11 +95,10 @@ query GetNode(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

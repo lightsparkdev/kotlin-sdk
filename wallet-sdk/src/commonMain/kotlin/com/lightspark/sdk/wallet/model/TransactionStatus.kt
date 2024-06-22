@@ -8,8 +8,10 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential statuses a transaction associated with your Lightspark Node can take. **/
 @Serializable(with = TransactionStatusSerializer::class)
-enum class TransactionStatus(val rawValue: String) {
-    /** Transaction succeeded.. **/
+enum class TransactionStatus(
+    val rawValue: String,
+) {
+    /** Transaction succeeded. **/
     SUCCESS("SUCCESS"),
 
     /** Transaction failed. **/
