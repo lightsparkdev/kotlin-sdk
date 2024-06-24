@@ -7,7 +7,6 @@ import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.*
 import com.lightspark.sdk.core.crypto.NodeKeyCache
-import com.lightspark.sdk.core.crypto.Secp256k1SigningKey
 import com.lightspark.sdk.core.crypto.SigningKeyDecryptor
 import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
@@ -20,6 +19,7 @@ import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
@@ -220,9 +220,9 @@ class LightsparkCoroutinesClient private constructor(
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
-     * @param signingPrivateKey The receiver's signing private key.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
-     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
+     * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
+     *      and used for anonymized analysis.
      */
     suspend fun createLnurlInvoice(
         nodeId: String,
@@ -238,7 +238,7 @@ class LightsparkCoroutinesClient private constructor(
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
         val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
-            signAndHashUmaIdentifier(receiverIdentifier, signingPrivateKey)
+            hashUmaIdentifier(receiverIdentifier, signingPrivateKey)
         } else {
             null
         }
@@ -272,9 +272,9 @@ class LightsparkCoroutinesClient private constructor(
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
-     * @param signingPrivateKey The receiver's signing private key.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
-     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
+     * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
+     *      and used for anonymized analysis.
      */
     suspend fun createUmaInvoice(
         nodeId: String,
@@ -290,7 +290,7 @@ class LightsparkCoroutinesClient private constructor(
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
         val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
-            signAndHashUmaIdentifier(receiverIdentifier, signingPrivateKey)
+            hashUmaIdentifier(receiverIdentifier, signingPrivateKey)
         } else {
             null
         }
@@ -397,9 +397,9 @@ class LightsparkCoroutinesClient private constructor(
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
-     * @param signingPrivateKey The sender's signing private key.
-     * @param senderIdentifier Optional identifier of the sender. If provided, it will be signed with
-     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
+     * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
+     * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed
+     *      and used for anonymized analysis.
      * @return The payment details.
      */
     @JvmOverloads
@@ -415,7 +415,7 @@ class LightsparkCoroutinesClient private constructor(
         requireValidAuth()
 
         val senderHash = if (senderIdentifier != null && signingPrivateKey != null) {
-            signAndHashUmaIdentifier(senderIdentifier, signingPrivateKey)
+            hashUmaIdentifier(senderIdentifier, signingPrivateKey)
         } else {
             null
         }
@@ -1176,13 +1176,16 @@ class LightsparkCoroutinesClient private constructor(
         return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
     }
 
-    private fun signAndHashUmaIdentifier(identifier: String, signingPrivateKey: ByteArray): String {
-        val signingKey = Secp256k1SigningKey(signingPrivateKey)
-        val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-        val input = signingKey.sign("$identifier-${now.monthNumber}-${now.year}".toByteArray())
+    fun hashUmaIdentifier(identifier: String, signingPrivateKey: ByteArray): String {
+        val now = getUtcDateTime()
+        val input = identifier.toByteArray() + "${now.monthNumber}-${now.year}".toByteArray() + signingPrivateKey
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(input)
         return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+    }
+
+    fun getUtcDateTime(): LocalDateTime {
+        return Clock.System.now().toLocalDateTime(TimeZone.UTC)
     }
 
     fun setServerEnvironment(environment: ServerEnvironment, invalidateAuth: Boolean) {

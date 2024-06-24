@@ -4,7 +4,6 @@ import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
-import com.lightspark.sdk.crypto.Secp256k1
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.IncomingPayment
@@ -17,14 +16,19 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.`when`
+import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
@@ -42,7 +46,7 @@ class ClientIntegrationTests {
             ),
         )
         .setDefaultBitcoinNetwork(BitcoinNetwork.REGTEST)
-    private val client = LightsparkCoroutinesClient(config)
+    private val client = spy(LightsparkCoroutinesClient(config))
 
     @Test
     fun `get full account dashboard`() = runTest {
@@ -186,7 +190,8 @@ class ClientIntegrationTests {
     @Test
     fun `create an LNURL invoice`() = runTest {
         val node = getFirstOskNode()
-        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"]," +
+            "[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
         val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
 
         println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
@@ -194,15 +199,14 @@ class ClientIntegrationTests {
 
     @Test
     fun `create and pay an UMA invoice`() = runTest {
-        val receiverKeys = Secp256k1.generateKeyPair()
-        val senderKeys = Secp256k1.generateKeyPair()
         val node = getFirstOskNode()
-        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"]," +
+            "[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
         val paymentRequest = client.createUmaInvoice(
             node.id,
             1000,
             metadata,
-            signingPrivateKey = receiverKeys.privateKey,
+            signingPrivateKey = Random.nextBytes(5),
             receiverIdentifier = "ktfan98@domain.org",
         )
         println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
@@ -212,7 +216,7 @@ class ClientIntegrationTests {
             node.id,
             paymentRequest.data.encodedPaymentRequest,
             60,
-            signingPrivateKey = senderKeys.privateKey,
+            signingPrivateKey = Random.nextBytes(5),
             senderIdentifier = "sender@domain.org",
         )
         payment.shouldNotBeNull()
@@ -284,6 +288,21 @@ class ClientIntegrationTests {
             println("Payment status: ${payment?.status}")
         }
         payment?.status.shouldBe(TransactionStatus.SUCCESS)
+    }
+
+    @Test
+    fun `test uma identifier hashing`() = runTest {
+        val privKeyBytes = Random.nextBytes(32)
+        `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 1, 1, 0, 0, 0))
+        val hashedUma = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        val hashedUmaSameMonth = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        hashedUmaSameMonth.shouldBe(hashedUma)
+        println(hashedUma)
+
+        `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 2, 1, 0, 0, 0))
+        val hashedUmaNewMonth = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        hashedUmaNewMonth.shouldNotBe(hashedUma)
+        println(hashedUmaNewMonth)
     }
 
     // TODO: Add tests for withdrawals and deposits.
