@@ -4,6 +4,7 @@ import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.core.requester.ServerEnvironment
 import com.lightspark.sdk.core.util.getPlatform
 import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
+import com.lightspark.sdk.crypto.Secp256k1
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.IncomingPayment
@@ -189,6 +190,33 @@ class ClientIntegrationTests {
         val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
 
         println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
+    }
+
+    @Test
+    fun `create and pay an UMA invoice`() = runTest {
+        val receiverKeys = Secp256k1.generateKeyPair()
+        val senderKeys = Secp256k1.generateKeyPair()
+        val node = getFirstOskNode()
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val paymentRequest = client.createUmaInvoice(
+            node.id,
+            1000,
+            metadata,
+            signingPrivateKey = receiverKeys.privateKey,
+            receiverIdentifier = "ktfan98@domain.org",
+        )
+        println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
+
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
+        val payment = client.payUmaInvoice(
+            node.id,
+            paymentRequest.data.encodedPaymentRequest,
+            60,
+            signingPrivateKey = senderKeys.privateKey,
+            senderIdentifier = "sender@domain.org",
+        )
+        payment.shouldNotBeNull()
+        println("Payment: $payment")
     }
 
     @Test

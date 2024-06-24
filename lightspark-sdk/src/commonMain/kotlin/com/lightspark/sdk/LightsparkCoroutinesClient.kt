@@ -7,6 +7,7 @@ import com.lightspark.sdk.core.LightsparkErrorCode
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.*
 import com.lightspark.sdk.core.crypto.NodeKeyCache
+import com.lightspark.sdk.core.crypto.Secp256k1SigningKey
 import com.lightspark.sdk.core.crypto.SigningKeyDecryptor
 import com.lightspark.sdk.core.crypto.SigningKeyLoader
 import com.lightspark.sdk.core.requester.Query
@@ -18,6 +19,9 @@ import com.lightspark.sdk.model.*
 import com.lightspark.sdk.util.serializerFormat
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
 
 private const val SCHEMA_ENDPOINT = "graphql/server/2023-09-13"
@@ -214,20 +218,30 @@ class LightsparkCoroutinesClient private constructor(
      * @param nodeId The ID of the node for which to create the invoice.
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
-     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param signingPrivateKey The receiver's signing private key.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      */
     suspend fun createLnurlInvoice(
         nodeId: String,
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
+        signingPrivateKey: ByteArray? = null,
+        receiverIdentifier: String? = null,
     ): Invoice {
         requireValidAuth()
 
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+        val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
+            signAndHashUmaIdentifier(receiverIdentifier, signingPrivateKey)
+        } else {
+            null
+        }
 
         return executeQuery(
             Query(
@@ -237,6 +251,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("amountMsats", amountMsats)
                     add("metadataHash", metadataHash)
                     expirySecs?.let { add("expirySecs", expirySecs) }
+                    receiverHash?.let { add("receiverHash", receiverHash) }
                 },
             ) {
                 val invoiceJson =
@@ -255,20 +270,30 @@ class LightsparkCoroutinesClient private constructor(
      * @param nodeId The ID of the node for which to create the invoice.
      * @param amountMsats The amount of the invoice in milli-satoshis.
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
-     * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
+     *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param signingPrivateKey The receiver's signing private key.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      */
     suspend fun createUmaInvoice(
         nodeId: String,
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
+        signingPrivateKey: ByteArray? = null,
+        receiverIdentifier: String? = null,
     ): Invoice {
         requireValidAuth()
 
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+        val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
+            signAndHashUmaIdentifier(receiverIdentifier, signingPrivateKey)
+        } else {
+            null
+        }
 
         return executeQuery(
             Query(
@@ -278,6 +303,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("amountMsats", amountMsats)
                     add("metadataHash", metadataHash)
                     expirySecs?.let { add("expirySecs", expirySecs) }
+                    receiverHash?.let { add("receiverHash", receiverHash) }
                 },
             ) {
                 val invoiceJson =
@@ -371,6 +397,9 @@ class LightsparkCoroutinesClient private constructor(
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @param signingPrivateKey The sender's signing private key.
+     * @param senderIdentifier Optional identifier of the sender. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      * @return The payment details.
      */
     @JvmOverloads
@@ -380,8 +409,17 @@ class LightsparkCoroutinesClient private constructor(
         maxFeesMsats: Long,
         amountMsats: Long? = null,
         timeoutSecs: Int = 60,
+        signingPrivateKey: ByteArray? = null,
+        senderIdentifier: String? = null,
     ): OutgoingPayment {
         requireValidAuth()
+
+        val senderHash = if (senderIdentifier != null && signingPrivateKey != null) {
+            signAndHashUmaIdentifier(senderIdentifier, signingPrivateKey)
+        } else {
+            null
+        }
+
         return executeQuery(
             Query(
                 PayUmaInvoiceMutation,
@@ -391,6 +429,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("timeout_secs", timeoutSecs)
                     add("maximum_fees_msats", maxFeesMsats)
                     amountMsats?.let { add("amount_msats", amountMsats) }
+                    senderHash?.let { add("sender_hash", senderHash) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -1134,6 +1173,15 @@ class LightsparkCoroutinesClient private constructor(
         }
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(phoneNumber.toByteArray())
+        return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
+    }
+
+    private fun signAndHashUmaIdentifier(identifier: String, signingPrivateKey: ByteArray): String {
+        val signingKey = Secp256k1SigningKey(signingPrivateKey)
+        val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+        val input = signingKey.sign("$identifier-${now.monthNumber}-${now.year}".toByteArray())
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(input)
         return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
     }
 

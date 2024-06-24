@@ -8,8 +8,17 @@ const val CreateUmaInvoiceMutation = """
     ${'$'}amountMsats: Long!
     ${'$'}metadataHash: String!
     ${'$'}expirySecs: Int = null
+    ${'$'}receiverHash: String
+  ) {
+    create_uma_invoice(
+      input: {
+        node_id: ${'$'}nodeId
+        amount_msats: ${'$'}amountMsats
+        metadata_hash: ${'$'}metadataHash
+        expiry_secs: ${'$'}expirySecs
+        receiver_hash: ${'$'}receiverHash
+      }
     ) {
-    create_uma_invoice(input: { node_id: ${'$'}nodeId, amount_msats: ${'$'}amountMsats, metadata_hash: ${'$'}metadataHash, expiry_secs: ${'$'}expirySecs }) {
       invoice {
         ...InvoiceFragment
       }

@@ -430,6 +430,8 @@ class Vasp1(
                 config.nodeID,
                 payReqData.encodedInvoice,
                 maxFeesMsats = 1_000_000L,
+                signingPrivateKey = config.umaSigningPrivKey,
+                senderIdentifier = "\$alice@${getSendingVaspDomain(call)}",
             )
             waitForPaymentCompletion(pendingPayment)
         } catch (e: Exception) {

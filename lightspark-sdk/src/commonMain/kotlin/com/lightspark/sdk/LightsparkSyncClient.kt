@@ -127,6 +127,9 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param signingPrivateKey The receiver's signing private key.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      */
     @JvmOverloads
     fun createLnurlInvoice(
@@ -134,7 +137,9 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
-    ): Invoice = runBlocking { asyncClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs) }
+        signingPrivateKey: ByteArray? = null,
+        receiverIdentifier: String? = null,
+    ): Invoice = runBlocking { asyncClient.createLnurlInvoice(nodeId, amountMsats, metadata, expirySecs, signingPrivateKey, receiverIdentifier) }
 
     /**
      * Creates a Lightning invoice for the given node. This should only be used for generating invoices for UMA, with
@@ -145,6 +150,9 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      * present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param signingPrivateKey The receiver's signing private key.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      */
     @JvmOverloads
     fun createUmaInvoice(
@@ -152,7 +160,9 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
-    ): Invoice = runBlocking { asyncClient.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs) }
+        signingPrivateKey: ByteArray? = null,
+        receiverIdentifier: String? = null,
+    ): Invoice = runBlocking { asyncClient.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs, signingPrivateKey, receiverIdentifier) }
 
     /**
      * Cancels an existing unpaid invoice and returns that invoice. Cancelled invoices cannot be paid.
@@ -202,6 +212,9 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @param signingPrivateKey The sender's signing private key.
+     * @param senderIdentifier Optional identifier of the sender. If provided, it will be signed with
+     *     [signingPrivateKey] and hashed using a monthly-rotated salt for anonymized tracking and analysis.
      * @return The payment details.
      */
     @JvmOverloads
@@ -211,8 +224,10 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         maxFeesMsats: Long,
         amountMsats: Long? = null,
         timeoutSecs: Int = 60,
+        signingPrivateKey: ByteArray? = null,
+        senderIdentifier: String? = null,
     ): OutgoingPayment =
-        runBlocking { asyncClient.payUmaInvoice(nodeId, encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs) }
+        runBlocking { asyncClient.payUmaInvoice(nodeId, encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs, signingPrivateKey, senderIdentifier) }
 
     /**
      * Decode a lightning invoice to get its details included payment amount, destination, etc.

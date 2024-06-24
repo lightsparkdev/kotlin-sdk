@@ -9,6 +9,7 @@ const val PayUmaInvoiceMutation = """
     ${'$'}timeout_secs: Int!
     ${'$'}maximum_fees_msats: Long!
     ${'$'}amount_msats: Long
+    ${'$'}sender_hash: String
   ) {
     pay_uma_invoice(
       input: {
@@ -17,6 +18,7 @@ const val PayUmaInvoiceMutation = """
         timeout_secs: ${'$'}timeout_secs
         amount_msats: ${'$'}amount_msats
         maximum_fees_msats: ${'$'}maximum_fees_msats
+        sender_hash: ${'$'}sender_hash
       }
     ) {
       payment {
