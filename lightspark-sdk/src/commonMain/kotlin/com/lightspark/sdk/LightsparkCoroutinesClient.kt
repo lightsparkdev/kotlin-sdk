@@ -220,28 +220,18 @@ class LightsparkCoroutinesClient private constructor(
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
-     * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
-     *      and used for anonymized analysis.
      */
     suspend fun createLnurlInvoice(
         nodeId: String,
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
-        signingPrivateKey: ByteArray? = null,
-        receiverIdentifier: String? = null,
     ): Invoice {
         requireValidAuth()
 
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
-        val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
-            hashUmaIdentifier(receiverIdentifier, signingPrivateKey)
-        } else {
-            null
-        }
 
         return executeQuery(
             Query(
@@ -251,7 +241,6 @@ class LightsparkCoroutinesClient private constructor(
                     add("amountMsats", amountMsats)
                     add("metadataHash", metadataHash)
                     expirySecs?.let { add("expirySecs", expirySecs) }
-                    receiverHash?.let { add("receiverHash", receiverHash) }
                 },
             ) {
                 val invoiceJson =
@@ -273,9 +262,10 @@ class LightsparkCoroutinesClient private constructor(
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
-     *      and used for anonymized analysis.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed using a
+     *      monthly-rotated seed and used for anonymized analysis.
      */
+    @Throws(IllegalArgumentException::class)
     suspend fun createUmaInvoice(
         nodeId: String,
         amountMsats: Long,
@@ -289,10 +279,12 @@ class LightsparkCoroutinesClient private constructor(
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(metadata.toByteArray())
         val metadataHash = digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
-        val receiverHash = if (receiverIdentifier != null && signingPrivateKey != null) {
-            hashUmaIdentifier(receiverIdentifier, signingPrivateKey)
-        } else {
-            null
+        val receiverHash = receiverIdentifier?.let {
+            if (signingPrivateKey == null) {
+                throw IllegalArgumentException("Receiver identifier provided without signing private key")
+            } else {
+                hashUmaIdentifier(receiverIdentifier, signingPrivateKey)
+            }
         }
 
         return executeQuery(
@@ -398,11 +390,12 @@ class LightsparkCoroutinesClient private constructor(
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
      * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
-     * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed
-     *      and used for anonymized analysis.
+     * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed using a
+     *      monthly-rotated seed and used for anonymized analysis.
      * @return The payment details.
      */
     @JvmOverloads
+    @Throws(IllegalArgumentException::class)
     suspend fun payUmaInvoice(
         nodeId: String,
         encodedInvoice: String,
@@ -414,10 +407,12 @@ class LightsparkCoroutinesClient private constructor(
     ): OutgoingPayment {
         requireValidAuth()
 
-        val senderHash = if (senderIdentifier != null && signingPrivateKey != null) {
-            hashUmaIdentifier(senderIdentifier, signingPrivateKey)
-        } else {
-            null
+        val senderHash = senderIdentifier?.let {
+            if (signingPrivateKey == null) {
+                throw IllegalArgumentException("Receiver identifier provided without signing private key")
+            } else {
+                hashUmaIdentifier(senderIdentifier, signingPrivateKey)
+            }
         }
 
         return executeQuery(

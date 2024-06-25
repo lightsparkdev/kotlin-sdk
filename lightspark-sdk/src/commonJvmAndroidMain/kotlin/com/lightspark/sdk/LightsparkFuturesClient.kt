@@ -146,9 +146,6 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
-     * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
-     *      and used for anonymized analysis.
      */
     @JvmOverloads
     fun createLnurlInvoice(
@@ -156,8 +153,6 @@ class LightsparkFuturesClient(config: ClientConfig) {
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
-        signingPrivateKey: ByteArray? = null,
-        receiverIdentifier: String? = null,
     ): CompletableFuture<Invoice> =
         coroutineScope.future {
             coroutinesClient.createLnurlInvoice(
@@ -165,8 +160,6 @@ class LightsparkFuturesClient(config: ClientConfig) {
                 amountMsats,
                 metadata,
                 expirySecs,
-                signingPrivateKey,
-                receiverIdentifier,
             )
         }
 
@@ -180,10 +173,11 @@ class LightsparkFuturesClient(config: ClientConfig) {
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
      * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
-     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed
-     *      and used for anonymized analysis.
+     * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed using a
+     *      monthly-rotated seed and used for anonymized analysis.
      */
     @JvmOverloads
+    @Throws(IllegalArgumentException::class)
     fun createUmaInvoice(
         nodeId: String,
         amountMsats: Long,
@@ -261,11 +255,12 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
      * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
-     * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed
-     *      and used for anonymized analysis.
+     * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed using a
+     *      monthly-rotated seed and used for anonymized analysis.
      * @return The payment details.
      */
     @JvmOverloads
+    @Throws(IllegalArgumentException::class)
     fun payUmaInvoice(
         nodeId: String,
         encodedInvoice: String,
