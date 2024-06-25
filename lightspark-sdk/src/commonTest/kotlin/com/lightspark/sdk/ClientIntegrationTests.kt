@@ -265,7 +265,7 @@ class ClientIntegrationTests {
         val nodes = account.getNodesQuery().execute(client)
         nodes.shouldNotBeNull()
         nodes.entities.shouldNotBeEmpty()
-        return nodes.entities.first { it.id.contains("OSK")}
+        return nodes.entities.first { it.id.contains("OSK") }
     }
 
     private suspend fun getNodeId(): String {
