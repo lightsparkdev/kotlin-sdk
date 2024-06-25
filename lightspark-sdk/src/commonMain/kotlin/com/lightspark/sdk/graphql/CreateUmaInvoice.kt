@@ -8,7 +8,7 @@ const val CreateUmaInvoiceMutation = """
     ${'$'}amountMsats: Long!
     ${'$'}metadataHash: String!
     ${'$'}expirySecs: Int = null
-    ${'$'}receiverHash: String
+    ${'$'}receiverHash: String = null
   ) {
     create_uma_invoice(
       input: {

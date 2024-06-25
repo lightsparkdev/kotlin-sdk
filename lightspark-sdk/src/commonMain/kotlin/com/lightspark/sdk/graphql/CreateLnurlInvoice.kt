@@ -8,7 +8,7 @@ const val CreateLnurlInvoiceMutation = """
     ${'$'}amountMsats: Long!
     ${'$'}metadataHash: String!
     ${'$'}expirySecs: Int = null
-    ${'$'}receiverHash: String
+    ${'$'}receiverHash: String = null
   ) {
     create_lnurl_invoice(
       input: {
