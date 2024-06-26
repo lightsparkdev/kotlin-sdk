@@ -409,7 +409,7 @@ class LightsparkCoroutinesClient private constructor(
 
         val senderHash = senderIdentifier?.let {
             if (signingPrivateKey == null) {
-                throw IllegalArgumentException("Receiver identifier provided without signing private key")
+                throw IllegalArgumentException("Sender identifier provided without signing private key")
             } else {
                 hashUmaIdentifier(senderIdentifier, signingPrivateKey)
             }
