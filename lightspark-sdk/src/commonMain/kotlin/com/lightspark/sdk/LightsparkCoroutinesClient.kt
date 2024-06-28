@@ -1171,11 +1171,12 @@ class LightsparkCoroutinesClient private constructor(
         return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     fun hashUmaIdentifier(identifier: String, signingPrivateKey: ByteArray): String {
         val now = getUtcDateTime()
-        val input = identifier.toByteArray() + "${now.monthNumber}-${now.year}".toByteArray() + signingPrivateKey
+        val input = identifier + "${now.monthNumber}-${now.year}" + signingPrivateKey.toHexString()
         val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(input)
+        val digest = md.digest(input.toByteArray())
         return digest.fold(StringBuilder()) { sb, it -> sb.append("%02x".format(it)) }.toString()
     }
 
