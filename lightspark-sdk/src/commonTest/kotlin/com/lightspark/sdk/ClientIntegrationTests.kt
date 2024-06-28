@@ -292,7 +292,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test uma identifier hashing`() = runTest {
-        val privKeyBytes = Random.nextBytes(32)
+        val privKeyBytes = "xyz".toByteArray()
         `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 1, 1, 0, 0, 0))
         val hashedUma = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
         val hashedUmaSameMonth = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
