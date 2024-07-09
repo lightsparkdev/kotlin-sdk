@@ -5,6 +5,7 @@ An example UMA VASP server implementation using kotlin.
 ## Running the server
 
 Configuration parameters (API keys, etc.) and information on how to set them can be found in `UmaConfig.kt`.
+For instructions on how to generate the necessary certificates and keys, see [UMA documentation](https://docs.uma.me/uma-standard/keys-authentication-encryption).
 To run locally on your machine, from the kotlin-sdk directory, run:
 
 ```bash
@@ -28,8 +29,10 @@ docker run -p 8080:8080 \
 -e LIGHTSPARK_API_TOKEN_CLIENT_SECRET=$LIGHTSPARK_API_TOKEN_CLIENT_SECRET \
 -e LIGHTSPARK_UMA_NODE_ID=$LIGHTSPARK_UMA_NODE_ID \
 -e LIGHTSPARK_UMA_RECEIVER_USER=$LIGHTSPARK_UMA_RECEIVER_USER \
+-e LIGHTSPARK_UMA_ENCRYPTION_CERT_CHAIN=$LIGHTSPARK_UMA_ENCRYPTION_CERT_CHAIN \
 -e LIGHTSPARK_UMA_ENCRYPTION_PUBKEY=$LIGHTSPARK_UMA_ENCRYPTION_PUBKEY \
 -e LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY=$LIGHTSPARK_UMA_ENCRYPTION_PRIVKEY \
+-e LIGHTSPARK_UMA_SIGNING_CERT_CHAIN=$LIGHTSPARK_UMA_SIGNING_CERT_CHAIN \
 -e LIGHTSPARK_UMA_SIGNING_PUBKEY=$LIGHTSPARK_UMA_SIGNING_PUBKEY \
 -e LIGHTSPARK_UMA_SIGNING_PRIVKEY=$LIGHTSPARK_UMA_SIGNING_PRIVKEY \
 uma-linux-amd64

@@ -1,8 +1,8 @@
 package com.lightspark
 
 import com.lightspark.sdk.model.InvoiceData
-import me.uma.protocol.LnurlpResponse
 import java.util.UUID
+import me.uma.protocol.LnurlpResponse
 
 /**
  * A simple in-memory cache for data that needs to be remembered between calls to VASP1. In practice, this would be
@@ -34,13 +34,7 @@ class Vasp1RequestCache {
 
     fun saveLnurlpResponseData(lnurlpResponse: LnurlpResponse, receiverId: String, vasp2Domain: String): String {
         val uuid = UUID.randomUUID().toString()
-        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse, nonUmaLnurlpResponse = null, receiverId, vasp2Domain)
-        return uuid
-    }
-
-    fun saveNonUmaLnurlpResponseData(nonUmaLnurlpResponse: NonUmaLnurlpResponse, receiverId: String, vasp2Domain: String): String {
-        val uuid = UUID.randomUUID().toString()
-        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse = null, nonUmaLnurlpResponse, receiverId, vasp2Domain)
+        lnurlpRequestCache[uuid] = Vasp1InitialRequestData(lnurlpResponse, receiverId, vasp2Domain)
         return uuid
     }
 
@@ -60,8 +54,7 @@ class Vasp1RequestCache {
 }
 
 data class Vasp1InitialRequestData(
-    val lnurlpResponse: LnurlpResponse?,
-    val nonUmaLnurlpResponse: NonUmaLnurlpResponse?,
+    val lnurlpResponse: LnurlpResponse,
     val receiverId: String,
     val vasp2Domain: String,
 )
@@ -71,4 +64,3 @@ data class Vasp1PayReqData(
     val utxoCallback: String,
     val invoiceData: InvoiceData,
 )
-
