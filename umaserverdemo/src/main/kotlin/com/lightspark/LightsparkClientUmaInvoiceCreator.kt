@@ -3,10 +3,10 @@ package com.lightspark
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
-import me.uma.UmaInvoiceCreator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
+import me.uma.UmaInvoiceCreator
 
 class LightsparkClientUmaInvoiceCreator(
     private val client: LightsparkCoroutinesClient,
