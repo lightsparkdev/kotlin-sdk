@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param inviterUma The UMA of the user creating the invitation. It will be used to identify the inviter when receiving the invitation.
  */
 @Serializable
 @SerialName("CreateUmaInvitationInput")

@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** The alpha-2 representation of a country, as defined by the ISO 3166-1 standard. **/
 @Serializable(with = RegionCodeSerializer::class)
-enum class RegionCode(val rawValue: String) {
+enum class RegionCode(
+    val rawValue: String,
+) {
     /** The code representing the country of Afghanistan. **/
     AF("AF"),
 

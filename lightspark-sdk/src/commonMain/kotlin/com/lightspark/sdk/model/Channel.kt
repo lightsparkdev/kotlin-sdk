@@ -157,9 +157,8 @@ query FetchChannelToTransactionsConnection(${'$'}entity_id: ID!, ${'$'}types: [T
 
     companion object {
         @JvmStatic
-        fun getChannelQuery(id: String): Query<Channel> {
-            return Query(
-                queryPayload = """
+        fun getChannelQuery(id: String): Query<Channel> = Query(
+            queryPayload = """
 query GetChannel(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Channel {
@@ -170,11 +169,10 @@ query GetChannel(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

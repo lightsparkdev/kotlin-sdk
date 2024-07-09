@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum representing the status of a channel on the Lightning Network. **/
 @Serializable(with = ChannelStatusSerializer::class)
-enum class ChannelStatus(val rawValue: String) {
+enum class ChannelStatus(
+    val rawValue: String,
+) {
     /** The channel is online and ready to send and receive funds. **/
     OK("OK"),
 

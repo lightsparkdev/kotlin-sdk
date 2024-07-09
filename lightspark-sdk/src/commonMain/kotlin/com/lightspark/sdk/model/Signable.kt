@@ -29,9 +29,8 @@ data class Signable(
 ) : Entity {
     companion object {
         @JvmStatic
-        fun getSignableQuery(id: String): Query<Signable> {
-            return Query(
-                queryPayload = """
+        fun getSignableQuery(id: String): Query<Signable> = Query(
+            queryPayload = """
 query GetSignable(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on Signable {
@@ -42,11 +41,10 @@ query GetSignable(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

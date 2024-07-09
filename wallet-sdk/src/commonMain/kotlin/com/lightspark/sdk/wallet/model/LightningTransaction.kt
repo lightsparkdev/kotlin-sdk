@@ -20,7 +20,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @property resolvedAt The date and time when this transaction was completed or failed.
  * @property transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  */
-interface LightningTransaction : Transaction, Entity {
+interface LightningTransaction :
+    Transaction,
+    Entity {
     @SerialName("lightning_transaction_id")
     override val id: String
 
@@ -44,9 +46,8 @@ interface LightningTransaction : Transaction, Entity {
 
     companion object {
         @JvmStatic
-        fun getLightningTransactionQuery(id: String): Query<LightningTransaction> {
-            return Query(
-                queryPayload = """
+        fun getLightningTransactionQuery(id: String): Query<LightningTransaction> = Query(
+            queryPayload = """
 query GetLightningTransaction(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on LightningTransaction {
@@ -57,11 +58,10 @@ query GetLightningTransaction(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

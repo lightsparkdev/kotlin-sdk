@@ -16,14 +16,19 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.`when`
+import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClientIntegrationTests {
@@ -41,7 +46,7 @@ class ClientIntegrationTests {
             ),
         )
         .setDefaultBitcoinNetwork(BitcoinNetwork.REGTEST)
-    private val client = LightsparkCoroutinesClient(config)
+    private val client = spy(LightsparkCoroutinesClient(config))
 
     @Test
     fun `get full account dashboard`() = runTest {
@@ -184,16 +189,43 @@ class ClientIntegrationTests {
 
     @Test
     fun `create an LNURL invoice`() = runTest {
-        val node = getFirstNode()
-        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"],[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val node = getFirstOskNode()
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"]," +
+            "[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
         val paymentRequest = client.createLnurlInvoice(node.id, 1000, metadata)
 
         println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
     }
 
     @Test
+    fun `create and pay an UMA invoice`() = runTest {
+        val node = getFirstOskNode()
+        val metadata = "[[\\\"text/plain\\\",\\\"Pay to domain.org user ktfan98\\\"]," +
+            "[\\\"text/identifier\\\",\\\"ktfan98@domain.org\\\"]]"
+        val paymentRequest = client.createUmaInvoice(
+            node.id,
+            1000,
+            metadata,
+            signingPrivateKey = Random.nextBytes(5),
+            receiverIdentifier = "ktfan98@domain.org",
+        )
+        println("encoded invoice: ${paymentRequest.data.encodedPaymentRequest}")
+
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
+        val payment = client.payUmaInvoice(
+            node.id,
+            paymentRequest.data.encodedPaymentRequest,
+            60,
+            signingPrivateKey = Random.nextBytes(5),
+            senderIdentifier = "sender@domain.org",
+        )
+        payment.shouldNotBeNull()
+        println("Payment: $payment")
+    }
+
+    @Test
     fun `create and cancel an invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         val invoice = client.createInvoice(node.id, 1000)
 
         println("encoded invoice: $invoice.data.encodedPaymentRequest}")
@@ -205,7 +237,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `send a payment for an invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
 
         // Just paying a pre-existing AMP invoice.
@@ -220,7 +252,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `get node channels`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         val channels = node.getChannelsQuery().execute(client)
         channels.shouldNotBeNull()
         channels.entities.shouldNotBeEmpty()
@@ -230,7 +262,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test paying a test mode invoice`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
         var outgoingPayment: OutgoingPayment? = client.payInvoice(node.id, invoice, maxFeesMsats = 100_000)
@@ -245,7 +277,7 @@ class ClientIntegrationTests {
 
     @Test
     fun `test creating a test mode payment`() = runTest {
-        val node = getFirstNode()
+        val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createInvoice(node.id, 100_000, "test invoice")
         var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
@@ -258,18 +290,33 @@ class ClientIntegrationTests {
         payment?.status.shouldBe(TransactionStatus.SUCCESS)
     }
 
+    @Test
+    fun `test uma identifier hashing`() = runTest {
+        val privKeyBytes = "xyz".toByteArray()
+        `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 1, 1, 0, 0, 0))
+        val hashedUma = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        val hashedUmaSameMonth = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        hashedUmaSameMonth.shouldBe(hashedUma)
+        println(hashedUma)
+
+        `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 2, 1, 0, 0, 0))
+        val hashedUmaNewMonth = client.hashUmaIdentifier("user@domain.com", privKeyBytes)
+        hashedUmaNewMonth.shouldNotBe(hashedUma)
+        println(hashedUmaNewMonth)
+    }
+
     // TODO: Add tests for withdrawals and deposits.
 
-    private suspend fun getFirstNode(): LightsparkNode {
+    private suspend fun getFirstOskNode(): LightsparkNode {
         val account = getCurrentAccount()
         val nodes = account.getNodesQuery().execute(client)
         nodes.shouldNotBeNull()
         nodes.entities.shouldNotBeEmpty()
-        return nodes.entities.first()
+        return nodes.entities.first { it.id.contains("OSK") }
     }
 
     private suspend fun getNodeId(): String {
-        return getFirstNode().id
+        return getFirstOskNode().id
     }
 
     private suspend fun getCurrentAccount(): Account {

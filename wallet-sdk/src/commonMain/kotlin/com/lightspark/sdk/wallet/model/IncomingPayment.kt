@@ -41,12 +41,13 @@ data class IncomingPayment(
     override val transactionHash: String? = null,
     @SerialName("incoming_payment_payment_request")
     val paymentRequestId: EntityId? = null,
-) : LightningTransaction, Transaction, Entity {
+) : LightningTransaction,
+    Transaction,
+    Entity {
     companion object {
         @JvmStatic
-        fun getIncomingPaymentQuery(id: String): Query<IncomingPayment> {
-            return Query(
-                queryPayload = """
+        fun getIncomingPaymentQuery(id: String): Query<IncomingPayment> = Query(
+            queryPayload = """
 query GetIncomingPayment(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on IncomingPayment {
@@ -57,11 +58,10 @@ query GetIncomingPayment(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

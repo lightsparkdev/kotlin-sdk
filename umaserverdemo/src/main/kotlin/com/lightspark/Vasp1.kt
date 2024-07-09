@@ -1,7 +1,12 @@
 package com.lightspark
 
 import com.lightspark.sdk.LightsparkCoroutinesClient
+import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
+import com.lightspark.sdk.crypto.Secp256k1SigningKeyLoader
 import com.lightspark.sdk.execute
+import com.lightspark.sdk.model.LightsparkNode.Companion.getLightsparkNodeQuery
+import com.lightspark.sdk.model.LightsparkNodeWithOSK
+import com.lightspark.sdk.model.LightsparkNodeWithRemoteSigning
 import com.lightspark.sdk.model.Node
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.TransactionStatus
@@ -387,10 +392,13 @@ class Vasp1(
         }
 
         val payment = try {
+            loadSigningKey()
             val pendingPayment = lightsparkClient.payUmaInvoice(
                 config.nodeID,
                 payReqData.encodedInvoice,
                 maxFeesMsats = 1_000_000L,
+                signingPrivateKey = config.umaSigningPrivKey,
+                senderIdentifier = "\$alice@${getSendingVaspDomain(call)}",
             )
             waitForPaymentCompletion(pendingPayment)
         } catch (e: Exception) {
@@ -467,6 +475,28 @@ class Vasp1(
             throw Exception("Payment timed out.")
         }
         return payment
+    }
+
+    private suspend fun loadSigningKey() {
+        val nodeId = config.nodeID
+        when (val node = lightsparkClient.executeQuery(getLightsparkNodeQuery(nodeId))) {
+            is LightsparkNodeWithOSK -> {
+                if (config.oskNodePassword.isNullOrEmpty()) {
+                    throw IllegalArgumentException("Node is an OSK, but no signing key password was provided in the " +
+                        "config. Set the LIGHTSPARK_UMA_OSK_NODE_SIGNING_KEY_PASSWORD environment variable")
+                }
+                lightsparkClient.loadNodeSigningKey(nodeId, PasswordRecoverySigningKeyLoader(nodeId, config.oskNodePassword))
+            }
+            is LightsparkNodeWithRemoteSigning -> {
+                val remoteSigningKey = config.remoteSigningNodeKey
+                    ?: throw IllegalArgumentException("Node is a remote signing node, but no master seed was provided in " +
+                        "the config. Set the LIGHTSPARK_UMA_REMOTE_SIGNING_NODE_MASTER_SEED environment variable")
+                lightsparkClient.loadNodeSigningKey(nodeId, Secp256k1SigningKeyLoader(remoteSigningKey, node.bitcoinNetwork))
+            }
+            else -> {
+                throw IllegalArgumentException("Invalid node type.")
+            }
+        }
     }
 }
 

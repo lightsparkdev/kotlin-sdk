@@ -36,9 +36,8 @@ interface PaymentRequest : Entity {
 
     companion object {
         @JvmStatic
-        fun getPaymentRequestQuery(id: String): Query<PaymentRequest> {
-            return Query(
-                queryPayload = """
+        fun getPaymentRequestQuery(id: String): Query<PaymentRequest> = Query(
+            queryPayload = """
 query GetPaymentRequest(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on PaymentRequest {
@@ -49,11 +48,10 @@ query GetPaymentRequest(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

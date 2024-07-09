@@ -20,7 +20,9 @@ import kotlinx.serialization.json.jsonObject
  * @param updatedAt The date and time when the entity was last updated.
  * @param status The current status of this transaction.
  * @param amount The amount of money involved in this transaction.
+ * @param isUma Whether this payment is an UMA payment or not. NOTE: this field is only set if the payment has been sent using the recommended `pay_uma_invoice` function.
  * @param originId The Lightspark node this payment originated from.
+ * @param isInternalPayment Whether the payment is made to the same node.
  * @param resolvedAt The date and time when this transaction was completed or failed.
  * @param transactionHash The hash of this transaction, so it can be uniquely identified on the Lightning Network.
  * @param destinationId If known, the final recipient node this payment was sent to.
@@ -30,6 +32,7 @@ import kotlinx.serialization.json.jsonObject
  * @param failureMessage If applicable, user-facing error message describing why the payment failed.
  * @param umaPostTransactionData The post transaction data which can be used in KYT payment registration.
  * @param paymentPreimage The preimage of the payment.
+ * @param idempotencyKey The idempotency key of the payment.
  */
 @Serializable
 @SerialName("OutgoingPayment")
@@ -44,8 +47,12 @@ data class OutgoingPayment(
     override val status: TransactionStatus,
     @SerialName("outgoing_payment_amount")
     override val amount: CurrencyAmount,
+    @SerialName("outgoing_payment_is_uma")
+    val isUma: Boolean,
     @SerialName("outgoing_payment_origin")
     val originId: EntityId,
+    @SerialName("outgoing_payment_is_internal_payment")
+    val isInternalPayment: Boolean,
     @SerialName("outgoing_payment_resolved_at")
     override val resolvedAt: Instant? = null,
     @SerialName("outgoing_payment_transaction_hash")
@@ -64,7 +71,11 @@ data class OutgoingPayment(
     val umaPostTransactionData: List<PostTransactionData>? = null,
     @SerialName("outgoing_payment_payment_preimage")
     val paymentPreimage: String? = null,
-) : LightningTransaction, Transaction, Entity {
+    @SerialName("outgoing_payment_idempotency_key")
+    val idempotencyKey: String? = null,
+) : LightningTransaction,
+    Transaction,
+    Entity {
     @JvmOverloads
     fun getAttemptsQuery(first: Int? = null, after: String? = null): Query<OutgoingPaymentToAttemptsConnection> {
         return Query(
@@ -133,9 +144,8 @@ query FetchOutgoingPaymentToAttemptsConnection(${'$'}entity_id: ID!, ${'$'}first
 
     companion object {
         @JvmStatic
-        fun getOutgoingPaymentQuery(id: String): Query<OutgoingPayment> {
-            return Query(
-                queryPayload = """
+        fun getOutgoingPaymentQuery(id: String): Query<OutgoingPayment> = Query(
+            queryPayload = """
 query GetOutgoingPayment(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on OutgoingPayment {
@@ -146,11 +156,10 @@ query GetOutgoingPayment(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
@@ -170,6 +179,7 @@ fragment OutgoingPaymentFragment on OutgoingPayment {
         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
     }
     outgoing_payment_transaction_hash: transaction_hash
+    outgoing_payment_is_uma: is_uma
     outgoing_payment_origin: origin {
         id
     }
@@ -496,6 +506,8 @@ fragment OutgoingPaymentFragment on OutgoingPayment {
         }
     }
     outgoing_payment_payment_preimage: payment_preimage
+    outgoing_payment_is_internal_payment: is_internal_payment
+    outgoing_payment_idempotency_key: idempotency_key
 }"""
     }
 }

@@ -430,6 +430,14 @@ query FetchWalletToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: I
                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                     }
+                    withdrawal_request_total_fees: total_fees {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
                     withdrawal_request_bitcoin_address: bitcoin_address
                     withdrawal_request_status: status
                     withdrawal_request_completed_at: completed_at
@@ -460,9 +468,8 @@ query FetchWalletToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: I
 
     companion object {
         @JvmStatic
-        fun getWalletQuery(): Query<Wallet> {
-            return Query(
-                queryPayload = """
+        fun getWalletQuery(): Query<Wallet> = Query(
+            queryPayload = """
 query GetWallet {
     current_wallet {
         ... on Wallet {
@@ -473,11 +480,10 @@ query GetWallet {
 
 $FRAGMENT
 """,
-                variableBuilder = { },
-            ) {
-                val entity = requireNotNull(it["current_wallet"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { },
+        ) {
+            val entity = requireNotNull(it["current_wallet"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

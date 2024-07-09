@@ -7,7 +7,7 @@ on:
 jobs:
   publish-core-sdk:
     if: ${{ startsWith(github.event.release.tag_name, 'core-') }}
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
       - uses: actions/checkout@v3

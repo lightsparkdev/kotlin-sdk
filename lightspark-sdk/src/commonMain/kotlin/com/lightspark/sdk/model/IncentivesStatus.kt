@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** Describes the status of the incentives for this invitation. **/
 @Serializable(with = IncentivesStatusSerializer::class)
-enum class IncentivesStatus(val rawValue: String) {
+enum class IncentivesStatus(
+    val rawValue: String,
+) {
     /** The invitation is eligible for incentives in its current state. When it is claimed, we will reassess. **/
     PENDING("PENDING"),
 

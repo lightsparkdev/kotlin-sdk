@@ -51,6 +51,7 @@ kotlin {
                 implementation(kotlin("test-junit"))
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.kotest.assertions)
+                implementation(libs.mockito.core)
             }
         }
         val commonJvmAndroidMain by creating {

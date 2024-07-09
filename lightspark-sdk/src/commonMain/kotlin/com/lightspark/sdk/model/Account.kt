@@ -33,7 +33,8 @@ data class Account(
     override val updatedAt: Instant,
     @SerialName("account_name")
     val name: String? = null,
-) : LightsparkNodeOwner, Entity {
+) : LightsparkNodeOwner,
+    Entity {
     @JvmOverloads
     fun getApiTokensQuery(first: Int? = null, after: String? = null): Query<AccountToApiTokensConnection> {
         return Query(
@@ -59,6 +60,7 @@ query FetchAccountToApiTokensConnection(${'$'}first: Int, ${'$'}after: String) {
                     api_token_client_id: client_id
                     api_token_name: name
                     api_token_permissions: permissions
+                    api_token_is_deleted: is_deleted
                 }
             }
         }
@@ -873,6 +875,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
                         incoming_payment_transaction_hash: transaction_hash
+                        incoming_payment_is_uma: is_uma
                         incoming_payment_destination: destination {
                             id
                         }
@@ -891,6 +894,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                                 currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                             }
                         }
+                        incoming_payment_is_internal_payment: is_internal_payment
                     }
                     ... on OutgoingPayment {
                         type: __typename
@@ -908,6 +912,7 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                             currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                         }
                         outgoing_payment_transaction_hash: transaction_hash
+                        outgoing_payment_is_uma: is_uma
                         outgoing_payment_origin: origin {
                             id
                         }
@@ -1234,6 +1239,8 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                             }
                         }
                         outgoing_payment_payment_preimage: payment_preimage
+                        outgoing_payment_is_internal_payment: is_internal_payment
+                        outgoing_payment_idempotency_key: idempotency_key
                     }
                     ... on RoutingTransaction {
                         type: __typename
@@ -1689,15 +1696,16 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
         bitcoinNetworks: List<BitcoinNetwork>? = null,
         statuses: List<WithdrawalRequestStatus>? = null,
         nodeIds: List<String>? = null,
+        idempotencyKeys: List<String>? = null,
         afterDate: Instant? = null,
         beforeDate: Instant? = null,
     ): Query<AccountToWithdrawalRequestsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}node_ids: [ID!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {
+query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}node_ids: [ID!], ${'$'}idempotency_keys: [String!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {
     current_account {
         ... on Account {
-            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, bitcoin_networks: ${'$'}bitcoin_networks, statuses: ${'$'}statuses, node_ids: ${'$'}node_ids, after_date: ${'$'}after_date, before_date: ${'$'}before_date) {
+            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, bitcoin_networks: ${'$'}bitcoin_networks, statuses: ${'$'}statuses, node_ids: ${'$'}node_ids, idempotency_keys: ${'$'}idempotency_keys, after_date: ${'$'}after_date, before_date: ${'$'}before_date) {
                 type: __typename
                 account_to_withdrawal_requests_connection_count: count
                 account_to_withdrawal_requests_connection_page_info: page_info {
@@ -1744,6 +1752,14 @@ query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: 
                         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
                         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
                     }
+                    withdrawal_request_total_fees: total_fees {
+                        type: __typename
+                        currency_amount_original_value: original_value
+                        currency_amount_original_unit: original_unit
+                        currency_amount_preferred_currency_unit: preferred_currency_unit
+                        currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
+                        currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
+                    }
                     withdrawal_request_bitcoin_address: bitcoin_address
                     withdrawal_request_withdrawal_mode: withdrawal_mode
                     withdrawal_request_status: status
@@ -1751,6 +1767,8 @@ query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: 
                     withdrawal_request_withdrawal: withdrawal {
                         id
                     }
+                    withdrawal_request_idempotency_key: idempotency_key
+                    withdrawal_request_initiator: initiator
                 }
             }
         }
@@ -1763,6 +1781,7 @@ query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: 
                 add("bitcoin_networks", bitcoinNetworks)
                 add("statuses", statuses)
                 add("node_ids", nodeIds)
+                add("idempotency_keys", idempotencyKeys)
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
             }
@@ -1854,9 +1873,8 @@ query FetchAccountToWalletsConnection(${'$'}first: Int, ${'$'}after: String, ${'
 
     companion object {
         @JvmStatic
-        fun getAccountQuery(): Query<Account> {
-            return Query(
-                queryPayload = """
+        fun getAccountQuery(): Query<Account> = Query(
+            queryPayload = """
 query GetAccount {
     current_account {
         ... on Account {
@@ -1867,11 +1885,10 @@ query GetAccount {
 
 $FRAGMENT
 """,
-                variableBuilder = { },
-            ) {
-                val entity = requireNotNull(it["current_account"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { },
+        ) {
+            val entity = requireNotNull(it["current_account"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

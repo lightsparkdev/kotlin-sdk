@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential event types that can be associated with your Lightspark wallets. **/
 @Serializable(with = WebhookEventTypeSerializer::class)
-enum class WebhookEventType(val rawValue: String) {
+enum class WebhookEventType(
+    val rawValue: String,
+) {
     PAYMENT_FINISHED("PAYMENT_FINISHED"),
 
     FORCE_CLOSURE("FORCE_CLOSURE"),
@@ -34,6 +36,8 @@ enum class WebhookEventType(val rawValue: String) {
     REMOTE_SIGNING("REMOTE_SIGNING"),
 
     LOW_BALANCE("LOW_BALANCE"),
+
+    HIGH_BALANCE("HIGH_BALANCE"),
 
     /**
      * This is an enum value that represents values that could be added in the future.

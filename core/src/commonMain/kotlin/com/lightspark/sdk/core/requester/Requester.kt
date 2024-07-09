@@ -7,9 +7,10 @@ import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.core.auth.AuthProvider
 import com.lightspark.sdk.core.crypto.MissingKeyException
 import com.lightspark.sdk.core.crypto.NodeKeyCache
-import com.lightspark.sdk.core.crypto.nextInt
+import com.lightspark.sdk.core.crypto.nextLong
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -21,6 +22,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,6 +36,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.zip.Deflater
 
 private const val DEFAULT_BASE_URL = "api.lightspark.com"
 
@@ -45,6 +48,9 @@ class Requester constructor(
     private val baseUrl: String = DEFAULT_BASE_URL,
 ) {
     private val httpClient = HttpClient {
+        install(ContentEncoding) {
+            gzip()  // Switch to deflate() when https://youtrack.jetbrains.com/issue/KTOR-6999 is fixed
+        }
         install(WebSockets)
     }
     private val userAgent =
@@ -87,15 +93,15 @@ class Requester constructor(
             )
         }
         val operation = operationMatch.groupValues[2]
-        var bodyData = buildJsonObject {
+        var payload = buildJsonObject {
             put("query", JsonPrimitive(queryPayload))
             variables?.let { put("variables", it) }
             put("operationName", JsonPrimitive(operation))
         }
-        var headers = defaultHeaders + authProvider.getCredentialHeaders()
+        var headers = defaultHeaders + authProvider.getCredentialHeaders() + mapOf("X-GraphQL-Operation" to operation)
         val signedBodyAndHeaders = try {
             addSigningDataIfNeeded(
-                bodyData,
+                payload,
                 headers,
                 signingNodeId,
             )
@@ -106,11 +112,25 @@ class Requester constructor(
                 e,
             )
         }
-        bodyData = signedBodyAndHeaders.first
+        var body = signedBodyAndHeaders.first
         headers = signedBodyAndHeaders.second
 
+        if (body.size > 1024) {
+            val output = ByteArray(body.size)
+            val deflater = Deflater(Deflater.BEST_SPEED)
+            deflater.setInput(body)
+            deflater.finish()
+            val length = deflater.deflate(output)
+            deflater.end()
+            body = output.copyOfRange(0, length)
+
+            headers = headers.toMutableMap().apply {
+                this["Content-Encoding"] = "deflate"
+            }
+        }
+
         val response = httpClient.post("https://$baseUrl/$schemaEndpoint") {
-            setBody(bodyData.toString())
+            setBody(body)
             headers {
                 headers.forEach { (key, value) ->
                     append(key, value)
@@ -193,9 +213,9 @@ class Requester constructor(
         bodyData: JsonObject,
         headers: Map<String, String>,
         signingNodeId: String?,
-    ): Pair<JsonObject, Map<String, String>> {
+    ): Pair<ByteArray, Map<String, String>> {
         if (signingNodeId == null) {
-            return bodyData to headers
+            return bodyData.toString().encodeToByteArray() to headers
         }
         if (!nodeKeyCache.contains(signingNodeId)) {
             throw MissingKeyException(signingNodeId)
@@ -203,17 +223,17 @@ class Requester constructor(
 
         val newBodyData = bodyData.toMutableMap().apply {
             // Note: The nonce is a 64-bit unsigned integer, but the Kotlin random number generator wants to
-            // spit out a signed int, which the backend can't decode.
-            put("nonce", JsonPrimitive(nextInt().toUInt().toLong()))
+            // spit out a signed int, which the backend can't decode, so we take the absolute value.
+            put("nonce", JsonPrimitive(nextLong().absoluteValue))
             put("expires_at", JsonPrimitive(anHourFromNowISOString()))
         }.let { JsonObject(it) }
-        val newBodyString = Json.encodeToString(newBodyData)
-        val signature = nodeKeyCache[signingNodeId].sign(newBodyString.encodeToByteArray())
+        val newBodyString = newBodyData.toString().encodeToByteArray()
+        val signature = nodeKeyCache[signingNodeId].sign(newBodyString)
         val newHeaders = headers.toMutableMap().apply {
             this["X-LIGHTSPARK-SIGNING"] =
                 "{\"v\":1,\"signature\":\"${signature.base64Encoded}\"}"
         }
-        return newBodyData to newHeaders
+        return newBodyString to newHeaders
     }
 
     private fun anHourFromNowISOString() = Clock.System.now().plus(1.hours).toString()

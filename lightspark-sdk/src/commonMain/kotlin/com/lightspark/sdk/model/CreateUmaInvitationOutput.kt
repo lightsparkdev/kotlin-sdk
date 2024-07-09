@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invitationId The created invitation in the form of a string identifier.
  */
 @Serializable
 @SerialName("CreateUmaInvitationOutput")

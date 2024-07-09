@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 /**
  *
+ * @param invitationId An UMA.ME invitation object.
  */
 @Serializable
 @SerialName("ClaimUmaInvitationOutput")

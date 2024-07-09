@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 
 /** This is an enum of the potential permissions that a Lightspark user can have in regards to account management. **/
 @Serializable(with = PermissionSerializer::class)
-enum class Permission(val rawValue: String) {
+enum class Permission(
+    val rawValue: String,
+) {
     ALL("ALL"),
 
     MAINNET_VIEW("MAINNET_VIEW"),

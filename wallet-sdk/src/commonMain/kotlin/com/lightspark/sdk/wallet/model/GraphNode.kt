@@ -45,7 +45,8 @@ data class GraphNode(
     override val conductivity: Int? = null,
     @SerialName("graph_node_public_key")
     override val publicKey: String? = null,
-) : Node, Entity {
+) : Node,
+    Entity {
     override fun getAddressesQuery(first: Int?, types: List<NodeAddressType>?): Query<NodeToAddressesConnection> {
         return Query(
             queryPayload = """
@@ -78,9 +79,8 @@ query FetchNodeToAddressesConnection(${'$'}entity_id: ID!, ${'$'}first: Int, ${'
 
     companion object {
         @JvmStatic
-        fun getGraphNodeQuery(id: String): Query<GraphNode> {
-            return Query(
-                queryPayload = """
+        fun getGraphNodeQuery(id: String): Query<GraphNode> = Query(
+            queryPayload = """
 query GetGraphNode(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on GraphNode {
@@ -91,11 +91,10 @@ query GetGraphNode(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """

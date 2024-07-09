@@ -119,9 +119,8 @@ query FetchOutgoingPaymentAttemptToHopsConnection(${'$'}entity_id: ID!, ${'$'}fi
 
     companion object {
         @JvmStatic
-        fun getOutgoingPaymentAttemptQuery(id: String): Query<OutgoingPaymentAttempt> {
-            return Query(
-                queryPayload = """
+        fun getOutgoingPaymentAttemptQuery(id: String): Query<OutgoingPaymentAttempt> = Query(
+            queryPayload = """
 query GetOutgoingPaymentAttempt(${'$'}id: ID!) {
     entity(id: ${'$'}id) {
         ... on OutgoingPaymentAttempt {
@@ -132,11 +131,10 @@ query GetOutgoingPaymentAttempt(${'$'}id: ID!) {
 
 $FRAGMENT
 """,
-                variableBuilder = { add("id", id) },
-            ) {
-                val entity = requireNotNull(it["entity"]) { "Entity not found" }
-                serializerFormat.decodeFromJsonElement(entity)
-            }
+            variableBuilder = { add("id", id) },
+        ) {
+            val entity = requireNotNull(it["entity"]) { "Entity not found" }
+            serializerFormat.decodeFromJsonElement(entity)
         }
 
         const val FRAGMENT = """
