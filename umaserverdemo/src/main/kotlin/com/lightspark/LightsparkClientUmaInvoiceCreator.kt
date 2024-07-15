@@ -8,14 +8,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import me.uma.UmaInvoiceCreator
 
-class LightsparkClientUmaInvoiceCreator(
+class LightsparkClientUmaInvoiceCreator @JvmOverloads constructor(
     private val client: LightsparkCoroutinesClient,
     private val nodeId: String,
     private val expirySecs: Int,
+    private val signingPrivateKey: ByteArray? = null,
+    private val receiverIdentifier: String? = null,
 ) : UmaInvoiceCreator {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    constructor(apiClientId: String, apiClientSecret: String, nodeId: String, expirySecs: Int) : this(
+    @JvmOverloads
+    constructor(
+        apiClientId: String,
+        apiClientSecret: String,
+        nodeId: String,
+        expirySecs: Int,
+        signingPrivateKey: ByteArray? = null,
+        receiverIdentifier: String? = null
+    ) : this(
         LightsparkCoroutinesClient(
             ClientConfig(
                 authProvider = AccountApiTokenAuthProvider(apiClientId, apiClientSecret),
@@ -23,9 +33,11 @@ class LightsparkClientUmaInvoiceCreator(
         ),
         nodeId,
         expirySecs,
+        signingPrivateKey,
+        receiverIdentifier,
     )
 
     override fun createUmaInvoice(amountMsats: Long, metadata: String) = coroutineScope.future {
-        client.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs).data.encodedPaymentRequest
+        client.createUmaInvoice(nodeId, amountMsats, metadata, expirySecs, signingPrivateKey, receiverIdentifier).data.encodedPaymentRequest
     }
 }

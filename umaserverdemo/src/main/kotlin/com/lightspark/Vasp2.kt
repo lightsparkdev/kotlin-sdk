@@ -246,7 +246,13 @@ class Vasp2(
         val response = try {
             uma.getPayReqResponse(
                 query = request,
-                invoiceCreator = LightsparkClientUmaInvoiceCreator(client, config.nodeID, expirySecs),
+                invoiceCreator = LightsparkClientUmaInvoiceCreator(
+                    client = client,
+                    nodeId = config.nodeID,
+                    expirySecs = expirySecs,
+                    signingPrivateKey = config.umaSigningPrivKey,
+                    receiverIdentifier = payeeProfile.identifier
+                ),
                 metadata = getEncodedMetadata(),
                 receivingCurrencyCode = receivingCurrency.code,
                 receivingCurrencyDecimals = receivingCurrency.decimals,
