@@ -250,8 +250,8 @@ class Vasp2(
                     client = client,
                     nodeId = config.nodeID,
                     expirySecs = expirySecs,
+                    enableUmaAnalytics = true,
                     signingPrivateKey = config.umaSigningPrivKey,
-                    receiverIdentifier = payeeProfile.identifier
                 ),
                 metadata = getEncodedMetadata(),
                 receivingCurrencyCode = receivingCurrency.code,
