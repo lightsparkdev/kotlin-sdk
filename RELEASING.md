@@ -7,8 +7,8 @@ For example, to cut a release branch for version `1.0.0` of the `wallet-sdk` mod
 the following from the `develop` branch:
 
 ```bash
-git checkout -b release/wallet-sdk-1.0.0
-git push -u origin release/wallet-sdk-1.0.0
+git checkout -b release/wallet-sdk-v1.0.0
+git push -u origin release/wallet-sdk-v1.0.0
 ```
 
 Alternatively, you can create the new branch from the github UI.
