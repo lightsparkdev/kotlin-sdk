@@ -758,6 +758,9 @@ enum class RegionCode(
     /** The code representing the country of Zimbabwe. **/
     ZW("ZW"),
 
+    /** The code representing a fake region for testing. **/
+    NN("NN"),
+
     /**
      * This is an enum value that represents values that could be added in the future.
      * Clients should support unknown values as more of them could be added without notice.

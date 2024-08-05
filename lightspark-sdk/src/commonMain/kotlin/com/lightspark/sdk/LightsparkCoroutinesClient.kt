@@ -1006,6 +1006,37 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Fetch incoming payments for a given payment hash.
+     *
+     * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
+     * @param transactionStatuses The transaction statuses to filter the payments by. If null, all payments will be
+     *   returned.
+     */
+    suspend fun getIncomingPaymentsForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<IncomingPayment> {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                IncomingPaymentsForPaymentHashQuery,
+                {
+                    add("paymentHash", paymentHash)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["incoming_payments_for_payment_hash"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            },
+        )
+    }
+
+    /**
      * Creates an UMA invitation. If you are part of the incentive program you should use
      * [createUmaInvitationWithIncentives].
      *
