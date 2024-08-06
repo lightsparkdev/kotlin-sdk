@@ -3,7 +3,7 @@ package com.lightspark.sdk.graphql
 import com.lightspark.sdk.model.IncomingPayment
 
 const val IncomingPaymentsForPaymentHashQuery = """
-query OutgoingPaymentsForInvoice(
+query IncomingPaymentsForPaymentHash(
     ${'$'}paymentHash: Hash32!,
     ${'$'}transactionStatuses: [TransactionStatus!] = null
 ) {
