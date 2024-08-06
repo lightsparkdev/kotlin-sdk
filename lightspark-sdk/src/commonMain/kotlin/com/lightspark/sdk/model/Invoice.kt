@@ -19,6 +19,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
  * @param data The details of the invoice.
  * @param status The status of the payment request.
  * @param amountPaid The total amount that has been paid to this invoice.
+ * @param isUma Whether this invoice is an UMA invoice or not. NOTE: this field is only set if the invoice was created using the recommended `create_uma_invoice` function.
+ * @param isLnurl Whether this invoice is an LNURL invoice or not. NOTE: this field is only set if the invoice was created using the recommended `create_lnurl_invoice` function.
  */
 @Serializable
 @SerialName("Invoice")
@@ -35,6 +37,10 @@ data class Invoice(
     override val status: PaymentRequestStatus,
     @SerialName("invoice_amount_paid")
     val amountPaid: CurrencyAmount? = null,
+    @SerialName("invoice_is_uma")
+    val isUma: Boolean? = null,
+    @SerialName("invoice_is_lnurl")
+    val isLnurl: Boolean? = null,
 ) : PaymentRequest,
     Entity {
     companion object {
@@ -363,6 +369,8 @@ fragment InvoiceFragment on Invoice {
         currency_amount_preferred_currency_value_rounded: preferred_currency_value_rounded
         currency_amount_preferred_currency_value_approx: preferred_currency_value_approx
     }
+    invoice_is_uma: is_uma
+    invoice_is_lnurl: is_lnurl
 }"""
     }
 }

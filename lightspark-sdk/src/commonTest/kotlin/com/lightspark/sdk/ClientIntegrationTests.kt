@@ -291,6 +291,25 @@ class ClientIntegrationTests {
     }
 
     @Test
+    fun `test getIncomingPaymentsForPaymentHash`() = runTest {
+        val node = getFirstOskNode()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
+        val invoice = client.createInvoice(node.id, 100_000, "test invoice")
+        var payment: IncomingPayment? = client.createTestModePayment(node.id, invoice.data.encodedPaymentRequest)
+        payment.shouldNotBeNull()
+        while (payment?.status == TransactionStatus.PENDING) {
+            delay(500)
+            payment = IncomingPayment.getIncomingPaymentQuery(payment.id).execute(client)
+            println("Payment status: ${payment?.status}")
+        }
+
+        val payments = client.getIncomingPaymentsForPaymentHash(invoice.data.paymentHash)
+        payments.shouldNotBeNull()
+        payments.shouldHaveSize(1)
+        payments[0].id.shouldBe(payment?.id)
+    }
+
+    @Test
     fun `test uma identifier hashing`() = runTest {
         val privKeyBytes = "xyz".toByteArray()
         `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 1, 1, 0, 0, 0))

@@ -577,6 +577,22 @@ class LightsparkFuturesClient(config: ClientConfig) {
     }
 
     /**
+     * Fetch incoming payments for a given payment hash.
+     *
+     * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
+     * @param transactionStatuses The transaction statuses to filter the payments by. If null, all payments will be
+     *   returned.
+     * @return The list of incoming payments for the payment hash.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getIncomingPaymentsForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
+        coroutinesClient.getIncomingPaymentsForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    /**
      * Creates an UMA invitation. If you are part of the incentive program you should use
      * [createUmaInvitationWithIncentives].
      *
