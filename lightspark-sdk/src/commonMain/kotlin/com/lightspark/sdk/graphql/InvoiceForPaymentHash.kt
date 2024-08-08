@@ -2,7 +2,7 @@ package com.lightspark.sdk.graphql
 
 import com.lightspark.sdk.model.Invoice
 
-const val InvoiceForPaymentsHashQuery = """
+const val InvoiceForPaymentHashQuery = """
 query InvoiceForPaymentHash(
     ${'$'}paymentHash: Hash32!,
 ) {

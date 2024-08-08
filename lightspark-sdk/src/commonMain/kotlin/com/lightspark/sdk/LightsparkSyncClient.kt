@@ -563,7 +563,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     /**
      * Fetch incoming payments for a given payment hash.
      *
-    * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
+     * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
      * @param transactionStatuses The transaction statuses to filter the payments by. If null, all payments will be
      *   returned.
      * @return The list of incoming payments for the payment hash.
@@ -583,11 +583,11 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
-    fun getOutgoingPaymentsForPaymentsHash(
+    fun getOutgoingPaymentsForPaymentHash(
         paymentHash: String,
         transactionStatuses: List<TransactionStatus>? = null 
     ): List<OutgoingPayment> = runBlocking {
-        asyncClient.getOutgoingPaymentsForPaymentsHash(paymentHash, transactionStatuses)
+        asyncClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
     }
 
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
@@ -596,6 +596,13 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         transactionStatuses: List<TransactionStatus>? = null
     ): List<IncomingPayment> = runBlocking {
         asyncClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): Invoice = runBlocking {
+        asyncClient.getInvoiceForPaymentHash(paymentHash)
     }
 
     /**

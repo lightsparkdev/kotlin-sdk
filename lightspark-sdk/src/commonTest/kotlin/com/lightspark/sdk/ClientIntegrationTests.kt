@@ -309,10 +309,8 @@ class ClientIntegrationTests {
         payments[0].id.shouldBe(payment?.id)
     }
 
-    // todo add payment has tests
-
     @Test
-    fun `test getOutgoingPaymentsForPaymentsHash`() = runTest {
+    fun `test getOutgoingPaymentsForPaymentHash`() = runTest {
         val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
@@ -325,14 +323,14 @@ class ClientIntegrationTests {
         }
         outgoingPayment?.status.shouldBe(TransactionStatus.SUCCESS)
 
-        val payments = client.getOutgoingPaymentsForPaymentsHash(outgoingPayment?.transactionHash!!)
+        val payments = client.getOutgoingPaymentForPaymentHash(outgoingPayment?.transactionHash!!)
         payments.shouldNotBeNull()
         payments.shouldHaveSize(1)
         payments[0].id.shouldBe(outgoingPayment.id)
     }
 
     @Test
-    fun `test getInvoiceForPaymentsHash`() = runTest {
+    fun `test getInvoiceForPaymentHash`() = runTest {
         val node = getFirstOskNode()
         client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
         val testInvoice = client.createInvoice(node.id, 100_000, "test invoice")
@@ -344,7 +342,7 @@ class ClientIntegrationTests {
             println("Payment status: ${payment?.status}")
         }
 
-        val invoice = client.getInvoiceForPaymentHash(payment?.transactionHash!!)
+        val invoice = client.getInvoiceForPaymentHash(testInvoice.data.paymentHash)
         invoice.shouldNotBeNull()
         invoice.id.shouldBe(testInvoice.id)
     }

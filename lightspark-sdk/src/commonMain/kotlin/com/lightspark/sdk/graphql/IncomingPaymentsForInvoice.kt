@@ -9,7 +9,7 @@ query IncomingPaymentsForInvoice(
 ) {
     incoming_payments_for_invoice_query(input: {
         invoice_id: ${'$'}invoiceId,
-         statuses: ${'$'}transactionStatuses
+        statuses: ${'$'}transactionStatuses
     }) {
         payments {
             ...IncomingPaymentFragment

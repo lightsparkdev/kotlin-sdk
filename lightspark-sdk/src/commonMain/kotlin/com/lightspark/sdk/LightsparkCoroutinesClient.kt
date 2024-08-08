@@ -1042,7 +1042,7 @@ class LightsparkCoroutinesClient private constructor(
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
-    suspend fun getOutgoingPaymentsForPaymentsHash(
+    suspend fun getOutgoingPaymentForPaymentHash(
         paymentHash: String,
         transactionStatuses: List<TransactionStatus>? = null,
     ): List<OutgoingPayment> {
@@ -1067,7 +1067,7 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
-     * fetch invoice for a given payments hash
+     * fetch invoice for a given payment hash
      * 
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      */
@@ -1077,7 +1077,7 @@ class LightsparkCoroutinesClient private constructor(
         requireValidAuth()
         return executeQuery(
             Query(
-                InvoiceForPaymentsHashQuery,
+                InvoiceForPaymentHashQuery,
                 {
                     add("paymentHash", paymentHash)
                 },

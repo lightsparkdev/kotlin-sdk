@@ -583,11 +583,11 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
-    fun getOutgoingPaymentsForPaymentsHash(
+    fun getOutgoingPaymentsForPaymentHash(
         paymentHash: String,
         transactionStatuses: List<TransactionStatus>? = null
     ): CompletableFuture<List<OutgoingPayment>> = coroutineScope.future {
-        coroutinesClient.getOutgoingPaymentsForPaymentsHash(paymentHash, transactionStatuses)
+        coroutinesClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
     }
 
     /**
