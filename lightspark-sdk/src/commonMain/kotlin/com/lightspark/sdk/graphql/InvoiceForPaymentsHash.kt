@@ -1,6 +1,6 @@
 package com.lightspark.sdk.graphql
 
-import com.lightspark.sdk.model.IncomingPayment
+import com.lightspark.sdk.model.Invoice
 
 const val InvoiceForPaymentsHashQuery = """
 query InvoiceForPaymentHash(
@@ -15,5 +15,5 @@ query InvoiceForPaymentHash(
 	}
 }
 
-  ${IncomingPayment.FRAGMENT}
+  ${Invoice.FRAGMENT}
 """

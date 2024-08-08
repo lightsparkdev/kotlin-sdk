@@ -1037,6 +1037,90 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    suspend fun getOutgoingPaymentsForPaymentsHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<OutgoingPayment> {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                OutgoingPaymentsForPaymentHashQuery,
+                {
+                    add("paymentHash", paymentHash)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["outgoing_payments_for_payment_hash"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            },
+        )
+    }
+
+    /**
+     * fetch invoice for a given payments hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     */
+    suspend fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): Invoice {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                InvoiceForPaymentsHashQuery,
+                {
+                    add("paymentHash", paymentHash)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["invoice_for_payment_hash"]) { "No invoice found in response" }
+                val invoiceJson =
+                    requireNotNull(outputJson.jsonObject["invoice"]) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
+     * fetch invoice for a given invoice id
+     *
+     * @param invoiceId the id of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    suspend fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<IncomingPayment> {
+        return executeQuery(
+            Query(
+                IncomingPaymentsForInvoiceQuery,
+                {
+                    add("invoiceId", invoiceId)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["incoming_payments_for_invoice"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            }
+        )
+    }
+
+    /**
      * Creates an UMA invitation. If you are part of the incentive program you should use
      * [createUmaInvitationWithIncentives].
      *

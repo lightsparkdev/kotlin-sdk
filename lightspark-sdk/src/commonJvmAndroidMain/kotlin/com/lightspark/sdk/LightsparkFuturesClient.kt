@@ -577,6 +577,33 @@ class LightsparkFuturesClient(config: ClientConfig) {
     }
 
     /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getOutgoingPaymentsForPaymentsHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): CompletableFuture<List<OutgoingPayment>> = coroutineScope.future {
+        coroutinesClient.getOutgoingPaymentsForPaymentsHash(paymentHash, transactionStatuses)
+    }
+
+    /**
+     * fetch invoice for a given payments hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): CompletableFuture<Invoice> = coroutineScope.future {
+        coroutinesClient.getInvoiceForPaymentHash(paymentHash)
+    }
+
+    /**
      * Fetch incoming payments for a given payment hash.
      *
      * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
@@ -590,6 +617,14 @@ class LightsparkFuturesClient(config: ClientConfig) {
         transactionStatuses: List<TransactionStatus>? = null,
     ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
         coroutinesClient.getIncomingPaymentsForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
+        coroutinesClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
     }
 
     /**
