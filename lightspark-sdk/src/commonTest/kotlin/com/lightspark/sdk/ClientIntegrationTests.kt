@@ -309,6 +309,8 @@ class ClientIntegrationTests {
         payments[0].id.shouldBe(payment?.id)
     }
 
+    // todo add payment has tests
+
     @Test
     fun `test uma identifier hashing`() = runTest {
         val privKeyBytes = "xyz".toByteArray()
