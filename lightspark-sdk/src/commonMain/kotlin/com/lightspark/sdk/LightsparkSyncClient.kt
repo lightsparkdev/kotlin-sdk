@@ -577,6 +577,35 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     }
 
     /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getOutgoingPaymentsForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null 
+    ): List<OutgoingPayment> = runBlocking {
+        asyncClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): List<IncomingPayment> = runBlocking {
+        asyncClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): Invoice = runBlocking {
+        asyncClient.getInvoiceForPaymentHash(paymentHash)
+    }
+
+    /**
      * Creates an UMA invitation. If you are part of the incentive program you should use
      * [createUmaInvitationWithIncentives].
      *
