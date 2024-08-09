@@ -322,11 +322,12 @@ class ClientIntegrationTests {
             println("Payment status: ${outgoingPayment?.status}")
         }
         outgoingPayment?.status.shouldBe(TransactionStatus.SUCCESS)
-
-        val payments = client.getOutgoingPaymentForPaymentHash(outgoingPayment?.transactionHash!!)
+        val payments = client.getOutgoingPaymentForPaymentHash(
+            client.decodeInvoice(invoice).paymentHash
+        )
         payments.shouldNotBeNull()
         payments.shouldHaveSize(1)
-        payments[0].id.shouldBe(outgoingPayment.id)
+        payments[0].id.shouldBe(outgoingPayment?.id!!)
     }
 
     @Test
