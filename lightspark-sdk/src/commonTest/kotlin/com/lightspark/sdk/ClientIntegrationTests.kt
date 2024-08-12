@@ -310,6 +310,45 @@ class ClientIntegrationTests {
     }
 
     @Test
+    fun `test getOutgoingPaymentsForPaymentHash`() = runTest {
+        val node = getFirstOskNode()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
+        val invoice = client.createTestModeInvoice(node.id, 100_000, "test invoice")
+        var outgoingPayment: OutgoingPayment? = client.payInvoice(node.id, invoice, maxFeesMsats = 100_000)
+        outgoingPayment.shouldNotBeNull()
+        while (outgoingPayment?.status == TransactionStatus.PENDING) {
+            delay(500)
+            outgoingPayment = OutgoingPayment.getOutgoingPaymentQuery(outgoingPayment.id).execute(client)
+            println("Payment status: ${outgoingPayment?.status}")
+        }
+        outgoingPayment?.status.shouldBe(TransactionStatus.SUCCESS)
+        val payments = client.getOutgoingPaymentForPaymentHash(
+            client.decodeInvoice(invoice).paymentHash
+        )
+        payments.shouldNotBeNull()
+        payments.shouldHaveSize(1)
+        payments[0].id.shouldBe(outgoingPayment?.id!!)
+    }
+
+    @Test
+    fun `test getInvoiceForPaymentHash`() = runTest {
+        val node = getFirstOskNode()
+        client.loadNodeSigningKey(node.id, PasswordRecoverySigningKeyLoader(node.id, NODE_PASSWORD))
+        val testInvoice = client.createInvoice(node.id, 100_000, "test invoice")
+        var payment: IncomingPayment? = client.createTestModePayment(node.id, testInvoice.data.encodedPaymentRequest)
+        payment.shouldNotBeNull()
+        while (payment?.status == TransactionStatus.PENDING) {
+            delay(500)
+            payment = IncomingPayment.getIncomingPaymentQuery(payment.id).execute(client)
+            println("Payment status: ${payment?.status}")
+        }
+
+        val invoice = client.getInvoiceForPaymentHash(testInvoice.data.paymentHash)
+        invoice.shouldNotBeNull()
+        invoice.id.shouldBe(testInvoice.id)
+    }
+
+    @Test
     fun `test uma identifier hashing`() = runTest {
         val privKeyBytes = "xyz".toByteArray()
         `when`(client.getUtcDateTime()).thenReturn(LocalDateTime(2021, 1, 1, 0, 0, 0))
