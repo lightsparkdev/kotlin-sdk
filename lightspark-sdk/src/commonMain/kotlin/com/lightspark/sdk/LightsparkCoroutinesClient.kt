@@ -729,9 +729,14 @@ class LightsparkCoroutinesClient private constructor(
      *
      * @param nodeId The ID of the node to fund. Must be a REGTEST node.
      * @param amountSats The amount of funds to add to the node. Defaults to 10,000,000 SATOSHI.
+     * @param fundingAddress: L1 address owned by funded node. If null, automatically create new funding address
      * @return The amount of funds added to the node.
      */
-    suspend fun fundNode(nodeId: String, amountSats: Long?): CurrencyAmount {
+    suspend fun fundNode(
+        nodeId: String,
+        amountSats: Long?,
+        fundingAddress: String? = null
+    ): CurrencyAmount {
         requireValidAuth()
         return executeQuery(
             Query(
@@ -739,6 +744,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     amountSats?.let { add("amount_sats", it) }
+                    fundingAddress?.let { add("funding_address", it)}
                 },
                 signingNodeId = nodeId,
             ) {

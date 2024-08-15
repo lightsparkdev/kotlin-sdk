@@ -397,11 +397,12 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      *
      * @param nodeId The ID of the node to fund. Must be a REGTEST node.
      * @param amountSats The amount of funds to add to the node. Defaults to 10,000,000 SATOSHI.
+     * @param fundingAddress: L1 address owned by funded node. If null, automatically create new funding address
      * @return The amount of funds added to the node.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
-    fun fundNode(nodeId: String, amountSats: Long?): CurrencyAmount =
-        runBlocking { asyncClient.fundNode(nodeId, amountSats) }
+    fun fundNode(nodeId: String, amountSats: Long?, fundingAddress: String? = null): CurrencyAmount =
+        runBlocking { asyncClient.fundNode(nodeId, amountSats, fundingAddress) }
 
     /**
      * Withdraws funds from the account and sends it to the requested bitcoin address.
