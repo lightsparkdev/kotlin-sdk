@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 @SerialName("FundWalletInput")
 data class FundWalletInput(
     val amountSats: Long? = null,
+    val fundingAddress: String? = null,
 ) {
     companion object {
     }

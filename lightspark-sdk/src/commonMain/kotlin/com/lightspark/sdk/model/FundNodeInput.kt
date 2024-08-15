@@ -14,6 +14,7 @@ import kotlinx.serialization.Serializable
 data class FundNodeInput(
     val nodeId: String,
     val amountSats: Long? = null,
+    val fundingAddress: String? = null,
 ) {
     companion object {
     }
