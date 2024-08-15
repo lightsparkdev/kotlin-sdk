@@ -414,10 +414,11 @@ class LightsparkFuturesClient(config: ClientConfig) {
      *
      * @param nodeId The ID of the node to fund. Must be a REGTEST node.
      * @param amountSats The amount of funds to add to the node. Defaults to 10,000,000 SATOSHI.
+     * @param fundingAddress: L1 address owned by funded node. If null, automatically create new funding address
      * @return The amount of funds added to the node.
      */
-    fun fundNode(nodeId: String, amountSats: Long?): CompletableFuture<CurrencyAmount> =
-        coroutineScope.future { coroutinesClient.fundNode(nodeId, amountSats) }
+    fun fundNode(nodeId: String, amountSats: Long?, fundingAddress: String? = null): CompletableFuture<CurrencyAmount> =
+        coroutineScope.future { coroutinesClient.fundNode(nodeId, amountSats, fundingAddress) }
 
     /**
      * Withdraws funds from the account and sends it to the requested bitcoin address.
@@ -577,6 +578,33 @@ class LightsparkFuturesClient(config: ClientConfig) {
     }
 
     /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getOutgoingPaymentsForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): CompletableFuture<List<OutgoingPayment>> = coroutineScope.future {
+        coroutinesClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    /**
+     * fetch invoice for a given payments hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): CompletableFuture<Invoice> = coroutineScope.future {
+        coroutinesClient.getInvoiceForPaymentHash(paymentHash)
+    }
+
+    /**
      * Fetch incoming payments for a given payment hash.
      *
      * @param paymentHash The payment hash of the invoice for which to fetch the incoming payments.
@@ -590,6 +618,14 @@ class LightsparkFuturesClient(config: ClientConfig) {
         transactionStatuses: List<TransactionStatus>? = null,
     ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
         coroutinesClient.getIncomingPaymentsForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
+        coroutinesClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
     }
 
     /**

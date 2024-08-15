@@ -397,11 +397,12 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      *
      * @param nodeId The ID of the node to fund. Must be a REGTEST node.
      * @param amountSats The amount of funds to add to the node. Defaults to 10,000,000 SATOSHI.
+     * @param fundingAddress: L1 address owned by funded node. If null, automatically create new funding address
      * @return The amount of funds added to the node.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
-    fun fundNode(nodeId: String, amountSats: Long?): CurrencyAmount =
-        runBlocking { asyncClient.fundNode(nodeId, amountSats) }
+    fun fundNode(nodeId: String, amountSats: Long?, fundingAddress: String? = null): CurrencyAmount =
+        runBlocking { asyncClient.fundNode(nodeId, amountSats, fundingAddress) }
 
     /**
      * Withdraws funds from the account and sends it to the requested bitcoin address.
@@ -574,6 +575,35 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         transactionStatuses: List<TransactionStatus>? = null,
     ): List<IncomingPayment> = runBlocking {
         asyncClient.getIncomingPaymentsForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getOutgoingPaymentsForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null 
+    ): List<OutgoingPayment> = runBlocking {
+        asyncClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null
+    ): List<IncomingPayment> = runBlocking {
+        asyncClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
+    }
+
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): Invoice = runBlocking {
+        asyncClient.getInvoiceForPaymentHash(paymentHash)
     }
 
     /**

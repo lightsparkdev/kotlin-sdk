@@ -729,9 +729,14 @@ class LightsparkCoroutinesClient private constructor(
      *
      * @param nodeId The ID of the node to fund. Must be a REGTEST node.
      * @param amountSats The amount of funds to add to the node. Defaults to 10,000,000 SATOSHI.
+     * @param fundingAddress: L1 address owned by funded node. If null, automatically create new funding address
      * @return The amount of funds added to the node.
      */
-    suspend fun fundNode(nodeId: String, amountSats: Long?): CurrencyAmount {
+    suspend fun fundNode(
+        nodeId: String,
+        amountSats: Long?,
+        fundingAddress: String? = null
+    ): CurrencyAmount {
         requireValidAuth()
         return executeQuery(
             Query(
@@ -739,6 +744,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     amountSats?.let { add("amount_sats", it) }
+                    fundingAddress?.let { add("funding_address", it)}
                 },
                 signingNodeId = nodeId,
             ) {
@@ -1033,6 +1039,90 @@ class LightsparkCoroutinesClient private constructor(
                     requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
                 serializerFormat.decodeFromJsonElement(paymentsJson)
             },
+        )
+    }
+
+    /**
+     * fetch outgoing payments for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    suspend fun getOutgoingPaymentForPaymentHash(
+        paymentHash: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<OutgoingPayment> {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                OutgoingPaymentsForPaymentHashQuery,
+                {
+                    add("paymentHash", paymentHash)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["outgoing_payments_for_payment_hash"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            },
+        )
+    }
+
+    /**
+     * fetch invoice for a given payment hash
+     * 
+     * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
+     */
+    suspend fun getInvoiceForPaymentHash(
+        paymentHash: String
+    ): Invoice {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                InvoiceForPaymentHashQuery,
+                {
+                    add("paymentHash", paymentHash)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["invoice_for_payment_hash"]) { "No invoice found in response" }
+                val invoiceJson =
+                    requireNotNull(outputJson.jsonObject["invoice"]) { "No invoice found in response" }
+                serializerFormat.decodeFromJsonElement(invoiceJson)
+            },
+        )
+    }
+
+    /**
+     * fetch invoice for a given invoice id
+     *
+     * @param invoiceId the id of the invoice for which to fetch the outgoing payments
+     * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
+     */
+    suspend fun getIncomingPaymentsForInvoice(
+        invoiceId: String,
+        transactionStatuses: List<TransactionStatus>? = null,
+    ): List<IncomingPayment> {
+        return executeQuery(
+            Query(
+                IncomingPaymentsForInvoiceQuery,
+                {
+                    add("invoiceId", invoiceId)
+                    transactionStatuses?.let {
+                        add("transactionStatuses", serializerFormat.encodeToJsonElement(it))
+                    }
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["incoming_payments_for_invoice"]) { "No payment output found in response" }
+                val paymentsJson =
+                    requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
+                serializerFormat.decodeFromJsonElement(paymentsJson)
+            }
         )
     }
 
