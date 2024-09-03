@@ -39,6 +39,8 @@ enum class WebhookEventType(
 
     HIGH_BALANCE("HIGH_BALANCE"),
 
+    CHANNEL_OPENING_FEES("CHANNEL_OPENING_FEES"),
+
     /**
      * This is an enum value that represents values that could be added in the future.
      * Clients should support unknown values as more of them could be added without notice.
