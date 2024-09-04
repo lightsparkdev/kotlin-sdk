@@ -1,33 +1,29 @@
 package com.lightspark.plugins
 
 import com.lightspark.UmaConfig
-import com.lightspark.Vasp1
-import com.lightspark.Vasp2
+import com.lightspark.SendingVasp
+import com.lightspark.ReceivingVasp
 import com.lightspark.debugLog
 import com.lightspark.handlePubKeyRequest
 import com.lightspark.isDomainLocalhost
 import com.lightspark.originWithPort
-import com.lightspark.registerVasp1Routes
-import com.lightspark.registerVasp2Routes
+import com.lightspark.registerSendingVaspRoutes
+import com.lightspark.registerReceivingVaspRoutes
 import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
-import io.ktor.server.request.ContentTransformationException
-import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.datetime.Clock
-import kotlinx.serialization.json.JsonObject
 import me.uma.InMemoryNonceCache
 import me.uma.InMemoryPublicKeyCache
 import me.uma.UmaProtocolHelper
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -44,12 +40,12 @@ fun Application.configureRouting(
             authProvider = AccountApiTokenAuthProvider(config.apiClientID, config.apiClientSecret),
         ),
     )
-    val vasp1 = Vasp1(config, uma, client)
-    val vasp2 = Vasp2(config, uma, client)
+    val sendingVasp = SendingVasp(config, uma, client)
+    val receivingVasp = ReceivingVasp(config, uma, client)
 
     routing {
-        registerVasp1Routes(vasp1)
-        registerVasp2Routes(vasp2)
+        registerSendingVaspRoutes(sendingVasp)
+        registerReceivingVaspRoutes(receivingVasp)
 
         get("/.well-known/lnurlpubkey") {
             call.debugLog(handlePubKeyRequest(call, config))
