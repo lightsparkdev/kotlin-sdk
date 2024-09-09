@@ -134,8 +134,8 @@ class ReceivingVasp(
             return "failed to fetch $umaEndpoint"
         }
         if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")
-            return "Payreq to sending vasp failed: ${response.status}"
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp failed: ${response.status}")
+            return "Payreq to sending failed: ${response.status}"
         }
         call.respond(response.body())
         return "OK"
@@ -163,9 +163,9 @@ class ReceivingVasp(
             return HttpStatusCode.BadRequest to "CurrencyCode not provided."
         }
 
-        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
+        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24)
 
-        val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
+        val receiverUma = buildReceiverUma(call)
 
         val invoice = uma.getInvoice(
             receiverUma = receiverUma,
@@ -186,6 +186,7 @@ class ReceivingVasp(
             privateSigningKey = config.umaSigningPrivKey,
             senderUma = senderUma
         )
+
         return HttpStatusCode.OK to invoice.toBech32()
     }
 
@@ -370,6 +371,7 @@ class ReceivingVasp(
             return "Invalid payreq signature."
         }
 
+        senderUmaVersion = UMA_VERSION_STRING
         val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
             call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
@@ -472,6 +474,8 @@ class ReceivingVasp(
         val path = uri
         return "$protocol://$host$port$path"
     }
+
+    private fun buildReceiverUma(call: ApplicationCall) = "$${config.username}@${getReceivingVaspDomain(call)}"
 
     private fun getReceivingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
 }
