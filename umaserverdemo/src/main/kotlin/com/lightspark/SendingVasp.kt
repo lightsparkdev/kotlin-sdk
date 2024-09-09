@@ -79,7 +79,7 @@ class SendingVasp(
         return "OK"
     }
 
-    suspend fun requestAndPayInvoice(call: ApplicationCall): String {
+    suspend fun requestInvoicePayment(call: ApplicationCall): String {
         return "OK"
     }
 
@@ -525,8 +525,8 @@ fun Routing.registerSendingVaspRoutes(sendingVasp: SendingVasp) {
         call.debugLog(sendingVasp.payInvoice(call))
     }
 
-    post("/api/uma/request_and_pay_invoice") {
-        call.debugLog(sendingVasp.requestAndPayInvoice(call))
+    post("/api/uma/request_invoice_payment") {
+        call.debugLog(sendingVasp.requestInvoicePayment(call))
     }
 }
 
