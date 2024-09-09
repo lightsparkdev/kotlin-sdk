@@ -9,7 +9,6 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -72,54 +71,13 @@ class ReceivingVasp(
     }
 
     suspend fun createInvoice(call: ApplicationCall): String {
-        // get currencyCode, Amount, verify user
-        val amount = try {
-            call.parameters["amount"]?.toLong() ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Amount not provided.")
-                return "Amount not provided."
-            }
-        } catch (e: NumberFormatException) {
-            call.respond(HttpStatusCode.BadRequest, "Amount not parsable as number.")
-            return "Amount not parsable as number."
+        val (status, data) = createUmaInvoice(call)
+        if (status != HttpStatusCode.OK) {
+            call.respond(status, data)
+            return data
+        } else {
+            call.respond(data)
         }
-
-        val currency = call.parameters["currencyCode"]?.let { currencyCode ->
-            // check if we support this currency code.
-            getReceivingCurrencies(UMA_VERSION_STRING).firstOrNull {
-                it.code == currencyCode
-            } ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Unsupported CurrencyCode $currencyCode.")
-                return "Unsupported CurrencyCode $currencyCode."
-            }
-        } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "CurrencyCode not provided.")
-            return "CurrencyCode not provided."
-        }
-
-        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
-
-        val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
-        println(config.vaspDomain)
-
-        val response = uma.getInvoice(
-            receiverUma = receiverUma,
-            invoiceUUID = UUID.randomUUID().toString(),
-            amount = amount,
-            receivingCurrency = InvoiceCurrency(
-                currency.code, currency.name, currency.symbol, currency.decimals
-            ),
-            expiration = expiresIn2Days.toEpochMilliseconds(),
-            isSubjectToTravelRule = true,
-            requiredPayerData = createCounterPartyDataOptions(
-                "name" to false,
-                "email" to false,
-                "compliance" to true,
-                "identifier" to true,
-            ),
-            callback = getLnurlpCallback(call), // structured the same, going to /api/uma/payreq/{user_id}
-            privateSigningKey = config.umaSigningPrivKey
-        )
-        call.respond(response.toBech32())
         return "OK"
     }
 
@@ -128,14 +86,37 @@ class ReceivingVasp(
             call.respond(HttpStatusCode.BadRequest, "SenderUma not provided.")
             return "SenderUma not provided."
         }
+        val (status, data) = createUmaInvoice(call, senderUma)
+        if (status != HttpStatusCode.OK) {
+            call.respond(status, data)
+            return data
+        }
+        val response = try {
+            httpClient.post("/api/uma/payreq/${config.userID}") {
+                contentType(ContentType.Application.Json)
+                setBody(parameter("invoice", data))
+            }
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.FailedDependency, "failed to fetch /api/uma/payreq/${config.userID}")
+            return "failed to fetch /api/uma/payreq/${config.userID}"
+        }
+        if (response.status != HttpStatusCode.OK) {
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")
+            return "Payreq to sending vasp failed: ${response.status}"
+        }
+        call.respond(response.body())
+        return "OK"
+    }
+
+    private fun createUmaInvoice(
+        call: ApplicationCall, senderUma: String? = null
+    ): Pair<HttpStatusCode, String> {
         val amount = try {
             call.parameters["amount"]?.toLong() ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Amount not provided.")
-                return "Amount not provided."
+                return HttpStatusCode.BadRequest to "Amount not provided."
             }
         } catch (e: NumberFormatException) {
-            call.respond(HttpStatusCode.BadRequest, "Amount not parsable as number.")
-            return "Amount not parsable as number."
+            return HttpStatusCode.BadRequest to "Amount not parsable as number."
         }
 
         val currency = call.parameters["currencyCode"]?.let { currencyCode ->
@@ -143,12 +124,10 @@ class ReceivingVasp(
             getReceivingCurrencies(UMA_VERSION_STRING).firstOrNull {
                 it.code == currencyCode
             } ?: run {
-                call.respond(HttpStatusCode.BadRequest, "Unsupported CurrencyCode $currencyCode.")
-                return "Unsupported CurrencyCode $currencyCode."
+                return HttpStatusCode.BadRequest to "Unsupported CurrencyCode $currencyCode."
             }
         } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "CurrencyCode not provided.")
-            return "CurrencyCode not provided."
+            return HttpStatusCode.BadRequest to "CurrencyCode not provided."
         }
 
         val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
@@ -175,17 +154,7 @@ class ReceivingVasp(
             privateSigningKey = config.umaSigningPrivKey,
             senderUma = senderUma
         )
-        val encodedInvoice = invoice.toBech32()
-        val response = httpClient.post("/api/uma/payreq/${config.userID}") {
-            contentType(ContentType.Application.Json)
-            setBody(parameter("invoice", encodedInvoice))
-        }
-        if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")
-            return "Payreq to vasp2 failed: ${response.status}"
-        }
-        call.respond(response.body())
-        return "OK"
+        return HttpStatusCode.OK to invoice.toBech32()
     }
 
     suspend fun handleLnurlp(call: ApplicationCall): String {
