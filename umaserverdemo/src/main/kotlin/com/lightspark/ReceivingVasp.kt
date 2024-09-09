@@ -4,7 +4,17 @@ import com.lightspark.sdk.ClientConfig
 import com.lightspark.sdk.LightsparkCoroutinesClient
 import com.lightspark.sdk.auth.AccountApiTokenAuthProvider
 import com.lightspark.sdk.model.Node
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
@@ -31,12 +41,17 @@ import me.uma.UmaInvoiceCreator
 import me.uma.UmaProtocolHelper
 import me.uma.UnsupportedVersionException
 import me.uma.protocol.CounterPartyDataOptions
+import me.uma.protocol.InvoiceCurrency
 import me.uma.protocol.KycStatus
 import me.uma.protocol.LnurlpResponse
 import me.uma.protocol.PayRequest
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
+import java.util.UUID
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
+
 
 class ReceivingVasp(
     private val config: UmaConfig,
@@ -46,12 +61,130 @@ class ReceivingVasp(
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var senderUmaVersion: String
+    private val httpClient = HttpClient {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    isLenient = true
+                },
+            )
+        }
+    }
 
     suspend fun createInvoice(call: ApplicationCall): String {
+        // get currencyCode, Amount, verify user
+        val amount = try {
+            call.parameters["amount"]?.toLong() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Amount not provided.")
+                return "Amount not provided."
+            }
+        } catch (e: NumberFormatException) {
+            call.respond(HttpStatusCode.BadRequest, "Amount not parsable as number.")
+            return "Amount not parsable as number."
+        }
+
+        val currency = call.parameters["currencyCode"]?.let { currencyCode ->
+            // check if we support this currency code.
+            getReceivingCurrencies(UMA_VERSION_STRING).firstOrNull {
+                it.code == currencyCode
+            } ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported CurrencyCode $currencyCode.")
+                return "Unsupported CurrencyCode $currencyCode."
+            }
+        } ?: run {
+            call.respond(HttpStatusCode.BadRequest, "CurrencyCode not provided.")
+            return "CurrencyCode not provided."
+        }
+
+        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
+
+        val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
+        println(config.vaspDomain)
+
+        val response = uma.getInvoice(
+            receiverUma = receiverUma,
+            invoiceUUID = UUID.randomUUID().toString(),
+            amount = amount,
+            receivingCurrency = InvoiceCurrency(
+                currency.code, currency.name, currency.symbol, currency.decimals
+            ),
+            expiration = expiresIn2Days.toEpochMilliseconds(),
+            isSubjectToTravelRule = true,
+            requiredPayerData = createCounterPartyDataOptions(
+                "name" to false,
+                "email" to false,
+                "compliance" to true,
+                "identifier" to true,
+            ),
+            callback = getLnurlpCallback(call), // structured the same, going to /api/uma/payreq/{user_id}
+            privateSigningKey = config.umaSigningPrivKey
+        )
+        call.respond(response.toBech32())
         return "OK"
     }
 
     suspend fun createAndSendInvoice(call: ApplicationCall): String {
+        val senderUma = call.parameters["senderUma"] ?: run {
+            call.respond(HttpStatusCode.BadRequest, "SenderUma not provided.")
+            return "SenderUma not provided."
+        }
+        val amount = try {
+            call.parameters["amount"]?.toLong() ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Amount not provided.")
+                return "Amount not provided."
+            }
+        } catch (e: NumberFormatException) {
+            call.respond(HttpStatusCode.BadRequest, "Amount not parsable as number.")
+            return "Amount not parsable as number."
+        }
+
+        val currency = call.parameters["currencyCode"]?.let { currencyCode ->
+            // check if we support this currency code.
+            getReceivingCurrencies(UMA_VERSION_STRING).firstOrNull {
+                it.code == currencyCode
+            } ?: run {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported CurrencyCode $currencyCode.")
+                return "Unsupported CurrencyCode $currencyCode."
+            }
+        } ?: run {
+            call.respond(HttpStatusCode.BadRequest, "CurrencyCode not provided.")
+            return "CurrencyCode not provided."
+        }
+
+        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
+
+        val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
+        println(config.vaspDomain)
+
+        val invoice = uma.getInvoice(
+            receiverUma = receiverUma,
+            invoiceUUID = UUID.randomUUID().toString(),
+            amount = amount,
+            receivingCurrency = InvoiceCurrency(
+                currency.code, currency.name, currency.symbol, currency.decimals
+            ),
+            expiration = expiresIn2Days.toEpochMilliseconds(),
+            isSubjectToTravelRule = true,
+            requiredPayerData = createCounterPartyDataOptions(
+                "name" to false,
+                "email" to false,
+                "compliance" to true,
+                "identifier" to true,
+            ),
+            callback = getLnurlpCallback(call), // structured the same, going to /api/uma/payreq/{user_id}
+            privateSigningKey = config.umaSigningPrivKey,
+            senderUma = senderUma
+        )
+        val encodedInvoice = invoice.toBech32()
+        val response = httpClient.post("/api/uma/payreq/${config.userID}") {
+            contentType(ContentType.Application.Json)
+            setBody(parameter("invoice", encodedInvoice))
+        }
+        if (response.status != HttpStatusCode.OK) {
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")
+            return "Payreq to vasp2 failed: ${response.status}"
+        }
+        call.respond(response.body())
         return "OK"
     }
 
@@ -355,11 +488,11 @@ fun Routing.registerReceivingVaspRoutes(receivingVasp: ReceivingVasp) {
         call.debugLog(receivingVasp.handleUmaPayreq(call))
     }
 
-    get("/api/uma/create_invoice") {
+    post("/api/uma/create_invoice") {
         call.debugLog(receivingVasp.createInvoice(call));
     }
 
-    get("/api/uma/create_and_send_invoice") {
+    post("/api/uma/create_and_send_invoice") {
         call.debugLog(receivingVasp.createAndSendInvoice(call))
     }
 }
