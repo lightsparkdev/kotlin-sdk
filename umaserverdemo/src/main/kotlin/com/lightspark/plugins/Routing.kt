@@ -5,6 +5,8 @@ import com.lightspark.Vasp1
 import com.lightspark.Vasp2
 import com.lightspark.debugLog
 import com.lightspark.handlePubKeyRequest
+import com.lightspark.isDomainLocalhost
+import com.lightspark.originWithPort
 import com.lightspark.registerVasp1Routes
 import com.lightspark.registerVasp2Routes
 import com.lightspark.sdk.ClientConfig
@@ -25,6 +27,11 @@ import kotlinx.serialization.json.JsonObject
 import me.uma.InMemoryNonceCache
 import me.uma.InMemoryPublicKeyCache
 import me.uma.UmaProtocolHelper
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 fun Application.configureRouting(
     config: UmaConfig,
@@ -46,6 +53,24 @@ fun Application.configureRouting(
 
         get("/.well-known/lnurlpubkey") {
             call.debugLog(handlePubKeyRequest(call, config))
+        }
+
+        get("/.well-known/uma-configuration") {
+            val domain = config.vaspDomain ?: call.originWithPort()
+            val scheme = if (isDomainLocalhost(domain)) "http" else "https"
+            call.respond(
+                HttpStatusCode.OK,
+                buildJsonObject {
+                    put("uma_request_endpoint", "$scheme://$domain/api/uma/request_pay_invoice")
+                    put(
+                        "uma_major_versions",
+                        buildJsonArray {
+                            add(0)
+                            add(1)
+                        },
+                    )
+                },
+            )
         }
 
         post("/api/uma/utxoCallback") {
