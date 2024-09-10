@@ -90,6 +90,11 @@ class ReceivingVasp(
             call.respond(HttpStatusCode.BadRequest, "SenderUma not provided.")
             return "SenderUma not provided."
         }
+        val senderUmaComponents = senderUma.split("@")
+        if (senderUmaComponents.size != 2) {
+            call.respond(HttpStatusCode.BadRequest, "SenderUma format invalid: $senderUma.")
+            return "SenderUma format invalid: $senderUma."
+        }
         val (status, data) = createUmaInvoice(call, senderUma)
         if (status != HttpStatusCode.OK) {
             call.respond(status, data)
@@ -161,6 +166,10 @@ class ReceivingVasp(
             }
         } ?: run {
             return HttpStatusCode.BadRequest to "CurrencyCode not provided."
+        }
+        
+        if (amount < currency.minSendable() || amount > currency.maxSendable()) {
+            return HttpStatusCode.BadRequest to "CurrencyCode amount is outside of sendable range."
         }
 
         val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24)

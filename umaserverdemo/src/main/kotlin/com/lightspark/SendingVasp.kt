@@ -77,7 +77,6 @@ class SendingVasp(
     private lateinit var receiverUmaVersion: String
 
     suspend fun payInvoice(call: ApplicationCall): String {
-        // or get it from the cache
         val umaInvoice = call.request.queryParameters["invoice"]?.let { invoiceStr ->
             // handle the case where users have provided the uuid of a cached invoice, rather
             // than a full bech32 encoded invoice
@@ -90,7 +89,6 @@ class SendingVasp(
             call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
             return "Unable to decode invoice."
         }
-        println(umaInvoice.receiverUma)
         val receiverVaspDomain = umaInvoice.receiverUma.split("@").getOrNull(1) ?: run {
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse receiver vasp.")
             return "Failed to parse receiver vasp."
@@ -105,6 +103,10 @@ class SendingVasp(
         if (!uma.verifyUmaInvoice(umaInvoice, receiverVaspPubKeys)) {
             call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
             return "Unable to decode invoice."
+        }
+        if (umaInvoice.expiration < Clock.System.now().toEpochMilliseconds()) {
+            call.respond(HttpStatusCode.BadRequest, "Invoice ${umaInvoice.invoiceUUID} has expired.")
+            return "Invoice ${umaInvoice.invoiceUUID} has expired."
         }
 
         val payer = getPayerProfile(umaInvoice.requiredPayerData ?: emptyMap(), call)
@@ -121,14 +123,11 @@ class SendingVasp(
         val trInfo = "Here is some fake travel rule info. It's up to you to actually implement this if needed."
         val payerUtxos = emptyList<String>()
 
-        val isAmountInMsats = call.request.queryParameters["isAmountInMsats"]?.toBoolean() ?:
-        (umaInvoice.receivingCurrency.code == "SAT")
-
         val payReq = uma.getPayRequest(
             receiverEncryptionPubKey = receiverVaspPubKeys.getEncryptionPublicKey(),
             sendingVaspPrivateKey = config.umaSigningPrivKey,
             receivingCurrencyCode = umaInvoice.receivingCurrency.code,
-            isAmountInReceivingCurrency = !isAmountInMsats,
+            isAmountInReceivingCurrency = umaInvoice.receivingCurrency.code != "SAT",
             amount = umaInvoice.amount,
             payerIdentifier = payer.identifier,
             payerKycStatus = KycStatus.VERIFIED,
@@ -142,7 +141,6 @@ class SendingVasp(
             receiverUmaVersion = umaInvoice.umaVersion,
         )
 
-
         val response = try {
             httpClient.post(umaInvoice.callback) {
                 contentType(ContentType.Application.Json)
@@ -153,7 +151,10 @@ class SendingVasp(
             return "Unable to connect to ${umaInvoice.callback}"
         }
         if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.InternalServerError, "Payreq to receiving vasp failed: ${response.status}")
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                "Payreq to receiving vasp failed: ${response.status}"
+            )
             return "Payreq to receiving vasp failed: ${response.status}"
         }
 
@@ -166,7 +167,10 @@ class SendingVasp(
 
         if (!payReqResponse.isUmaResponse()) {
             call.application.environment.log.error("Got a non-UMA response: ${payReqResponse.toJson()}")
-            call.respond(HttpStatusCode.FailedDependency, "Received non-UMA response from vasp2 for an UMA request")
+            call.respond(
+                HttpStatusCode.FailedDependency,
+                "Received non-UMA response from receiving vasp for an UMA request"
+            )
             return "Received non-UMA response from receiving vasp."
         }
 
