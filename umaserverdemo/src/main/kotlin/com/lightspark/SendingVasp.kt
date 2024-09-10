@@ -215,7 +215,7 @@ class SendingVasp(
     }
 
     suspend fun requestInvoicePayment(call: ApplicationCall): String {
-        val umaInvoice = call.request.queryParameters["invoice"]?.let(Invoice::fromBech32) ?: run {
+        val umaInvoice = call.parameters["invoice"]?.let(Invoice::fromBech32) ?: run {
             call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
             return "Unable to decode invoice."
         }
