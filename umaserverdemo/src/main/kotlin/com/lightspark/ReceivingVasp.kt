@@ -38,7 +38,7 @@ import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
 
-class Vasp2(
+class ReceivingVasp(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
@@ -46,6 +46,14 @@ class Vasp2(
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var senderUmaVersion: String
+
+    suspend fun createInvoice(call: ApplicationCall): String {
+        return "OK"
+    }
+
+    suspend fun createAndSendInvoice(call: ApplicationCall): String {
+        return "OK"
+    }
 
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
@@ -155,7 +163,7 @@ class Vasp2(
         }
 
         val lnurlInvoiceCreator = object : UmaInvoiceCreator {
-            override fun createUmaInvoice(amountMsats: Long, metadata: String): CompletableFuture<String> {
+            override fun createUmaInvoice(amountMsats: Long, metadata: String, receiverIdentifier: String?,): CompletableFuture<String> {
                 return coroutineScope.future {
                     lightsparkClient.createLnurlInvoice(config.nodeID, amountMsats, metadata).data.encodedPaymentRequest
                 }
@@ -334,17 +342,25 @@ class Vasp2(
     private fun getReceivingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
 }
 
-fun Routing.registerVasp2Routes(vasp2: Vasp2) {
+fun Routing.registerReceivingVaspRoutes(receivingVasp: ReceivingVasp) {
     get("/.well-known/lnurlp/{username}") {
-        call.debugLog(vasp2.handleLnurlp(call))
+        call.debugLog(receivingVasp.handleLnurlp(call))
     }
 
-    get("/api/uma/payreq/{uuid}") {
-        call.debugLog(vasp2.handleLnurlPayreq(call))
+    get("/api/lnurl/payreq/{uuid}") {
+        call.debugLog(receivingVasp.handleLnurlPayreq(call))
     }
 
     post("/api/uma/payreq/{uuid}") {
-        call.debugLog(vasp2.handleUmaPayreq(call))
+        call.debugLog(receivingVasp.handleUmaPayreq(call))
+    }
+
+    get("/api/uma/create_invoice") {
+        call.debugLog(receivingVasp.createInvoice(call));
+    }
+
+    get("/api/uma/create_and_send_invoice") {
+        call.debugLog(receivingVasp.createAndSendInvoice(call))
     }
 }
 

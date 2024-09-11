@@ -57,7 +57,7 @@ import me.uma.protocol.createPayerData
 import me.uma.selectHighestSupportedVersion
 import me.uma.utils.serialFormat
 
-class Vasp1(
+class SendingVasp(
     private val config: UmaConfig,
     private val uma: UmaProtocolHelper,
     private val lightsparkClient: LightsparkCoroutinesClient,
@@ -74,6 +74,14 @@ class Vasp1(
     private val requestDataCache = Vasp1RequestCache()
     private val nonceCache = InMemoryNonceCache(Clock.System.now().epochSeconds)
     private lateinit var receiverUmaVersion: String
+
+    suspend fun payInvoice(call: ApplicationCall): String {
+        return "OK"
+    }
+
+    suspend fun requestInvoicePayment(call: ApplicationCall): String {
+        return "OK"
+    }
 
     suspend fun handleClientUmaLookup(call: ApplicationCall): String {
         val receiverAddress = call.parameters["receiver"]
@@ -500,17 +508,25 @@ class Vasp1(
     }
 }
 
-fun Routing.registerVasp1Routes(vasp1: Vasp1) {
+fun Routing.registerSendingVaspRoutes(sendingVasp: SendingVasp) {
     get("/api/umalookup/{receiver}") {
-        call.debugLog(vasp1.handleClientUmaLookup(call))
+        call.debugLog(sendingVasp.handleClientUmaLookup(call))
     }
 
     get("/api/umapayreq/{callbackUuid}") {
-        call.debugLog(vasp1.handleClientUmaPayReq(call))
+        call.debugLog(sendingVasp.handleClientUmaPayReq(call))
     }
 
     post("/api/sendpayment/{callbackUuid}") {
-        call.debugLog(vasp1.handleClientSendPayment(call))
+        call.debugLog(sendingVasp.handleClientSendPayment(call))
+    }
+
+    post("/api/uma/pay_invoice") {
+        call.debugLog(sendingVasp.payInvoice(call))
+    }
+
+    post("/api/uma/request_invoice_payment") {
+        call.debugLog(sendingVasp.requestInvoicePayment(call))
     }
 }
 
