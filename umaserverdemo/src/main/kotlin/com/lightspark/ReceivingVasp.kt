@@ -102,23 +102,27 @@ class ReceivingVasp(
         }
         val wellKnownConfiguration = "http://$sendingVaspDomain/.well-known/uma-configuration"
         val umaEndpoint = try {
-            val response = httpClient.get(wellKnownConfiguration)
-            if (response.status != HttpStatusCode.OK) {
+            val umaConfigResponse = httpClient.get(wellKnownConfiguration)
+            if (umaConfigResponse.status != HttpStatusCode.OK) {
                 call.respond(
                     HttpStatusCode.FailedDependency,
-                    "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+                    "failed to fetch request / pay endpoint at $wellKnownConfiguration",
                 )
                 return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
-            } else {
-                Json.decodeFromString<JsonObject>(
-                    response.bodyAsText())["uma_request_endpoint"]?.jsonPrimitive?.content ?: ""
             }
+            Json.decodeFromString<JsonObject>(
+                umaConfigResponse.bodyAsText(),
+            )["uma_request_endpoint"]?.jsonPrimitive?.content
         } catch (e: Exception) {
             call.respond(
                 HttpStatusCode.FailedDependency,
-                "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+                "failed to fetch request / pay endpoint at $wellKnownConfiguration",
             )
             return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+        }
+        if (umaEndpoint == null) {
+            call.respond(HttpStatusCode.FailedDependency, "failed to fetch $wellKnownConfiguration")
+            return "failed to fetch $wellKnownConfiguration"
         }
         val response = try {
             httpClient.post(umaEndpoint) {
@@ -162,7 +166,6 @@ class ReceivingVasp(
         val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
 
         val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
-        println(config.vaspDomain)
 
         val invoice = uma.getInvoice(
             receiverUma = receiverUma,
