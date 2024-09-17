@@ -57,7 +57,7 @@ fun Application.configureRouting(
             call.respond(
                 HttpStatusCode.OK,
                 buildJsonObject {
-                    put("uma_request_endpoint", "$scheme://$domain/api/uma/request_pay_invoice")
+                    put("uma_request_endpoint", "$scheme://$domain/api/uma/request_invoice_payment")
                     put(
                         "uma_major_versions",
                         buildJsonArray {
