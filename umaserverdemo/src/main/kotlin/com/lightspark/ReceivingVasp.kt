@@ -7,9 +7,11 @@ import com.lightspark.sdk.model.Node
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -50,6 +52,8 @@ import me.uma.protocol.identifier
 import java.util.UUID
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 
 class ReceivingVasp(
@@ -91,14 +95,39 @@ class ReceivingVasp(
             call.respond(status, data)
             return data
         }
+        val senderComponents = senderUma.split("@")
+        val sendingVaspDomain = senderComponents.getOrNull(1) ?: run {
+            call.respond(HttpStatusCode.BadRequest, "Invalid senderUma.")
+            return "Invalid senderUma."
+        }
+        val wellKnownConfiguration = "http://$sendingVaspDomain/.well-known/uma-configuration"
+        val umaEndpoint = try {
+            val response = httpClient.get(wellKnownConfiguration)
+            if (response.status != HttpStatusCode.OK) {
+                call.respond(
+                    HttpStatusCode.FailedDependency,
+                    "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+                )
+                return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+            } else {
+                Json.decodeFromString<JsonObject>(
+                    response.bodyAsText())["uma_request_endpoint"]?.jsonPrimitive?.content ?: ""
+            }
+        } catch (e: Exception) {
+            call.respond(
+                HttpStatusCode.FailedDependency,
+                "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+            )
+            return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
+        }
         val response = try {
-            httpClient.post("/api/uma/payreq/${config.userID}") {
+            httpClient.post(umaEndpoint) {
                 contentType(ContentType.Application.Json)
                 setBody(parameter("invoice", data))
             }
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.FailedDependency, "failed to fetch /api/uma/payreq/${config.userID}")
-            return "failed to fetch /api/uma/payreq/${config.userID}"
+            call.respond(HttpStatusCode.FailedDependency, "failed to fetch $umaEndpoint")
+            return "failed to fetch $umaEndpoint"
         }
         if (response.status != HttpStatusCode.OK) {
             call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")

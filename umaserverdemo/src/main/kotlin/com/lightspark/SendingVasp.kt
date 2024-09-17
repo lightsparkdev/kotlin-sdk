@@ -525,7 +525,7 @@ fun Routing.registerSendingVaspRoutes(sendingVasp: SendingVasp) {
         call.debugLog(sendingVasp.payInvoice(call))
     }
 
-    post("/api/uma/request_invoice_payment") {
+    post("/api/uma/request_pay_invoice") {
         call.debugLog(sendingVasp.requestInvoicePayment(call))
     }
 }
