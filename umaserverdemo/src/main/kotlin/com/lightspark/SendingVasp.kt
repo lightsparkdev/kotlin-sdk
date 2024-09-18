@@ -104,7 +104,7 @@ class SendingVasp(
             call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
             return "Unable to decode invoice."
         }
-        if (umaInvoice.expiration < Clock.System.now().toEpochMilliseconds()) {
+        if (umaInvoice.expiration < Clock.System.now().epochSeconds) {
             call.respond(HttpStatusCode.BadRequest, "Invoice ${umaInvoice.invoiceUUID} has expired.")
             return "Invoice ${umaInvoice.invoiceUUID} has expired."
         }
@@ -219,7 +219,6 @@ class SendingVasp(
             call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
             return "Unable to decode invoice."
         }
-        print(umaInvoice)
         val receiverVaspDomain = umaInvoice.receiverUma.split("@").getOrNull(1) ?: run {
             call.respond(HttpStatusCode.FailedDependency, "Failed to parse receiver vasp.")
             return "Failed to parse receiver vasp."

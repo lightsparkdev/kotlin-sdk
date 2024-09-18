@@ -183,7 +183,7 @@ class ReceivingVasp(
             receivingCurrency = InvoiceCurrency(
                 currency.code, currency.name, currency.symbol, currency.decimals
             ),
-            expiration = expiresIn2Days.toEpochMilliseconds(),
+            expiration = expiresIn2Days.epochSeconds,
             isSubjectToTravelRule = true,
             requiredPayerData = createCounterPartyDataOptions(
                 "name" to false,
