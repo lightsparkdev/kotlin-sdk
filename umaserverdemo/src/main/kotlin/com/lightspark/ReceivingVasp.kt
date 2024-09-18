@@ -90,6 +90,11 @@ class ReceivingVasp(
             call.respond(HttpStatusCode.BadRequest, "SenderUma not provided.")
             return "SenderUma not provided."
         }
+        val senderUmaComponents = senderUma.split("@")
+        if (senderUmaComponents.size != 2) {
+            call.respond(HttpStatusCode.BadRequest, "SenderUma format invalid: $senderUma.")
+            return "SenderUma format invalid: $senderUma."
+        }
         val (status, data) = createUmaInvoice(call, senderUma)
         if (status != HttpStatusCode.OK) {
             call.respond(status, data)
@@ -134,8 +139,8 @@ class ReceivingVasp(
             return "failed to fetch $umaEndpoint"
         }
         if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp: ${response.status}")
-            return "Payreq to sending vasp failed: ${response.status}"
+            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp failed: ${response.status}")
+            return "Payreq to sending failed: ${response.status}"
         }
         call.respond(response.body())
         return "OK"
@@ -162,10 +167,14 @@ class ReceivingVasp(
         } ?: run {
             return HttpStatusCode.BadRequest to "CurrencyCode not provided."
         }
+        
+        if (amount < currency.minSendable() || amount > currency.maxSendable()) {
+            return HttpStatusCode.BadRequest to "CurrencyCode amount is outside of sendable range."
+        }
 
-        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24) //?
+        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24)
 
-        val receiverUma = "${config.username}:${getReceivingVaspDomain(call)}"
+        val receiverUma = buildReceiverUma(call)
 
         val invoice = uma.getInvoice(
             receiverUma = receiverUma,
@@ -174,7 +183,7 @@ class ReceivingVasp(
             receivingCurrency = InvoiceCurrency(
                 currency.code, currency.name, currency.symbol, currency.decimals
             ),
-            expiration = expiresIn2Days.toEpochMilliseconds(),
+            expiration = expiresIn2Days.epochSeconds,
             isSubjectToTravelRule = true,
             requiredPayerData = createCounterPartyDataOptions(
                 "name" to false,
@@ -186,6 +195,7 @@ class ReceivingVasp(
             privateSigningKey = config.umaSigningPrivKey,
             senderUma = senderUma
         )
+
         return HttpStatusCode.OK to invoice.toBech32()
     }
 
@@ -370,6 +380,7 @@ class ReceivingVasp(
             return "Invalid payreq signature."
         }
 
+        senderUmaVersion = UMA_VERSION_STRING
         val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
             call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
@@ -472,6 +483,8 @@ class ReceivingVasp(
         val path = uri
         return "$protocol://$host$port$path"
     }
+
+    private fun buildReceiverUma(call: ApplicationCall) = "$${config.username}@${getReceivingVaspDomain(call)}"
 
     private fun getReceivingVaspDomain(call: ApplicationCall) = config.vaspDomain ?: call.originWithPort()
 }
