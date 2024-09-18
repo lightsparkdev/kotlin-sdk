@@ -232,7 +232,7 @@ class SendingVasp(
             return "Failed to fetch public keys."
         }
         if (!uma.verifyUmaInvoice(umaInvoice, receiverVaspPubKeys)) {
-            call.respond(HttpStatusCode.BadRequest, "Unable to decode invoice.")
+            call.respond(HttpStatusCode.BadRequest, "Invalid invoice signature.")
             return "Unable to decode invoice."
         }
         requestDataCache.saveUmaInvoice(umaInvoice.invoiceUUID, umaInvoice)
