@@ -721,13 +721,15 @@ query FetchAccountToChannelsConnection(${'$'}bitcoin_network: BitcoinNetwork!, $
         lightningNodeId: String? = null,
         statuses: List<TransactionStatus>? = null,
         excludeFailures: TransactionFailures? = null,
+        maxAmount: CurrencyAmountInput? = null,
+        minAmount: CurrencyAmountInput? = null,
     ): Query<AccountToTransactionsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}types: [TransactionType!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}bitcoin_network: BitcoinNetwork, ${'$'}lightning_node_id: ID, ${'$'}statuses: [TransactionStatus!], ${'$'}exclude_failures: TransactionFailures) {
+query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}types: [TransactionType!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}bitcoin_network: BitcoinNetwork, ${'$'}lightning_node_id: ID, ${'$'}statuses: [TransactionStatus!], ${'$'}exclude_failures: TransactionFailures, ${'$'}max_amount: CurrencyAmountInput, ${'$'}min_amount: CurrencyAmountInput) {
     current_account {
         ... on Account {
-            transactions(, first: ${'$'}first, after: ${'$'}after, types: ${'$'}types, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, statuses: ${'$'}statuses, exclude_failures: ${'$'}exclude_failures) {
+            transactions(, first: ${'$'}first, after: ${'$'}after, types: ${'$'}types, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, statuses: ${'$'}statuses, exclude_failures: ${'$'}exclude_failures, max_amount: ${'$'}max_amount, min_amount: ${'$'}min_amount) {
                 type: __typename
                 account_to_transactions_connection_count: count
                 account_to_transactions_connection_page_info: page_info {
@@ -1326,6 +1328,8 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
                 add("lightning_node_id", lightningNodeId)
                 add("statuses", statuses)
                 add("exclude_failures", excludeFailures)
+                add("max_amount", maxAmount)
+                add("min_amount", minAmount)
             }
         ) {
             val connection =
@@ -1342,13 +1346,15 @@ query FetchAccountToTransactionsConnection(${'$'}first: Int, ${'$'}after: String
         beforeDate: Instant? = null,
         bitcoinNetwork: BitcoinNetwork? = null,
         lightningNodeId: String? = null,
+        maxAmount: CurrencyAmountInput? = null,
+        minAmount: CurrencyAmountInput? = null,
     ): Query<AccountToPaymentRequestsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}bitcoin_network: BitcoinNetwork, ${'$'}lightning_node_id: ID) {
+query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}bitcoin_network: BitcoinNetwork, ${'$'}lightning_node_id: ID, ${'$'}max_amount: CurrencyAmountInput, ${'$'}min_amount: CurrencyAmountInput) {
     current_account {
         ... on Account {
-            payment_requests(, first: ${'$'}first, after: ${'$'}after, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id) {
+            payment_requests(, first: ${'$'}first, after: ${'$'}after, after_date: ${'$'}after_date, before_date: ${'$'}before_date, bitcoin_network: ${'$'}bitcoin_network, lightning_node_id: ${'$'}lightning_node_id, max_amount: ${'$'}max_amount, min_amount: ${'$'}min_amount) {
                 type: __typename
                 account_to_payment_requests_connection_count: count
                 account_to_payment_requests_connection_page_info: page_info {
@@ -1681,6 +1687,8 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
                 add("before_date", beforeDate)
                 add("bitcoin_network", bitcoinNetwork)
                 add("lightning_node_id", lightningNodeId)
+                add("max_amount", maxAmount)
+                add("min_amount", minAmount)
             }
         ) {
             val connection =
@@ -1701,13 +1709,15 @@ query FetchAccountToPaymentRequestsConnection(${'$'}first: Int, ${'$'}after: Str
         idempotencyKeys: List<String>? = null,
         afterDate: Instant? = null,
         beforeDate: Instant? = null,
+        maxAmount: CurrencyAmountInput? = null,
+        minAmount: CurrencyAmountInput? = null,
     ): Query<AccountToWithdrawalRequestsConnection> {
         return Query(
             queryPayload = """
-query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}node_ids: [ID!], ${'$'}idempotency_keys: [String!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime) {
+query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: String, ${'$'}bitcoin_networks: [BitcoinNetwork!], ${'$'}statuses: [WithdrawalRequestStatus!], ${'$'}node_ids: [ID!], ${'$'}idempotency_keys: [String!], ${'$'}after_date: DateTime, ${'$'}before_date: DateTime, ${'$'}max_amount: CurrencyAmountInput, ${'$'}min_amount: CurrencyAmountInput) {
     current_account {
         ... on Account {
-            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, bitcoin_networks: ${'$'}bitcoin_networks, statuses: ${'$'}statuses, node_ids: ${'$'}node_ids, idempotency_keys: ${'$'}idempotency_keys, after_date: ${'$'}after_date, before_date: ${'$'}before_date) {
+            withdrawal_requests(, first: ${'$'}first, after: ${'$'}after, bitcoin_networks: ${'$'}bitcoin_networks, statuses: ${'$'}statuses, node_ids: ${'$'}node_ids, idempotency_keys: ${'$'}idempotency_keys, after_date: ${'$'}after_date, before_date: ${'$'}before_date, max_amount: ${'$'}max_amount, min_amount: ${'$'}min_amount) {
                 type: __typename
                 account_to_withdrawal_requests_connection_count: count
                 account_to_withdrawal_requests_connection_page_info: page_info {
@@ -1786,6 +1796,8 @@ query FetchAccountToWithdrawalRequestsConnection(${'$'}first: Int, ${'$'}after: 
                 add("idempotency_keys", idempotencyKeys)
                 add("after_date", afterDate)
                 add("before_date", beforeDate)
+                add("max_amount", maxAmount)
+                add("min_amount", minAmount)
             }
         ) {
             val connection =
