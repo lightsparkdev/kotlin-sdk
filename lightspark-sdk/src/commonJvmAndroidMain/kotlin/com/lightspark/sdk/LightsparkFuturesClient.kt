@@ -616,6 +616,18 @@ class LightsparkFuturesClient(config: ClientConfig) {
     }
 
     /**
+     * Fetch outgoing payment for a given idempotency key
+     *
+     * @param idempotencyKey The idempotency key used when creating the payment.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
+    fun getOutgoingPaymentForIdempotencyKey(
+        idempotencyKey: String,
+    ): CompletableFuture<OutgoingPayment?> = coroutineScope.future {
+        coroutinesClient.getOutgoingPaymentForIdempotencyKey(idempotencyKey)
+    }
+
+    /**
      * fetch invoice for a given payments hash
      *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
