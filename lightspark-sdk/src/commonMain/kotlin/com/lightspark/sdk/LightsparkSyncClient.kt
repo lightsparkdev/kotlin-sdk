@@ -616,6 +616,18 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         asyncClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
     }
 
+    /**
+     * Fetch outgoing payment for a given idempotency key
+     *
+     * @param idempotencyKey The idempotency key used when creating the payment.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getOutgoingPaymentForIdempotencyKey(
+        idempotencyKey: String,
+    ): OutgoingPayment? = runBlocking {
+        asyncClient.getOutgoingPaymentForIdempotencyKey(idempotencyKey)
+    }
+
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun getIncomingPaymentsForInvoice(
         invoiceId: String,

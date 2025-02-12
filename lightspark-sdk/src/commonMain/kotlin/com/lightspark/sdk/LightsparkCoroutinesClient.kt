@@ -743,7 +743,7 @@ class LightsparkCoroutinesClient private constructor(
     suspend fun fundNode(
         nodeId: String,
         amountSats: Long?,
-        fundingAddress: String? = null
+        fundingAddress: String? = null,
     ): CurrencyAmount {
         requireValidAuth()
         return executeQuery(
@@ -752,7 +752,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     amountSats?.let { add("amount_sats", it) }
-                    fundingAddress?.let { add("funding_address", it)}
+                    fundingAddress?.let { add("funding_address", it) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -1062,7 +1062,7 @@ class LightsparkCoroutinesClient private constructor(
 
     /**
      * fetch outgoing payments for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
@@ -1091,12 +1091,39 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Fetch outgoing payment for a given idempotency key
+     *
+     * @param idempotencyKey The idempotency key used when creating the payment.
+     */
+    suspend fun getOutgoingPaymentForIdempotencyKey(
+        idempotencyKey: String,
+    ): OutgoingPayment? {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                OutgoingPaymentForIdempotencyKeyQuery,
+                {
+                    add("idempotency_key", idempotencyKey)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["outgoing_payment_for_idempotency_key"]) { "No payment output found in response" }
+                val paymentJson = outputJson.jsonObject["payment"]
+                if (paymentJson == null) {
+                    return@Query null
+                }
+                serializerFormat.decodeFromJsonElement(paymentJson)
+            },
+        )
+    }
+
+    /**
      * fetch invoice for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      */
     suspend fun getInvoiceForPaymentHash(
-        paymentHash: String
+        paymentHash: String,
     ): Invoice {
         requireValidAuth()
         return executeQuery(
@@ -1140,7 +1167,7 @@ class LightsparkCoroutinesClient private constructor(
                 val paymentsJson =
                     requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
                 serializerFormat.decodeFromJsonElement(paymentsJson)
-            }
+            },
         )
     }
 
