@@ -7,7 +7,7 @@ on:
 jobs:
   publish-crypto-sdk:
     if: ${{ startsWith(github.event.release.tag_name, 'crypto-') }}
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v3
