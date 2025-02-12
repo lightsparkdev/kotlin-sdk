@@ -9,6 +9,7 @@ const val PayInvoiceMutation = """
     ${'$'}timeout_secs: Int!
     ${'$'}maximum_fees_msats: Long!
     ${'$'}amount_msats: Long
+    ${'$'}idempotency_key: String
   ) {
     pay_invoice(
       input: {
@@ -17,6 +18,7 @@ const val PayInvoiceMutation = """
         timeout_secs: ${'$'}timeout_secs
         amount_msats: ${'$'}amount_msats
         maximum_fees_msats: ${'$'}maximum_fees_msats
+        idempotency_key: ${'$'}idempotency_key
       }
     ) {
       payment {
