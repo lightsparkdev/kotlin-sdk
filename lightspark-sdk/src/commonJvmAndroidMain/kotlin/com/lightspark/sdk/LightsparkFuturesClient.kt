@@ -222,6 +222,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -231,6 +233,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
         maxFeesMsats: Long,
         amountMsats: Long? = null,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): CompletableFuture<OutgoingPayment> =
         coroutineScope.future {
             coroutinesClient.payInvoice(
@@ -239,6 +242,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
                 maxFeesMsats,
                 amountMsats,
                 timeoutSecs,
+                idempotencyKey,
             )
         }
 
@@ -257,6 +261,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
      * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed using a
      *      monthly-rotated seed and used for anonymized analysis.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -269,6 +275,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
         timeoutSecs: Int = 60,
         signingPrivateKey: ByteArray? = null,
         senderIdentifier: String? = null,
+        idempotencyKey: String? = null,
     ): CompletableFuture<OutgoingPayment> =
         coroutineScope.future {
             coroutinesClient.payUmaInvoice(
@@ -279,6 +286,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
                 timeoutSecs,
                 signingPrivateKey,
                 senderIdentifier,
+                idempotencyKey,
             )
         }
 
@@ -432,14 +440,26 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param amountSats The amount of funds to withdraw in SATOSHI.
      * @param bitcoinAddress The Bitcoin address to withdraw funds to.
      * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
+     * @param idempotencyKey An optional key to ensure idempotency of the withdrawal. If provided, the same result will
+     *     be returned for the same idempotency key without triggering a new withdrawal.
      */
+    @JvmOverloads
     fun requestWithdrawal(
         nodeId: String,
         amountSats: Long,
         bitcoinAddress: String,
         mode: WithdrawalMode,
+        idempotencyKey: String? = null,
     ): CompletableFuture<WithdrawalRequest> =
-        coroutineScope.future { coroutinesClient.requestWithdrawal(nodeId, amountSats, bitcoinAddress, mode) }
+        coroutineScope.future {
+            coroutinesClient.requestWithdrawal(
+                nodeId,
+                amountSats,
+                bitcoinAddress,
+                mode,
+                idempotencyKey,
+            )
+        }
 
     /**
      * Sends a payment directly to a node on the Lightning Network through the public key of the node without an invoice.
@@ -451,6 +471,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param timeoutSecs The timeout in seconds that we will try to make the payment.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return An `OutgoingPayment` object if the payment was successful, or throws if the payment failed.
      * @throws LightsparkException if the payment failed.
      */
@@ -461,6 +483,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
         amountMsats: Long,
         maxFeesMsats: Long,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): CompletableFuture<OutgoingPayment> = coroutineScope.future {
         coroutinesClient.sendPayment(
             payerNodeId,
@@ -468,6 +491,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
             amountMsats,
             maxFeesMsats,
             timeoutSecs,
+            idempotencyKey,
         )
     }
 
@@ -579,27 +603,27 @@ class LightsparkFuturesClient(config: ClientConfig) {
 
     /**
      * fetch outgoing payments for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
     fun getOutgoingPaymentsForPaymentHash(
         paymentHash: String,
-        transactionStatuses: List<TransactionStatus>? = null
+        transactionStatuses: List<TransactionStatus>? = null,
     ): CompletableFuture<List<OutgoingPayment>> = coroutineScope.future {
         coroutinesClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
     }
 
     /**
      * fetch invoice for a given payments hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
     fun getInvoiceForPaymentHash(
-        paymentHash: String
+        paymentHash: String,
     ): CompletableFuture<Invoice> = coroutineScope.future {
         coroutinesClient.getInvoiceForPaymentHash(paymentHash)
     }
@@ -623,7 +647,7 @@ class LightsparkFuturesClient(config: ClientConfig) {
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class)
     fun getIncomingPaymentsForInvoice(
         invoiceId: String,
-        transactionStatuses: List<TransactionStatus>? = null
+        transactionStatuses: List<TransactionStatus>? = null,
     ): CompletableFuture<List<IncomingPayment>> = coroutineScope.future {
         coroutinesClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
     }

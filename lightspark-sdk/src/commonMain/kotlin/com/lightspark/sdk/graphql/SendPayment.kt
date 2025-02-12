@@ -9,6 +9,7 @@ const val SendPaymentMutation = """
     ${'$'}timeout_secs: Int!
     ${'$'}amount_msats: Long!
     ${'$'}maximum_fees_msats: Long!
+    ${'$'}idempotency_key: String
   ) {
     send_payment(
       input: {
@@ -17,6 +18,7 @@ const val SendPaymentMutation = """
         timeout_secs: ${'$'}timeout_secs
         amount_msats: ${'$'}amount_msats
         maximum_fees_msats: ${'$'}maximum_fees_msats
+        idempotency_key: ${'$'}idempotency_key
       }
     ) {
       payment {
