@@ -347,6 +347,8 @@ class LightsparkCoroutinesClient private constructor(
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -356,6 +358,7 @@ class LightsparkCoroutinesClient private constructor(
         maxFeesMsats: Long,
         amountMsats: Long? = null,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): OutgoingPayment {
         requireValidAuth()
         return executeQuery(
@@ -367,6 +370,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("timeout_secs", timeoutSecs)
                     add("maximum_fees_msats", maxFeesMsats)
                     amountMsats?.let { add("amount_msats", amountMsats) }
+                    idempotencyKey?.let { add("idempotency_key", idempotencyKey) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -392,6 +396,8 @@ class LightsparkCoroutinesClient private constructor(
      * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
      * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed using a
      *      monthly-rotated seed and used for anonymized analysis.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -404,6 +410,7 @@ class LightsparkCoroutinesClient private constructor(
         timeoutSecs: Int = 60,
         signingPrivateKey: ByteArray? = null,
         senderIdentifier: String? = null,
+        idempotencyKey: String? = null,
     ): OutgoingPayment {
         requireValidAuth()
 
@@ -425,6 +432,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("maximum_fees_msats", maxFeesMsats)
                     amountMsats?.let { add("amount_msats", amountMsats) }
                     senderHash?.let { add("sender_hash", senderHash) }
+                    idempotencyKey?.let { add("idempotency_key", idempotencyKey) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -735,7 +743,7 @@ class LightsparkCoroutinesClient private constructor(
     suspend fun fundNode(
         nodeId: String,
         amountSats: Long?,
-        fundingAddress: String? = null
+        fundingAddress: String? = null,
     ): CurrencyAmount {
         requireValidAuth()
         return executeQuery(
@@ -744,7 +752,7 @@ class LightsparkCoroutinesClient private constructor(
                 {
                     add("node_id", nodeId)
                     amountSats?.let { add("amount_sats", it) }
-                    fundingAddress?.let { add("funding_address", it)}
+                    fundingAddress?.let { add("funding_address", it) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -767,12 +775,16 @@ class LightsparkCoroutinesClient private constructor(
      * @param amountSats The amount of funds to withdraw in SATOSHI.
      * @param bitcoinAddress The Bitcoin address to withdraw funds to.
      * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
+     * @param idempotencyKey An optional key to ensure idempotency of the withdrawal. If provided, the same result will
+     *     be returned for the same idempotency key without triggering a new withdrawal.
      */
+    @JvmOverloads
     suspend fun requestWithdrawal(
         nodeId: String,
         amountSats: Long,
         bitcoinAddress: String,
         mode: WithdrawalMode,
+        idempotencyKey: String? = null,
     ): WithdrawalRequest {
         requireValidAuth()
         return executeQuery(
@@ -783,6 +795,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("amount_sats", amountSats)
                     add("bitcoin_address", bitcoinAddress)
                     add("withdrawal_mode", serializerFormat.encodeToJsonElement(mode))
+                    idempotencyKey?.let { add("idempotency_key", idempotencyKey) }
                 },
                 signingNodeId = nodeId,
             ) {
@@ -805,15 +818,19 @@ class LightsparkCoroutinesClient private constructor(
      *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param timeoutSecs The timeout in seconds that we will try to make the payment.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return An `OutgoingPayment` object if the payment was successful, or throws if the payment failed.
      * @throws LightsparkException if the payment failed.
      */
+    @JvmOverloads
     suspend fun sendPayment(
         payerNodeId: String,
         destinationPublicKey: String,
         amountMsats: Long,
         maxFeesMsats: Long,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): OutgoingPayment {
         requireValidAuth()
         return executeQuery(
@@ -825,6 +842,7 @@ class LightsparkCoroutinesClient private constructor(
                     add("amount_msats", amountMsats)
                     add("timeout_secs", timeoutSecs)
                     add("maximum_fees_msats", maxFeesMsats)
+                    idempotencyKey?.let { add("idempotency_key", idempotencyKey) }
                 },
                 signingNodeId = payerNodeId,
             ) {
@@ -1044,7 +1062,7 @@ class LightsparkCoroutinesClient private constructor(
 
     /**
      * fetch outgoing payments for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
@@ -1073,12 +1091,39 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Fetch outgoing payment for a given idempotency key
+     *
+     * @param idempotencyKey The idempotency key used when creating the payment.
+     */
+    suspend fun getOutgoingPaymentForIdempotencyKey(
+        idempotencyKey: String,
+    ): OutgoingPayment? {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                OutgoingPaymentForIdempotencyKeyQuery,
+                {
+                    add("idempotency_key", idempotencyKey)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["outgoing_payment_for_idempotency_key"]) { "No payment output found in response" }
+                val paymentJson = outputJson.jsonObject["payment"]
+                if (paymentJson == null) {
+                    return@Query null
+                }
+                serializerFormat.decodeFromJsonElement(paymentJson)
+            },
+        )
+    }
+
+    /**
      * fetch invoice for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      */
     suspend fun getInvoiceForPaymentHash(
-        paymentHash: String
+        paymentHash: String,
     ): Invoice {
         requireValidAuth()
         return executeQuery(
@@ -1122,7 +1167,7 @@ class LightsparkCoroutinesClient private constructor(
                 val paymentsJson =
                     requireNotNull(outputJson.jsonObject["payments"]) { "No payments found in response" }
                 serializerFormat.decodeFromJsonElement(paymentsJson)
-            }
+            },
         )
     }
 

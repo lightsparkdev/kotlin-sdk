@@ -10,6 +10,7 @@ import com.lightspark.sdk.core.crypto.NodeKeyCache
 import com.lightspark.sdk.core.crypto.nextLong
 import com.lightspark.sdk.core.util.getPlatform
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.headers
@@ -52,6 +53,12 @@ class Requester constructor(
             gzip()  // Switch to deflate() when https://youtrack.jetbrains.com/issue/KTOR-6999 is fixed
         }
         install(WebSockets)
+        install(HttpTimeout) {
+            // See https://ktor.io/docs/client-timeout.html for more info.
+            requestTimeoutMillis = 20000
+            connectTimeoutMillis = 5000
+            socketTimeoutMillis = 10000
+        }
     }
     private val userAgent =
         "lightspark-kotlin-sdk/${LightsparkCoreConfig.VERSION} ${getPlatform().platformName}/${getPlatform().version}"

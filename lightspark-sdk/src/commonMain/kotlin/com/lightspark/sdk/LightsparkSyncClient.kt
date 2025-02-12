@@ -200,6 +200,8 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param amountMsats The amount to pay in milli-satoshis. Defaults to the full amount of the invoice.
      * @param timeoutSecs The number of seconds to wait for the payment to complete. Defaults to 60.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -209,8 +211,18 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         maxFeesMsats: Long,
         amountMsats: Long? = null,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): OutgoingPayment =
-        runBlocking { asyncClient.payInvoice(nodeId, encodedInvoice, maxFeesMsats, amountMsats, timeoutSecs) }
+        runBlocking {
+            asyncClient.payInvoice(
+                nodeId,
+                encodedInvoice,
+                maxFeesMsats,
+                amountMsats,
+                timeoutSecs,
+                idempotencyKey,
+            )
+        }
 
     /**
      * [payUmaInvoice] sends an UMA payment to a node on the Lightning Network, based on the invoice (as defined by the
@@ -227,6 +239,8 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param signingPrivateKey The sender's signing private key. Used to hash the sender identifier.
      * @param senderIdentifier Optional identifier of the sender. If provided, this will be hashed using a
      *      monthly-rotated seed and used for anonymized analysis.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return The payment details.
      */
     @JvmOverloads
@@ -239,6 +253,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         timeoutSecs: Int = 60,
         signingPrivateKey: ByteArray? = null,
         senderIdentifier: String? = null,
+        idempotencyKey: String? = null,
     ): OutgoingPayment =
         runBlocking {
             asyncClient.payUmaInvoice(
@@ -249,6 +264,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
                 timeoutSecs,
                 signingPrivateKey,
                 senderIdentifier,
+                idempotencyKey,
             )
         }
 
@@ -416,14 +432,19 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param amountSats The amount of funds to withdraw in SATOSHI.
      * @param bitcoinAddress The Bitcoin address to withdraw funds to.
      * @param mode The mode to use for the withdrawal. See `WithdrawalMode` for more information.
+     * @param idempotencyKey An optional key to ensure idempotency of the withdrawal. If provided, the same result will
+     *     be returned for the same idempotency key without triggering a new withdrawal.
      */
+    @JvmOverloads
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun requestWithdrawal(
         nodeId: String,
         amountSats: Long,
         bitcoinAddress: String,
         mode: WithdrawalMode,
-    ): WithdrawalRequest = runBlocking { asyncClient.requestWithdrawal(nodeId, amountSats, bitcoinAddress, mode) }
+        idempotencyKey: String? = null,
+    ): WithdrawalRequest =
+        runBlocking { asyncClient.requestWithdrawal(nodeId, amountSats, bitcoinAddress, mode, idempotencyKey) }
 
     /**
      * Sends a payment directly to a node on the Lightning Network through the public key of the node without an invoice.
@@ -435,6 +456,8 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      *     As guidance, a maximum fee of 15 basis points should make almost all transactions succeed. For example,
      *     for a transaction between 10k sats and 100k sats, this would mean a fee limit of 15 to 150 sats.
      * @param timeoutSecs The timeout in seconds that we will try to make the payment.
+     * @param idempotencyKey An optional key to ensure idempotency of the payment. If provided, the same result will be
+     *     returned for the same idempotency key without triggering a new payment.
      * @return An `OutgoingPayment` object if the payment was successful, or throws if the payment failed.
      * @throws LightsparkException if the payment failed.
      */
@@ -445,6 +468,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         amountMsats: Long,
         maxFeesMsats: Long,
         timeoutSecs: Int = 60,
+        idempotencyKey: String? = null,
     ): OutgoingPayment = runBlocking {
         asyncClient.sendPayment(
             payerNodeId,
@@ -452,6 +476,7 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
             amountMsats,
             maxFeesMsats,
             timeoutSecs,
+            idempotencyKey,
         )
     }
 
@@ -579,29 +604,41 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
 
     /**
      * fetch outgoing payments for a given payment hash
-     * 
+     *
      * @param paymentHash the payment hash of the invoice for which to fetch the outgoing payments
      * @param transactionStatuses the transaction statuses to filter the payments by.  If null, all payments will be returned.
      */
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun getOutgoingPaymentsForPaymentHash(
         paymentHash: String,
-        transactionStatuses: List<TransactionStatus>? = null 
+        transactionStatuses: List<TransactionStatus>? = null,
     ): List<OutgoingPayment> = runBlocking {
         asyncClient.getOutgoingPaymentForPaymentHash(paymentHash, transactionStatuses)
+    }
+
+    /**
+     * Fetch outgoing payment for a given idempotency key
+     *
+     * @param idempotencyKey The idempotency key used when creating the payment.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun getOutgoingPaymentForIdempotencyKey(
+        idempotencyKey: String,
+    ): OutgoingPayment? = runBlocking {
+        asyncClient.getOutgoingPaymentForIdempotencyKey(idempotencyKey)
     }
 
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun getIncomingPaymentsForInvoice(
         invoiceId: String,
-        transactionStatuses: List<TransactionStatus>? = null
+        transactionStatuses: List<TransactionStatus>? = null,
     ): List<IncomingPayment> = runBlocking {
         asyncClient.getIncomingPaymentsForInvoice(invoiceId, transactionStatuses)
     }
 
     @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
     fun getInvoiceForPaymentHash(
-        paymentHash: String
+        paymentHash: String,
     ): Invoice = runBlocking {
         asyncClient.getInvoiceForPaymentHash(paymentHash)
     }
@@ -627,7 +664,12 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param inviterRegionCode The region of the inviter.
      * @return The invitation that was created.
      */
-    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class, IllegalArgumentException::class)
+    @Throws(
+        LightsparkException::class,
+        LightsparkAuthenticationException::class,
+        CancellationException::class,
+        IllegalArgumentException::class,
+    )
     fun createUmaInvitationWithIncentives(
         inviterUma: String,
         inviterPhoneNumberE164: String,
@@ -659,7 +701,12 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
      * @param inviteeRegionCode The region of the invitee.
      * @returns The invitation that was claimed.
      */
-    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class, IllegalArgumentException::class)
+    @Throws(
+        LightsparkException::class,
+        LightsparkAuthenticationException::class,
+        CancellationException::class,
+        IllegalArgumentException::class,
+    )
     fun claimUmaInvitationWithIncentives(
         invitationCode: String,
         inviteeUma: String,
