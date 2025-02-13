@@ -7,8 +7,7 @@ query OutgoingPaymentForIdempotencyKey(
 	${'$'}idempotency_key: String!
 ) {
 	outgoing_payment_for_idempotency_key(input: {
-		idempotency_key: ${'$'}idempotency_key,
-		statuses: ${'$'}transactionStatuses
+		idempotency_key: ${'$'}idempotency_key
 	}) {
 		payment {
 			...OutgoingPaymentFragment
