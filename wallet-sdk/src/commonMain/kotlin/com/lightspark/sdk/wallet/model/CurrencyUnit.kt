@@ -26,6 +26,9 @@ enum class CurrencyUnit(
     /** Mexican Peso. **/
     MXN("MXN"),
 
+    /** Philippine Peso. **/
+    PHP("PHP"),
+
     /** 0.000000001 (10e-9) Bitcoin or a billionth of a Bitcoin. We recommend using the Satoshi unit instead when possible. **/
     NANOBITCOIN("NANOBITCOIN"),
 
