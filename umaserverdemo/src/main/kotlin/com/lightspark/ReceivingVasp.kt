@@ -494,7 +494,7 @@ fun Routing.registerReceivingVaspRoutes(receivingVasp: ReceivingVasp) {
         call.debugLog(receivingVasp.handleLnurlp(call))
     }
 
-    get("/api/lnurl/payreq/{uuid}") {
+    get("/api/uma/payreq/{uuid}") {
         call.debugLog(receivingVasp.handleLnurlPayreq(call))
     }
 
