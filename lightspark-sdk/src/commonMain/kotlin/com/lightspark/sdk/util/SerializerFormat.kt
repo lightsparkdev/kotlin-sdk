@@ -31,6 +31,8 @@ import com.lightspark.sdk.model.LightsparkNodeToChannelsConnection
 import com.lightspark.sdk.model.LightsparkNodeWithOSK
 import com.lightspark.sdk.model.LightsparkNodeWithRemoteSigning
 import com.lightspark.sdk.model.Node
+import com.lightspark.sdk.model.Offer
+import com.lightspark.sdk.model.OfferData
 import com.lightspark.sdk.model.OnChainTransaction
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.OutgoingPaymentAttempt
@@ -94,6 +96,8 @@ private val serializerModule =
             subclass(Invoice::class)
             subclass(LightsparkNodeWithOSK::class)
             subclass(LightsparkNodeWithRemoteSigning::class)
+            subclass(Offer::class)
+            subclass(OfferData::class)
             subclass(OutgoingPayment::class)
             subclass(OutgoingPaymentAttempt::class)
             subclass(RoutingTransaction::class)
