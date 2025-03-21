@@ -1,8 +1,8 @@
 package com.lightspark
 
 import com.lightspark.sdk.model.InvoiceData
-import me.uma.protocol.Invoice
 import java.util.UUID
+import me.uma.protocol.Invoice
 import me.uma.protocol.LnurlpResponse
 
 /**
