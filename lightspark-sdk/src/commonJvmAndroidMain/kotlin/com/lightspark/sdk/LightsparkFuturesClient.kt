@@ -126,6 +126,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     @JvmOverloads
     fun createInvoice(
@@ -134,8 +136,20 @@ class LightsparkFuturesClient(config: ClientConfig) {
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
         expirySecs: Int? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): CompletableFuture<Invoice> =
-        coroutineScope.future { coroutinesClient.createInvoice(nodeId, amountMsats, memo, type, expirySecs) }
+        coroutineScope.future {
+            coroutinesClient.createInvoice(
+                nodeId,
+                amountMsats,
+                memo,
+                type,
+                expirySecs,
+                paymentHash,
+                preimageNonce,
+            )
+        }
 
     /**
      * Creates a Lightning invoice for the given node. This should only be used for generating invoices for LNURLs, with
@@ -146,6 +160,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     @JvmOverloads
     fun createLnurlInvoice(
@@ -153,6 +169,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): CompletableFuture<Invoice> =
         coroutineScope.future {
             coroutinesClient.createLnurlInvoice(
@@ -160,6 +178,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
                 amountMsats,
                 metadata,
                 expirySecs,
+                paymentHash,
+                preimageNonce,
             )
         }
 
@@ -175,6 +195,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
      * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
      * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed using a
      *      monthly-rotated seed and used for anonymized analysis.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     @JvmOverloads
     @Throws(IllegalArgumentException::class)
@@ -185,6 +207,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
         expirySecs: Int? = null,
         signingPrivateKey: ByteArray? = null,
         receiverIdentifier: String? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): CompletableFuture<Invoice> =
         coroutineScope.future {
             coroutinesClient.createUmaInvoice(
@@ -194,6 +218,8 @@ class LightsparkFuturesClient(config: ClientConfig) {
                 expirySecs,
                 signingPrivateKey,
                 receiverIdentifier,
+                paymentHash,
+                preimageNonce,
             )
         }
 
