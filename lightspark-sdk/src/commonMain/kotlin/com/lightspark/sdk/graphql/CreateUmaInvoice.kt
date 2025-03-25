@@ -9,6 +9,8 @@ const val CreateUmaInvoiceMutation = """
     ${'$'}metadataHash: String!
     ${'$'}expirySecs: Int = null
     ${'$'}receiverHash: String = null
+    ${'$'}paymentHash: Hash32 = null
+    ${'$'}preimageNonce: Hash32 = null
   ) {
     create_uma_invoice(
       input: {
@@ -17,6 +19,8 @@ const val CreateUmaInvoiceMutation = """
         metadata_hash: ${'$'}metadataHash
         expiry_secs: ${'$'}expirySecs
         receiver_hash: ${'$'}receiverHash
+        payment_hash: ${'$'}paymentHash
+        preimage_nonce: ${'$'}preimageNonce
       }
     ) {
       invoice {
