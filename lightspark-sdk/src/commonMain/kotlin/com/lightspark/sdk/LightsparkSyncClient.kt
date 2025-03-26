@@ -99,6 +99,22 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     ): WalletDashboard? = runBlocking { asyncClient.getSingleNodeDashboard(nodeId, numTransactions, bitcoinNetwork) }
 
     /**
+     * Marks a payment preimage as released. To be used when the recipient has received the payment.
+     *
+     * @param invoiceId The invoice the preimage belongs to.
+     * @param paymentPreimage The preimage to release.
+     */
+    fun releasePaymentPreimage(
+        invoiceId: String,
+        paymentPreimage: String
+    ): ReleasePaymentPreimageOutput = runBlocking {
+        asyncClient.releasePaymentPreimage(
+            invoiceId,
+            paymentPreimage
+        )
+    }
+
+    /**
      * Creates a lightning invoice for the given node.
      *
      * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
