@@ -173,6 +173,30 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Marks a payment preimage as released. To be used when the recipient has received the payment.
+     *
+     * @param invoiceId The invoice the preimage belongs to.
+     * @param paymentPreimage The preimage to release.
+     */
+    suspend fun releasePaymentPreimage(invoiceId: String, paymentPreimage: String): ReleasePaymentPreimageOutput {
+        requireValidAuth()
+
+        return executeQuery(
+            Query(
+                ReleasePaymentPreimageMutation,
+                {
+                    add("invoice_id", invoiceId)
+                    add("payment_preimage", paymentPreimage)
+                },
+            ) {
+                val releasePaymentPreimageJson =
+                    requireNotNull(it["release_payment_preimage"]) { "Invalid response for payment preimage release" }
+                serializerFormat.decodeFromJsonElement<ReleasePaymentPreimageOutput>(releasePaymentPreimageJson)
+            },
+        )
+    }
+
+    /**
      * Creates a lightning invoice for the given node.
      *
      * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].

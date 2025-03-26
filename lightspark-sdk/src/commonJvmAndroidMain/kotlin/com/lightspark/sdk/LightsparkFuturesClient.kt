@@ -21,6 +21,7 @@ import com.lightspark.sdk.model.InvoiceType
 import com.lightspark.sdk.model.OutgoingPayment
 import com.lightspark.sdk.model.PaymentDirection
 import com.lightspark.sdk.model.RegionCode
+import com.lightspark.sdk.model.ReleasePaymentPreimageOutput
 import com.lightspark.sdk.model.RiskRating
 import com.lightspark.sdk.model.TransactionStatus
 import com.lightspark.sdk.model.UmaInvitation
@@ -115,6 +116,23 @@ class LightsparkFuturesClient(config: ClientConfig) {
         bitcoinNetwork: BitcoinNetwork = defaultBitcoinNetwork,
     ): CompletableFuture<WalletDashboard?> =
         coroutineScope.future { coroutinesClient.getSingleNodeDashboard(nodeId, numTransactions, bitcoinNetwork) }
+
+    /**
+     * Marks a payment preimage as released. To be used when the recipient has received the payment.
+     *
+     * @param invoiceId The invoice the preimage belongs to.
+     * @param paymentPreimage The preimage to release.
+     */
+    fun releasePaymentPreimage(
+        invoiceId: String,
+        paymentPreimage: String
+    ): CompletableFuture<ReleasePaymentPreimageOutput?> =
+        coroutineScope.future {
+            coroutinesClient.releasePaymentPreimage(
+                invoiceId,
+                paymentPreimage
+            )
+        }
 
     /**
      * Creates a lightning invoice for the given node.
