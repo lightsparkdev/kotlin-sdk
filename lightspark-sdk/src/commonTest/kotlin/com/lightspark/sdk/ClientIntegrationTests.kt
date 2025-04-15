@@ -7,8 +7,10 @@ import com.lightspark.sdk.crypto.PasswordRecoverySigningKeyLoader
 import com.lightspark.sdk.model.Account
 import com.lightspark.sdk.model.BitcoinNetwork
 import com.lightspark.sdk.model.IncomingPayment
+import com.lightspark.sdk.model.Invoice
 import com.lightspark.sdk.model.LightsparkNode
 import com.lightspark.sdk.model.OutgoingPayment
+import com.lightspark.sdk.model.PaymentRequestStatus
 import com.lightspark.sdk.model.Transaction
 import com.lightspark.sdk.model.TransactionStatus
 import com.lightspark.sdk.model.WithdrawalMode
@@ -28,6 +30,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.`when`
+import java.security.MessageDigest
 import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -363,6 +366,31 @@ class ClientIntegrationTests {
         println(hashedUmaNewMonth)
     }
 
+    @Test
+    fun `create and settle a hold invoice`() = runTest {
+        val nodeA = getFirstOskNode()
+        val nodeB = getSecondOskNode()
+        val preimage = generateRandomHexString()
+        val paymentHash = sha256Hash(preimage)
+        var invoice = client.createInvoice(nodeA.id, 1000, paymentHash = paymentHash)
+
+        println("encoded invoice: $invoice.data.encodedPaymentRequest}")
+
+        client.loadNodeSigningKey(nodeB.id, PasswordRecoverySigningKeyLoader(nodeB.id, NODE_PASSWORD))
+        val outgoingPayment = client.payInvoice(nodeB.id, invoice.data.encodedPaymentRequest, maxFeesMsats = 100_000)
+        outgoingPayment.shouldNotBeNull()
+
+        println("outgoing payment: $outgoingPayment")
+
+        // client.releasePaymentPreimage(invoice.id, preimage)
+        while (invoice.status == PaymentRequestStatus.OPEN) {
+            delay(500)
+            invoice = Invoice.getInvoiceQuery(invoice.id).execute(client)!!
+            invoice.shouldNotBeNull()
+            println("Invoice status: ${invoice.status}")
+        }
+    }
+
     // TODO: Add tests for withdrawals and deposits.
 
     private suspend fun getFirstOskNode(): LightsparkNode {
@@ -373,6 +401,14 @@ class ClientIntegrationTests {
         return nodes.entities.first { it.id.contains("OSK") }
     }
 
+    private suspend fun getSecondOskNode(): LightsparkNode {
+        val account = getCurrentAccount()
+        val nodes = account.getNodesQuery().execute(client)
+        nodes.shouldNotBeNull()
+        nodes.entities.shouldNotBeEmpty()
+        return nodes.entities.get(1)
+    }
+
     private suspend fun getNodeId(): String {
         return getFirstOskNode().id
     }
@@ -381,5 +417,18 @@ class ClientIntegrationTests {
         val account = client.getCurrentAccount()
         account.shouldNotBeNull()
         return account
+    }
+
+    private fun sha256Hash(input: String): String {
+        val bytes = input.toByteArray()
+        val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
+        return digest.joinToString("") { "%02x".format(it) }
+    }
+
+    private fun generateRandomHexString(): String {
+        val allowedChars = ('a'..'f') + ('0'..'9')
+        return (1..64)
+            .map { allowedChars.random(Random.Default) }
+            .joinToString("")
     }
 }
