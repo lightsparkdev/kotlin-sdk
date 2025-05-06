@@ -1,7 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)

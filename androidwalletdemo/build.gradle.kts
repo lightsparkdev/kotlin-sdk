@@ -2,7 +2,6 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.FileInputStream
 import java.util.*
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id(libs.plugins.androidApplication.get().pluginId)
     kotlin("android")

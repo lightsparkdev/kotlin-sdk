@@ -1,7 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import de.undercouch.gradle.tasks.download.Download
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")
     id(libs.plugins.androidLibrary.get().pluginId)
