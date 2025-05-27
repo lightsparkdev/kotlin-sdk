@@ -1273,6 +1273,41 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Creates an UMA invitation with payment.
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @param paymentAmount The payment amount.
+     * @param paymentCurrency The payment currency input.
+     * @param expiresAt The expiration date/time (ISO8601 string).
+     * @return The invitation that was created.
+     */
+    suspend fun createUmaInvitationWithPayment(
+        inviterUma: String,
+        paymentAmount: Long,
+        paymentCurrency: PaymentCurrencyInput,
+        expiresAt: String,
+    ): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CreateUmaInvitationWithPayment,
+                {
+                    add("inviter_uma", inviterUma)
+                    add("payment_amount", paymentAmount)
+                    add("payment_currency", serializerFormat.encodeToJsonElement(paymentCurrency))
+                    add("expires_at", expiresAt)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["create_uma_invitation_with_payment"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
+    /**
      * Claims an UMA invitation. If you are part of the incentive program, you should use
      * [claimUmaInvitationWithIncentives].
      *
