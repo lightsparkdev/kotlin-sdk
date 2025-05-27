@@ -793,6 +793,17 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
         asyncClient.fetchUmaInvitation(invitationCode)
     }
 
+    /**
+     * Cancels an UMA invitation.
+     *
+     * @param inviteCode The code of the invitation to cancel.
+     * @return The cancelled invitation.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun cancelUmaInvitation(inviteCode: String): UmaInvitation = runBlocking {
+        asyncClient.cancelUmaInvitation(inviteCode)
+    }
+
     fun <T> executeQuery(query: Query<T>): T = runBlocking { asyncClient.executeQuery(query) }
 
     fun setBitcoinNetwork(network: BitcoinNetwork) {
