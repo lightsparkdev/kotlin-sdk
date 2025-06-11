@@ -846,6 +846,17 @@ class LightsparkFuturesClient(config: ClientConfig) {
         coroutineScope.future {
             coroutinesClient.createUmaInvitationWithPayment(inviterUma, paymentAmount, paymentCurrency, expiresAt)
         }
+
+    /**
+     * Cancels an UMA invitation.
+     *
+     * @param inviteCode The code of the invitation to cancel.
+     * @return The cancelled invitation.
+     */
+    fun cancelUmaInvitation(inviteCode: String): CompletableFuture<UmaInvitation> =
+        coroutineScope.future {
+            coroutinesClient.cancelUmaInvitation(inviteCode)
+        }
 }
 
 fun <T> Query<T>.execute(client: LightsparkFuturesClient): CompletableFuture<T> = client.executeQuery(this)

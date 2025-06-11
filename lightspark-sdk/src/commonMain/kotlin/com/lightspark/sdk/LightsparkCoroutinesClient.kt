@@ -1393,6 +1393,30 @@ class LightsparkCoroutinesClient private constructor(
         )
     }
 
+    /**
+     * Cancels an UMA invitation.
+     *
+     * @param inviteCode The code of the invitation to cancel.
+     * @return The cancelled invitation.
+     */
+    suspend fun cancelUmaInvitation(inviteCode: String): UmaInvitation {
+        requireValidAuth()
+        return executeQuery(
+            Query(
+                CancelUmaInvitation,
+                {
+                    add("invite_code", inviteCode)
+                },
+            ) {
+                val outputJson =
+                    requireNotNull(it["cancel_uma_invitation"]) { "No invitation output found in response" }
+                val invitationJson =
+                    requireNotNull(outputJson.jsonObject["invitation"]) { "No invitation found in response" }
+                serializerFormat.decodeFromJsonElement(invitationJson)
+            },
+        )
+    }
+
     suspend fun <T> executeQuery(query: Query<T>): T {
         return requester.executeQuery(query)
     }
