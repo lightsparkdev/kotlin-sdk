@@ -133,7 +133,7 @@ s3 {
 tasks.register<S3Upload>("uploadDocsToS3") {
     group = "documentation"
     dependsOn("generateSdkDocs")
-    bucket = "ldev.web-dev"
+    bucket = "lsdev.web-dev"
     keyPrefix = "docs/kotlin"
     sourceDir = "docs/html"
 }
