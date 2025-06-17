@@ -145,14 +145,14 @@ tasks.register<Copy>("generateSdkDocs") {
 }
 
 s3 {
-    bucket = "lsdev.web-dev"
+    bucket = "lightspark-dev-web"
     region = "us-west-2"
 }
 
 tasks.register<S3Upload>("uploadDocsToS3") {
     group = "documentation"
     dependsOn("generateSdkDocs")
-    bucket = "ldev.web-dev"
+    bucket = "lightspark-dev-web"
     keyPrefix = "docs/kotlin"
     sourceDir = "docs/html"
 }
