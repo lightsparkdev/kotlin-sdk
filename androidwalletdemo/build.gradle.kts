@@ -19,7 +19,7 @@ try {
 
 val isCI: Boolean = System.getenv("CI") == "true"
 val jwtServerUrl: String = if (isCI) "" else
-    gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
+    gradleLocalProperties(rootDir, providers).getProperty("jwtServerUrl")
         ?: throw Error("You must set the jwtServerUrl property in a local.properties file")
 
 android {
