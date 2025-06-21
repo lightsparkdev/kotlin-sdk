@@ -2,7 +2,6 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.io.FileInputStream
 import java.util.*
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id(libs.plugins.androidApplication.get().pluginId)
     kotlin("android")
@@ -20,7 +19,7 @@ try {
 
 val isCI: Boolean = System.getenv("CI") == "true"
 val jwtServerUrl: String = if (isCI) "" else
-    gradleLocalProperties(rootDir).getProperty("jwtServerUrl")
+    gradleLocalProperties(rootDir, providers).getProperty("jwtServerUrl")
         ?: throw Error("You must set the jwtServerUrl property in a local.properties file")
 
 android {

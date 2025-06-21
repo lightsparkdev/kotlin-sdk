@@ -29,18 +29,24 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.toMap
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import me.uma.InMemoryNonceCache
 import me.uma.UMA_VERSION_STRING
+import me.uma.UmaException
 import me.uma.UmaInvoiceCreator
 import me.uma.UmaProtocolHelper
-import me.uma.UnsupportedVersionException
+import me.uma.generated.ErrorCode
 import me.uma.protocol.CounterPartyDataOptions
 import me.uma.protocol.InvoiceCurrency
 import me.uma.protocol.KycStatus
@@ -49,12 +55,6 @@ import me.uma.protocol.PayRequest
 import me.uma.protocol.createCounterPartyDataOptions
 import me.uma.protocol.createPayeeData
 import me.uma.protocol.identifier
-import java.util.UUID
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.plus
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
-
 
 class ReceivingVasp(
     private val config: UmaConfig,
@@ -87,13 +87,11 @@ class ReceivingVasp(
 
     suspend fun createAndSendInvoice(call: ApplicationCall): String {
         val senderUma = call.parameters["senderUma"] ?: run {
-            call.respond(HttpStatusCode.BadRequest, "SenderUma not provided.")
-            return "SenderUma not provided."
+            throw UmaException("SenderUma not provided.", ErrorCode.INVALID_INPUT)
         }
         val senderUmaComponents = senderUma.split("@")
         if (senderUmaComponents.size != 2) {
-            call.respond(HttpStatusCode.BadRequest, "SenderUma format invalid: $senderUma.")
-            return "SenderUma format invalid: $senderUma."
+            throw UmaException("SenderUma format invalid: $senderUma.", ErrorCode.INVALID_INPUT)
         }
         val (status, data) = createUmaInvoice(call, senderUma)
         if (status != HttpStatusCode.OK) {
@@ -102,32 +100,32 @@ class ReceivingVasp(
         }
         val senderComponents = senderUma.split("@")
         val sendingVaspDomain = senderComponents.getOrNull(1) ?: run {
-            call.respond(HttpStatusCode.BadRequest, "Invalid senderUma.")
-            return "Invalid senderUma."
+            throw UmaException("Invalid senderUma.", ErrorCode.INVALID_INPUT)
         }
         val wellKnownConfiguration = "http://$sendingVaspDomain/.well-known/uma-configuration"
         val umaEndpoint = try {
             val umaConfigResponse = httpClient.get(wellKnownConfiguration)
             if (umaConfigResponse.status != HttpStatusCode.OK) {
-                call.respond(
-                    HttpStatusCode.FailedDependency,
+                throw UmaException(
                     "failed to fetch request / pay endpoint at $wellKnownConfiguration",
+                    ErrorCode.INTERNAL_ERROR,
                 )
-                return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
             }
             Json.decodeFromString<JsonObject>(
                 umaConfigResponse.bodyAsText(),
             )["uma_request_endpoint"]?.jsonPrimitive?.content
         } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.FailedDependency,
+            throw UmaException(
                 "failed to fetch request / pay endpoint at $wellKnownConfiguration",
+                ErrorCode.INTERNAL_ERROR,
+                e,
             )
-            return "failed to fetch request / pay endpoint at $wellKnownConfiguration"
         }
         if (umaEndpoint == null) {
-            call.respond(HttpStatusCode.FailedDependency, "failed to fetch $wellKnownConfiguration")
-            return "failed to fetch $wellKnownConfiguration"
+            throw UmaException(
+                "failed to fetch request / pay endpoint at $wellKnownConfiguration",
+                ErrorCode.INTERNAL_ERROR,
+            )
         }
         val response = try {
             httpClient.post(umaEndpoint) {
@@ -135,26 +133,25 @@ class ReceivingVasp(
                 setBody(parameter("invoice", data))
             }
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.FailedDependency, "failed to fetch $umaEndpoint")
-            return "failed to fetch $umaEndpoint"
+            throw UmaException("Failed to make request to $umaEndpoint", ErrorCode.PAYREQ_REQUEST_FAILED, e)
         }
         if (response.status != HttpStatusCode.OK) {
-            call.respond(HttpStatusCode.InternalServerError, "Payreq to Sending Vasp failed: ${response.status}")
-            return "Payreq to sending failed: ${response.status}"
+            throw UmaException("Payreq to sending Vasp failed: ${response.status}", ErrorCode.PAYREQ_REQUEST_FAILED)
         }
         call.respond(response.body())
         return "OK"
     }
 
     private fun createUmaInvoice(
-        call: ApplicationCall, senderUma: String? = null
+        call: ApplicationCall,
+        senderUma: String? = null,
     ): Pair<HttpStatusCode, String> {
         val amount = try {
             call.parameters["amount"]?.toLong() ?: run {
-                return HttpStatusCode.BadRequest to "Amount not provided."
+                throw UmaException("Amount not provided.", ErrorCode.INVALID_INPUT)
             }
         } catch (e: NumberFormatException) {
-            return HttpStatusCode.BadRequest to "Amount not parsable as number."
+            throw UmaException("Amount not parsable as number.", ErrorCode.INVALID_INPUT, e)
         }
 
         val currency = call.parameters["currencyCode"]?.let { currencyCode ->
@@ -162,17 +159,17 @@ class ReceivingVasp(
             getReceivingCurrencies(UMA_VERSION_STRING).firstOrNull {
                 it.code == currencyCode
             } ?: run {
-                return HttpStatusCode.BadRequest to "Unsupported CurrencyCode $currencyCode."
+                throw UmaException("Unsupported CurrencyCode $currencyCode.", ErrorCode.INVALID_CURRENCY)
             }
         } ?: run {
-            return HttpStatusCode.BadRequest to "CurrencyCode not provided."
-        }
-        
-        if (amount < currency.minSendable() || amount > currency.maxSendable()) {
-            return HttpStatusCode.BadRequest to "CurrencyCode amount is outside of sendable range."
+            throw UmaException("CurrencyCode not provided.", ErrorCode.INVALID_INPUT)
         }
 
-        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR*24)
+        if (amount < currency.minSendable() || amount > currency.maxSendable()) {
+            throw UmaException("CurrencyCode amount is outside of sendable range.", ErrorCode.AMOUNT_OUT_OF_RANGE)
+        }
+
+        val expiresIn2Days = Clock.System.now().plus(2, DateTimeUnit.HOUR * 24)
 
         val receiverUma = buildReceiverUma(call)
 
@@ -181,7 +178,10 @@ class ReceivingVasp(
             invoiceUUID = UUID.randomUUID().toString(),
             amount = amount,
             receivingCurrency = InvoiceCurrency(
-                currency.code, currency.name, currency.symbol, currency.decimals
+                currency.code,
+                currency.name,
+                currency.symbol,
+                currency.decimals,
             ),
             expiration = expiresIn2Days.epochSeconds,
             isSubjectToTravelRule = true,
@@ -193,7 +193,7 @@ class ReceivingVasp(
             ),
             callback = getLnurlpCallback(call), // structured the same, going to /api/uma/payreq/{user_id}
             privateSigningKey = config.umaSigningPrivKey,
-            senderUma = senderUma
+            senderUma = senderUma,
         )
 
         return HttpStatusCode.OK to invoice.toBech32()
@@ -201,25 +201,18 @@ class ReceivingVasp(
 
     suspend fun handleLnurlp(call: ApplicationCall): String {
         val username = call.parameters["username"]
-
-        if (username == null) {
-            call.respond(HttpStatusCode.BadRequest, "Username not provided.")
-            return "Username not provided."
-        }
+            ?: throw UmaException("Username not provided.", ErrorCode.MISSING_REQUIRED_UMA_PARAMETERS)
 
         if (username != config.username && username != "$${config.username}") {
-            call.respond(HttpStatusCode.NotFound, "Username not found.")
-            return "Username not found."
+            throw UmaException("Username not found.", ErrorCode.USER_NOT_FOUND)
         }
         val requestUrl = call.request.fullUrl()
         val request = try {
             uma.parseLnurlpRequest(requestUrl)
-        } catch (e: UnsupportedVersionException) {
-            call.respond(HttpStatusCode.PreconditionFailed, e.toLnurlpResponseJson())
-            return "Unsupported version: ${e.unsupportedVersion}."
+        } catch (e: UmaException) {
+            throw e
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp request.")
-            return "Invalid lnurlp request."
+            throw UmaException("Failed to parse lnurlp request. ${e.message}", ErrorCode.PARSE_LNURLP_REQUEST_ERROR, e)
         }.asUmaRequest() ?: run {
             senderUmaVersion = UMA_VERSION_STRING
             // Handle non-UMA LNURL requests.
@@ -246,39 +239,34 @@ class ReceivingVasp(
         val pubKeys = try {
             uma.fetchPublicKeysForVasp(request.vaspDomain)
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys. ${e.message}")
-            return "Failed to fetch public keys."
-        }
-
-        try {
-            require(uma.verifyUmaLnurlpQuerySignature(request, pubKeys, nonceCache)) { "Invalid lnurlp signature." }
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid lnurlp signature. ${e.message}")
-            return "Invalid lnurlp signature."
-        }
-
-        val response = try {
-            uma.getLnurlpResponse(
-                query = request.asLnurlpRequest(),
-                privateKeyBytes = config.umaSigningPrivKey,
-                requiresTravelRuleInfo = true,
-                callback = getLnurlpCallback(call),
-                encodedMetadata = getEncodedMetadata(),
-                minSendableSats = 1,
-                maxSendableSats = 100_000_000,
-                payerDataOptions = createCounterPartyDataOptions(
-                    "name" to false,
-                    "email" to false,
-                    "compliance" to true,
-                    "identifier" to true,
-                ),
-                currencyOptions = getReceivingCurrencies(senderUmaVersion),
-                receiverKycStatus = KycStatus.VERIFIED,
+            throw UmaException(
+                "Failed to fetch public keys. ${e.message}",
+                ErrorCode.COUNTERPARTY_PUBKEY_FETCH_ERROR,
+                e,
             )
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError, "Failed to generate lnurlp response.")
-            return "Failed to generate lnurlp response."
         }
+
+        if (!uma.verifyUmaLnurlpQuerySignature(request, pubKeys, nonceCache)) {
+            throw UmaException("Invalid lnurlp signature.", ErrorCode.INVALID_SIGNATURE)
+        }
+
+        val response = uma.getLnurlpResponse(
+            query = request.asLnurlpRequest(),
+            privateKeyBytes = config.umaSigningPrivKey,
+            requiresTravelRuleInfo = true,
+            callback = getLnurlpCallback(call),
+            encodedMetadata = getEncodedMetadata(),
+            minSendableSats = 1,
+            maxSendableSats = 100_000_000,
+            payerDataOptions = createCounterPartyDataOptions(
+                "name" to false,
+                "email" to false,
+                "compliance" to true,
+                "identifier" to true,
+            ),
+            currencyOptions = getReceivingCurrencies(senderUmaVersion),
+            receiverKycStatus = KycStatus.VERIFIED,
+        )
 
         call.respond(response)
 
@@ -287,27 +275,27 @@ class ReceivingVasp(
 
     suspend fun handleLnurlPayreq(call: ApplicationCall): String {
         val uuid = call.parameters["uuid"]
-
-        if (uuid == null) {
-            call.respond(HttpStatusCode.BadRequest, "UUID not provided.")
-            return "UUID not provided."
-        }
+            ?: throw UmaException("UUID not provided.", ErrorCode.MISSING_REQUIRED_UMA_PARAMETERS)
 
         if (uuid != config.userID) {
-            call.respond(HttpStatusCode.NotFound, "UUID not found.")
-            return "UUID not found."
+            throw UmaException("UUID not found.", ErrorCode.REQUEST_NOT_FOUND)
         }
 
         val paramMap = call.request.queryParameters.toMap()
         val payreq = try {
             PayRequest.fromQueryParamMap(paramMap)
-        } catch (e: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid pay request.")
-            return "Invalid pay request."
+        } catch (e: UmaException) {
+            throw e
+        } catch (e: Exception) {
+            throw UmaException("Failed to parse pay request. ${e.message}", ErrorCode.PARSE_PAYREQ_REQUEST_ERROR, e)
         }
 
         val lnurlInvoiceCreator = object : UmaInvoiceCreator {
-            override fun createUmaInvoice(amountMsats: Long, metadata: String, receiverIdentifier: String?,): CompletableFuture<String> {
+            override fun createUmaInvoice(
+                amountMsats: Long,
+                metadata: String,
+                receiverIdentifier: String?,
+            ): CompletableFuture<String> {
                 return coroutineScope.future {
                     lightsparkClient.createLnurlInvoice(config.nodeID, amountMsats, metadata).data.encodedPaymentRequest
                 }
@@ -317,9 +305,8 @@ class ReceivingVasp(
         val receivingCurrency = payreq.receivingCurrencyCode()?.let {
             getReceivingCurrencies(senderUmaVersion)
                 .firstOrNull { it.code == payreq.receivingCurrencyCode() } ?: run {
-                    call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-                    return "Unsupported currency."
-                }
+                throw UmaException("Unsupported currency.", ErrorCode.INVALID_CURRENCY)
+            }
         }
 
         val response = uma.getPayReqResponse(
@@ -343,48 +330,37 @@ class ReceivingVasp(
 
     suspend fun handleUmaPayreq(call: ApplicationCall): String {
         val uuid = call.parameters["uuid"]
-
-        if (uuid == null) {
-            call.respond(HttpStatusCode.BadRequest, "UUID not provided.")
-            return "UUID not provided."
-        }
+            ?: throw UmaException("UUID not provided.", ErrorCode.MISSING_REQUIRED_UMA_PARAMETERS)
 
         if (uuid != config.userID) {
-            call.respond(HttpStatusCode.NotFound, "UUID not found.")
-            return "UUID not found."
+            throw UmaException("UUID not found.", ErrorCode.REQUEST_NOT_FOUND)
         }
 
         val request = try {
             uma.parseAsPayRequest(call.receiveText())
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid pay request. ${e.message}")
-            return "Invalid pay request. ${e.message}"
+            throw UmaException("Failed to parse pay request. ${e.message}", ErrorCode.PARSE_PAYREQ_REQUEST_ERROR, e)
         }
 
         if (!request.isUmaRequest()) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid UMA pay request to POST endpoint.")
-            return "Invalid UMA pay request to POST endpoint."
+            throw UmaException("Invalid UMA pay request.", ErrorCode.MISSING_REQUIRED_UMA_PARAMETERS)
         }
 
         val pubKeys = try {
             val sendingVaspDomain = uma.getVaspDomainFromUmaAddress(request.payerData!!.identifier()!!)
             uma.fetchPublicKeysForVasp(sendingVaspDomain)
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Failed to fetch public keys.")
-            return "Failed to fetch public keys."
+            throw UmaException("Failed to fetch public keys.", ErrorCode.COUNTERPARTY_PUBKEY_FETCH_ERROR, e)
         }
-        try {
-            require(uma.verifyPayReqSignature(request, pubKeys, nonceCache))
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.BadRequest, "Invalid payreq signature.")
-            return "Invalid payreq signature."
+
+        if (!uma.verifyPayReqSignature(request, pubKeys, nonceCache)) {
+            throw UmaException("Invalid payreq signature.", ErrorCode.INVALID_SIGNATURE)
         }
 
         senderUmaVersion = UMA_VERSION_STRING
         val receivingCurrency = getReceivingCurrencies(senderUmaVersion)
             .firstOrNull { it.code == request.receivingCurrencyCode() } ?: run {
-            call.respond(HttpStatusCode.BadRequest, "Unsupported currency.")
-            return "Unsupported currency."
+            throw UmaException("Unsupported currency.", ErrorCode.INVALID_CURRENCY)
         }
 
         val client = LightsparkCoroutinesClient(
@@ -396,38 +372,32 @@ class ReceivingVasp(
         val expirySecs = 60 * 5
         val payeeProfile = getPayeeProfile(request.requestedPayeeData(), call)
 
-        val response = try {
-            uma.getPayReqResponse(
-                query = request,
-                invoiceCreator = LightsparkClientUmaInvoiceCreator(
-                    client = client,
-                    nodeId = config.nodeID,
-                    expirySecs = expirySecs,
-                    enableUmaAnalytics = true,
-                    signingPrivateKey = config.umaSigningPrivKey,
-                ),
-                metadata = getEncodedMetadata(),
-                receivingCurrencyCode = receivingCurrency.code,
-                receivingCurrencyDecimals = receivingCurrency.decimals,
-                conversionRate = receivingCurrency.millisatoshiPerUnit,
-                receiverFeesMillisats = 0,
-                // TODO(Jeremy): Actually get the UTXOs from the request.
-                receiverChannelUtxos = emptyList(),
-                receiverNodePubKey = getNodePubKey(),
-                utxoCallback = getUtxoCallback(call, "1234"),
-                receivingVaspPrivateKey = config.umaSigningPrivKey,
-                payeeData = createPayeeData(
-                    identifier = payeeProfile.identifier,
-                    name = payeeProfile.name,
-                    email = payeeProfile.email,
-                ),
-                senderUmaVersion = senderUmaVersion,
-            )
-        } catch (e: Exception) {
-            call.application.environment.log.error("Failed to create payreq response.", e)
-            call.respond(HttpStatusCode.InternalServerError, "Failed to create payreq response.")
-            return "Failed to create payreq response."
-        }
+        val response = uma.getPayReqResponse(
+            query = request,
+            invoiceCreator = LightsparkClientUmaInvoiceCreator(
+                client = client,
+                nodeId = config.nodeID,
+                expirySecs = expirySecs,
+                enableUmaAnalytics = true,
+                signingPrivateKey = config.umaSigningPrivKey,
+            ),
+            metadata = getEncodedMetadata(),
+            receivingCurrencyCode = receivingCurrency.code,
+            receivingCurrencyDecimals = receivingCurrency.decimals,
+            conversionRate = receivingCurrency.millisatoshiPerUnit,
+            receiverFeesMillisats = 0,
+            // TODO(Jeremy): Actually get the UTXOs from the request.
+            receiverChannelUtxos = emptyList(),
+            receiverNodePubKey = getNodePubKey(),
+            utxoCallback = getUtxoCallback(call, "1234"),
+            receivingVaspPrivateKey = config.umaSigningPrivKey,
+            payeeData = createPayeeData(
+                identifier = payeeProfile.identifier,
+                name = payeeProfile.name,
+                email = payeeProfile.email,
+            ),
+            senderUmaVersion = senderUmaVersion,
+        )
 
         call.respond(response.toJson())
 
@@ -494,7 +464,7 @@ fun Routing.registerReceivingVaspRoutes(receivingVasp: ReceivingVasp) {
         call.debugLog(receivingVasp.handleLnurlp(call))
     }
 
-    get("/api/lnurl/payreq/{uuid}") {
+    get("/api/uma/payreq/{uuid}") {
         call.debugLog(receivingVasp.handleLnurlPayreq(call))
     }
 
@@ -503,7 +473,7 @@ fun Routing.registerReceivingVaspRoutes(receivingVasp: ReceivingVasp) {
     }
 
     post("/api/uma/create_invoice") {
-        call.debugLog(receivingVasp.createInvoice(call));
+        call.debugLog(receivingVasp.createInvoice(call))
     }
 
     post("/api/uma/create_and_send_invoice") {

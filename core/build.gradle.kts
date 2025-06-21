@@ -1,7 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import com.mgd.core.gradle.S3Upload
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
@@ -127,14 +126,14 @@ tasks.register<Copy>("generateSdkDocs") {
 }
 
 s3 {
-    bucket = "lsdev.web-dev"
+    bucket = "lightspark-dev-web"
     region = "us-west-2"
 }
 
 tasks.register<S3Upload>("uploadDocsToS3") {
     group = "documentation"
     dependsOn("generateSdkDocs")
-    bucket = "ldev.web-dev"
+    bucket = "lightspark-dev-web"
     keyPrefix = "docs/kotlin"
     sourceDir = "docs/html"
 }

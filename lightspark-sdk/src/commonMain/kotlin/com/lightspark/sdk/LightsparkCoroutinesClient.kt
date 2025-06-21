@@ -173,6 +173,30 @@ class LightsparkCoroutinesClient private constructor(
     }
 
     /**
+     * Marks a payment preimage as released. To be used when the recipient has received the payment.
+     *
+     * @param invoiceId The invoice the preimage belongs to.
+     * @param paymentPreimage The preimage to release.
+     */
+    suspend fun releasePaymentPreimage(invoiceId: String, paymentPreimage: String): ReleasePaymentPreimageOutput {
+        requireValidAuth()
+
+        return executeQuery(
+            Query(
+                ReleasePaymentPreimageMutation,
+                {
+                    add("invoice_id", invoiceId)
+                    add("payment_preimage", paymentPreimage)
+                },
+            ) {
+                val releasePaymentPreimageJson =
+                    requireNotNull(it["release_payment_preimage"]) { "Invalid response for payment preimage release" }
+                serializerFormat.decodeFromJsonElement<ReleasePaymentPreimageOutput>(releasePaymentPreimageJson)
+            },
+        )
+    }
+
+    /**
      * Creates a lightning invoice for the given node.
      *
      * Test mode note: You can simulate a payment of this invoice in test move using [createTestModePayment].
@@ -182,6 +206,8 @@ class LightsparkCoroutinesClient private constructor(
      * @param memo Optional memo to include in the invoice.
      * @param type The type of invoice to create. Defaults to [InvoiceType.STANDARD].
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     suspend fun createInvoice(
         nodeId: String,
@@ -189,6 +215,8 @@ class LightsparkCoroutinesClient private constructor(
         memo: String? = null,
         type: InvoiceType = InvoiceType.STANDARD,
         expirySecs: Int? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): Invoice {
         requireValidAuth()
         return executeQuery(
@@ -200,6 +228,8 @@ class LightsparkCoroutinesClient private constructor(
                     memo?.let { add("memo", memo) }
                     add("type", serializerFormat.encodeToJsonElement(type))
                     expirySecs?.let { add("expirySecs", expirySecs) }
+                    paymentHash?.let { add("paymentHash", paymentHash) }
+                    preimageNonce?.let { add("preimageNonce", preimageNonce) }
                 },
             ) {
                 val invoiceJson =
@@ -220,12 +250,16 @@ class LightsparkCoroutinesClient private constructor(
      * @param metadata The LNURL metadata payload field from the initial payreq response. This will be hashed and
      *      present in the h-tag (SHA256 purpose of payment) of the resulting Bolt 11 invoice.
      * @param expirySecs The number of seconds until the invoice expires. Defaults to 1 day.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     suspend fun createLnurlInvoice(
         nodeId: String,
         amountMsats: Long,
         metadata: String,
         expirySecs: Int? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): Invoice {
         requireValidAuth()
 
@@ -241,6 +275,8 @@ class LightsparkCoroutinesClient private constructor(
                     add("amountMsats", amountMsats)
                     add("metadataHash", metadataHash)
                     expirySecs?.let { add("expirySecs", expirySecs) }
+                    paymentHash?.let { add("paymentHash", paymentHash) }
+                    preimageNonce?.let { add("preimageNonce", preimageNonce) }
                 },
             ) {
                 val invoiceJson =
@@ -264,6 +300,8 @@ class LightsparkCoroutinesClient private constructor(
      * @param signingPrivateKey The receiver's signing private key. Used to hash the receiver identifier.
      * @param receiverIdentifier Optional identifier of the receiver. If provided, this will be hashed using a
      *      monthly-rotated seed and used for anonymized analysis.
+     * @param paymentHash Optional payment hash to include in the invoice.
+     * @param preimageNonce Optional preimage nonce to include in the invoice.
      */
     @Throws(IllegalArgumentException::class)
     suspend fun createUmaInvoice(
@@ -273,6 +311,8 @@ class LightsparkCoroutinesClient private constructor(
         expirySecs: Int? = null,
         signingPrivateKey: ByteArray? = null,
         receiverIdentifier: String? = null,
+        paymentHash: String? = null,
+        preimageNonce: String? = null,
     ): Invoice {
         requireValidAuth()
 
@@ -296,6 +336,8 @@ class LightsparkCoroutinesClient private constructor(
                     add("metadataHash", metadataHash)
                     expirySecs?.let { add("expirySecs", expirySecs) }
                     receiverHash?.let { add("receiverHash", receiverHash) }
+                    paymentHash?.let { add("paymentHash", paymentHash) }
+                    preimageNonce?.let { add("preimageNonce", preimageNonce) }
                 },
             ) {
                 val invoiceJson =

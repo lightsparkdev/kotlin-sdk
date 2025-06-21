@@ -83,7 +83,7 @@ subprojects {
 
     plugins.withId("com.vanniktech.maven.publish.base") {
         configure<MavenPublishBaseExtension> {
-            publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
+            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
             signAllPublications()
             pom {
                 name.set(project.name)
@@ -147,6 +147,7 @@ subprojects {
 
     if (project.name !in DEMO_APPS) {
         apply(plugin = "org.jetbrains.kotlin.multiplatform")
+        apply(plugin = "com.android.library")
         configure<KotlinMultiplatformExtension> {
             jvmToolchain(11)
             androidTarget {
