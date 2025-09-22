@@ -22,7 +22,7 @@ suspend fun handleWebhookRequest(
     val webhookEvent = try {
         val bodyBytes = call.receiveText().toByteArray()
         verifyAndParseWebhook(bodyBytes, signature, config.webhookSecret)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         call.respond(HttpStatusCode.BadRequest, "Invalid webhook request.")
         return "Invalid webhook request or bad signature."
     }
@@ -30,7 +30,7 @@ suspend fun handleWebhookRequest(
     val response = when (webhookEvent.eventType) {
         WebhookEventType.REMOTE_SIGNING -> try {
             handleRemoteSigningEvent(client, webhookEvent, config.masterSeed)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Error handling remote signing event.")
             return "Error handling remote signing event."
         }
