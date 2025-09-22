@@ -5,6 +5,7 @@ package com.lightspark.sdk.webhooks
 import com.lightspark.sdk.core.LightsparkException
 import com.lightspark.sdk.model.WebhookEventType
 import com.lightspark.sdk.util.serializerFormat
+import java.security.MessageDigest
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlinx.datetime.Instant
@@ -39,18 +40,24 @@ const val SIGNATURE_HEADER = "lightspark-signature"
 
 @OptIn(ExperimentalStdlibApi::class)
 @Throws(LightsparkException::class)
-fun verifyAndParseWebhook(
-    data: ByteArray,
-    hexDigest: String,
-    webhookSecret: String,
-): WebhookEvent {
+fun verifyAndParseWebhook(data: ByteArray, hexDigest: String, webhookSecret: String): WebhookEvent {
     val hmac = Mac.getInstance("HmacSHA256")
     val secretKey = SecretKeySpec(webhookSecret.encodeToByteArray(), "HmacSHA256")
     hmac.init(secretKey)
     hmac.update(data)
     val signature = hmac.doFinal()
-    val verified = signature.contentEquals(hexDigest.hexToByteArray())
-    if (!verified) {
+
+    val digestBytes =
+        try {
+            hexDigest.hexToByteArray()
+        } catch (_ : IllegalArgumentException) {
+            throw LightsparkException(
+                "Webhook signature verification failed. Invalid message signature format.",
+                "webhook_signature_verification_failed",
+            )
+        }
+
+    if (!MessageDigest.isEqual(signature, digestBytes)) {
         throw LightsparkException("Webhook signature verification failed", "webhook_signature_verification_failed")
     }
     return parseWebhook(data)
