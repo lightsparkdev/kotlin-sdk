@@ -827,6 +827,25 @@ class LightsparkFuturesClient(config: ClientConfig) {
     fun setBitcoinNetwork(network: BitcoinNetwork) {
         defaultBitcoinNetwork = network
     }
+
+    /**
+     * Creates an UMA invitation with payment.
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @param paymentAmount The payment amount.
+     * @param paymentCurrency The payment currency input.
+     * @param expiresAt The expiration date/time (ISO8601 string).
+     * @return The invitation that was created.
+     */
+    fun createUmaInvitationWithPayment(
+        inviterUma: String,
+        paymentAmount: Long,
+        paymentCurrency: PaymentCurrencyInput,
+        expiresAt: String,
+    ): CompletableFuture<UmaInvitation> =
+        coroutineScope.future {
+            coroutinesClient.createUmaInvitationWithPayment(inviterUma, paymentAmount, paymentCurrency, expiresAt)
+        }
 }
 
 fun <T> Query<T>.execute(client: LightsparkFuturesClient): CompletableFuture<T> = client.executeQuery(this)

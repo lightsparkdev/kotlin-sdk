@@ -721,6 +721,25 @@ class LightsparkSyncClient constructor(config: ClientConfig) {
     }
 
     /**
+     * Creates an UMA invitation with payment.
+     *
+     * @param inviterUma The UMA of the inviter.
+     * @param paymentAmount The payment amount.
+     * @param paymentCurrency The payment currency input.
+     * @param expiresAt The expiration date/time (ISO8601 string).
+     * @return The invitation that was created.
+     */
+    @Throws(LightsparkException::class, LightsparkAuthenticationException::class, CancellationException::class)
+    fun createUmaInvitationWithPayment(
+        inviterUma: String,
+        paymentAmount: Long,
+        paymentCurrency: PaymentCurrencyInput,
+        expiresAt: String,
+    ): UmaInvitation = runBlocking {
+        asyncClient.createUmaInvitationWithPayment(inviterUma, paymentAmount, paymentCurrency, expiresAt)
+    }
+
+    /**
      * Claims an UMA invitation. If you are part of the incentive program, you should use
      * [claimUmaInvitationWithIncentives].
      *
