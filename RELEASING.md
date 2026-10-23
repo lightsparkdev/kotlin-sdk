@@ -3,12 +3,12 @@
 ## Cut a release branch
 
 First you need to cut a release branch corresponding to the SDK and version you want to release.
-For example, to cut a release branch for version `1.0.0` of the `wallet-sdk` module, you would do
+For example, to cut a release branch for version `1.0.0` of the `lightspark-sdk` module, you would do
 the following from the `develop` branch:
 
 ```bash
-git checkout -b release/wallet-sdk-v1.0.0
-git push -u origin release/wallet-sdk-v1.0.0
+git checkout -b release/lightspark-sdk-v1.0.0
+git push -u origin release/lightspark-sdk-v1.0.0
 ```
 
 Alternatively, you can create the new branch from the github UI.

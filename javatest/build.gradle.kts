@@ -13,7 +13,6 @@ java {
         testImplementation(libs.mockito.core)
         testImplementation(libs.kotlin.serialization.json)
         implementation(project(":lightspark-sdk"))
-        implementation(project(":wallet-sdk"))
         implementation(project(":core"))
         implementation(project(":crypto"))
     }

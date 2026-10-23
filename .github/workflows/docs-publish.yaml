@@ -7,7 +7,6 @@ on:
       [
         SDK Core Publish,
         Lightspark SDK Publish,
-        Wallet SDK Publish,
         Crypto SDK Publish,
       ]
     types:

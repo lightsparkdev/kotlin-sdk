@@ -128,7 +128,6 @@ subprojects {
     }
 }
 val DEMO_APPS = setOf(
-    "androidwalletdemo",
     "javatest",
     "remotesignerdemo",
     "umaserverdemo",
