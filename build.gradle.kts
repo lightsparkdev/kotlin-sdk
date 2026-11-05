@@ -131,7 +131,6 @@ val DEMO_APPS = setOf(
     "javatest",
     "remotesignerdemo",
     "umaserverdemo",
-    "oauth",
 )
 // Java + Kotlin and JDK settings
 subprojects {
