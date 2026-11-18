@@ -2,9 +2,7 @@
 # Core SDK deps (or common):
 acinqSecp256k1 = "0.10.1"
 androidGradlePlugin = "8.10.0"
-appAuth = "0.11.1"
 buildKonfig = "0.13.3"
-dataStore = "1.0.0"
 desugar_jdk_libs = "2.0.3"
 dokka = "1.9.0"
 downloadFile = "5.4.0"
@@ -42,12 +40,10 @@ acinq-secp256k1 = { module = "fr.acinq.secp256k1:secp256k1-kmp", version.ref = "
 acinq-secp256k1-jni-jvm = { module = "fr.acinq.secp256k1:secp256k1-kmp-jni-jvm", version.ref = "acinqSecp256k1" }
 acinq-secp256k1-jni-android = { module = "fr.acinq.secp256k1:secp256k1-kmp-jni-android", version.ref = "acinqSecp256k1" }
 
-androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "dataStore" }
 
 task-tree = { module = "com.dorongold.plugins:task-tree", version.ref = "taskTree" }
 
 kase64 = { module = "de.peilicke.sascha:kase64", version.ref = "kase64" }
-appauth = { module = "net.openid:appauth", version.ref = "appAuth" }
 
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJson" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDateTime" }

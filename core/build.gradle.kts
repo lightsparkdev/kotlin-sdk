@@ -67,11 +67,6 @@ kotlin {
 
         val androidMain by getting {
             dependsOn(commonJvmAndroidMain)
-            dependencies {
-                implementation(libs.appauth)
-                // If you want to use DataStoreAuthStateStorage, you need to add the following implementation dependency to your build.gradle.kts.
-                compileOnly(libs.androidx.datastore.preferences)
-            }
         }
         val androidUnitTest by getting
     }
